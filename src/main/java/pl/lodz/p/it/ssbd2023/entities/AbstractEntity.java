@@ -1,6 +1,12 @@
 package pl.lodz.p.it.ssbd2023.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
@@ -17,7 +23,8 @@ public abstract class AbstractEntity {
 
     @Column(name = "version", updatable = false)
     @Version
-    @NotNull @Getter
+    @NotNull
+    @Getter
     private long version;
 
     @Override

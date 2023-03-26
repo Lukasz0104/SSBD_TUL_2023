@@ -1,10 +1,14 @@
 package pl.lodz.p.it.ssbd2023.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.io.Serializable;
 
 @Entity
@@ -15,17 +19,8 @@ public class OwnerData extends AccessLevel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
-    @Basic(optional = false)
     @Embedded
-    @AttributeOverrides(
-            {
-                    @AttributeOverride( name = "postalCode", column = @Column(name="postalCode", nullable = false)),
-                    @AttributeOverride( name = "city", column = @Column(name = "city", nullable = false)),
-                    @AttributeOverride( name = "street", column = @Column(name = "street", nullable = false)),
-                    @AttributeOverride( name = "buildingNumber", column = @Column(name = "buildingNumber", nullable = false))
-            }
-    )
+    @NotNull
     @Getter
     @Setter
     private Address address;

@@ -1,6 +1,11 @@
 package pl.lodz.p.it.ssbd2023.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,20 +21,19 @@ public class ManagerData extends AccessLevel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
-    @Basic(optional = false)
+
     @Embedded
-    @AttributeOverrides(
-            {
-                    @AttributeOverride( name = "postalCode", column = @Column(name="postalCode", nullable = false)),
-                    @AttributeOverride( name = "city", column = @Column(name = "city", nullable = false)),
-                    @AttributeOverride( name = "street", column = @Column(name = "street", nullable = false)),
-                    @AttributeOverride( name = "buildingNumber", column = @Column(name = "buildingNumber", nullable = false))
-            }
-    )
+    @NotNull
     @Getter
     @Setter
     private Address address;
+
+    @NotNull
+    @Basic(optional = false)
+    @Getter
+    @Setter
+    @Column(name = "license_number")
+    private String licenseNumber;
 
     public ManagerData(Account account, Address address) {
         super(AccessTypes.MANAGER, account);
