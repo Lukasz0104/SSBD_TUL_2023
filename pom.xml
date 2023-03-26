@@ -1,126 +1,127 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>pl.lodz.p.it.ssbd2023</groupId>
-  <artifactId>ssbd05</artifactId>
-  <packaging>war</packaging>
-  <version>0.0.1</version>
-  <name>eBok</name>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>pl.lodz.p.it.ssbd2023</groupId>
+    <artifactId>ssbd05</artifactId>
+    <packaging>war</packaging>
+    <version>0.0.1</version>
+    <name>eBok</name>
 
-<!--  DEVELOPERS INFO -->
+    <!--  DEVELOPERS INFO -->
 
-  <developers>
-    <developer>
-      <name>Kamil Graczyk</name>
-      <email>236538@edu.p.lodz.pl</email>
-      <id>236538</id>
-    </developer>
-    <developer>
-      <name>Piotr Tomczyk</name>
-      <email>236676@edu.p.lodz.pl</email>
-      <id>236676</id>
-    </developer>
-    <developer>
-      <name>Mateusz Sochacki</name>
-      <email>230785@edu.p.lodz.pl</email>
-      <id>236652</id>
-    </developer>
-    <developer>
-      <name>Bartłomiej Czajkowski</name>
-      <email>236512@edu.p.lodz.pl</email>
-      <id>236512</id>
-    </developer>
-    <developer>
-      <name>Rafał Strzałkowski</name>
-      <email>236664@edu.p.lodz.pl</email>
-      <id>236664</id>
-    </developer>
-    <developer>
-      <name>Łukasz Stępień</name>
-      <email>236658@edu.p.lodz.pl</email>
-      <id>236658</id>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <name>Kamil Graczyk</name>
+            <email>236538@edu.p.lodz.pl</email>
+            <id>236538</id>
+        </developer>
+        <developer>
+            <name>Piotr Tomczyk</name>
+            <email>236676@edu.p.lodz.pl</email>
+            <id>236676</id>
+        </developer>
+        <developer>
+            <name>Mateusz Sochacki</name>
+            <email>230785@edu.p.lodz.pl</email>
+            <id>236652</id>
+        </developer>
+        <developer>
+            <name>Bartłomiej Czajkowski</name>
+            <email>236512@edu.p.lodz.pl</email>
+            <id>236512</id>
+        </developer>
+        <developer>
+            <name>Rafał Strzałkowski</name>
+            <email>236664@edu.p.lodz.pl</email>
+            <id>236664</id>
+        </developer>
+        <developer>
+            <name>Łukasz Stępień</name>
+            <email>236658@edu.p.lodz.pl</email>
+            <id>236658</id>
+        </developer>
+    </developers>
 
-<!--  PROPERTIES  -->
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.source>17</maven.compiler.source>
-    <junit.version>5.9.1</junit.version>
-    <hibernate.version>5.6.15.Final</hibernate.version>
-  </properties>
+    <!--  PROPERTIES  -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <junit.version>5.9.1</junit.version>
+        <hibernate.version>5.6.15.Final</hibernate.version>
+    </properties>
 
-<!--  DEPENDECIES  -->
+    <!--  DEPENDECIES  -->
 
-  <dependencies>
-    <dependency>
-      <groupId>jakarta.platform</groupId>
-      <artifactId>jakarta.jakartaee-api</artifactId>
-      <version>10.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.26</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core-jakarta</artifactId>
-      <version>${hibernate.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-jpamodelgen-jakarta</artifactId>
-      <version>${hibernate.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>8.0.0.Final</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>42.5.4</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-impl</artifactId>
-      <version>0.11.5</version>
-    </dependency>
-    <dependency>
-      <groupId>com.nimbusds</groupId>
-      <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.30.2</version>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>10.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.26</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen-jakarta</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>9.30.2</version>
+        </dependency>
+    </dependencies>
 
-<!--  PLUGINS -->
+    <!--  PLUGINS -->
 
-  <build>
-    <finalName>eBok</finalName>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>3.3.2</version>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <finalName>eBok</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>
