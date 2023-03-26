@@ -68,23 +68,31 @@ public class Account extends AbstractEntity implements Serializable {
     @Basic(optional = false)
     @Size(min = 1, max = 100)
     @Column(name = "last_name", table = "account_data", nullable = false)
+    @Getter
+    @Setter
     private String lastName;
 
     @NotNull
     @Basic(optional = false)
     @Column(name = "verified", nullable = false)
+    @Getter
+    @Setter
     private boolean verified = false;
 
     @NotNull
     @Basic(optional = false)
     @Column(name = "active", nullable = false)
+    @Getter
+    @Setter
     private boolean active = true;
 
-    @Column(name = "language")
-    @Size(min = 2, max = 2)
     @NotNull
+    @Column(name = "language", nullable = false)
+    @Size(min = 2, max = 2)
     @Basic(optional = false)
-    private String language;
+    @Getter
+    @Setter
+    private String language = "PL";
 
 
     @Embedded
@@ -92,10 +100,11 @@ public class Account extends AbstractEntity implements Serializable {
     @Setter
     private ActivityTracker activityTracker = new ActivityTracker();
 
-    public Account(String email, String password, String name, String surname) {
+    public Account(String email, String password, String firstName, String lastName, String login) {
         this.email = email;
         this.password = password;
-        this.firstName = name;
-        this.lastName = surname;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.login = login;
     }
 }
