@@ -1,6 +1,13 @@
 package pl.lodz.p.it.ssbd2023.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +20,6 @@ import java.io.Serializable;
 @DiscriminatorValue("manager")
 @NoArgsConstructor
 @NamedQueries({
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByAddressBuildingNumber",
-                query = "SELECT data FROM ManagerData data WHERE data.address.buildingNumber = :buildingnumber"),
         @NamedQuery(
                 name = "ManagerData.findManagerDataByAddressPostalCode",
                 query = "SELECT data FROM ManagerData data WHERE data.address.postalCode = :postalcode"),
