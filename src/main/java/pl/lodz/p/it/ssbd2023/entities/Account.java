@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SecondaryTable;
 import jakarta.persistence.Table;
@@ -24,6 +26,41 @@ import java.util.Set;
 @Table(name = "account")
 @SecondaryTable(name = "account_data")
 @NoArgsConstructor
+@NamedQueries({
+        @NamedQuery(
+                name = "Account.findAllAccounts",
+                query = "SELECT a FROM Account a"),
+        @NamedQuery(
+                name = "Account.findByLogin",
+                query = "SELECT a FROM Account a WHERE a.login = :login"),
+        @NamedQuery(
+                name = "Account.findById",
+                query = "SELECT a FROM Account a WHERE a.id = :id"),
+        @NamedQuery(
+                name = "Account.findByFirstName",
+                query = "SELECT a FROM Account a WHERE a.firstName = :firstname"),
+        @NamedQuery(
+                name = "Account.findByLastName",
+                query = "SELECT a FROM Account a WHERE a.lastName = :lastname"),
+        @NamedQuery(
+                name = "Account.findByEmail",
+                query = "SELECT a FROM Account a WHERE a.email = :email"),
+        @NamedQuery(
+                name = "Account.findByLanguage",
+                query = "SELECT a FROM Account a WHERE a.language = :language"),
+        @NamedQuery(
+                name = "Account.findAllVerifiedAccounts",
+                query = "SELECT a FROM Account a WHERE a.verified = TRUE"),
+        @NamedQuery(
+                name = "Account.findAllNotVerifiedAccounts",
+                query = "SELECT a FROM Account a WHERE a.verified = FALSE"),
+        @NamedQuery(
+                name = "Account.findAllActiveAccounts",
+                query = "SELECT a FROM Account a WHERE a.active = TRUE"),
+        @NamedQuery(
+                name = "Account.findAllNotActiveAccounts",
+                query = "SELECT a FROM Account a WHERE a.active = FALSE")
+})
 public class Account extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
