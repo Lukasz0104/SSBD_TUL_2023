@@ -25,7 +25,8 @@ public class ManagerDataFacade extends AbstractFacade<ManagerData> {
     }
 
     public ManagerData findByLicenseNumber(String licenseNumber) {
-        TypedQuery<ManagerData> tq = em.createNamedQuery("ManagerData.findManagerDataByLicenseNumber", ManagerData.class);
+        TypedQuery<ManagerData> tq =
+            em.createNamedQuery("ManagerData.findManagerDataByLicenseNumber", ManagerData.class);
         tq.setParameter("licenseNumber", licenseNumber);
         return tq.getSingleResult();
     }

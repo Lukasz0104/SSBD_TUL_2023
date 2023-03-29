@@ -20,34 +20,34 @@ import java.io.Serializable;
 @DiscriminatorValue("manager")
 @NoArgsConstructor
 @NamedQueries({
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByAddressPostalCode",
-                query = "SELECT data FROM ManagerData data WHERE data.address.postalCode = :postalcode"),
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByAddressCity",
-                query = "SELECT data FROM ManagerData data WHERE data.address.city = :city"),
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByAddressStreet",
-                query = "SELECT data FROM ManagerData data WHERE data.address.street = :street"),
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByAddressBuildingNumber",
-                query = "SELECT data FROM ManagerData data WHERE data.address.buildingNumber = :buildingnumber"),
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByAddressStreetAndBuildingNumber",
-                query = """
-                        SELECT data FROM ManagerData data WHERE data.address.street = :street AND
-                         data.address.buildingNumber = :buildingnumber"""),
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByLicenseNumber",
-                query = "SELECT data FROM ManagerData data WHERE data.licenseNumber = :licenseNumber"),
-        @NamedQuery(
-                name = "ManagerData.findManagerDataByFullAddress",
-                query = """
-                    SELECT data FROM ManagerData data WHERE data.address.city = :city AND
-                    data.address.street = :street AND
-                    data.address.buildingNumber = :buildingnumber AND
-                    data.address.postalCode = :postalcode
-                    """),
+    @NamedQuery(
+        name = "ManagerData.findManagerDataByAddressPostalCode",
+        query = "SELECT data FROM ManagerData data WHERE data.address.postalCode = :postalcode"),
+    @NamedQuery(
+        name = "ManagerData.findManagerDataByAddressCity",
+        query = "SELECT data FROM ManagerData data WHERE data.address.city = :city"),
+    @NamedQuery(
+        name = "ManagerData.findManagerDataByAddressStreet",
+        query = "SELECT data FROM ManagerData data WHERE data.address.street = :street"),
+    @NamedQuery(
+        name = "ManagerData.findManagerDataByAddressBuildingNumber",
+        query = "SELECT data FROM ManagerData data WHERE data.address.buildingNumber = :buildingnumber"),
+    @NamedQuery(
+        name = "ManagerData.findManagerDataByAddressStreetAndBuildingNumber",
+        query = """
+            SELECT data FROM ManagerData data WHERE data.address.street = :street AND
+             data.address.buildingNumber = :buildingnumber"""),
+    @NamedQuery(
+        name = "ManagerData.findManagerDataByLicenseNumber",
+        query = "SELECT data FROM ManagerData data WHERE data.licenseNumber = :licenseNumber"),
+    @NamedQuery(
+        name = "ManagerData.findManagerDataByFullAddress",
+        query = """
+            SELECT data FROM ManagerData data WHERE data.address.city = :city AND
+            data.address.street = :street AND
+            data.address.buildingNumber = :buildingnumber AND
+            data.address.postalCode = :postalcode
+            """),
 })
 public class ManagerData extends AccessLevel implements Serializable {
 

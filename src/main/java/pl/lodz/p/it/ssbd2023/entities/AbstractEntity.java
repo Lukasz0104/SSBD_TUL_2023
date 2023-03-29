@@ -40,7 +40,9 @@ public abstract class AbstractEntity {
             return false;
         }
         AbstractEntity other = (AbstractEntity) object;
-        if ((this.getId() == null && other.getId() != null) || (this.getId() != null && !this.getId().equals(other.getId()))) {
+        if ((this.getId() == null && other.getId() != null)
+            || (this.getId() != null
+            && !this.getId().equals(other.getId()))) {
             return false;
         }
         return true;
