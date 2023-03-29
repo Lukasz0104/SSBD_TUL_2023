@@ -28,12 +28,12 @@ import java.io.Serializable;
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING, name = "level")
 @NoArgsConstructor
 @NamedQueries({
-        @NamedQuery(
-                name = "AccessLevel.findAccessLevelById",
-                query = "SELECT a FROM AccessLevel a WHERE a.id = :id"),
-        @NamedQuery(
-                name = "AccessLevel.findDataByAccessType",
-                query = "SELECT a FROM AccessLevel a WHERE a.level = :level")
+    @NamedQuery(
+        name = "AccessLevel.findAccessLevelById",
+        query = "SELECT a FROM AccessLevel a WHERE a.id = :id"),
+    @NamedQuery(
+        name = "AccessLevel.findDataByAccessType",
+        query = "SELECT a FROM AccessLevel a WHERE a.level = :level")
 })
 public abstract class AccessLevel extends AbstractEntity implements Serializable {
 

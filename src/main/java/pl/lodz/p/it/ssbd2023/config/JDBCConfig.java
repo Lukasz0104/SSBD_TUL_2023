@@ -8,28 +8,28 @@ import jakarta.persistence.PersistenceContext;
 import java.sql.Connection;
 
 @DataSourceDefinition(
-        name = "java:app/jdbc/ssbd05admin",
-        className = "org.postgresql.ds.PGSimpleDataSource",
-        user = "ssbd05admin",
-        password = "admin",
-        serverName = "db",
-        portNumber = 5432,
-        databaseName = "ebok",
-        initialPoolSize = 1,
-        minPoolSize = 0,
-        maxPoolSize = 1,
-        maxIdleTime = 10)
+    name = "java:app/jdbc/ssbd05admin",
+    className = "org.postgresql.ds.PGSimpleDataSource",
+    user = "ssbd05admin",
+    password = "admin",
+    serverName = "db",
+    portNumber = 5432,
+    databaseName = "ebok",
+    initialPoolSize = 1,
+    minPoolSize = 0,
+    maxPoolSize = 1,
+    maxIdleTime = 10)
 
 @DataSourceDefinition(
-        name = "java:app/jdbc/ssbd05mok",
-        className = "org.postgresql.ds.PGSimpleDataSource",
-        user = "ssbd05mok",
-        password = "mok",
-        serverName = "db",
-        portNumber = 5432,
-        databaseName = "ebok",
-        transactional = true,
-        isolationLevel = Connection.TRANSACTION_READ_COMMITTED)
+    name = "java:app/jdbc/ssbd05mok",
+    className = "org.postgresql.ds.PGSimpleDataSource",
+    user = "ssbd05mok",
+    password = "mok",
+    serverName = "db",
+    portNumber = 5432,
+    databaseName = "ebok",
+    transactional = true,
+    isolationLevel = Connection.TRANSACTION_READ_COMMITTED)
 
 @Stateless
 public class JDBCConfig {
