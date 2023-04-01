@@ -1,8 +1,11 @@
 package pl.lodz.p.it.ssbd2023.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
@@ -12,6 +15,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "owner_data")
@@ -53,6 +58,12 @@ public class OwnerData extends AccessLevel implements Serializable {
     @Getter
     @Setter
     private Address address;
+
+    @NotNull
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, mappedBy = "owners")
+    @Getter
+    @Setter
+    private Set<Place> places = new HashSet<>();
 
     public OwnerData(Account account, Address address) {
         super(AccessTypes.OWNER, account);
