@@ -1,15 +1,19 @@
-package pl.lodz.p.it.ssbd2023.entities;
+package pl.lodz.p.it.ssbd2023.entities.mow;
 
 import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.lodz.p.it.ssbd2023.entities.AbstractEntity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -43,6 +47,13 @@ public class Rate extends AbstractEntity implements Serializable {
     @Getter
     @Setter
     private LocalDateTime effectiveDate;
+
+    @NotNull
+    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "category_id", referencedColumnName = "id", updatable = false, nullable = false)
+    @Getter
+    @Setter
+    private Category category;
 
     public Rate(BigDecimal value, AccountingRule accountingRule, LocalDateTime effectiveDate) {
         this.value = value;

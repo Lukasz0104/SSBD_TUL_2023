@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.entities;
+package pl.lodz.p.it.ssbd2023.entities.mok;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

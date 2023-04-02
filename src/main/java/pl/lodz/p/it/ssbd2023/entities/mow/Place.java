@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.entities;
+package pl.lodz.p.it.ssbd2023.entities.mow;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
@@ -9,11 +9,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.lodz.p.it.ssbd2023.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.entities.mok.OwnerData;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -81,6 +84,12 @@ public class Place extends AbstractEntity implements Serializable {
     @Getter
     @Setter
     private Set<Rate> currentRates = new HashSet<>();
+
+    @NotNull
+    @OneToMany(mappedBy = "place", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @Getter
+    @Setter
+    private Set<Meter> meters = new HashSet<>();
 
     public Place(Integer placeNumber, BigDecimal squareFootage, Integer residentsNumber, boolean active,
                  Building building) {

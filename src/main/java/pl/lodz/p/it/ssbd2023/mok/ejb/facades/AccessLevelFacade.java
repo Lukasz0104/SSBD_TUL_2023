@@ -5,7 +5,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import pl.lodz.p.it.ssbd2023.entities.AccessLevel;
+import pl.lodz.p.it.ssbd2023.entities.mok.AccessLevel;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
