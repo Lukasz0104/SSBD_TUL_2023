@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.entities;
+package pl.lodz.p.it.ssbd2023.entities.mok;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
@@ -19,6 +19,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pl.lodz.p.it.ssbd2023.entities.AbstractEntity;
 
 import java.io.Serializable;
 

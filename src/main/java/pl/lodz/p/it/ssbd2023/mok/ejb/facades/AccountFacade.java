@@ -6,7 +6,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import pl.lodz.p.it.ssbd2023.entities.Account;
+import pl.lodz.p.it.ssbd2023.entities.mok.Account;
 
 import java.util.List;
 
