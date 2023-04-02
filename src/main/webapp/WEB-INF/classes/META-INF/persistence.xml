@@ -24,4 +24,14 @@
             <property name="eclipselink.canonicalmodel.prefix" value="mok"/>
         </properties>
     </persistence-unit>
+
+    <persistence-unit name="ssbd05mowPU" transaction-type="JTA">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>java:app/jdbc/ssbd05mow</jta-data-source>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.canonicalmodel.prefix" value="mow"/>
+        </properties>
+    </persistence-unit>
 </persistence>

@@ -21,6 +21,17 @@ import java.sql.Connection;
     maxIdleTime = 10)
 
 @DataSourceDefinition(
+    name = "java:app/jdbc/ssbd05mow",
+    className = "org.postgresql.ds.PGSimpleDataSource",
+    user = "ssbd05mow",
+    password = "mow",
+    serverName = "db",
+    portNumber = 5432,
+    databaseName = "ebok",
+    transactional = true,
+    isolationLevel = Connection.TRANSACTION_READ_COMMITTED)
+
+@DataSourceDefinition(
     name = "java:app/jdbc/ssbd05mok",
     className = "org.postgresql.ds.PGSimpleDataSource",
     user = "ssbd05mok",
