@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +23,124 @@ import java.time.Year;
 @Entity
 @Table(name = "report", uniqueConstraints = @UniqueConstraint(columnNames = {"year", "place_id", "category_id"}))
 @NoArgsConstructor
+@NamedQueries({
+    @NamedQuery(
+        name = "Report.findAll",
+        query = "SELECT r FROM Report r"),
+    @NamedQuery(
+        name = "Report.findById",
+        query = "SELECT r FROM Report r WHERE r.id = :id"),
+    @NamedQuery(
+        name = "Report.findByYear",
+        query = "SELECT r FROM Report r WHERE r.year = :year"),
+    @NamedQuery(
+        name = "Report.findByTotalCost",
+        query = "SELECT r FROM Report r WHERE r.totalCost = :totalCost"),
+    @NamedQuery(
+        name = "Report.findByTotalConsumption",
+        query = "SELECT r FROM Report r WHERE r.totalConsumption = :totalConsumption"),
+    @NamedQuery(
+        name = "Report.findByPlaceId",
+        query = "SELECT r FROM Report r WHERE r.place.id = :placeId"),
+    @NamedQuery(
+        name = "Report.findByPlaceNumberAndBuildingId",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.placeNumber = :placeNumber
+                  AND r.place.building.id = :buildingId"""),
+    @NamedQuery(
+        name = "Report.findByCategoryId",
+        query = "SELECT r FROM Report r WHERE r.category.id = :categoryId"),
+    @NamedQuery(
+        name = "Report.findByCategoryName",
+        query = "SELECT r FROM Report r WHERE r.category.name = :categoryName"),
+    @NamedQuery(
+        name = "Report.findByPlaceIdAndCategoryId",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.id = :placeId
+                  AND r.category.id = :categoryId
+            """),
+    @NamedQuery(
+        name = "Report.findByPlaceIdAndCategoryName",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.id = :placeId
+                  AND r.category.name = :name
+            """),
+    @NamedQuery(
+        name = "Report.findByPlaceNumberAndBuildingIdAndCategoryId",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.placeNumber = :placeNumber
+                  AND r.place.building.id = :buildingId
+                  AND r.category.id = :categoryId
+            """),
+    @NamedQuery(
+        name = "Report.findByPlaceNumberAndCategoryName",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.placeNumber = :placeNumber
+                  AND r.place.building.id = :buildingId
+                  AND r.category.name = :name
+            """),
+    @NamedQuery(
+        name = "Report.findByPlaceIdAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.id = :placeId
+                  AND r.year = :year
+            """),
+    @NamedQuery(
+        name = "Report.findByPlaceNumberAndBuildingIdAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.placeNumber = :placeNumber
+                  AND r.place.building.id = :buildingId
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findByCategoryIdAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.category.id = :categoryId
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findByCategoryNameAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.category.name = :categoryName
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findByPlaceIdAndCategoryIdAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.id = :placeId
+                  AND r.category.id = :categoryId
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findByPlaceIdAndCategoryNameAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.id = :placeId
+                  AND r.category.name = :categoryName
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findByPlaceNumberAndBuildingIdAndCategoryIdAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.placeNumber = :placeNumber
+                  AND r.place.building.id = :buildingId
+                  AND r.category.id = :categoryId
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findByPlaceNumberAndBuildingIdAndCategoryNameAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.placeNumber = :placeNumber
+                  AND r.place.building.id = :buildingId
+                  AND r.category.name = :categoryName
+                  AND r.year = :year""")
+})
 public class Report extends AbstractEntity implements Serializable {
 
     @NotNull

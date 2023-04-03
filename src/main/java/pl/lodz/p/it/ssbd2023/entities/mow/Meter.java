@@ -1,11 +1,12 @@
 package pl.lodz.p.it.ssbd2023.entities.mow;
 
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +21,55 @@ import java.util.Set;
 
 @Entity
 @Table(name = "meter")
+@NamedQueries({
+    @NamedQuery(
+        name = "Meter.findAll",
+        query = "SELECT m FROM Meter m"),
+    @NamedQuery(
+        name = "Meter.findById",
+        query = "SELECT m FROM Meter m WHERE m.id = :id"),
+    @NamedQuery(
+        name = "Meter.findByCategoryId",
+        query = "SELECT m FROM Meter m WHERE m.category.id = :categoryId"),
+    @NamedQuery(
+        name = "Meter.findByCategoryName",
+        query = "SELECT m FROM Meter m WHERE m.category.name = :categoryName"),
+    @NamedQuery(
+        name = "Meter.findByPlaceId",
+        query = "SELECT m FROM Meter m WHERE m.place.id = :placeId"),
+    @NamedQuery(
+        name = "Meter.findByPlaceNumberAndBuildingId",
+        query = """
+            SELECT m FROM Meter m
+            WHERE m.place.placeNumber = :placeNumber
+                  AND m.place.building.id = :buildingId"""),
+    @NamedQuery(
+        name = "Meter.findByCategoryIdAndPlaceId",
+        query = """
+            SELECT m FROM Meter m
+            WHERE m.category.id = :categoryId
+                  AND m.place.id = :placeId"""),
+    @NamedQuery(
+        name = "Meter.findByCategoryIdAndPlaceNumberAndBuildingId",
+        query = """
+            SELECT m FROM Meter m
+            WHERE m.category.id = :categoryId
+                  AND m.place.placeNumber = :placeNumber
+                  AND m.place.building.id = :buildingId"""),
+    @NamedQuery(
+        name = "Meter.findByCategoryNameAndPlaceId",
+        query = """
+            SELECT m FROM Meter m
+            WHERE m.category.name = :categoryName
+                  AND m.place.id = :placeId"""),
+    @NamedQuery(
+        name = "Meter.findByCategoryNameAndPlaceNumberAndBuildingId",
+        query = """
+            SELECT m FROM Meter m
+            WHERE m.category.name = :categoryName
+                  AND m.place.placeNumber = :placeNumber
+                  AND m.place.building.id = :buildingId""")
+})
 @NoArgsConstructor
 public class Meter extends AbstractEntity implements Serializable {
     @NotNull

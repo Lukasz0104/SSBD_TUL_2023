@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +23,70 @@ import java.time.Year;
 
 @Entity
 @Table(name = "cost", uniqueConstraints = @UniqueConstraint(columnNames = {"year", "month", "category_id"}))
+@NamedQueries({
+    @NamedQuery(
+        name = "Cost.findAll",
+        query = "SELECT c FROM Cost c"),
+    @NamedQuery(
+        name = "Cost.findById",
+        query = "SELECT c FROM Cost c WHERE c.id = :id"),
+    @NamedQuery(
+        name = "Cost.findByYear",
+        query = "SELECT c FROM Cost c WHERE c.year = :year"),
+    @NamedQuery(
+        name = "Cost.findByMonth",
+        query = "SELECT c FROM Cost c WHERE c.month = :month"),
+    @NamedQuery(
+        name = "Cost.findByCategoryId",
+        query = "SELECT c FROM Cost c WHERE c.category.id = :categoryId"),
+    @NamedQuery(
+        name = "Cost.findByCategoryName",
+        query = "SELECT c FROM Cost c WHERE c.category.name = :categoryName"),
+    @NamedQuery(
+        name = "Cost.findByYearAndMonth",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND c.month = :month"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndCategoryId",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND c.category.id = :categoryId"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndCategoryName",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND c.category.name = :categoryName"""),
+    @NamedQuery(
+        name = "Cost.findByMonthAndCategoryId",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.month = :month
+                  AND c.category.id = :categoryId"""),
+    @NamedQuery(
+        name = "Cost.findByMonthAndCategoryName",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.month = :month
+                  AND c.category.name = :categoryName"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndMonthAndCategoryId",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND c.month = :month
+                  AND c.category.id = :categoryId"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndMonthAndCategoryName",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND c.month = :month
+                  AND c.category.name = :categoryName""")
+})
 @NoArgsConstructor
 public class Cost extends AbstractEntity implements Serializable {
 
