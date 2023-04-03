@@ -6,6 +6,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import pl.lodz.p.it.ssbd2023.entities.mok.OwnerData;
+import pl.lodz.p.it.ssbd2023.shared.AbstractFacade;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
