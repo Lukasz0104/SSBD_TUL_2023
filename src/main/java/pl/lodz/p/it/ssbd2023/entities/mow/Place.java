@@ -9,8 +9,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,15 +27,59 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "place")
+@Table(name = "place", uniqueConstraints = {@UniqueConstraint(columnNames = {"placeNumber", "building" })})
 @NoArgsConstructor
+@NamedQueries({
+    @NamedQuery(
+            name = "Place.findAll",
+            query = "SELECT p FROM Place p"),
+    @NamedQuery(
+            name = "Place.findById",
+            query = "SELECT p FROM Place p WHERE p.id = :id"),
+    @NamedQuery(
+            name = "Place.findByPlaceNumber",
+            query = "SELECT p FROM Place p WHERE p.placeNumber = :placeNumber"),
+    @NamedQuery(
+            name = "Place.findAllActive",
+            query = "SELECT p FROM Place p WHERE p.active = true"),
+    @NamedQuery(
+            name = "Place.findAllInactive",
+            query = "SELECT p FROM Place p WHERE p.active = false"),
+    @NamedQuery(
+            name = "Place.findByResidentsNumber",
+            query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber"),
+    @NamedQuery(
+            name = "Place.findByResidentsNumberAndActive",
+            query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber AND p.active = true"),
+    @NamedQuery(
+            name = "Place.findByResidentsNumberAndInactive",
+            query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber AND p.active = false"),
+    @NamedQuery(
+            name = "Place.findBySquareFootage",
+            query = "SELECT p FROM Place p WHERE p.squareFootage = :squareFootage"),
+    @NamedQuery(
+            name = "Place.findBySquareFootageAndActive",
+            query = "SELECT p FROM Place p WHERE p.squareFootage = :squareFootage AND p.active = true"),
+    @NamedQuery(
+            name = "Place.findBySquareFootageAndInactive",
+            query = "SELECT p FROM Place p WHERE p.squareFootage = :squareFootage AND p.active = false"),
+    @NamedQuery(
+            name = "Place.findByAddress",
+            query = "SELECT p FROM Place p WHERE p.building.address = :address"),
+    @NamedQuery(
+            name = "Place.findByAddressAndActive",
+            query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = true"),
+    @NamedQuery(
+            name = "Place.findByAddressAndInactive",
+            query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false")
+})
 public class Place extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @NotNull
     @Basic(optional = false)
-    @Column(name = "place_number", nullable = false, unique = true)
+    @Column(name = "place_number", nullable = false)
     @Getter
     @Setter
     private Integer placeNumber;
