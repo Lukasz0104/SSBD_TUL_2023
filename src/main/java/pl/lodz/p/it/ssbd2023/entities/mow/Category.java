@@ -5,6 +5,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -19,6 +21,17 @@ import java.util.Set;
 
 @Entity
 @Table(name = "category")
+@NamedQueries({
+    @NamedQuery(
+        name = "Category.findAll",
+        query = "SELECT c FROM Category c"),
+    @NamedQuery(
+        name = "Category.findById",
+        query = "SELECT c FROM Category c WHERE c.id = :id"),
+    @NamedQuery(
+        name = "Category.findByName",
+        query = "SELECT c FROM Category c WHERE c.name = :name")
+})
 @NoArgsConstructor
 public class Category extends AbstractEntity implements Serializable {
 
