@@ -1,6 +1,13 @@
 package pl.lodz.p.it.ssbd2023.entities.mow;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,18 +23,18 @@ import java.util.Set;
 @Table(name = "building")
 @NoArgsConstructor
 @NamedQueries({
-        @NamedQuery(
-                name = "Building.findAll",
-                query = "SELECT b FROM Building  b"),
-        @NamedQuery(
-                name = "Building.findById",
-                query = "SELECT b FROM Building  b WHERE b.id = :id"),
-        @NamedQuery(
-                name = "Building.findByAddress",
-                query = "SELECT b FROM Building  b WHERE b.address = :address"),
-        @NamedQuery(
-                name = "Building.findByBuildingNumber",
-                query = "SELECT b FROM Building  b WHERE b.address.buildingNumber = :buildingNumber")
+    @NamedQuery(
+            name = "Building.findAll",
+            query = "SELECT b FROM Building  b"),
+    @NamedQuery(
+            name = "Building.findById",
+            query = "SELECT b FROM Building  b WHERE b.id = :id"),
+    @NamedQuery(
+            name = "Building.findByAddress",
+            query = "SELECT b FROM Building  b WHERE b.address = :address"),
+    @NamedQuery(
+            name = "Building.findByBuildingNumber",
+            query = "SELECT b FROM Building  b WHERE b.address.buildingNumber = :buildingNumber")
 })
 public class Building extends AbstractEntity implements Serializable {
 
