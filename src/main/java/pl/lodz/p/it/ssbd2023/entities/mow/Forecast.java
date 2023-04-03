@@ -61,7 +61,9 @@ import java.time.Year;
                 query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.rate.category = :category"),
         @NamedQuery(
                 name = "Forecast.findByMonthAndYearAndCategory",
-                query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year AND f.rate.category = :category"),
+                query = """
+                        SELECT f FROM Forecast f 
+                        WHERE f.month = :month AND f.year = :year AND f.rate.category.id = :category"""),
 
         // rate queries
         @NamedQuery(
@@ -76,7 +78,6 @@ import java.time.Year;
         @NamedQuery(
                 name = "Forecast.findByMonthAndYearAndRateId",
                 query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year AND f.rate.id = :rate"),
-
 })
 public class Forecast extends AbstractEntity implements Serializable {
 

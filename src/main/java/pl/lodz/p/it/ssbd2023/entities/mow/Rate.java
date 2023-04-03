@@ -23,7 +23,10 @@ import java.time.LocalDate;
                 query = "SELECT r FROM Rate r WHERE r.id = :id"),
         @NamedQuery(
                 name = "Rate.findCurrentRates",
-                query = "SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT max(r1.effectiveDate) FROM Rate r1 WHERE r1.category = r.category)"),
+                query = """
+                        SELECT r FROM Rate r
+                        WHERE r.effectiveDate = (SELECT max(r1.effectiveDate) FROM Rate r1 WHERE r1.category = r.category)
+                        """),
 
         // accounting_rule queries
         @NamedQuery(
@@ -31,13 +34,13 @@ import java.time.LocalDate;
                 query = "SELECT r FROM Rate r WHERE r.accountingRule = :accounting_rule"),
         @NamedQuery(
                 name = "Rate.findByEffectiveDateAndAccountingRule",
-                query = "SELECT r FROM Rate r WHERE r.effectiveDate = :effectiveDate AND r.accountingRule = :accounting_rule"),
+                query = "SELECT r FROM Rate r WHERE r.effectiveDate = :effectiveDate AND r.accountingRule = :ar"),
         @NamedQuery(
                 name = "Rate.findByEffectiveDateBeforeAndAccountingRule",
-                query = "SELECT r FROM Rate r WHERE r.effectiveDate < :effectiveDate AND r.accountingRule = :accounting_rule"),
+                query = "SELECT r FROM Rate r WHERE r.effectiveDate < :effectiveDate AND r.accountingRule = :ar"),
         @NamedQuery(
                 name = "Rate.findByEffectiveDateAfterAndAccountingRule",
-                query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate AND r.accountingRule = :accounting_rule"),
+                query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate AND r.accountingRule = :ar"),
 
         // category queries
         @NamedQuery(
@@ -56,16 +59,28 @@ import java.time.LocalDate;
         // mixed queries
         @NamedQuery(
                 name = "Rate.findByCategoryAndAccountingRule",
-                query = "SELECT r FROM Rate r WHERE r.category = :category AND r.accountingRule = :accounting_rule"),
+                query = "SELECT r FROM Rate r WHERE r.category = :category AND r.accountingRule = :ar"),
         @NamedQuery(
                 name = "Rate.findByEffectiveDateAndCategoryAndAccountingRule",
-                query = "SELECT r FROM Rate r WHERE r.effectiveDate = :effectiveDate AND r.category = :category AND r.accountingRule = :accounting_rule"),
+                query = """
+                        SELECT r FROM Rate r
+                        WHERE r.effectiveDate = :effectiveDate
+                        AND r.category = :category
+                        AND r.accountingRule = :accounting_rule"""),
         @NamedQuery(
                 name = "Rate.findByEffectiveDateBeforeAndCategoryAndAccountingRule",
-                query = "SELECT r FROM Rate r WHERE r.effectiveDate < :effectiveDate AND r.category = :category AND r.accountingRule = :accounting_rule"),
+                query = """
+                        SELECT r FROM Rate r
+                        WHERE r.effectiveDate < :effectiveDate
+                        AND r.category = :category
+                        AND r.accountingRule = :accounting_rule"""),
         @NamedQuery(
                 name = "Rate.findByEffectiveDateAfterAndCategoryAndAccountingRule",
-                query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate AND r.category = :category AND r.accountingRule = :accounting_rule"),
+                query = """
+                        SELECT r FROM Rate r
+                        WHERE r.effectiveDate >= :effectiveDate
+                        AND r.category = :category
+                        AND r.accountingRule = :accounting_rule"""),
 
         // only date queries
         @NamedQuery(

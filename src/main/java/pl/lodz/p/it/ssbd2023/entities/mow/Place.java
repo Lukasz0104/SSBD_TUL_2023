@@ -59,7 +59,6 @@ import java.util.Set;
         @NamedQuery(
                 name = "Place.findByAddressAndInactive",
                 query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false")
-
 })
 public class Place extends AbstractEntity implements Serializable {
 
