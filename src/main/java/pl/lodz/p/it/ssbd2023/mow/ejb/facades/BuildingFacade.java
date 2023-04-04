@@ -13,7 +13,7 @@ import pl.lodz.p.it.ssbd2023.shared.AbstractFacade;
 import java.util.List;
 
 @Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class BuildingFacade extends AbstractFacade<Building> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")

@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class PlaceFacade extends AbstractFacade<Place> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")

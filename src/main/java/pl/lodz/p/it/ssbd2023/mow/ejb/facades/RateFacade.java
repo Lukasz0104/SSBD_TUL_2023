@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class RateFacade extends AbstractFacade<Rate> {
     @PersistenceContext(unitName = "ssbd05mowPU")
     private EntityManager em;
@@ -51,14 +51,16 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
-    public List<Rate> findByEffectiveDateBeforeAndAccountingRule(LocalDate effectiveDate, AccountingRule accountingRule) {
+    public List<Rate> findByEffectiveDateBeforeAndAccountingRule(LocalDate effectiveDate,
+                                                                 AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateBeforeAndAccountingRule", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
         tq.setParameter("ar", accountingRule);
         return tq.getResultList();
     }
 
-    public List<Rate> findByEffectiveDateAfterAndAccountingRule(LocalDate effectiveDate, AccountingRule accountingRule) {
+    public List<Rate> findByEffectiveDateAfterAndAccountingRule(LocalDate effectiveDate,
+                                                                AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAfterAndAccountingRule", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
         tq.setParameter("ar", accountingRule);
@@ -95,7 +97,6 @@ public class RateFacade extends AbstractFacade<Rate> {
     }
 
 
-
     public List<Rate> findByCategoryAndAccountingRule(Category category, AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByCategoryAndAccountingRule", Rate.class);
         tq.setParameter("category", category);
@@ -103,7 +104,8 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
-    public List<Rate> findByEffectiveDateAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category, AccountingRule accountingRule) {
+    public List<Rate> findByEffectiveDateAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category,
+                                                                      AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAndCategoryAndAccountingRule", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
         tq.setParameter("category", category);
@@ -111,16 +113,20 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
-    public List<Rate> findByEffectiveDateBeforeAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category, AccountingRule accountingRule) {
-        TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateBeforeAndCategoryAndAccountingRule", Rate.class);
+    public List<Rate> findByEffectiveDateBeforeAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category,
+                                                                            AccountingRule accountingRule) {
+        TypedQuery<Rate> tq =
+                em.createNamedQuery("Rate.findByEffectiveDateBeforeAndCategoryAndAccountingRule", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
         tq.setParameter("category", category);
         tq.setParameter("accounting_rule", accountingRule);
         return tq.getResultList();
     }
 
-    public List<Rate> findByEffectiveDateAfterAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category, AccountingRule accountingRule) {
-        TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAfterAndCategoryAndAccountingRule", Rate.class);
+    public List<Rate> findByEffectiveDateAfterAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category,
+                                                                           AccountingRule accountingRule) {
+        TypedQuery<Rate> tq =
+                em.createNamedQuery("Rate.findByEffectiveDateAfterAndCategoryAndAccountingRule", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
         tq.setParameter("category", category);
         tq.setParameter("accounting_rule", accountingRule);

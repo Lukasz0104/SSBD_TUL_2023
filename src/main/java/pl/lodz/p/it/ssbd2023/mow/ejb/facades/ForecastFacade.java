@@ -15,7 +15,7 @@ import java.time.Year;
 import java.util.List;
 
 @Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class ForecastFacade extends AbstractFacade<Forecast> {
     @PersistenceContext(unitName = "ssbd05mowPU")
     private EntityManager em;
