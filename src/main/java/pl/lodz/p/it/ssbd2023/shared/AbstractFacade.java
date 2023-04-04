@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.mok.ejb.facades;
+package pl.lodz.p.it.ssbd2023.shared;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;

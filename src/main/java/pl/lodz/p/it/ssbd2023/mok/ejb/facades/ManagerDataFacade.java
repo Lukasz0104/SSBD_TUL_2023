@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.entities.mok.ManagerData;
+import pl.lodz.p.it.ssbd2023.shared.AbstractFacade;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
