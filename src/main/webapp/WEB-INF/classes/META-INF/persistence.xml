@@ -18,14 +18,14 @@
     <persistence-unit name="ssbd05mokPU" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <jta-data-source>java:app/jdbc/ssbd05mok</jta-data-source>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.Account</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.AccessLevel</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.ActivityTracker</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.AdminData</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.ManagerData</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.OwnerData</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.Address</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ActivityTracker</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.Address</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.canonicalmodel.prefix" value="mok"/>
@@ -35,7 +35,7 @@
     <persistence-unit name="ssbd05authPU" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <jta-data-source>java:app/jdbc/ssbd05auth</jta-data-source>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.Account</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>
@@ -46,20 +46,20 @@
     <persistence-unit name="ssbd05mowPU" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <jta-data-source>java:app/jdbc/ssbd05mow</jta-data-source>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Building</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Category</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Cost</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Forecast</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Meter</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Place</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Rate</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Reading</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mow.Report</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.OwnerData</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.ManagerData</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.Account</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.AccessLevel</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.Address</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.Address</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>
