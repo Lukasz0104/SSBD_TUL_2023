@@ -9,7 +9,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 @Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class AdminDataFacade extends AbstractFacade<AdminData> {
 
     @PersistenceContext(unitName = "ssbd05mokPU")

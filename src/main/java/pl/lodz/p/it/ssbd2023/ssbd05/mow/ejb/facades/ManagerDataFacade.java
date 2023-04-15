@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
+package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -13,7 +13,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class ManagerDataFacade extends AbstractFacade<ManagerData> {
 
-    @PersistenceContext(unitName = "ssbd05mokPU")
+    @PersistenceContext(unitName = "ssbd05mowPU")
     private EntityManager em;
 
     public ManagerDataFacade() {
