@@ -18,7 +18,9 @@ import java.sql.Connection;
     initialPoolSize = 1,
     minPoolSize = 0,
     maxPoolSize = 1,
-    maxIdleTime = 10)
+    maxIdleTime = 10,
+    transactional = true,
+    isolationLevel = Connection.TRANSACTION_READ_COMMITTED)
 
 @DataSourceDefinition(
     name = "java:app/jdbc/ssbd05mow",

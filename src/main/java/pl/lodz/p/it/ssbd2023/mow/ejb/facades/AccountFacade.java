@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.mok.ejb.facades;
+package pl.lodz.p.it.ssbd2023.mow.ejb.facades;
 
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -15,7 +15,7 @@ import java.util.List;
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class AccountFacade extends AbstractFacade<Account> {
 
-    @PersistenceContext(unitName = "ssbd05mokPU")
+    @PersistenceContext(unitName = "ssbd05mowPU")
     private EntityManager em;
 
     public AccountFacade() {

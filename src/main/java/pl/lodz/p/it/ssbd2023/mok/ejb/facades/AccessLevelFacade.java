@@ -9,7 +9,7 @@ import pl.lodz.p.it.ssbd2023.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.shared.AbstractFacade;
 
 @Stateless
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class AccessLevelFacade extends AbstractFacade<AccessLevel> {
 
     @PersistenceContext(unitName = "ssbd05mokPU")
