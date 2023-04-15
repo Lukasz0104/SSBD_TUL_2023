@@ -18,12 +18,12 @@
     <persistence-unit name="ssbd05mokPU" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <jta-data-source>java:app/jdbc/ssbd05mok</jta-data-source>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.Account</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.AccessLevel</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.ActivityTracker</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.AdminData</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.ManagerData</class>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.OwnerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ActivityTracker</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>
@@ -34,7 +34,7 @@
     <persistence-unit name="ssbd05authPU" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <jta-data-source>java:app/jdbc/ssbd05auth</jta-data-source>
-        <class>pl.lodz.p.it.ssbd2023.entities.mok.Account</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>
