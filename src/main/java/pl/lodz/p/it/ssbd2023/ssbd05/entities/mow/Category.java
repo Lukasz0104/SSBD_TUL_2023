@@ -43,13 +43,13 @@ public class Category extends AbstractEntity implements Serializable {
     private String name;
 
     @NotNull
-    @OneToMany(mappedBy = "category", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Rate> rates = new HashSet<>();
 
     @NotNull
-    @OneToMany(mappedBy = "category", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Cost> costs = new HashSet<>();

@@ -9,6 +9,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "meter")
+@Table(name = "meter", uniqueConstraints = @UniqueConstraint(columnNames = {"place_id", "category_id"}))
 @NamedQueries({
     @NamedQuery(
         name = "Meter.findAll",
@@ -73,21 +74,21 @@ import java.util.Set;
 @NoArgsConstructor
 public class Meter extends AbstractEntity implements Serializable {
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Category category;
 
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "place_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Place place;
 
     @NotNull
-    @OneToMany(mappedBy = "meter", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "meter", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Reading> readings = new HashSet<>();

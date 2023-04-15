@@ -66,7 +66,7 @@ public class Account extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @OneToMany(mappedBy = "account", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "account", cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
     @Getter
     private final Set<AccessLevel> accessLevels = new HashSet<>();
 

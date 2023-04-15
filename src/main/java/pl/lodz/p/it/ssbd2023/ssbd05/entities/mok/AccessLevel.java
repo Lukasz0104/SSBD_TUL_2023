@@ -1,7 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -15,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "access_level")
+@Table(name = "access_level", uniqueConstraints = @UniqueConstraint(columnNames = {"level", "account"}))
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING, name = "level")
 @NoArgsConstructor
@@ -48,7 +48,7 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
     private AccessTypes level;
 
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "account", referencedColumnName = "id", updatable = false)
     @Getter
     @Setter
