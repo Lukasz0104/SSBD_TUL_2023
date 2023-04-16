@@ -1,7 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -127,14 +126,14 @@ public class Forecast extends AbstractEntity implements Serializable {
     private BigDecimal amount;
 
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "place_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Place place;
 
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "rate_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter

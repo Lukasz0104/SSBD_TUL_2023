@@ -65,7 +65,7 @@ public class ManagerData extends AccessLevel implements Serializable {
     @Basic(optional = false)
     @Getter
     @Setter
-    @Column(name = "license_number")
+    @Column(name = "license_number", unique = true)
     private String licenseNumber;
 
     public ManagerData(Account account, Address address) {

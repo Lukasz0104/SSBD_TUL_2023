@@ -1,7 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -130,7 +129,7 @@ public class Rate extends AbstractEntity implements Serializable {
     private LocalDate effectiveDate;
 
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter

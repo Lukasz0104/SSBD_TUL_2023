@@ -1,7 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 
 import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -104,14 +103,6 @@ public class Cost extends AbstractEntity implements Serializable {
     @Setter
     private Month month;
 
-    @NotNull
-    @Basic(optional = false)
-    @Column(name = "total_cost", nullable = false)
-    @Getter
-    @Setter
-    private BigDecimal totalCost;
-
-
     @Column(name = "total_consumption")
     @Getter
     @Setter
@@ -125,17 +116,16 @@ public class Cost extends AbstractEntity implements Serializable {
     private BigDecimal realRate;
 
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Category category;
 
-    public Cost(Year year, Month month, BigDecimal totalCost, BigDecimal totalConsumption, BigDecimal realRate,
+    public Cost(Year year, Month month, BigDecimal totalConsumption, BigDecimal realRate,
                 Category category) {
         this.year = year;
         this.month = month;
-        this.totalCost = totalCost;
         this.totalConsumption = totalConsumption;
         this.realRate = realRate;
         this.category = category;

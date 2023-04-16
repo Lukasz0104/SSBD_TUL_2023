@@ -14,7 +14,6 @@ import lombok.Getter;
 public abstract class AbstractEntity {
 
     @Id
-    @NotNull
     @Basic(optional = false)
     @Column(name = "id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "place", uniqueConstraints = {@UniqueConstraint(columnNames = {"placeNumber", "building"})})
+@Table(name = "place", uniqueConstraints = {@UniqueConstraint(columnNames = {"place_number", "building_id"})})
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -106,34 +106,36 @@ public class Place extends AbstractEntity implements Serializable {
     private boolean active;
 
     @NotNull
-    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = false)
     @JoinColumn(name = "building_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Building building;
 
     @NotNull
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(
         name = "place_owner",
         joinColumns = @JoinColumn(name = "place_id"),
-        inverseJoinColumns = @JoinColumn(name = "owner_id"))
+        inverseJoinColumns = @JoinColumn(name = "owner_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"place_id", "owner_id"}))
     @Getter
     @Setter
     private Set<OwnerData> owners = new HashSet<>();
 
     @NotNull
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(
         name = "place_rate",
         joinColumns = @JoinColumn(name = "place_id"),
-        inverseJoinColumns = @JoinColumn(name = "rate_id"))
+        inverseJoinColumns = @JoinColumn(name = "rate_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"place_id", "rate_id"}))
     @Getter
     @Setter
     private Set<Rate> currentRates = new HashSet<>();
 
     @NotNull
-    @OneToMany(mappedBy = "place", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "place", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Meter> meters = new HashSet<>();
