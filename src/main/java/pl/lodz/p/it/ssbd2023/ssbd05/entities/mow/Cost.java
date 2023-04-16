@@ -103,14 +103,6 @@ public class Cost extends AbstractEntity implements Serializable {
     @Setter
     private Month month;
 
-    @NotNull
-    @Basic(optional = false)
-    @Column(name = "total_cost", nullable = false)
-    @Getter
-    @Setter
-    private BigDecimal totalCost;
-
-
     @Column(name = "total_consumption")
     @Getter
     @Setter
@@ -130,11 +122,10 @@ public class Cost extends AbstractEntity implements Serializable {
     @Setter
     private Category category;
 
-    public Cost(Year year, Month month, BigDecimal totalCost, BigDecimal totalConsumption, BigDecimal realRate,
+    public Cost(Year year, Month month, BigDecimal totalConsumption, BigDecimal realRate,
                 Category category) {
         this.year = year;
         this.month = month;
-        this.totalCost = totalCost;
         this.totalConsumption = totalConsumption;
         this.realRate = realRate;
         this.category = category;
