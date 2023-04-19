@@ -74,7 +74,7 @@ public class Account extends AbstractEntity implements Serializable {
     @Basic(optional = false)
     @Email
     @Size(min = 3, max = 320)
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, length = 320)
     @Getter
     @Setter
     private String email;
@@ -82,7 +82,7 @@ public class Account extends AbstractEntity implements Serializable {
     @NotNull
     @Basic(optional = false)
     @Size(min = 3, max = 100)
-    @Column(name = "login", nullable = false, unique = true)
+    @Column(name = "login", nullable = false, unique = true, length = 100)
     @Getter
     @Setter
     private String login;

@@ -6,6 +6,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,21 +24,22 @@ public class Address implements Serializable {
     @NotNull
     @Basic(optional = false)
     @Size(min = 6, max = 6)
-    @Column(name = "postal_code", nullable = false)
+    @Column(name = "postal_code", nullable = false, length = 6)
     private String postalCode;
 
     @NotNull
     @Basic(optional = false)
     @Size(min = 2, max = 85)
-    @Column(name = "city", nullable = false)
+    @Column(name = "city", nullable = false, length = 85)
     private String city;
 
     @NotNull
     @Basic(optional = false)
-    @Size(min = 85)
-    @Column(name = "street", nullable = false)
+    @Size(max = 85)
+    @Column(name = "street", nullable = false, length = 85)
     private String street;
 
+    @Positive
     @NotNull
     @Basic(optional = false)
     @Column(name = "building_number", nullable = false)

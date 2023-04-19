@@ -108,7 +108,7 @@ public class Forecast extends AbstractEntity implements Serializable {
 
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
