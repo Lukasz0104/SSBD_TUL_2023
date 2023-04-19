@@ -6,7 +6,6 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
@@ -29,7 +28,7 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return em;
     }
 
-    //Date
+    // Date
 
     public List<Forecast> findByYear(Year year) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByYear", Forecast.class);
@@ -50,7 +49,7 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return tq.getResultList();
     }
 
-    //PlaceId
+    // PlaceId
 
     public List<Forecast> findByPlaceId(Long placeId) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceId", Forecast.class);
@@ -81,44 +80,44 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
     }
 
 
-    public List<Forecast> findByPlaceIdAndCategory(Long placeId, Category category) {
-        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndCategory", Forecast.class);
+    public List<Forecast> findByPlaceIdAndCategory(Long placeId, Long categoryId) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndCategoryId", Forecast.class);
         tq.setParameter("place", placeId);
-        tq.setParameter("category", category);
+        tq.setParameter("categoryId", categoryId);
         return tq.getResultList();
     }
 
-    //Category
+    // Category
 
-    public List<Forecast> findByCategory(Category category) {
-        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByCategory", Forecast.class);
-        tq.setParameter("category", category);
+    public List<Forecast> findByCategory(Long categoryId) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByCategoryId", Forecast.class);
+        tq.setParameter("categoryId", categoryId);
         return tq.getResultList();
     }
 
-    public List<Forecast> findByYearAndCategory(Year year, Category category) {
-        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByYearAndCategory", Forecast.class);
+    public List<Forecast> findByYearAndCategory(Year year, Long categoryId) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByYearAndCategoryId", Forecast.class);
         tq.setParameter("year", year);
-        tq.setParameter("category", category);
+        tq.setParameter("categoryId", categoryId);
         return tq.getResultList();
     }
 
-    public List<Forecast> findByMonthAndCategory(Month month, Category category) {
-        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByMonthAndCategory", Forecast.class);
+    public List<Forecast> findByMonthAndCategory(Month month, Long categoryId) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByMonthAndCategoryId", Forecast.class);
         tq.setParameter("month", month);
-        tq.setParameter("category", category);
+        tq.setParameter("categoryId", categoryId);
         return tq.getResultList();
     }
 
-    public List<Forecast> findByMonthAndYearAndCategory(Month month, Year year, Category category) {
-        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByMonthAndYearAndCategory", Forecast.class);
+    public List<Forecast> findByMonthAndYearAndCategory(Month month, Year year, Long categoryId) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByMonthAndYearAndCategoryId", Forecast.class);
         tq.setParameter("month", month);
         tq.setParameter("year", year);
-        tq.setParameter("category", category);
+        tq.setParameter("categoryId", categoryId);
         return tq.getResultList();
     }
 
-    //Rate
+    // Rate
 
     public List<Forecast> findByRateId(Long rateId) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByRateId", Forecast.class);

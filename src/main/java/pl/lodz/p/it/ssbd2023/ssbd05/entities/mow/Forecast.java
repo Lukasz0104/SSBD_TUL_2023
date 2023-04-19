@@ -10,6 +10,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,8 +41,8 @@ import java.time.Year;
         name = "Forecast.findByMonthAndYear",
         query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year"),
     @NamedQuery(
-        name = "Forecast.findByPlaceIdAndCategory",
-        query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.rate.category = :category"),
+        name = "Forecast.findByPlaceIdAndCategoryId",
+        query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.rate.category.id = :categoryId"),
 
     // place queries
     @NamedQuery(
@@ -59,19 +60,19 @@ import java.time.Year;
 
     // category queries
     @NamedQuery(
-        name = "Forecast.findByCategory",
-        query = "SELECT f FROM Forecast f WHERE f.rate.category = :category"),
+        name = "Forecast.findByCategoryId",
+        query = "SELECT f FROM Forecast f WHERE f.rate.category.id = :categoryId"),
     @NamedQuery(
-        name = "Forecast.findByYearAndCategory",
-        query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.rate.category = :category"),
+        name = "Forecast.findByYearAndCategoryId",
+        query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.rate.category.id = :categoryId"),
     @NamedQuery(
-        name = "Forecast.findByMonthAndCategory",
-        query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.rate.category = :category"),
+        name = "Forecast.findByMonthAndCategoryId",
+        query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.rate.category.id = :categoryId"),
     @NamedQuery(
-        name = "Forecast.findByMonthAndYearAndCategory",
+        name = "Forecast.findByMonthAndYearAndCategoryId",
         query = """
-            SELECT f FROM Forecast f 
-            WHERE f.month = :month AND f.year = :year AND f.rate.category.id = :category"""),
+            SELECT f FROM Forecast f
+            WHERE f.month = :month AND f.year = :year AND f.rate.category.id = :categoryId"""),
 
     // rate queries
     @NamedQuery(
@@ -107,20 +108,21 @@ public class Forecast extends AbstractEntity implements Serializable {
 
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
 
-
-    @Column(name = "real_value")
+    @PositiveOrZero
+    @Column(name = "real_value", scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal realValue;
 
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "amount", nullable = false)
+    @Column(name = "amount", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal amount;

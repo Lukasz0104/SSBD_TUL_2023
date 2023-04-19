@@ -10,6 +10,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -103,14 +104,16 @@ public class Cost extends AbstractEntity implements Serializable {
     @Setter
     private Month month;
 
-    @Column(name = "total_consumption")
+    @PositiveOrZero
+    @Column(name = "total_consumption", scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal totalConsumption;
 
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "real_rate", nullable = false)
+    @Column(name = "real_rate", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal realRate;

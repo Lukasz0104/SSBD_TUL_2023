@@ -10,6 +10,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -149,17 +150,18 @@ public class Report extends AbstractEntity implements Serializable {
     @Setter
     private Year year;
 
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "total_cost", nullable = false)
+    @Column(name = "total_cost", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal totalCost;
 
-
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "total_consumption", nullable = false)
+    @Column(name = "total_consumption", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal totalConsumption;

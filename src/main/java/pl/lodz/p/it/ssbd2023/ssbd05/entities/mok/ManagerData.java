@@ -65,11 +65,11 @@ public class ManagerData extends AccessLevel implements Serializable {
     @Basic(optional = false)
     @Getter
     @Setter
-    @Column(name = "license_number", unique = true)
+    @Column(name = "license_number", unique = true, nullable = false)
     private String licenseNumber;
 
     public ManagerData(Account account, Address address) {
-        super(AccessTypes.MANAGER, account);
+        super(AccessType.MANAGER, account);
         this.address = address;
     }
 }
