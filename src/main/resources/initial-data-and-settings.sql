@@ -6,11 +6,7 @@ GRANT SELECT, INSERT, UPDATE ON TABLE manager_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE ON TABLE owner_data TO ssbd05mok;
 GRANT SELECT, INSERT, DELETE ON TABLE token TO ssbd05mok;
 
-CREATE VIEW auth_view AS
-SELECT login, password
-FROM account a
-WHERE a.active = TRUE
-  AND a.verified = TRUE;
+CREATE VIEW auth_view AS SELECT login, password FROM account a WHERE a.active = TRUE AND a.verified = TRUE;
 
 GRANT SELECT ON auth_view TO ssbd05auth;
 

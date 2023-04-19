@@ -42,9 +42,9 @@ public class TokenFacade extends AbstractFacade<Token> {
         return tq.getResultList();
     }
 
-    public List<Token> findByTokenType(TokenType tokenTypes) {
+    public List<Token> findByTokenType(TokenType tokenType) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenType", Token.class);
-        tq.setParameter("tokenType", tokenTypes);
+        tq.setParameter("tokenType", tokenType);
         return tq.getResultList();
     }
 
