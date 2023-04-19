@@ -7,7 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenTypes;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.LocalDateTime;
@@ -42,7 +42,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         return tq.getResultList();
     }
 
-    public List<Token> findByTokenType(TokenTypes tokenTypes) {
+    public List<Token> findByTokenType(TokenType tokenTypes) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenType", Token.class);
         tq.setParameter("tokenType", tokenTypes);
         return tq.getResultList();
@@ -60,21 +60,21 @@ public class TokenFacade extends AbstractFacade<Token> {
         return this.findByExpiresAtIf(expiresAt, true);
     }
 
-    public Token findByAccountIdAndTokenType(Long accountId, TokenTypes tokenType) {
+    public Token findByAccountIdAndTokenType(Long accountId, TokenType tokenType) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountIdAndTokenType", Token.class);
         tq.setParameter("accountId", accountId);
         tq.setParameter("tokenType", tokenType);
         return tq.getSingleResult();
     }
 
-    public List<Token> findByTokenTypeAndExpiresAtAfter(TokenTypes tokenType, LocalDateTime expiresAt) {
+    public List<Token> findByTokenTypeAndExpiresAtAfter(TokenType tokenType, LocalDateTime expiresAt) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenTypeAndExpiresAtAfter", Token.class);
         tq.setParameter("tokenType", tokenType);
         tq.setParameter("expiresAt", expiresAt);
         return tq.getResultList();
     }
 
-    public List<Token> findByTokenTypeAndExpiresAtBefore(TokenTypes tokenType, LocalDateTime expiresAt) {
+    public List<Token> findByTokenTypeAndExpiresAtBefore(TokenType tokenType, LocalDateTime expiresAt) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenTypeAndExpiresAtBefore", Token.class);
         tq.setParameter("tokenType", tokenType);
         tq.setParameter("expiresAt", expiresAt);

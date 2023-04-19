@@ -85,9 +85,9 @@ public class Token extends AbstractEntity {
     @Basic(optional = false)
     @Column(name = "token_type", updatable = false, nullable = false)
     @Enumerated(EnumType.STRING)
-    private TokenTypes tokenType;
+    private TokenType tokenType;
 
-    public Token(UUID token, Account account, TokenTypes tokenType) {
+    public Token(UUID token, Account account, TokenType tokenType) {
         this.token = token;
         this.account = account;
         this.tokenType = tokenType;
