@@ -16,6 +16,6 @@ public class AdminData extends AccessLevel implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public AdminData(Account account) {
-        super(AccessTypes.ADMIN, account);
+        super(AccessType.ADMIN, account);
     }
 }

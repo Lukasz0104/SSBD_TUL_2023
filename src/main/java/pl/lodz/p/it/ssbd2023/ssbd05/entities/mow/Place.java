@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -77,6 +78,7 @@ public class Place extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Positive
     @NotNull
     @Basic(optional = false)
     @Column(name = "place_number", nullable = false)
@@ -84,9 +86,10 @@ public class Place extends AbstractEntity implements Serializable {
     @Setter
     private Integer placeNumber;
 
+    @Positive
     @NotNull
     @Basic(optional = false)
-    @Column(name = "square_footage", nullable = false)
+    @Column(name = "square_footage", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal squareFootage;

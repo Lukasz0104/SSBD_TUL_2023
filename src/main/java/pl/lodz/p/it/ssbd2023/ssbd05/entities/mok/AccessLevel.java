@@ -34,7 +34,17 @@ import java.io.Serializable;
         query = "SELECT a FROM AccessLevel a WHERE a.id = :id"),
     @NamedQuery(
         name = "AccessLevel.findDataByAccessType",
-        query = "SELECT a FROM AccessLevel a WHERE a.level = :level")
+        query = "SELECT a FROM AccessLevel a WHERE a.level = :level"),
+    @NamedQuery(
+        name = "AccessLevel.findByAccountId",
+        query = """
+            SELECT al FROM AccessLevel al
+            WHERE al.account.id = :accountId"""),
+    @NamedQuery(
+        name = "AccessLevel.findActiveByAccountId",
+        query = """
+            SELECT al FROM AccessLevel al
+            WHERE al.active = TRUE AND al.account.id = :accountId"""),
 })
 public abstract class AccessLevel extends AbstractEntity implements Serializable {
 
@@ -45,7 +55,7 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
     @Column(name = "level", updatable = false)
     @Enumerated(EnumType.STRING)
     @Getter
-    private AccessTypes level;
+    private AccessType level;
 
     @NotNull
     @ManyToOne(optional = false)
@@ -54,8 +64,20 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
     @Setter
     private Account account;
 
-    public AccessLevel(AccessTypes accessTypes, Account account) {
+    @NotNull
+    @Getter
+    @Setter
+    @Basic(optional = false)
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
+
+    public AccessLevel(AccessType accessTypes, Account account) {
         this.level = accessTypes;
         this.account = account;
+    }
+
+    public AccessLevel(AccessType accessTypes, Account account, boolean active) {
+        this(accessTypes, account);
+        this.active = active;
     }
 }

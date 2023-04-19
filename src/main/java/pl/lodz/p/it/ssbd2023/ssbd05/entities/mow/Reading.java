@@ -9,6 +9,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -132,9 +133,10 @@ public class Reading extends AbstractEntity implements Serializable {
     @Setter
     private LocalDateTime date;
 
+    @Positive
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", nullable = false, scale = 3, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;

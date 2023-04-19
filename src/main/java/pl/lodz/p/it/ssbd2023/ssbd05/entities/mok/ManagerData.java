@@ -69,7 +69,7 @@ public class ManagerData extends AccessLevel implements Serializable {
     private String licenseNumber;
 
     public ManagerData(Account account, Address address) {
-        super(AccessTypes.MANAGER, account);
+        super(AccessType.MANAGER, account);
         this.address = address;
     }
 }

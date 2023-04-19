@@ -97,7 +97,7 @@ public class Account extends AbstractEntity implements Serializable {
     @NotNull
     @Basic(optional = false)
     @Size(min = 1, max = 100)
-    @Column(name = "first_name", table = "account_data", nullable = false)
+    @Column(name = "first_name", table = "account_data", nullable = false, length = 100)
     @Getter
     @Setter
     private String firstName;
@@ -105,7 +105,7 @@ public class Account extends AbstractEntity implements Serializable {
     @NotNull
     @Basic(optional = false)
     @Size(min = 1, max = 100)
-    @Column(name = "last_name", table = "account_data", nullable = false)
+    @Column(name = "last_name", table = "account_data", nullable = false, length = 100)
     @Getter
     @Setter
     private String lastName;
@@ -125,7 +125,7 @@ public class Account extends AbstractEntity implements Serializable {
     private boolean active = true;
 
     @NotNull
-    @Column(name = "language", nullable = false)
+    @Column(name = "language", nullable = false, length = 2)
     @Size(min = 2, max = 2)
     @Basic(optional = false)
     @Getter
