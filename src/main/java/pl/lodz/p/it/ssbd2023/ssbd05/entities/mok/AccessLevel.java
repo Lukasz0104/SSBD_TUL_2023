@@ -52,14 +52,14 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
 
     @NotNull
     @Basic(optional = false)
-    @Column(name = "level", updatable = false)
+    @Column(name = "level", updatable = false, nullable = false)
     @Enumerated(EnumType.STRING)
     @Getter
     private AccessType level;
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "account", referencedColumnName = "id", updatable = false)
+    @JoinColumn(name = "account", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Account account;
