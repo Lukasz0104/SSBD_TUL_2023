@@ -60,11 +60,11 @@ public class TokenFacade extends AbstractFacade<Token> {
         return this.findByExpiresAtIf(expiresAt, true);
     }
 
-    public Token findByAccountIdAndTokenType(Long accountId, TokenType tokenType) {
+    public List<Token> findByAccountIdAndTokenType(Long accountId, TokenType tokenType) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountIdAndTokenType", Token.class);
         tq.setParameter("accountId", accountId);
         tq.setParameter("tokenType", tokenType);
-        return tq.getSingleResult();
+        return tq.getResultList();
     }
 
     public List<Token> findByTokenTypeAndExpiresAtAfter(TokenType tokenType, LocalDateTime expiresAt) {
@@ -92,6 +92,13 @@ public class TokenFacade extends AbstractFacade<Token> {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountIdAndExpiresAtBefore", Token.class);
         tq.setParameter("accountId", accountId);
         tq.setParameter("expiresAt", expiresAt);
+        return tq.getResultList();
+    }
+
+    public List<Token> findByAccountLoginAndTokenType(String login, TokenType tokenType) {
+        TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountLoginAndTokenType", Token.class);
+        tq.setParameter("login", login);
+        tq.setParameter("tokenType", tokenType);
         return tq.getResultList();
     }
 

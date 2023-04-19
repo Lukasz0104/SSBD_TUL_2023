@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +21,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "token", uniqueConstraints = {@UniqueConstraint(columnNames = {"account_id", "token_type"})})
+@Table(name = "token")
 @NamedQueries({
     @NamedQuery(
         name = "Token.findAll",
@@ -62,7 +61,10 @@ import java.util.UUID;
         query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.expiresAt >= :expiresAt"),
     @NamedQuery(
         name = "Token.findByAccountIdAndExpiresAtBefore",
-        query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.expiresAt < :expiresAt")
+        query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.expiresAt < :expiresAt"),
+    @NamedQuery(
+        name = "Token.findByAccountLoginAndTokenType",
+        query = "SELECT t FROM Token t WHERE t.account.login = :login AND t.tokenType = :tokenType")
 })
 public class Token extends AbstractEntity {
 
