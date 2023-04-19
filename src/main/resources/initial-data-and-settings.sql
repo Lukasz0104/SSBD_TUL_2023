@@ -4,6 +4,7 @@ GRANT SELECT, INSERT, UPDATE ON TABLE account_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE ON TABLE admin_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE ON TABLE manager_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE ON TABLE owner_data TO ssbd05mok;
+GRANT SELECT, INSERT, DELETE ON TABLE token TO ssbd05mok;
 
 CREATE VIEW auth_view AS SELECT login, password FROM account a WHERE a.active = TRUE AND a.verified = TRUE;
 
@@ -28,6 +29,7 @@ GRANT SELECT ON TABLE manager_data TO ssbd05mow;
 
 GRANT SELECT, UPDATE ON SEQUENCE access_level_id_seq TO ssbd05mok;
 GRANT SELECT, UPDATE ON SEQUENCE account_id_seq TO ssbd05mok;
+GRANT SELECT, UPDATE ON SEQUENCE token_id_seq TO ssbd05mok;
 
 GRANT SELECT, UPDATE ON SEQUENCE building_id_seq TO ssbd05mow;
 GRANT SELECT, UPDATE ON SEQUENCE category_id_seq TO ssbd05mow;
@@ -54,6 +56,7 @@ CREATE INDEX rate_category_id ON rate USING btree (category_id);
 CREATE INDEX reading_meter_id ON reading USING btree (meter_id);
 CREATE INDEX report_category_id ON report USING btree (category_id);
 CREATE INDEX report_place_id ON report USING btree (place_id);
+CREATE INDEX token_account_id ON token USING btree (account_id);
 
 insert into public.account (id, active, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip) values (-1, true, 'ikaminski@gmail.com', 'PL', 'ikaminski', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null);
 insert into public.account (id, active, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip) values (-2, true, 'lnowicki@gmail.com', 'PL', 'lnowicki', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null);
