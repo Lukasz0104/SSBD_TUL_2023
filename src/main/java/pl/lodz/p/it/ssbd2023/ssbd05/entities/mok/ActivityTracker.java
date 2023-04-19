@@ -27,4 +27,7 @@ public class ActivityTracker implements Serializable {
 
     @Column(name = "last_unsuccessful_login_ip")
     private String lastUnsuccessfulLoginIp;
+
+    @Column(name = "unsuccessful_login_chain_counter")
+    private Integer unsuccessfulLoginChainCounter = 0;
 }
