@@ -1,12 +1,12 @@
-GRANT SELECT, INSERT, UPDATE ON TABLE account TO ssbd05mok;
-GRANT SELECT, INSERT, DELETE ON TABLE access_level TO ssbd05mok;
-GRANT SELECT, INSERT, UPDATE ON TABLE account_data TO ssbd05mok;
-GRANT SELECT, INSERT, UPDATE ON TABLE admin_data TO ssbd05mok;
-GRANT SELECT, INSERT, UPDATE ON TABLE manager_data TO ssbd05mok;
-GRANT SELECT, INSERT, UPDATE ON TABLE owner_data TO ssbd05mok;
-GRANT SELECT, INSERT, DELETE ON TABLE token TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE account TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE access_level TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE account_data TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE admin_data TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE manager_data TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE owner_data TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE token TO ssbd05mok;
 
-CREATE VIEW auth_view AS SELECT login, password, level FROM account a, access_level al WHERE (a.id = al.account) AND a.active = TRUE AND a.verified = TRUE AND al.active = TRUE;
+CREATE VIEW auth_view AS SELECT login, password, level FROM account a, access_level al WHERE (a.id = al.account_id) AND a.active = TRUE AND a.verified = TRUE AND al.active = TRUE;
 
 GRANT SELECT ON auth_view TO ssbd05auth;
 
@@ -21,6 +21,7 @@ GRANT SELECT, INSERT, DELETE ON TABLE place_rate TO ssbd05mow;
 GRANT SELECT, INSERT, DELETE ON TABLE rate TO ssbd05mow;
 GRANT SELECT, INSERT ON TABLE reading TO ssbd05mow;
 GRANT SELECT, INSERT ON TABLE report TO ssbd05mow;
+
 GRANT SELECT ON TABLE account TO ssbd05mow;
 GRANT SELECT ON TABLE account_data TO ssbd05mow;
 GRANT SELECT ON TABLE access_level TO ssbd05mow;
@@ -41,7 +42,7 @@ GRANT SELECT, UPDATE ON SEQUENCE rate_id_seq TO ssbd05mow;
 GRANT SELECT, UPDATE ON SEQUENCE reading_id_seq TO ssbd05mow;
 GRANT SELECT, UPDATE ON SEQUENCE report_id_seq TO ssbd05mow;
 
-CREATE INDEX access_level_account_id ON access_level USING btree (account);
+CREATE INDEX access_level_account_id ON access_level USING btree (account_id);
 CREATE INDEX cost_category_id ON cost USING btree (category_id);
 CREATE INDEX forecast_place_id ON forecast USING btree (place_id);
 CREATE INDEX forecast_rate_id ON forecast USING btree (rate_id);
@@ -74,18 +75,18 @@ insert into public.account_data (id, first_name, last_name) values (-5, 'Dominik
 insert into public.account_data (id, first_name, last_name) values (-6, 'Bartosz', 'Jaworski');
 
 -- Access Levels
-insert into public.access_level (id, level, version, account) values (-1, 'OWNER', 0, -1);
+insert into public.access_level (id, level, version, account_id, active) values (-1, 'OWNER', 0, -1, TRUE);
 
-insert into public.access_level (id, level, version, account) values (-2, 'OWNER', 0, -2);
+insert into public.access_level (id, level, version, account_id, active) values (-2, 'OWNER', 0, -2, TRUE);
 
-insert into public.access_level (id, level, version, account) values (-3, 'OWNER', 0, -3);
+insert into public.access_level (id, level, version, account_id, active) values (-3, 'OWNER', 0, -3, TRUE);
 
-insert into public.access_level (id, level, version, account) values (-4, 'OWNER', 0, -4);
-insert into public.access_level (id, level, version, account) values (-5, 'MANAGER', 0, -4);
+insert into public.access_level (id, level, version, account_id, active) values (-4, 'OWNER', 0, -4, TRUE);
+insert into public.access_level (id, level, version, account_id, active) values (-5, 'MANAGER', 0, -4, TRUE);
 
-insert into public.access_level (id, level, version, account) values (-6, 'MANAGER', 0, -5);
+insert into public.access_level (id, level, version, account_id, active) values (-6, 'MANAGER', 0, -5, TRUE);
 
-insert into public.access_level (id, level, version, account) values (-7, 'ADMIN', 0, -6);
+insert into public.access_level (id, level, version, account_id, active) values (-7, 'ADMIN', 0, -6, TRUE);
 
 
 -- Owner Data

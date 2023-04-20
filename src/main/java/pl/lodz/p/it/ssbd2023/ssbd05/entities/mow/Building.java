@@ -40,9 +40,10 @@ public class Building extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @NotNull
     @OneToMany(mappedBy = "building", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @Getter
-    private final Set<Place> places = new HashSet<>();
+    private Set<Place> places = new HashSet<>();
 
     @Embedded
     @NotNull
