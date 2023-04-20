@@ -24,7 +24,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "access_level", uniqueConstraints = @UniqueConstraint(columnNames = {"level", "account"}))
+@Table(name = "access_level", uniqueConstraints = @UniqueConstraint(columnNames = {"level", "account_id"}))
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING, name = "level")
 @NoArgsConstructor
@@ -59,7 +59,7 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "account", referencedColumnName = "id", updatable = false, nullable = false)
+    @JoinColumn(name = "account_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Account account;
