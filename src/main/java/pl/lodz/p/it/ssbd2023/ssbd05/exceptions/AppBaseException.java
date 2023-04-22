@@ -9,4 +9,8 @@ public abstract class AppBaseException extends Exception {
     public AppBaseException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public AppBaseException(Throwable throwable) {
+        super(throwable);
+    }
 }

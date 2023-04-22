@@ -20,7 +20,7 @@ public abstract class AbstractFacade<T> {
 
     protected abstract EntityManager getEntityManager();
 
-    public void create(T entity) throws AppBaseException {
+    protected void create(T entity) throws AppBaseException {
         try {
             getEntityManager().persist(entity);
             getEntityManager().flush();
@@ -29,11 +29,16 @@ public abstract class AbstractFacade<T> {
         }
     }
 
-    public void edit(T entity) {
-        getEntityManager().merge(entity);
+    protected void edit(T entity) throws AppBaseException {
+        try {
+            getEntityManager().merge(entity);
+            getEntityManager().flush();
+        } catch (PersistenceException pe) {
+            throw new DatabaseException(pe);
+        }
     }
 
-    public void remove(T entity) {
+    protected void remove(T entity) {
         getEntityManager().remove(getEntityManager().merge(entity));
     }
 

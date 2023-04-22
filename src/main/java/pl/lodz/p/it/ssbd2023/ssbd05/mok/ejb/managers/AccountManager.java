@@ -59,8 +59,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmRegistration(UUID confirmToken)
-        throws TokenNotFoundException, ExpiredTokenException, InvalidTokenTypeException {
-        Token token = tokenFacade.findByToken(confirmToken);
+        throws AppBaseException {
+        Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new ExpiredTokenException();
@@ -73,7 +73,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = token.getAccount();
         account.setVerified(true);
 
-        accountFacade.edit(account);
+        accountFacade.edit(account); // TODO Catch and handle DatabaseException
         tokenFacade.remove(token);
     }
 }

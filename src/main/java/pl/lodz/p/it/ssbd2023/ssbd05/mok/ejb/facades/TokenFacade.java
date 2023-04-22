@@ -9,11 +9,12 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Stateless
@@ -32,13 +33,23 @@ public class TokenFacade extends AbstractFacade<Token> {
         return em;
     }
 
-    public Token findByToken(UUID token) throws TokenNotFoundException {
+    @Override
+    public void create(Token entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
+    public void remove(Token entity) {
+        super.remove(entity);
+    }
+
+    public Optional<Token> findByToken(UUID token) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByToken", Token.class);
         tq.setParameter("token", token);
         try {
-            return tq.getSingleResult();
+            return Optional.of(tq.getSingleResult());
         } catch (NoResultException nre) {
-            throw new TokenNotFoundException();
+            return Optional.empty();
         }
     }
 
