@@ -3,23 +3,17 @@ package pl.lodz.p.it.ssbd2023.ssbd05.exceptions.mapper;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBadRequestException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.ConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.ExpiredTokenException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.InvalidTokenTypeException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.TokenNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppConflictException;
 
 @Provider
 public class AppExceptionMapper implements ExceptionMapper<AppBaseException> {
     @Override
     public Response toResponse(AppBaseException e) {
-        if (e instanceof ConstraintViolationException cve) {
+        if (e instanceof AppConflictException ace) {
             return Response.status(Response.Status.CONFLICT).build();
-        } else if (e instanceof TokenNotFoundException tnfe) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } else if (e instanceof ExpiredTokenException ete) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } else if (e instanceof InvalidTokenTypeException itte) {
+        } else if (e instanceof AppBadRequestException abre) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
