@@ -5,12 +5,14 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -38,10 +40,14 @@ public class AccountFacade extends AbstractFacade<Account> {
         super.edit(entity);
     }
 
-    public Account findByLogin(String login) {
-        TypedQuery<Account> tq = em.createNamedQuery("Account.findByLogin", Account.class);
-        tq.setParameter("login", login);
-        return tq.getSingleResult();
+    public Optional<Account> findByLogin(String login) {
+        try {
+            TypedQuery<Account> tq = em.createNamedQuery("Account.findByLogin", Account.class);
+            tq.setParameter("login", login);
+            return Optional.of(tq.getSingleResult());
+        } catch (PersistenceException pe) {
+            return Optional.empty();
+        }
     }
 
     public Account findByEmail(String email) {

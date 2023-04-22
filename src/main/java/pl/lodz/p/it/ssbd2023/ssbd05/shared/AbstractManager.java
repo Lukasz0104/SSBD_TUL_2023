@@ -4,13 +4,15 @@ import static jakarta.ejb.TransactionAttributeType.NOT_SUPPORTED;
 
 import jakarta.annotation.Resource;
 import jakarta.ejb.SessionContext;
+import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.TransactionAttribute;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class AbstractManager {
+
+public abstract class AbstractManager implements SessionSynchronization {
 
     @Resource
     SessionContext sctx;
@@ -26,38 +28,31 @@ public abstract class AbstractManager {
         return lastTransactionRollback;
     }
 
+    @Override
     public void afterBegin() {
         transactionId = Long.toString(System.currentTimeMillis())
-                        + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
-        LOGGER.log(
-            Level.INFO,
-            "Transakcja TXid={0} rozpoczęta w {1}, tożsamość: {2}",
-            new Object[] {
-                transactionId,
-                this.getClass().getName(),
-                sctx.getCallerPrincipal().getName()});
+                + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+        LOGGER.log(Level.INFO, "Transaction TXid={0} has begun at {1}, "
+                + " caller: {2}", new Object[] {transactionId,
+                this.getClass().getName(), sctx.getCallerPrincipal().getName()});
     }
 
+    @Override
     public void beforeCompletion() {
-        LOGGER.log(
-            Level.INFO,
-            "Transakcja TXid={0} przed zatwierdzeniem w {1} tożsamość: {2}",
-            new Object[] {
-                transactionId,
-                this.getClass().getName(),
-                sctx.getCallerPrincipal().getName()});
+        LOGGER.log(Level.INFO, "Transaction TXid={0} before completion at"
+                + " {1} caller: {2}", new Object[] {transactionId,
+                this.getClass().getName(), sctx.getCallerPrincipal().getName()});
     }
 
+    @Override
     public void afterCompletion(boolean committed) {
         lastTransactionRollback = !committed;
         LOGGER.log(
-            Level.INFO,
-            "Transakcja TXid={0} zakończona w {1} poprzez {3}, tożsamość {2}",
-            new Object[] {
-                transactionId,
-                this.getClass().getName(),
-                sctx.getCallerPrincipal().getName(),
-                committed ? "ZATWIERDZENIE" : "ODWOŁANIE"});
+                Level.INFO,
+                "Transaction TXid={0} has completed at {1} by {3}, caller {2}",
+                new Object[] {
+                        transactionId,
+                        this.getClass().getName(), sctx.getCallerPrincipal().getName(),
+                        committed ? "COMMIT" : "ROLLBACK"});
     }
-
 }
