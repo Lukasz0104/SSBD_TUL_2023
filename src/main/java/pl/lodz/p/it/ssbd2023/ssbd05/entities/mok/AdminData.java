@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "admin_data")
-@DiscriminatorValue("admin")
+@DiscriminatorValue("ADMIN")
 @NoArgsConstructor
 public class AdminData extends AccessLevel implements Serializable {
 

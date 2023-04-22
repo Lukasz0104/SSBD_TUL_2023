@@ -30,4 +30,8 @@ public class ActivityTracker implements Serializable {
 
     @Column(name = "unsuccessful_login_chain_counter")
     private Integer unsuccessfulLoginChainCounter = 0;
+
+    public void incrementUnsuccessfulLoginChainCounter() {
+        this.unsuccessfulLoginChainCounter++;
+    }
 }
