@@ -4,10 +4,12 @@ import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.LocalDateTime;
@@ -30,10 +32,14 @@ public class TokenFacade extends AbstractFacade<Token> {
         return em;
     }
 
-    public Token findByToken(UUID token) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findById", Token.class);
+    public Token findByToken(UUID token) throws TokenNotFoundException {
+        TypedQuery<Token> tq = em.createNamedQuery("Token.findByToken", Token.class);
         tq.setParameter("token", token);
-        return tq.getSingleResult();
+        try {
+            return tq.getSingleResult();
+        } catch (NoResultException nre) {
+            throw new TokenNotFoundException();
+        }
     }
 
     public List<Token> findTokenByAccountId(Long accountId) {

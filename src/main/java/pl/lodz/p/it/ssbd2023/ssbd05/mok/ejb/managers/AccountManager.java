@@ -11,11 +11,17 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.ExpiredTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.InvalidTokenTypeException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -49,5 +55,25 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         tokenFacade.create(token);
 
         emailService.sendMessage();
+    }
+
+    @Override
+    public void confirmRegistration(UUID confirmToken)
+        throws TokenNotFoundException, ExpiredTokenException, InvalidTokenTypeException {
+        Token token = tokenFacade.findByToken(confirmToken);
+
+        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ExpiredTokenException();
+        }
+
+        if (token.getTokenType() != TokenType.CONFIRM_REGISTRATION_TOKEN) {
+            throw new InvalidTokenTypeException();
+        }
+
+        Account account = token.getAccount();
+        account.setVerified(true);
+
+        accountFacade.edit(account);
+        tokenFacade.remove(token);
     }
 }

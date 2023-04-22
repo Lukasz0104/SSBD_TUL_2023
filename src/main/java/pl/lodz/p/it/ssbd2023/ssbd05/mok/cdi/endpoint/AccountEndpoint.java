@@ -6,9 +6,11 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.utils.AccountDtoConverter.createAddre
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
@@ -17,9 +19,14 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.ExpiredTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.InvalidTokenTypeException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
+
+import java.util.UUID;
 
 @RequestScoped
 @Path("/accounts")
@@ -54,6 +61,14 @@ public class AccountEndpoint {
         account.getAccessLevels().add(accessLevel);
 
         accountManager.registerAccount(account);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/confirm-registration")
+    public Response confirmRegistration(@NotNull @QueryParam("token") UUID token)
+        throws ExpiredTokenException, TokenNotFoundException, InvalidTokenTypeException {
+        accountManager.confirmRegistration(token);
         return Response.noContent().build();
     }
 }
