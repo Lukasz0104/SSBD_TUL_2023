@@ -1,9 +1,12 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.shared;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 
 import java.util.List;
 
@@ -17,8 +20,13 @@ public abstract class AbstractFacade<T> {
 
     protected abstract EntityManager getEntityManager();
 
-    public void create(T entity) {
-        getEntityManager().persist(entity);
+    public void create(T entity) throws AppBaseException {
+        try {
+            getEntityManager().persist(entity);
+            getEntityManager().flush();
+        } catch (PersistenceException pex) {
+            throw new DatabaseException("", pex); // TODO
+        }
     }
 
     public void edit(T entity) {
