@@ -6,7 +6,7 @@ public class DatabaseException extends AppBaseException {
         super(message, cause);
     }
 
-    public DatabaseException(Throwable throwable) {
-        super(throwable);
+    public DatabaseException(Throwable cause) {
+        super(cause);
     }
 }

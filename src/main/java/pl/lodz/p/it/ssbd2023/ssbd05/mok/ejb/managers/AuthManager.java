@@ -9,10 +9,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.LoginResponseDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.LoginResponseDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwtUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
@@ -29,13 +30,16 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
     private TokenFacade tokenFacade;
 
     @Inject
+    private EmailService emailService;
+
+    @Inject
     private JwtUtils jwtUtils;
 
     @Inject
     private Properties properties;
 
 
-    public LoginResponseDTO registerSuccessfulLogin(String login, String ip) throws AppBaseException {
+    public LoginResponseDto registerSuccessfulLogin(String login, String ip) throws AppBaseException {
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AccountNotFoundException::new);
 
@@ -47,7 +51,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
         tokenFacade.create(refreshToken);
         accountFacade.edit(account);
 
-        return new LoginResponseDTO(jwt, refreshToken.getToken());
+        return new LoginResponseDto(jwt, refreshToken.getToken());
     }
 
     public void registerUnsuccessfulLogin(String login, String ip) throws AppBaseException {
@@ -61,7 +65,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
             account.setActive(false);
             account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
             accountFacade.edit(account);
-            //TODO send email
+            emailService.sendMessage();
         }
     }
 }

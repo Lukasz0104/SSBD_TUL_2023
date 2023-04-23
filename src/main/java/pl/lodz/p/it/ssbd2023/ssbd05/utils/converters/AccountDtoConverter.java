@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.utils;
+package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;

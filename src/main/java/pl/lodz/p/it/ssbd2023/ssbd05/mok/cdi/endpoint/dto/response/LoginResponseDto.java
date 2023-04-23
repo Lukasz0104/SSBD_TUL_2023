@@ -11,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class LoginResponseDTO {
+public class LoginResponseDto {
     @NotNull
     private String jwt;
 
