@@ -31,6 +31,11 @@ public class AccountFacade extends AbstractFacade<Account> {
     }
 
     @Override
+    public void create(Account entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
     public void edit(Account entity) throws AppBaseException {
         super.edit(entity);
     }

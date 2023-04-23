@@ -26,7 +26,7 @@ public abstract class AbstractFacade<T> {
             getEntityManager().persist(entity);
             getEntityManager().flush();
         } catch (PersistenceException pe) {
-            throw new DatabaseException(pe);
+            throw new DatabaseException("", pe); // TODO
         }
     }
 

@@ -24,6 +24,7 @@
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.Address</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
