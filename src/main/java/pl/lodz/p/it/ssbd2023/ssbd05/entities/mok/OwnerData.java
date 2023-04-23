@@ -16,7 +16,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "owner_data")
-@DiscriminatorValue("owner")
+@DiscriminatorValue("OWNER")
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(

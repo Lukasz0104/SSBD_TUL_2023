@@ -89,6 +89,10 @@ public class Token extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private TokenType tokenType;
 
+    public Token(Account account, TokenType tokenType) {
+        this(UUID.randomUUID(), account, tokenType);
+    }
+
     public Token(UUID token, Account account, TokenType tokenType) {
         this.token = token;
         this.account = account;
@@ -100,4 +104,3 @@ public class Token extends AbstractEntity {
         };
     }
 }
-

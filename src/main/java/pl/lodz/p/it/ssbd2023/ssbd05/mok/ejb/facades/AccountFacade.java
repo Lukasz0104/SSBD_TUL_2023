@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.util.List;
@@ -25,6 +26,16 @@ public class AccountFacade extends AbstractFacade<Account> {
     @Override
     protected EntityManager getEntityManager() {
         return em;
+    }
+
+    @Override
+    public void create(Account entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
+    public void edit(Account entity) throws AppBaseException {
+        super.edit(entity);
     }
 
     public Account findByLogin(String login) {

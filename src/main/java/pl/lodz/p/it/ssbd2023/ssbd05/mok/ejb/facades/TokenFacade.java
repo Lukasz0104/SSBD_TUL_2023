@@ -4,14 +4,17 @@ import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Stateless
@@ -30,10 +33,24 @@ public class TokenFacade extends AbstractFacade<Token> {
         return em;
     }
 
-    public Token findByToken(UUID token) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findById", Token.class);
+    @Override
+    public void create(Token entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
+    public void remove(Token entity) {
+        super.remove(entity);
+    }
+
+    public Optional<Token> findByToken(UUID token) {
+        TypedQuery<Token> tq = em.createNamedQuery("Token.findByToken", Token.class);
         tq.setParameter("token", token);
-        return tq.getSingleResult();
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException nre) {
+            return Optional.empty();
+        }
     }
 
     public List<Token> findTokenByAccountId(Long accountId) {
