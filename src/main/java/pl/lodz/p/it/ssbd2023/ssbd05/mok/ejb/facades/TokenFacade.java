@@ -39,7 +39,7 @@ public class TokenFacade extends AbstractFacade<Token> {
     }
 
     @Override
-    public void remove(Token entity) {
+    public void remove(Token entity) throws AppBaseException {
         super.remove(entity);
     }
 
