@@ -70,7 +70,7 @@ public class Account extends AbstractEntity implements Serializable {
     @NotNull
     @OneToMany(
         mappedBy = "account",
-        cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH},
+        cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
         fetch = FetchType.EAGER)
     @Getter
     private Set<AccessLevel> accessLevels = new HashSet<>();
