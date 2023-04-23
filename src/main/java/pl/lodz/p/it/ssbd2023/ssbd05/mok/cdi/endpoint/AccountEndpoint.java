@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromDto;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -23,9 +26,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDt
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 
 import java.util.UUID;
-
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.AccountDtoConverter.createAccountFromDto;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.AccountDtoConverter.createAddressFromDto;
 
 @RequestScoped
 @Path("/accounts")
