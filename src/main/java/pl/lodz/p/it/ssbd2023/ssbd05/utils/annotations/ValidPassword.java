@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Size(min = 8)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*?[0-9])(?=.*?[!_$@?()\\[\\]#%])[A-Za-z0-9!#%]{8,32}$")
+@Pattern(regexp = "^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[\\-!_$@?()\\[\\]#%])[A-Za-z0-9\\-!_$@?()\\[\\]#%]]{8,}$")
 public @interface ValidPassword {
 }
 

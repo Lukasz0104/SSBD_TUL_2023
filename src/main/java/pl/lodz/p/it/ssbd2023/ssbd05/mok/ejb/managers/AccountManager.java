@@ -7,13 +7,12 @@ import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBadRequestException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
@@ -81,29 +80,17 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changePassword(String oldPass, String newPass, String newPassRep) throws AppBaseException {
-        if (!newPass.equals(newPassRep)) {
-            throw new AppBadRequestException();
-        } else if (oldPass.equals(newPass)) {
-            throw new RepeatedPasswordException();
-        }
+    public void changePassword(String oldPass, String newPass) throws AppBaseException {
 
-        Account account = accountFacade.findByLogin("pduda");
-        String hashedPwdOld = hashGenerator.generate(oldPass.toCharArray());
+        Account account = accountFacade.findByLogin("pduda").orElseThrow(AccountNotFoundException::new);
 
         // check if old password is correct
-        if (!account.getPassword().equals(hashedPwdOld)) {
+        if (!hashGenerator.verify(oldPass.toCharArray(), account.getPassword())) {
             throw new InvalidPasswordException();
         }
 
-        // check if old and new passwords are same
-        String hashedPwdNew = hashGenerator.generate(newPass.toCharArray());
-        if (account.getPassword().equals(hashedPwdNew)) {
-            throw new RepeatedPasswordException();
-        }
-
         try {
-            account.setPassword(newPass);
+            account.setPassword(hashGenerator.generate(newPass.toCharArray()));
             accountFacade.edit(account);
         } catch (DatabaseException e) {
             throw new PasswordConstraintViolationException();
