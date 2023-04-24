@@ -18,12 +18,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Stateless
 public class EmailService {
 
     @Inject
     Properties applicationProperties;
+
+    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
     private Session session;
 
@@ -51,7 +55,7 @@ public class EmailService {
         try {
             mimeMessage.setFrom("ebok.ssbd05@gmail.com");
         } catch (MessagingException e) {
-            //TODO
+            LOGGER.log(Level.INFO, "Error while setting email sender", e.getCause());
         }
     }
 
@@ -69,7 +73,7 @@ public class EmailService {
             }
             in.close();
         } catch (IOException e) {
-            //TODO
+            LOGGER.log(Level.INFO, "Error while reading email message template file", e.getCause());
         }
         String templateMessage = builder.toString();
         templateMessage = templateMessage
@@ -86,9 +90,8 @@ public class EmailService {
             mimeMessage.setContent(templateMessage, "text/html; charset=utf-8");
             Transport.send(mimeMessage);
         } catch (MessagingException e) {
-            //TODO
+            LOGGER.log(Level.INFO, "Error while sending an email " + recieverAddress, e.getCause());
         }
-
     }
 
     @Asynchronous
