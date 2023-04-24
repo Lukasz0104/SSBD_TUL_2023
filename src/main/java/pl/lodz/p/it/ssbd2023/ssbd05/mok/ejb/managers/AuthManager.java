@@ -4,6 +4,7 @@ import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
@@ -58,14 +59,18 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AccountNotFoundException::new);
 
-        account.registerUnsuccessfulLogin(ip);
+        boolean hasActiveAccessLevels = account.getAccessLevels().stream()
+            .anyMatch(AccessLevel::isActive);
 
-        if (account.getActivityTracker().getUnsuccessfulLoginChainCounter()
-            > properties.getUnsuccessfulLoginChainLimit()) {
-            account.setActive(false);
-            account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
-            accountFacade.edit(account);
-            emailService.sendMessage();
+        if (account.isActive() && account.isVerified() && hasActiveAccessLevels) {
+            account.registerUnsuccessfulLogin(ip);
+            if (account.getActivityTracker().getUnsuccessfulLoginChainCounter()
+                > properties.getUnsuccessfulLoginChainLimit()) {
+                account.setActive(false);
+                account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
+                accountFacade.edit(account);
+                emailService.sendMessage();
+            }
         }
     }
 }
