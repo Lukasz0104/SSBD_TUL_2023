@@ -6,6 +6,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.utils.AccountDtoConverter.createAddre
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -21,6 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 
 import java.util.UUID;
@@ -66,6 +68,25 @@ public class AccountEndpoint {
     public Response confirmRegistration(@NotNull @QueryParam("token") UUID token)
         throws AppBaseException {
         accountManager.confirmRegistration(token);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/reset-password-message")
+    public Response sendResetPasswordMessage(@NotNull @Email @QueryParam("email") String email)
+        throws AppBaseException {
+        accountManager.sendResetPasswordMessage(email);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/reset-password")
+    public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
+        if (!resetPasswordDto.getPassword().equals(resetPasswordDto.getConfirmPassword())) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
         return Response.noContent().build();
     }
 }
