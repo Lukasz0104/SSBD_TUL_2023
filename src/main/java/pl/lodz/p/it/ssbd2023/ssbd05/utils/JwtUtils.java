@@ -25,6 +25,7 @@ public class JwtUtils {
 
         return Jwts.builder()
             .setSubject(account.getLogin())
+            .setIssuer(properties.getIssuer())
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + properties.getJwtExpirationTime()))
             .claim("groups", account.getAccessLevels()

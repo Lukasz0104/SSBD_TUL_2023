@@ -20,4 +20,8 @@ public class Properties {
     @Inject
     @ConfigProperty(name = "security.login.fail.limit", defaultValue = "5")
     private int unsuccessfulLoginChainLimit;
+
+    @Inject
+    @ConfigProperty(name = "security.jwt.issuer")
+    private String issuer;
 }
