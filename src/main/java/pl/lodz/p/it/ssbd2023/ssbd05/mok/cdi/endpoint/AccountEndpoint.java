@@ -1,7 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.AccountDtoConverter.createAccountFromDto;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.AccountDtoConverter.createAddressFromDto;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromDto;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;

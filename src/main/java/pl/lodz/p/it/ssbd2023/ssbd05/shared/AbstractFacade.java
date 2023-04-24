@@ -9,6 +9,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class AbstractFacade<T> {
 
@@ -24,8 +25,8 @@ public abstract class AbstractFacade<T> {
         try {
             getEntityManager().persist(entity);
             getEntityManager().flush();
-        } catch (PersistenceException pex) {
-            throw new DatabaseException("", pex); // TODO
+        } catch (PersistenceException pe) {
+            throw new DatabaseException("", pe); // TODO
         }
     }
 
@@ -38,12 +39,17 @@ public abstract class AbstractFacade<T> {
         }
     }
 
-    protected void remove(T entity) {
-        getEntityManager().remove(getEntityManager().merge(entity));
+    protected void remove(T entity) throws AppBaseException {
+        try {
+            getEntityManager().remove(getEntityManager().merge(entity));
+            getEntityManager().flush();
+        } catch (PersistenceException pe) {
+            throw new DatabaseException(pe);
+        }
     }
 
-    public T find(Object id) {
-        return getEntityManager().find(entityClass, id);
+    public Optional<T> find(Object id) {
+        return Optional.ofNullable(getEntityManager().find(entityClass, id));
     }
 
     public List<T> findAll() {

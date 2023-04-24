@@ -20,6 +20,7 @@ import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -148,5 +149,17 @@ public class Account extends AbstractEntity implements Serializable {
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
+    }
+
+    public void registerUnsuccessfulLogin(String ip) {
+        this.activityTracker.setLastUnsuccessfulLogin(LocalDateTime.now());
+        this.activityTracker.setLastUnsuccessfulLoginIp(ip);
+        this.activityTracker.incrementUnsuccessfulLoginChainCounter();
+    }
+
+    public void registerSuccessfulLogin(String ip) {
+        this.activityTracker.setLastSuccessfulLogin(LocalDateTime.now());
+        this.activityTracker.setLastSuccessfulLoginIp(ip);
+        this.activityTracker.setUnsuccessfulLoginChainCounter(0);
     }
 }

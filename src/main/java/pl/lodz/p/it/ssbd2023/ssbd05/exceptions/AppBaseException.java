@@ -10,7 +10,7 @@ public abstract class AppBaseException extends Exception {
         super(message, cause);
     }
 
-    public AppBaseException(Throwable throwable) {
-        super(throwable);
+    public AppBaseException(Throwable cause) {
+        super(cause);
     }
 }
