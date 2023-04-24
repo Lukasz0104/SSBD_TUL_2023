@@ -30,6 +30,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 
 import java.util.UUID;
 
+
 @RequestScoped
 @Path("/accounts")
 public class AccountEndpoint {
