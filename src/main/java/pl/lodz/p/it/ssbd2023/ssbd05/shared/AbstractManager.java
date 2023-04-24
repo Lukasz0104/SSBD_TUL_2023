@@ -31,28 +31,28 @@ public abstract class AbstractManager implements SessionSynchronization {
     @Override
     public void afterBegin() {
         transactionId = Long.toString(System.currentTimeMillis())
-                + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+            + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
         LOGGER.log(Level.INFO, "Transaction TXid={0} has begun at {1}, "
-                + " caller: {2}", new Object[] {transactionId,
-                this.getClass().getName(), sctx.getCallerPrincipal().getName()});
+            + " caller: {2}", new Object[] {transactionId,
+            this.getClass().getName(), sctx.getCallerPrincipal().getName()});
     }
 
     @Override
     public void beforeCompletion() {
         LOGGER.log(Level.INFO, "Transaction TXid={0} before completion at"
-                + " {1} caller: {2}", new Object[] {transactionId,
-                this.getClass().getName(), sctx.getCallerPrincipal().getName()});
+            + " {1} caller: {2}", new Object[] {transactionId,
+            this.getClass().getName(), sctx.getCallerPrincipal().getName()});
     }
 
     @Override
     public void afterCompletion(boolean committed) {
         lastTransactionRollback = !committed;
         LOGGER.log(
-                Level.INFO,
-                "Transaction TXid={0} has completed at {1} by {3}, caller {2}",
-                new Object[] {
-                        transactionId,
-                        this.getClass().getName(), sctx.getCallerPrincipal().getName(),
-                        committed ? "COMMIT" : "ROLLBACK"});
+            Level.INFO, "Transaction TXid={0} has completed at {1} by {3}, caller {2}",
+            new Object[] {
+                transactionId,
+                this.getClass().getName(), sctx.getCallerPrincipal().getName(),
+                committed ? "COMMIT" : "ROLLBACK"
+            });
     }
 }
