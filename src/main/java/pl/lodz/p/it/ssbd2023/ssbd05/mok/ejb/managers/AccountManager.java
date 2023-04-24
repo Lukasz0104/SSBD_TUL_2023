@@ -1,6 +1,5 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
-import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -8,12 +7,16 @@ import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBadRequestException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -25,7 +28,7 @@ import java.util.UUID;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class AccountManager extends AbstractManager implements AccountManagerLocal, SessionSynchronization {
+public class AccountManager extends AbstractManager implements AccountManagerLocal {
 
     @Inject
     private AccountFacade accountFacade;
@@ -76,4 +79,36 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         accountFacade.edit(account); // TODO Catch and handle DatabaseException
         tokenFacade.remove(token);
     }
+
+    @Override
+    public void changePassword(String oldPass, String newPass, String newPassRep) throws AppBaseException {
+        if (!newPass.equals(newPassRep)) {
+            throw new AppBadRequestException();
+        } else if (oldPass.equals(newPass)) {
+            throw new RepeatedPasswordException();
+        }
+
+        Account account = accountFacade.findByLogin("pduda");
+        String hashedPwdOld = hashGenerator.generate(oldPass.toCharArray());
+
+        // check if old password is correct
+        if (!account.getPassword().equals(hashedPwdOld)) {
+            throw new InvalidPasswordException();
+        }
+
+        // check if old and new passwords are same
+        String hashedPwdNew = hashGenerator.generate(newPass.toCharArray());
+        if (account.getPassword().equals(hashedPwdNew)) {
+            throw new RepeatedPasswordException();
+        }
+
+        try {
+            account.setPassword(newPass);
+            accountFacade.edit(account);
+        } catch (DatabaseException e) {
+            throw new PasswordConstraintViolationException();
+        }
+    }
+
+
 }

@@ -11,4 +11,6 @@ public interface AccountManagerLocal {
     void registerAccount(Account account) throws AppBaseException;
 
     void confirmRegistration(UUID token) throws AppBaseException;
+
+    void changePassword(String oldPass, String newPass, String newPassRep) throws AppBaseException;
 }
