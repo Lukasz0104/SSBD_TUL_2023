@@ -20,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordNotMatchingException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
@@ -84,7 +85,7 @@ public class AccountEndpoint {
     @Path("/reset-password")
     public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
         if (!resetPasswordDto.getPassword().equals(resetPasswordDto.getConfirmPassword())) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            throw new PasswordNotMatchingException();
         }
         accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
         return Response.noContent().build();

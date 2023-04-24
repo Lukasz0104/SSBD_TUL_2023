@@ -14,13 +14,15 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InactiveAccountException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.UnverifiedAccountException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +44,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Inject
     private EmailService emailService;
 
+    @Inject
+    private Properties properties;
+
     @Override
     public void registerAccount(Account account) throws AppBaseException {
         String hashedPwd = hashGenerator.generate(account.getPassword().toCharArray());
@@ -57,7 +62,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         tokenFacade.create(token);
 
-        emailService.sendMessage();
+        //emailService.sendMessage();
     }
 
     @Override
@@ -76,7 +81,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void sendResetPasswordMessage(String email) throws AppBaseException {
-        Account account = accountFacade.findByEmail(email);
+        Account account = accountFacade.findByEmail(email).orElseThrow(AccountNotFoundException::new);
         if (!account.isVerified()) {
             throw new UnverifiedAccountException();
         }
@@ -85,14 +90,14 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
         List<Token> resetPasswordTokens =
             tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
-        if (!resetPasswordTokens.isEmpty()) {
-            for (Token t : resetPasswordTokens) {
-                tokenFacade.remove(t);
-            }
+        for (Token t : resetPasswordTokens) {
+            tokenFacade.remove(t);
         }
+
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
-        emailService.sendMessage();
+        emailService.resetPasswordEmail(account.getEmail(), "your email " + account.getEmail(),
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken());
     }
 
     @Override

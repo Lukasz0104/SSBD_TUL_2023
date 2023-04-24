@@ -8,8 +8,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.LoginResponseDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
@@ -69,7 +69,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
                 account.setActive(false);
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
                 accountFacade.edit(account);
-                emailService.sendMessage();
+                //emailService.sendMessage();
             }
         }
     }
