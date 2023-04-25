@@ -11,4 +11,8 @@ public interface AccountManagerLocal {
     void registerAccount(Account account) throws AppBaseException;
 
     void confirmRegistration(UUID token) throws AppBaseException;
+
+    void changeEmail() throws AppBaseException;
+
+    void confirmEmail(String email, UUID confirmToken) throws AppBaseException;
 }

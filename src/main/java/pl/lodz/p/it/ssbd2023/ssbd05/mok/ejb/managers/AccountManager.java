@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
@@ -21,6 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Stateful
@@ -59,7 +61,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmRegistration(UUID confirmToken)
-        throws AppBaseException {
+            throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -75,5 +77,50 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         accountFacade.edit(account); // TODO Catch and handle DatabaseException
         tokenFacade.remove(token);
+    }
+
+    @Override
+    public void changeEmail()
+            throws AppBaseException {
+        String login = "pduda"; //TODO temporary, get login from context
+
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+
+        List<Token> tokenList = tokenFacade.findByAccountLoginAndTokenType(login, TokenType.CONFIRM_EMAIL_TOKEN);
+
+        for (Token token : tokenList) {
+            tokenFacade.remove(token);
+        }
+
+        Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
+        tokenFacade.create(token);
+
+        emailService.sendMessage(); //TODO token UUID in message
+    }
+
+    @Override
+    public void confirmEmail(String email, UUID confirmToken)
+            throws AppBaseException {
+        Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
+
+        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ExpiredTokenException();
+        }
+
+        if (token.getTokenType() != TokenType.CONFIRM_EMAIL_TOKEN) {
+            throw new InvalidTokenTypeException();
+        }
+
+        Account account = token.getAccount();
+
+        tokenFacade.remove(token);
+
+        account.setEmail(email);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
     }
 }

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -19,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
@@ -64,8 +66,27 @@ public class AccountEndpoint {
     @POST
     @Path("/confirm-registration")
     public Response confirmRegistration(@NotNull @QueryParam("token") UUID token)
-        throws AppBaseException {
+            throws AppBaseException {
         accountManager.confirmRegistration(token);
         return Response.noContent().build();
     }
+
+    @PUT
+    @Path("/change-email")
+    public Response changeEmail()
+            throws AppBaseException {
+
+        accountManager.changeEmail();
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/confirm-email")
+    public Response confirmEmail(@Valid ChangeEmailDto dto, @NotNull @QueryParam("token") UUID token)
+            throws AppBaseException {
+
+        accountManager.confirmEmail(dto.getEmail(), token);
+        return Response.ok().build();
+    }
+
 }
