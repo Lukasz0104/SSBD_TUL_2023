@@ -98,7 +98,8 @@ public class AccountEndpoint {
         }
 
         try {
-            accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword());
+            String login = securityContext.getUserPrincipal().getName();
+            accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
         } catch (DatabaseException databaseException) {
             // TODO: repeat transaction
         }
