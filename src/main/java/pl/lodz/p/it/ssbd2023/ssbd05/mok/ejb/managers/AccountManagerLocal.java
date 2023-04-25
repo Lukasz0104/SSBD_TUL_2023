@@ -15,4 +15,8 @@ public interface AccountManagerLocal {
     void sendResetPasswordMessage(String email) throws AppBaseException;
 
     void resetPassword(String password, UUID token) throws AppBaseException;
+
+    Account getAccountDetails(Long id) throws AppBaseException;
+
+    Account getAccountDetails(String login) throws AppBaseException;
 }

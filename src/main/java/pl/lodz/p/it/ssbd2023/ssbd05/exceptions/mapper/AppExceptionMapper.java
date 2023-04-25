@@ -8,6 +8,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppConflictException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppForbiddenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppUnauthorizedException;
 
 @Provider
