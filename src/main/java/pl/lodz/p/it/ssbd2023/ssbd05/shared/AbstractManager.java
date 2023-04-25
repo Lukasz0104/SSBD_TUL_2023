@@ -48,11 +48,11 @@ public abstract class AbstractManager implements SessionSynchronization {
     public void afterCompletion(boolean committed) {
         lastTransactionRollback = !committed;
         LOGGER.log(
-            Level.INFO, "Transaction TXid={0} has completed at {1} by {3}, caller {2}",
+            Level.INFO,
+            "Transaction TXid={0} has completed at {1} by {3}, caller {2}",
             new Object[] {
                 transactionId,
                 this.getClass().getName(), sctx.getCallerPrincipal().getName(),
-                committed ? "COMMIT" : "ROLLBACK"
-            });
+                committed ? "COMMIT" : "ROLLBACK"});
     }
 }

@@ -13,4 +13,8 @@ public interface AccountManagerLocal {
     void confirmRegistration(UUID token) throws AppBaseException;
 
     void changePassword(String oldPass, String newPass) throws AppBaseException;
+
+    Account getAccountDetails(Long id) throws AppBaseException;
+
+    Account getAccountDetails(String login) throws AppBaseException;
 }

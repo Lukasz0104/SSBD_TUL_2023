@@ -16,6 +16,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViol
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -98,4 +99,14 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
 
+
+    @Override
+    public Account getAccountDetails(Long id) throws AppBaseException {
+        return accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
+    }
+
+    @Override
+    public Account getAccountDetails(String login) throws AppBaseException {
+        return accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+    }
 }
