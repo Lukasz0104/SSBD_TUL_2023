@@ -49,6 +49,8 @@ public class AccountDtoConverter {
 
     public static AccountDto createAccountDto(Account account) {
         return new AccountDto(
+            account.getId(),
+            account.getVersion(),
             createAccessLevelDtoSet(account.getAccessLevels()),
             account.getEmail(),
             account.getLogin(),
@@ -80,6 +82,8 @@ public class AccountDtoConverter {
             if (accessLevel instanceof OwnerData ownerData) {
                 accessLevelDtoSet.add(
                     new OwnerDataDto(
+                        ownerData.getId(),
+                        ownerData.getVersion(),
                         ownerData.getLevel(),
                         createAddressDtoFromAdress(ownerData.getAddress())
                     )
@@ -87,6 +91,8 @@ public class AccountDtoConverter {
             } else if (accessLevel instanceof ManagerData managerData) {
                 accessLevelDtoSet.add(
                     new ManagerDataDto(
+                        managerData.getId(),
+                        managerData.getVersion(),
                         managerData.getLevel(),
                         createAddressDtoFromAdress(managerData.getAddress()),
                         managerData.getLicenseNumber()
@@ -95,6 +101,8 @@ public class AccountDtoConverter {
             } else if (accessLevel instanceof AdminData adminData) {
                 accessLevelDtoSet.add(
                     new AdminDataDto(
+                        adminData.getId(),
+                        adminData.getVersion(),
                         adminData.getLevel()
                     )
                 );

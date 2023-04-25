@@ -14,6 +14,13 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 public class OwnAccountDto {
+
+    @NotNull
+    private Long id;
+
+    @NotNull
+    private Long version;
+
     @NotNull
     private Set<AccessLevelDto> accessLevels = new HashSet<>();
 

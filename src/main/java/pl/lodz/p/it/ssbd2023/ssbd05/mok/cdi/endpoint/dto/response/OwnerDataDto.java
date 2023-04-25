@@ -16,8 +16,8 @@ public class OwnerDataDto extends AccessLevelDto {
     @NotNull
     private AddressDto address;
 
-    public OwnerDataDto(@NotNull AccessType level, AddressDto address) {
-        super(level);
+    public OwnerDataDto(Long id, Long version, @NotNull AccessType level, AddressDto address) {
+        super(id, version, level);
         this.address = address;
     }
 }

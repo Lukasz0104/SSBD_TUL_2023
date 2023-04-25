@@ -11,5 +11,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 @Data
 public abstract class AccessLevelDto {
     @NotNull
+    private Long id;
+
+    @NotNull
+    private Long version;
+
+    @NotNull
     private AccessType level;
 }

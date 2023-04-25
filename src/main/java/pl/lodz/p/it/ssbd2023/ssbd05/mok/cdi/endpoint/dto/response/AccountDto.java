@@ -24,7 +24,9 @@ public class AccountDto extends OwnAccountDto {
     @NotNull
     private ActivityTrackerDto activityTracker;
 
-    public AccountDto(@NotNull Set<AccessLevelDto> accessLevels, @NotNull @Email @Size(min = 3, max = 320) String email,
+    public AccountDto(Long id,
+                      Long version,
+                      @NotNull Set<AccessLevelDto> accessLevels, @NotNull @Email @Size(min = 3, max = 320) String email,
                       @NotNull @Size(min = 3, max = 100) String login,
                       @NotNull @Size(min = 1, max = 100) String firstName,
                       @NotNull @Size(min = 1, max = 100) String lastName,
@@ -32,7 +34,7 @@ public class AccountDto extends OwnAccountDto {
                       boolean verified,
                       boolean active,
                       ActivityTrackerDto activityTracker) {
-        super(accessLevels, email, login, firstName, lastName, language);
+        super(id, version, accessLevels, email, login, firstName, lastName, language);
         this.verified = verified;
         this.active = active;
         this.activityTracker = activityTracker;
