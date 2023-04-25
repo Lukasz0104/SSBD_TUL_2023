@@ -1,5 +1,11 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.EMAIL_MESSAGE_GREETING;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.EMAIL_MESSAGE_LAST;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_ACTION;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_CONTENT;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
@@ -26,6 +32,9 @@ public class EmailService {
 
     @Inject
     Properties applicationProperties;
+
+    @Inject
+    I18n i18n;
 
     protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
@@ -62,7 +71,7 @@ public class EmailService {
 
     private void sendMessage(String recieverAddress, String username, String content, String last, String action,
                              String link,
-                             String subject, String title) {
+                             String subject, String title, String greeting) {
         StringBuilder builder = new StringBuilder();
         try {
             InputStream is = getClass().getClassLoader().getResourceAsStream("templates/template.html");
@@ -82,7 +91,8 @@ public class EmailService {
             .replace("$message", content)
             .replace("$last", last)
             .replace("$action", action)
-            .replace("$title", title);
+            .replace("$title", title)
+            .replace("$greeting", greeting);
         try {
             InternetAddress[] addresses = {new InternetAddress(recieverAddress)};
             mimeMessage.setRecipients(Message.RecipientType.TO, addresses);
@@ -95,14 +105,15 @@ public class EmailService {
     }
 
     @Asynchronous
-    public void resetPasswordEmail(String to, String name, String link) {
+    public void resetPasswordEmail(String to, String name, String link, String language) {
         this.sendMessage(to,
             name,
-            "Click the link below to reset your password.",
-            "eBok team.",
-            "Reset your password",
+            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_CONTENT, language),
+            i18n.getMessage(EMAIL_MESSAGE_LAST, language),
+            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_ACTION, language),
             link,
-            "Reset password",
-            "Reset password");
+            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT, language),
+            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT, language),
+            i18n.getMessage(EMAIL_MESSAGE_GREETING, language));
     }
 }

@@ -20,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordNotMatchingException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
@@ -87,7 +88,11 @@ public class AccountEndpoint {
         if (!resetPasswordDto.getPassword().equals(resetPasswordDto.getConfirmPassword())) {
             throw new PasswordNotMatchingException();
         }
-        accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
+        try {
+            accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
+        } catch (DatabaseException e) {
+            //TODO
+        }
         return Response.noContent().build();
     }
 }

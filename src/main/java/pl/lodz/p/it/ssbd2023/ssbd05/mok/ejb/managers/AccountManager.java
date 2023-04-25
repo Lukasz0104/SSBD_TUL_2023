@@ -96,8 +96,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
-        emailService.resetPasswordEmail(account.getEmail(), "your email " + account.getEmail(),
-            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken());
+        emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
     }
 
     @Override
