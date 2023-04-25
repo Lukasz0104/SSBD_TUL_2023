@@ -63,8 +63,12 @@ import java.util.Set;
         name = "Account.findAllNotActiveAccounts",
         query = "SELECT a FROM Account a WHERE a.active = FALSE")
 })
+@Getter
+@Setter
 public class Account extends AbstractEntity implements Serializable {
 
+    @Setter(lombok.AccessLevel.NONE)
+    @Getter(lombok.AccessLevel.NONE)
     private static final long serialVersionUID = 1L;
 
     @NotNull
@@ -72,7 +76,7 @@ public class Account extends AbstractEntity implements Serializable {
         mappedBy = "account",
         cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
         fetch = FetchType.EAGER)
-    @Getter
+    @Setter(lombok.AccessLevel.NONE)
     private Set<AccessLevel> accessLevels = new HashSet<>();
 
     @NotNull
@@ -80,67 +84,49 @@ public class Account extends AbstractEntity implements Serializable {
     @Email
     @Size(min = 3, max = 320)
     @Column(name = "email", nullable = false, unique = true, length = 320)
-    @Getter
-    @Setter
     private String email;
 
     @NotNull
     @Basic(optional = false)
     @Size(min = 3, max = 100)
     @Column(name = "login", nullable = false, unique = true, length = 100)
-    @Getter
-    @Setter
     private String login;
 
     @NotNull
     @Basic(optional = false)
     @Column(name = "password", nullable = false)
-    @Getter
-    @Setter
     private String password;
 
     @NotNull
     @Basic(optional = false)
     @Size(min = 1, max = 100)
     @Column(name = "first_name", table = "account_data", nullable = false, length = 100)
-    @Getter
-    @Setter
     private String firstName;
 
     @NotNull
     @Basic(optional = false)
     @Size(min = 1, max = 100)
     @Column(name = "last_name", table = "account_data", nullable = false, length = 100)
-    @Getter
-    @Setter
     private String lastName;
 
     @NotNull
     @Basic(optional = false)
     @Column(name = "verified", nullable = false)
-    @Getter
-    @Setter
     private boolean verified = false;
 
     @NotNull
     @Basic(optional = false)
     @Column(name = "active", nullable = false)
-    @Getter
-    @Setter
     private boolean active = true;
 
     @NotNull
     @Column(name = "language", nullable = false, length = 2)
     @Size(min = 2, max = 2)
     @Basic(optional = false)
-    @Getter
-    @Setter
     private String language = "PL";
 
 
     @Embedded
-    @Getter
-    @Setter
     private ActivityTracker activityTracker = new ActivityTracker();
 
     public Account(String email, String password, String firstName, String lastName, String login) {

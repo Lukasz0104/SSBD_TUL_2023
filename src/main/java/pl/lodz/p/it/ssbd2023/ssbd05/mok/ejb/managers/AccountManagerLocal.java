@@ -11,4 +11,8 @@ public interface AccountManagerLocal {
     void registerAccount(Account account) throws AppBaseException;
 
     void confirmRegistration(UUID token) throws AppBaseException;
+
+    Account getAccountDetails(Long id) throws AppBaseException;
+
+    Account getAccountDetails(String login) throws AppBaseException;
 }
