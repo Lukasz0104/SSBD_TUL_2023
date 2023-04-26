@@ -3,9 +3,9 @@ package pl.lodz.p.it.ssbd2023.ssbd05.exceptions;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class AppNotFoundException extends AppBaseException {
+public class AppForbiddenException extends AppBaseException {
 
-    public AppNotFoundException(String message, Throwable cause) {
+    public AppForbiddenException(String message, Throwable cause) {
         super(message, cause);
     }
 }

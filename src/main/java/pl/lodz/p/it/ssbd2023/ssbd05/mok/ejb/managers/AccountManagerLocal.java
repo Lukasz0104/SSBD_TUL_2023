@@ -12,6 +12,12 @@ public interface AccountManagerLocal {
 
     void confirmRegistration(UUID token) throws AppBaseException;
 
+    void changePassword(String oldPass, String newPass, String login) throws AppBaseException;
+
+    void sendResetPasswordMessage(String email) throws AppBaseException;
+
+    void resetPassword(String password, UUID token) throws AppBaseException;
+
     void changeEmail(String login) throws AppBaseException;
 
     void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException;

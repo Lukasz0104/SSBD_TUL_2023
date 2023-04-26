@@ -3,8 +3,8 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidPassword;
 
 @Data
 public class RegisterAccountDto {
@@ -15,8 +15,7 @@ public class RegisterAccountDto {
     @NotBlank
     private String login;
 
-    @NotBlank
-    @Size(min = 8)
+    @ValidPassword
     private String password;
 
     @NotBlank

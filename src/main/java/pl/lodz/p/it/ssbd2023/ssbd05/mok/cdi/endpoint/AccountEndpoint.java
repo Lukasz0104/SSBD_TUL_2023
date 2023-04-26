@@ -9,6 +9,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -27,9 +28,13 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
@@ -77,9 +82,47 @@ public class AccountEndpoint {
 
     @POST
     @Path("/confirm-registration")
-    public Response confirmRegistration(@NotNull @QueryParam("token") UUID token)
-            throws AppBaseException {
+    public Response confirmRegistration(@NotNull @QueryParam("token") UUID token) throws AppBaseException {
         accountManager.confirmRegistration(token);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/reset-password-message")
+    public Response sendResetPasswordMessage(@NotNull @Email @QueryParam("email") String email)
+            throws AppBaseException {
+        accountManager.sendResetPasswordMessage(email);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/reset-password")
+    public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
+        try {
+            accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
+        } catch (DatabaseException e) {
+            //TODO
+        }
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/change-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
+
+        if (dto.getOldPassword().equals(dto.getNewPassword())) {
+            throw new RepeatedPasswordException();
+        }
+
+        try {
+            String login = securityContext.getUserPrincipal().getName();
+            accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
+        } catch (DatabaseException databaseException) {
+            // TODO: repeat transaction
+        }
+
         return Response.noContent().build();
     }
 
