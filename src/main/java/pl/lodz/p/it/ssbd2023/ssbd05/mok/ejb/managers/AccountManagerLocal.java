@@ -18,6 +18,10 @@ public interface AccountManagerLocal {
 
     void resetPassword(String password, UUID token) throws AppBaseException;
 
+    void changeEmail(String login) throws AppBaseException;
+
+    void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException;
+
     Account getAccountDetails(Long id) throws AppBaseException;
 
     Account getAccountDetails(String login) throws AppBaseException;

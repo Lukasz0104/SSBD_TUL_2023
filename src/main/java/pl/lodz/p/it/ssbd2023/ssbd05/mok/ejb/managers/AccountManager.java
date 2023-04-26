@@ -17,6 +17,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationExcep
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
@@ -27,6 +28,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Stateful
@@ -68,7 +70,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmRegistration(UUID confirmToken)
-        throws AppBaseException {
+            throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -81,6 +83,48 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    public void changeEmail(String login)
+            throws AppBaseException {
+
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+
+        List<Token> tokenList = tokenFacade.findByAccountLoginAndTokenType(login, TokenType.CONFIRM_EMAIL_TOKEN);
+
+        for (Token token : tokenList) {
+            tokenFacade.remove(token);
+        }
+
+        Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
+        tokenFacade.create(token);
+
+        //        emailService.sendMessage(); //TODO token UUID in message
+    }
+
+    @Override
+    public void confirmEmail(String email, UUID confirmToken, String login)
+            throws AppBaseException {
+        Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
+
+        validateToken(token, TokenType.CONFIRM_EMAIL_TOKEN);
+
+        Account account = token.getAccount();
+
+        if (!Objects.equals(account.getLogin(), login)) {
+            throw new AuthenticationException();
+        }
+
+        tokenFacade.remove(token);
+
+        account.setEmail(email);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
+    }
+
+    @Override
     public void sendResetPasswordMessage(String email) throws AppBaseException {
         Account account = accountFacade.findByEmail(email).orElseThrow(AccountNotFoundException::new);
         if (!account.isVerified()) {
@@ -90,7 +134,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
         List<Token> resetPasswordTokens =
-            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+                tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
         for (Token t : resetPasswordTokens) {
             tokenFacade.remove(t);
         }
@@ -98,7 +142,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+                properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
     }
 
     @Override
@@ -151,7 +195,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new PasswordConstraintViolationException();
         }
     }
-
 
 
     @Override

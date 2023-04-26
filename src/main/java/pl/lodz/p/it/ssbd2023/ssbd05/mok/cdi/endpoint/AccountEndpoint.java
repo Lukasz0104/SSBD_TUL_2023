@@ -30,6 +30,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
@@ -39,7 +40,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 
 import java.util.UUID;
-
 
 @RequestScoped
 @Path("/accounts")
@@ -90,7 +90,7 @@ public class AccountEndpoint {
     @POST
     @Path("/reset-password-message")
     public Response sendResetPasswordMessage(@NotNull @Email @QueryParam("email") String email)
-        throws AppBaseException {
+            throws AppBaseException {
         accountManager.sendResetPasswordMessage(email);
         return Response.noContent().build();
     }
@@ -124,6 +124,26 @@ public class AccountEndpoint {
         }
 
         return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/change-email")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response changeEmail()
+            throws AppBaseException {
+
+        accountManager.changeEmail(securityContext.getUserPrincipal().getName());
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/confirm-email")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response confirmEmail(@Valid ChangeEmailDto dto, @NotNull @QueryParam("token") UUID token)
+            throws AppBaseException {
+
+        accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
+        return Response.ok().build();
     }
 
     @GET
