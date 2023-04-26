@@ -1,6 +1,5 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
-import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -12,11 +11,13 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -30,7 +31,7 @@ import java.util.UUID;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class AccountManager extends AbstractManager implements AccountManagerLocal, SessionSynchronization {
+public class AccountManager extends AbstractManager implements AccountManagerLocal {
 
     @Inject
     private AccountFacade accountFacade;
@@ -125,6 +126,33 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InvalidTokenTypeException();
         }
     }
+
+    @Override
+    public void changePassword(String oldPass, String newPass, String login) throws AppBaseException {
+
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+
+        if (!account.isVerified()) {
+            throw new UnverifiedAccountException();
+        }
+        if (!account.isActive()) {
+            throw new InactiveAccountException();
+        }
+
+        // check if old password is correct
+        if (!hashGenerator.verify(oldPass.toCharArray(), account.getPassword())) {
+            throw new InvalidPasswordException();
+        }
+
+        try {
+            account.setPassword(hashGenerator.generate(newPass.toCharArray()));
+            accountFacade.edit(account);
+        } catch (DatabaseException e) {
+            throw new PasswordConstraintViolationException();
+        }
+    }
+
+
 
     @Override
     public Account getAccountDetails(Long id) throws AppBaseException {

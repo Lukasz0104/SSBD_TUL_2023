@@ -1,17 +1,15 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidPassword;
 
-import java.util.UUID;
-
 @Data
-public class ResetPasswordDto {
+public class ChangePasswordDto {
 
     @ValidPassword
-    private String password;
+    private String oldPassword;
 
-    @NotNull
-    private UUID token;
+    @ValidPassword
+    private String newPassword;
+
 }

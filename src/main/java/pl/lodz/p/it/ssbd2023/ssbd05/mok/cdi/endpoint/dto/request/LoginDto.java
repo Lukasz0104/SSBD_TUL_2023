@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidPassword;
 
 
 @AllArgsConstructor
@@ -13,6 +14,6 @@ public class LoginDto {
     @NotNull
     private String login;
 
-    @NotNull
+    @ValidPassword
     private String password;
 }

@@ -10,22 +10,27 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppForbiddenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppUnauthorizedException;
 
+import java.util.Map;
+
 @Provider
 public class AppExceptionMapper implements ExceptionMapper<AppBaseException> {
     @Override
-    public Response toResponse(AppBaseException e) {
-        if (e instanceof AppConflictException ace) {
-            return Response.status(Response.Status.CONFLICT).build();
-        } else if (e instanceof AppBadRequestException abre) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        } else if (e instanceof AppUnauthorizedException aue) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        } else if (e instanceof AppForbiddenException afe) {
-            return Response.status(Response.Status.FORBIDDEN).build();
-        } else if (e instanceof AppNotFoundException anfe) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    public Response toResponse(AppBaseException appBaseException) {
 
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        Map<Class<?>, Response.Status> map = Map.of(
+                AppConflictException.class, Response.Status.CONFLICT,
+                AppBadRequestException.class, Response.Status.BAD_REQUEST,
+                AppUnauthorizedException.class, Response.Status.UNAUTHORIZED,
+                AppNotFoundException.class, Response.Status.NOT_FOUND,
+                AppForbiddenException.class, Response.Status.FORBIDDEN);
+        return Response.status(
+                map.getOrDefault(getSuper(appBaseException.getClass()),
+                        Response.Status.INTERNAL_SERVER_ERROR)).build();
     }
+
+    private Class<?> getSuper(Class<?> e) {
+        return e.getSuperclass().equals(AppBaseException.class) ? e : getSuper(e.getSuperclass());
+    }
+
+
 }
