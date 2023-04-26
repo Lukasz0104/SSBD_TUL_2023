@@ -15,4 +15,8 @@ public interface AccountManagerLocal {
     void changeEmail() throws AppBaseException;
 
     void confirmEmail(String email, UUID confirmToken) throws AppBaseException;
+
+    Account getAccountDetails(Long id) throws AppBaseException;
+
+    Account getAccountDetails(String login) throws AppBaseException;
 }
