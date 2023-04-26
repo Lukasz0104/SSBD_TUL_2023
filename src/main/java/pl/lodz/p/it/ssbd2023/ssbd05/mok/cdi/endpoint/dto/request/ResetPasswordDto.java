@@ -14,11 +14,6 @@ public class ResetPasswordDto {
     @Size(min = 8)
     private String password;
 
-    @NotBlank
-    @Size(min = 8)
-    private String confirmPassword;
-
     @NotNull
     private UUID token;
-
 }
