@@ -24,4 +24,40 @@ public class Properties {
     @Inject
     @ConfigProperty(name = "security.jwt.issuer")
     private String issuer;
+
+    @Inject
+    @ConfigProperty(name = "mail.smtp.host")
+    private String smtpHost;
+
+    @Inject
+    @ConfigProperty(name = "mail.smtp.starttls.enable")
+    private boolean smtpStarttls;
+
+    @Inject
+    @ConfigProperty(name = "mail.smtp.ssl.enable")
+    private boolean smtpSsl;
+
+    @Inject
+    @ConfigProperty(name = "mail.smtp.auth")
+    private boolean smtpAuth;
+
+    @Inject
+    @ConfigProperty(name = "mail.smtp.port")
+    private int smtpPort;
+
+    @Inject
+    @ConfigProperty(name = "mail.sender")
+    private String sender;
+
+    @Inject
+    @ConfigProperty(name = "mail.password")
+    private String senderPassword;
+
+    @Inject
+    @ConfigProperty(name = "frontend.url")
+    private String frontendUrl;
+
+    @Inject
+    @ConfigProperty(name = "backend.url")
+    private String backendUrl;
 }

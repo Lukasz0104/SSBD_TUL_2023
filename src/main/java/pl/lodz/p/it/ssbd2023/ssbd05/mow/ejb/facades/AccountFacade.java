@@ -39,10 +39,14 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
-    public Account findByEmail(String email) {
-        TypedQuery<Account> tq = em.createNamedQuery("Account.findByEmail", Account.class);
-        tq.setParameter("email", email);
-        return tq.getSingleResult();
+    public Optional<Account> findByEmail(String email) {
+        try {
+            TypedQuery<Account> tq = em.createNamedQuery("Account.findByEmail", Account.class);
+            tq.setParameter("email", email);
+            return Optional.of(tq.getSingleResult());
+        } catch (PersistenceException e) {
+            return Optional.empty();
+        }
     }
 
     public List<Account> findByVerified(boolean verified) {

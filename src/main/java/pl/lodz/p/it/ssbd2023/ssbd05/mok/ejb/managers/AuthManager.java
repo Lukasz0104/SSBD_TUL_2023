@@ -69,7 +69,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
                 account.setActive(false);
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
                 accountFacade.edit(account);
-                emailService.sendMessage();
+                //emailService.sendMessage();
             }
         }
     }
