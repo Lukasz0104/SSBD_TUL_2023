@@ -5,8 +5,6 @@ import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
@@ -17,6 +15,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -25,6 +24,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Stateful
@@ -43,8 +43,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Inject
     private EmailService emailService;
 
-    @Context
-    private SecurityContext securityContext;
 
     @Override
     public void registerAccount(Account account) throws AppBaseException {
@@ -85,10 +83,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeEmail()
+    public void changeEmail(String login)
             throws AppBaseException {
-        String login = securityContext.getUserPrincipal().getName();
-        System.out.println(login);
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -105,7 +101,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void confirmEmail(String email, UUID confirmToken)
+    public void confirmEmail(String email, UUID confirmToken, String login)
             throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
@@ -118,6 +114,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         Account account = token.getAccount();
+
+        if (!Objects.equals(account.getLogin(), login)) {
+            throw new AuthenticationException();
+        }
 
         tokenFacade.remove(token);
 

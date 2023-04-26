@@ -83,22 +83,23 @@ public class AccountEndpoint {
         return Response.noContent().build();
     }
 
-    @PUT
+    @POST
     @Path("/change-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail()
             throws AppBaseException {
 
-        accountManager.changeEmail();
+        accountManager.changeEmail(securityContext.getUserPrincipal().getName());
         return Response.noContent().build();
     }
 
     @PUT
     @Path("/confirm-email")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response confirmEmail(@Valid ChangeEmailDto dto, @NotNull @QueryParam("token") UUID token)
             throws AppBaseException {
 
-        accountManager.confirmEmail(dto.getEmail(), token);
+        accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
         return Response.ok().build();
     }
 
