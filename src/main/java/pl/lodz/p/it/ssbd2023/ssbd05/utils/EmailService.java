@@ -73,14 +73,12 @@ public class EmailService {
                              String link,
                              String subject, String title, String greeting) {
         StringBuilder builder = new StringBuilder();
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("templates/template.html");
-            BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        InputStream is = getClass().getClassLoader().getResourceAsStream("templates/template.html");
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             String str;
             while ((str = in.readLine()) != null) {
                 builder.append(str);
             }
-            in.close();
         } catch (IOException e) {
             LOGGER.log(Level.INFO, "Error while reading email message template file", e.getCause());
         }
