@@ -85,6 +85,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/change-email")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail()
             throws AppBaseException {
 

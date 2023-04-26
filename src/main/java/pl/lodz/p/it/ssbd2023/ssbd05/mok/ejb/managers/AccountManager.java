@@ -5,6 +5,8 @@ import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
@@ -40,6 +42,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Inject
     private EmailService emailService;
+
+    @Context
+    private SecurityContext securityContext;
 
     @Override
     public void registerAccount(Account account) throws AppBaseException {
@@ -82,7 +87,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void changeEmail()
             throws AppBaseException {
-        String login = "pduda"; //TODO temporary, get login from context
+        String login = securityContext.getUserPrincipal().getName();
+        System.out.println(login);
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
