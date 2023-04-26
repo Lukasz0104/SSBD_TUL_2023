@@ -26,7 +26,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBadRequestException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
@@ -91,9 +90,7 @@ public class AccountEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
 
-        if (!dto.getNewPassword().equals(dto.getNewPasswordRepeat())) {
-            throw new AppBadRequestException();
-        } else if (dto.getOldPassword().equals(dto.getNewPassword())) {
+        if (dto.getOldPassword().equals(dto.getNewPassword())) {
             throw new RepeatedPasswordException();
         }
 

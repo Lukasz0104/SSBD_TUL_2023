@@ -12,7 +12,4 @@ public class ChangePasswordDto {
     @ValidPassword
     private String newPassword;
 
-    @ValidPassword
-    private String newPasswordRepeat;
-
 }
