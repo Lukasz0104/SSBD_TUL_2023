@@ -14,14 +14,18 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Stateful
@@ -40,6 +44,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Inject
     private EmailService emailService;
 
+    @Inject
+    private Properties properties;
+
     @Override
     public void registerAccount(Account account) throws AppBaseException {
         String hashedPwd = hashGenerator.generate(account.getPassword().toCharArray());
@@ -55,7 +62,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         tokenFacade.create(token);
 
-        emailService.sendMessage();
+        //emailService.sendMessage();
     }
 
     @Override
@@ -63,19 +70,60 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
-        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ExpiredTokenException();
-        }
-
-        if (token.getTokenType() != TokenType.CONFIRM_REGISTRATION_TOKEN) {
-            throw new InvalidTokenTypeException();
-        }
+        validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
 
         Account account = token.getAccount();
         account.setVerified(true);
 
         accountFacade.edit(account); // TODO Catch and handle DatabaseException
         tokenFacade.remove(token);
+    }
+
+    @Override
+    public void sendResetPasswordMessage(String email) throws AppBaseException {
+        Account account = accountFacade.findByEmail(email).orElseThrow(AccountNotFoundException::new);
+        if (!account.isVerified()) {
+            throw new UnverifiedAccountException();
+        }
+        if (!account.isActive()) {
+            throw new InactiveAccountException();
+        }
+        List<Token> resetPasswordTokens =
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+        for (Token t : resetPasswordTokens) {
+            tokenFacade.remove(t);
+        }
+
+        Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
+        tokenFacade.create(resetPasswordToken);
+        emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+    }
+
+    @Override
+    public void resetPassword(String password, UUID token) throws AppBaseException {
+        Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
+        validateToken(resetPasswordToken, TokenType.PASSWORD_RESET_TOKEN);
+        Account account = resetPasswordToken.getAccount();
+        if (!account.isActive()) {
+            throw new InactiveAccountException();
+        }
+        tokenFacade.remove(resetPasswordToken);
+        account.setPassword(hashGenerator.generate(password.toCharArray()));
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException e) {
+            throw new ConstraintViolationException(e.getMessage(), e);
+        }
+    }
+
+    private void validateToken(Token token, TokenType tokenType) throws AppBaseException {
+        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ExpiredTokenException();
+        }
+        if (token.getTokenType() != tokenType) {
+            throw new InvalidTokenTypeException();
+        }
     }
 
     @Override
