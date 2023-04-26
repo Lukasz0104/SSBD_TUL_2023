@@ -132,6 +132,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
+        if (!account.isVerified()) {
+            throw new UnverifiedAccountException();
+        }
+        if (!account.isActive()) {
+            throw new InactiveAccountException();
+        }
+
         // check if old password is correct
         if (!hashGenerator.verify(oldPass.toCharArray(), account.getPassword())) {
             throw new InvalidPasswordException();
