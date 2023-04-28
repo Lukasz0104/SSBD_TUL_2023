@@ -1,11 +1,5 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.EMAIL_MESSAGE_GREETING;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.EMAIL_MESSAGE_LAST;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_ACTION;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_CONTENT;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
@@ -31,10 +25,7 @@ import java.util.logging.Logger;
 public class EmailService {
 
     @Inject
-    Properties applicationProperties;
-
-    @Inject
-    I18n i18n;
+    private Properties applicationProperties;
 
     protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
@@ -68,13 +59,25 @@ public class EmailService {
         }
     }
 
-
-    private void sendMessage(String recieverAddress, String username, String content, String last, String action,
-                             String link,
-                             String subject, String title, String greeting) {
+    /**
+     * Sends email with link to action.
+     *
+     * @param receiverAddress Email address of the receiver.
+     * @param name            Name used in greeting.
+     * @param content         Body of the message.
+     * @param signature       Signature.
+     * @param action          Name of the action.
+     * @param link            Link to action.
+     * @param subject         Subject of the message.
+     * @param title           Title.
+     * @param greeting        Greeting.
+     */
+    private void sendMessageWithLink(
+        String receiverAddress, String name, String content, String signature,
+        String action, String link, String subject, String title, String greeting) {
         StringBuilder builder = new StringBuilder();
-        InputStream is = getClass().getClassLoader().getResourceAsStream("templates/template.html");
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("templates/template.html");
+             BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             String str;
             while ((str = in.readLine()) != null) {
                 builder.append(str);
@@ -82,36 +85,60 @@ public class EmailService {
         } catch (IOException e) {
             LOGGER.log(Level.INFO, "Error while reading email message template file", e.getCause());
         }
-        String templateMessage = builder.toString();
-        templateMessage = templateMessage
-            .replace("$username", username)
+        String templateMessage = builder.toString()
+            .replace("$username", name)
             .replace("$link", link)
             .replace("$message", content)
-            .replace("$last", last)
+            .replace("$last", signature)
             .replace("$action", action)
             .replace("$title", title)
             .replace("$greeting", greeting);
         try {
-            InternetAddress[] addresses = {new InternetAddress(recieverAddress)};
+            InternetAddress[] addresses = {new InternetAddress(receiverAddress)};
             mimeMessage.setRecipients(Message.RecipientType.TO, addresses);
             mimeMessage.setSubject(subject);
             mimeMessage.setContent(templateMessage, "text/html; charset=utf-8");
             Transport.send(mimeMessage);
         } catch (MessagingException e) {
-            LOGGER.log(Level.INFO, "Error while sending an email " + recieverAddress, e.getCause());
+            LOGGER.log(Level.INFO, "Error while sending an email " + receiverAddress, e.getCause());
         }
     }
 
     @Asynchronous
     public void resetPasswordEmail(String to, String name, String link, String language) {
-        this.sendMessage(to,
+        this.sendMessageWithLink(
+            to,
             name,
-            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_CONTENT, language),
-            i18n.getMessage(EMAIL_MESSAGE_LAST, language),
-            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_ACTION, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_RESET_PASSWORD_MESSAGE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_RESET_PASSWORD_ACTION, language),
             link,
-            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT, language),
-            i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT, language),
-            i18n.getMessage(EMAIL_MESSAGE_GREETING, language));
+            I18n.getMessage(I18n.EMAIL_MESSAGE_RESET_PASSWORD_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_RESET_PASSWORD_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language));
+    }
+
+    @Asynchronous
+    public void sendConfirmRegistrationEmail(
+        String receiverAddress, String name, String linkToAction, String language) {
+        this.sendMessageWithLink(
+            receiverAddress,
+            name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_MESSAGE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_ACTION, language),
+            linkToAction,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
+    @Asynchronous
+    public void changeEmailAddress(String receiverAddress, String name, String link, String language) {
+    }
+
+    @Asynchronous
+    void notifyAboutAdminLogin(String receiverAddress, String name, String language) {
     }
 }
