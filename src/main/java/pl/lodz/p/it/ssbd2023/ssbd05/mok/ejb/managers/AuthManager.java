@@ -9,6 +9,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.LoginResponseDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
@@ -18,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwtUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Stateful
@@ -72,5 +75,17 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
                 //emailService.sendMessage();
             }
         }
+    }
+
+    public void logout(UUID token, String login) throws AppBaseException {
+        Token refreshToken = tokenFacade.findByToken(token)
+            .orElseThrow(TokenNotFoundException::new);
+
+        Account account = refreshToken.getAccount();
+
+        if (!Objects.equals(account.getLogin(), login) || refreshToken.getTokenType() != TokenType.REFRESH_TOKEN) {
+            throw new InvalidTokenException();
+        }
+        tokenFacade.remove(refreshToken);
     }
 }

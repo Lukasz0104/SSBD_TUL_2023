@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.RequestScoped;
@@ -11,10 +12,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
@@ -22,6 +28,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.LoginResponseDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
+
+import java.util.UUID;
 
 @Path("")
 @RequestScoped
@@ -36,6 +44,9 @@ public class AuthEndpoint {
 
     @Inject
     private AuthManagerLocal authManager;
+
+    @Context
+    private SecurityContext securityContext;
 
     @POST
     @Path("/login")
@@ -64,5 +75,20 @@ public class AuthEndpoint {
             //TODO repeat transaction
             throw new AuthenticationException();
         }
+    }
+
+    @DELETE
+    @Path("/logout")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response logout(@NotNull @QueryParam("token") UUID token) throws AppBaseException {
+        try {
+            authManager.logout(token, securityContext.getUserPrincipal().getName());
+        } catch (DatabaseException de) {
+            //repeat transaction
+            //should log out successfully anyway
+            return Response.noContent().build();
+        }
+        return Response.noContent().build();
     }
 }
