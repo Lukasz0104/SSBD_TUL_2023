@@ -60,4 +60,8 @@ public class Properties {
     @Inject
     @ConfigProperty(name = "backend.url")
     private String backendUrl;
+
+    @Inject
+    @ConfigProperty(name = "transaction.repeat.limit", defaultValue = "3")
+    private int transactionRepeatLimit;
 }

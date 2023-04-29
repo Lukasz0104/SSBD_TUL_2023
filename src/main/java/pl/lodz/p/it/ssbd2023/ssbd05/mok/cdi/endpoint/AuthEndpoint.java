@@ -1,6 +1,5 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.RequestScoped;
@@ -20,15 +19,22 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.hibernate.validator.constraints.UUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.LoginResponseDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshTokenDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
+
+import java.util.UUID;
 
 @Path("")
 @RequestScoped
@@ -47,33 +53,66 @@ public class AuthEndpoint {
     @Context
     private SecurityContext securityContext;
 
+    @Inject
+    private Properties properties;
+
     @POST
     @Path("/login")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public LoginResponseDto login(@NotNull @Valid LoginDto dto) throws AppBaseException {
+    public Response login(@NotNull @Valid LoginDto dto) throws AppBaseException {
         String ip = httpServletRequest.getRemoteAddr();
 
         CredentialValidationResult credentialValidationResult =
             identityStoreHandler.validate(new UsernamePasswordCredential(dto.getLogin(), dto.getPassword()));
 
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
         if (credentialValidationResult.getStatus() != CredentialValidationResult.Status.VALID) {
-            try {
-                authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
-            } catch (AccountNotFoundException anfe) {
-                throw new AuthenticationException();
-            } catch (DatabaseException de) {
-                //TODO repeat transaction
-            }
+            do {
+                try {
+                    authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
+                    throw new AuthenticationException();
+                } catch (AccountNotFoundException anfe) {
+                    throw new AuthenticationException();
+                } catch (DatabaseException de) {
+                    txCounter++;
+                }
+            } while (txCounter < txLimit);
             throw new AuthenticationException();
         }
 
-        try {
-            return authManager.registerSuccessfulLogin(dto.getLogin(), ip);
-        } catch (DatabaseException de) {
-            //TODO repeat transaction
-            throw new AuthenticationException();
-        }
+        do {
+            try {
+                JwtRefreshTokenDto jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
+                return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
+            } catch (DatabaseException de) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new AuthenticationException();
+    }
+
+    @POST
+    @Path("/refresh")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
+        UUID token = UUID.fromString(dto.getRefreshToken());
+
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
+        do {
+            try {
+                JwtRefreshTokenDto jwtRefreshTokenDto = authManager.refreshJwt(token, dto.getLogin());
+                return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
+            } catch (InvalidTokenException | ExpiredTokenException e) {
+                throw new AuthenticationException();
+            } catch (DatabaseException de) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new AuthenticationException();
     }
 
     @DELETE
