@@ -106,7 +106,7 @@ public class AccountEndpoint {
         try {
             accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
         } catch (DatabaseException e) {
-            //TODO
+            // TODO
         }
         return Response.noContent().build();
     }
