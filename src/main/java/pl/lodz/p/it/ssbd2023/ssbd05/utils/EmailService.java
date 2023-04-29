@@ -4,6 +4,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -30,6 +31,7 @@ public class EmailService {
 
     protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
+    @Inject
     private Properties applicationProperties;
 
     private Session session;
@@ -233,6 +235,7 @@ public class EmailService {
         return builder.toString();
     }
 
+    @Asynchronous
     public void changeActiveStatusEmail(String to, String name, String language, boolean status) {
 
         if (status) {

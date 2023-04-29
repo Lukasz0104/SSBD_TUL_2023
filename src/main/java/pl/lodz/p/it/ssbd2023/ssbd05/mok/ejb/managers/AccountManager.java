@@ -191,8 +191,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(de.getMessage(), de);
         }
 
-        //emailService.changeActiveStatusEmail(account.getEmail(), account.getEmail(), properties.getFrontendUrl()
-        //    + "/", account.getLanguage(), status); //FIXME not sure about the link here
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
+            + " " + account.getLastName(), account.getLanguage(), status);
     }
 
     @Override
