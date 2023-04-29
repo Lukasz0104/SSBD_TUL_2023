@@ -29,7 +29,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedLoginException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -149,15 +148,11 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/change-active-status/manager")
+    @Path("/manager/change-active-status")
     @RolesAllowed({"MANAGER"})
     public Response changeActiveStatusAsManager(@Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String managerLogin = securityContext.getUserPrincipal().getName();
-
-        if (managerLogin.equals(dto.getLogin())) {
-            throw new RepeatedLoginException();
-        }
 
         accountManager.changeActiveStatusAsManager(managerLogin,
             dto.getLogin(), dto.getActive());
@@ -165,15 +160,11 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/change-active-status/admin")
+    @Path("/admin/change-active-status")
     @RolesAllowed({"ADMIN"})
     public Response changeActiveStatusAsAdmin(@Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String adminLogin = securityContext.getUserPrincipal().getName();
-
-        if (adminLogin.equals(dto.getLogin())) {
-            throw new RepeatedLoginException();
-        }
 
         accountManager.changeActiveStatusAsAdmin(adminLogin,
             dto.getLogin(), dto.getActive());

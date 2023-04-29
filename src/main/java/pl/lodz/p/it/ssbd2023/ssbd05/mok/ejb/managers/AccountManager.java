@@ -15,8 +15,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedActiveStatusException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedLoginException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalLoginException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
@@ -133,7 +132,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         throws AppBaseException {
 
         if (Objects.equals(managerLogin, userLogin)) {
-            throw new RepeatedLoginException();
+            throw new IllegalLoginException();
         }
 
         Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
@@ -143,7 +142,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         if (account.isActive() == status) {
-            throw new RepeatedActiveStatusException();
+            return;
         }
 
         account.setActive(status);
@@ -164,13 +163,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         throws AppBaseException {
 
         if (Objects.equals(adminLogin, userLogin)) {
-            throw new RepeatedLoginException();
+            throw new IllegalLoginException();
         }
 
         Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
 
         if (account.isActive() == status) {
-            throw new RepeatedActiveStatusException();
+            return;
         }
 
         account.setActive(status);
