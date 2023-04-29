@@ -10,6 +10,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -169,7 +170,7 @@ public class AccountEndpoint {
     @PUT
     @Path("/change-language/{language}")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response changeLanguage(@PathParam("language") String language) throws AppBaseException {
+    public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
         int txCounter = 0;
         do {
