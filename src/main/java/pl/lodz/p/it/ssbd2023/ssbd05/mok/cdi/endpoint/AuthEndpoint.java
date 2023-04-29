@@ -16,7 +16,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
@@ -52,7 +52,7 @@ public class AuthEndpoint {
                 authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
             } catch (AccountNotFoundException anfe) {
                 throw new AuthenticationException();
-            } catch (DatabaseException de) {
+            } catch (AppDatabaseException de) {
                 //TODO repeat transaction
             }
             throw new AuthenticationException();
@@ -60,7 +60,7 @@ public class AuthEndpoint {
 
         try {
             return authManager.registerSuccessfulLogin(dto.getLogin(), ip);
-        } catch (DatabaseException de) {
+        } catch (AppDatabaseException de) {
             //TODO repeat transaction
             throw new AuthenticationException();
         }

@@ -28,8 +28,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
@@ -101,7 +101,7 @@ public class AccountEndpoint {
     public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
         try {
             accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
-        } catch (DatabaseException e) {
+        } catch (AppDatabaseException e) {
             //TODO
         }
         return Response.noContent().build();
@@ -119,7 +119,7 @@ public class AccountEndpoint {
         try {
             String login = securityContext.getUserPrincipal().getName();
             accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
-        } catch (DatabaseException databaseException) {
+        } catch (AppDatabaseException appDatabaseException) {
             // TODO: repeat transaction
         }
 

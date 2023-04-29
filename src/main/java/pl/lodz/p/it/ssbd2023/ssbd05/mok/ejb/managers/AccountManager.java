@@ -1,14 +1,16 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
+import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
@@ -19,6 +21,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -33,7 +37,11 @@ import java.util.UUID;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class AccountManager extends AbstractManager implements AccountManagerLocal {
+@Interceptors({
+    GenericManagerExceptionsInterceptor.class,
+    LoggerInterceptor.class,
+})
+public class AccountManager extends AbstractManager implements AccountManagerLocal, SessionSynchronization {
 
     @Inject
     private AccountFacade accountFacade;
@@ -57,7 +65,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.create(account);
-        } catch (DatabaseException exc) {
+        } catch (AppDatabaseException exc) {
             throw new ConstraintViolationException(exc.getMessage(), exc);
         }
 
@@ -70,7 +78,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmRegistration(UUID confirmToken)
-            throws AppBaseException {
+        throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -84,7 +92,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void changeEmail(String login)
-            throws AppBaseException {
+        throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -102,7 +110,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmEmail(String email, UUID confirmToken, String login)
-            throws AppBaseException {
+        throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_EMAIL_TOKEN);
@@ -119,7 +127,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException de) {
+        } catch (AppDatabaseException de) {
             throw new ConstraintViolationException(de.getMessage(), de);
         }
     }
@@ -134,7 +142,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
         List<Token> resetPasswordTokens =
-                tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
         for (Token t : resetPasswordTokens) {
             tokenFacade.remove(t);
         }
@@ -142,7 +150,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-                properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
     }
 
     @Override
@@ -157,7 +165,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setPassword(hashGenerator.generate(password.toCharArray()));
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException e) {
+        } catch (AppDatabaseException e) {
             throw new ConstraintViolationException(e.getMessage(), e);
         }
     }
@@ -191,7 +199,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         try {
             account.setPassword(hashGenerator.generate(newPass.toCharArray()));
             accountFacade.edit(account);
-        } catch (DatabaseException e) {
+        } catch (AppDatabaseException e) {
             throw new PasswordConstraintViolationException();
         }
     }
