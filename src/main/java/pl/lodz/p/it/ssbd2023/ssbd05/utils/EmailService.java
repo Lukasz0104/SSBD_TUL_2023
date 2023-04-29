@@ -4,7 +4,6 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
-import jakarta.inject.Inject;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -30,9 +29,6 @@ import java.util.logging.Logger;
 public class EmailService {
 
     protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
-
-    @Inject
-    I18n i18n;
 
     private Properties applicationProperties;
 

@@ -155,7 +155,7 @@ public class AccountEndpoint {
 
         accountManager.changeActiveStatusAsManager(managerLogin,
             dto.getId(), dto.getActive());
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
     @PUT
@@ -167,7 +167,7 @@ public class AccountEndpoint {
 
         accountManager.changeActiveStatusAsAdmin(adminLogin,
             dto.getId(), dto.getActive());
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
     @GET
