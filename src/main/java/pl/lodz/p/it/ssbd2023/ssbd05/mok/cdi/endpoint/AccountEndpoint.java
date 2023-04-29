@@ -174,7 +174,8 @@ public class AccountEndpoint {
         int txCounter = 0;
         do {
             try {
-                accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(), language);
+                accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
+                    language.toUpperCase());
                 return Response.status(Response.Status.NO_CONTENT).build();
             } catch (DatabaseException e) {
                 txCounter++;
