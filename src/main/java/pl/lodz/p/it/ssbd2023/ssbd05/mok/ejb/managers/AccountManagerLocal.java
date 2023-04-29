@@ -1,6 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
 import jakarta.ejb.Local;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 
@@ -25,4 +26,6 @@ public interface AccountManagerLocal {
     Account getAccountDetails(Long id) throws AppBaseException;
 
     Account getAccountDetails(String login) throws AppBaseException;
+
+    AccessType changeAccessLevel(String login, AccessType accessLevel) throws AppBaseException;
 }

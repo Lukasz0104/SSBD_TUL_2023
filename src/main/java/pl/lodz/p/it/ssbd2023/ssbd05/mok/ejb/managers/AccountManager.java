@@ -4,6 +4,8 @@ import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
@@ -14,7 +16,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
@@ -69,8 +73,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void confirmRegistration(UUID confirmToken)
-            throws AppBaseException {
+    public void confirmRegistration(UUID confirmToken) throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -83,8 +86,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeEmail(String login)
-            throws AppBaseException {
+    public void changeEmail(String login) throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -102,7 +104,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmEmail(String email, UUID confirmToken, String login)
-            throws AppBaseException {
+        throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_EMAIL_TOKEN);
@@ -134,7 +136,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
         List<Token> resetPasswordTokens =
-                tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
         for (Token t : resetPasswordTokens) {
             tokenFacade.remove(t);
         }
@@ -142,7 +144,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-                properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
     }
 
     @Override
@@ -205,5 +207,33 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public Account getAccountDetails(String login) throws AppBaseException {
         return accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+    }
+
+    @Override
+    public AccessType changeAccessLevel(String login, AccessType accessType) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        if (!account.isVerified()) {
+            throw new UnverifiedAccountException();
+        }
+        if (!account.isActive()) {
+            throw new InactiveAccountException();
+        }
+
+        List<AccessType> accessTypes = account.getAccessLevels().stream().map(AccessLevel::getLevel).toList();
+        if (!accessTypes.contains(accessType)) {
+            throw new NoAccessLevelException();
+        }
+
+        List<AccessLevel> accessLevels =
+            account.getAccessLevels().stream().filter(x -> x.getLevel() == accessType).toList();
+        if (accessLevels.size() != 1) {
+            throw new NoAccessLevelException();
+        }
+        if (!accessLevels.get(0).isActive()) {
+            throw new InactiveAccessLevelException();
+        }
+
+        return accessLevels.get(0).getLevel();
+
     }
 }
