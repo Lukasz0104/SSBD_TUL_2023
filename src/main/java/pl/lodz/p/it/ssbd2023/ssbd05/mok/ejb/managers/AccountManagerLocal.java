@@ -32,4 +32,6 @@ public interface AccountManagerLocal {
     Account getAccountDetails(String login) throws AppBaseException;
 
     AccessType changeAccessLevel(String login, AccessType accessLevel) throws AppBaseException;
+
+    void changeAccountLanguage(String login, String language) throws AppBaseException;
 }

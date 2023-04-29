@@ -56,7 +56,7 @@ public class AccountDtoConverter {
             account.getLogin(),
             account.getFirstName(),
             account.getLastName(),
-            account.getLanguage(),
+            account.getLanguage().toString(),
             account.isVerified(),
             account.isActive(),
             createActivityTrackerDto(account.getActivityTracker())

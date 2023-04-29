@@ -10,6 +10,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -31,6 +32,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -42,6 +45,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessTypeDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.util.UUID;
 
@@ -51,6 +55,9 @@ public class AccountEndpoint {
 
     @Inject
     private AccountManagerLocal accountManager;
+
+    @Inject
+    Properties properties;
 
     @Context
     private SecurityContext securityContext;
@@ -116,6 +123,10 @@ public class AccountEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
+
+        if (dto.getOldPassword().equals(dto.getNewPassword())) {
+            throw new RepeatedPasswordException();
+        }
 
         try {
             String login = securityContext.getUserPrincipal().getName();
@@ -199,5 +210,23 @@ public class AccountEndpoint {
         accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
 
         return new AccessTypeDto(accessType);
+    }
+
+    @PUT
+    @Path("/change-language/{language}")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
+        do {
+            try {
+                accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
+                    language.toUpperCase());
+                return Response.status(Response.Status.NO_CONTENT).build();
+            } catch (DatabaseException e) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new LanguageChangeDatabaseException();
     }
 }

@@ -7,10 +7,12 @@ import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Languages;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
@@ -74,7 +76,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             account.getEmail(),
             fullName,
             actionLink,
-            account.getLanguage());
+            account.getLanguage().toString());
     }
 
     @Override
@@ -109,7 +111,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         String fullName = account.getFirstName() + " " + account.getLastName();
         String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
-        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage());
+        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage().toString());
     }
 
     @Override
@@ -213,7 +215,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage().toString());
     }
 
     @Override
@@ -282,5 +284,17 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         return accessType;
 
+    }
+
+    @Override
+    public void changeAccountLanguage(String login, String language) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login)
+            .orElseThrow(AccountNotFoundException::new);
+        try {
+            account.setLanguage(Languages.valueOf(language));
+        } catch (IllegalArgumentException e) {
+            throw new LanguageNotFoundException();
+        }
+        accountFacade.edit(account);
     }
 }
