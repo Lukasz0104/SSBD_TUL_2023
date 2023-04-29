@@ -138,14 +138,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeActiveStatusAsManager(String managerLogin, String userLogin, boolean status)
+    public void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status)
         throws AppBaseException {
 
-        if (Objects.equals(managerLogin, userLogin)) {
+
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(managerLogin, account.getLogin())) {
             throw new IllegalLoginException();
         }
-
-        Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
 
         if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
             throw new BadAccessLevelException();
@@ -169,14 +170,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeActiveStatusAsAdmin(String adminLogin, String userLogin, boolean status)
+    public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
         throws AppBaseException {
 
-        if (Objects.equals(adminLogin, userLogin)) {
+
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(adminLogin, account.getLogin())) {
             throw new IllegalLoginException();
         }
-
-        Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
 
         if (account.isActive() == status) {
             return;

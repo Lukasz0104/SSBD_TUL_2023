@@ -23,9 +23,9 @@ public interface AccountManagerLocal {
 
     void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException;
 
-    void changeActiveStatusAsManager(String managerLogin, String userLogin, boolean status) throws AppBaseException;
+    void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status) throws AppBaseException;
 
-    void changeActiveStatusAsAdmin(String adminLogin, String userLogin, boolean status) throws AppBaseException;
+    void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status) throws AppBaseException;
 
     Account getAccountDetails(Long id) throws AppBaseException;
 

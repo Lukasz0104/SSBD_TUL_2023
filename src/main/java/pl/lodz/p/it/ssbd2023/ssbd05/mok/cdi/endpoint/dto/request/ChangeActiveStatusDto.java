@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class ChangeActiveStatusDto {
 
     @NotBlank
-    private String id;
+    private Long id;
 
     @NotNull
     private Boolean active;
