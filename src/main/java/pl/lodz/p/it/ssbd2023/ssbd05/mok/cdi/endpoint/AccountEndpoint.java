@@ -155,7 +155,7 @@ public class AccountEndpoint {
         String managerLogin = securityContext.getUserPrincipal().getName();
 
         accountManager.changeActiveStatusAsManager(managerLogin,
-            dto.getLogin(), dto.getActive());
+            dto.getId(), dto.getActive());
         return Response.ok().build();
     }
 
@@ -167,7 +167,7 @@ public class AccountEndpoint {
         String adminLogin = securityContext.getUserPrincipal().getName();
 
         accountManager.changeActiveStatusAsAdmin(adminLogin,
-            dto.getLogin(), dto.getActive());
+            dto.getId(), dto.getActive());
         return Response.ok().build();
     }
 
