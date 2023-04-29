@@ -132,7 +132,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
 
-        if (!account.hasAccessLevel(AccessType.OWNER)) {
+        if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
             throw new BadAccessLevelException();
         }
 
