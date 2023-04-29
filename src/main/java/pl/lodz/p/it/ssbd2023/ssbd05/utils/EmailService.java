@@ -18,6 +18,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -105,13 +109,36 @@ public class EmailService {
     }
 
     @Asynchronous
-    void notifyAboutAdminLogin(String receiverAddress, String name, String language) {
-        // TODO
+    public void notifyAboutAdminLogin(String receiverAddress, String name, String language,
+                                      String ip, LocalDateTime timestamp) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+            .withLocale(new Locale(language));
+
+        String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_MESSAGE, language)
+            .replace("$ip", ip)
+            .replace(
+                "$timestamp", timestamp.format(formatter)
+            );
+
+        this.sendMessageWithoutLink(
+            receiverAddress, name, content,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
     }
 
     @Asynchronous
-    void notifyBlockedAccIncorrectLoginLimit(String receiver, String name, String lang) {
-        // TODO
+    public void notifyBlockedAccIncorrectLoginLimit(String receiver, String name, String lang) {
+        this.sendMessageWithoutLink(
+            receiver, name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INCORRECT_LOGIN_LIMIT_ACCOUNT_BLOCKED_MESSAGE, lang),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, lang),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INCORRECT_LOGIN_LIMIT_ACCOUNT_BLOCKED_SUBJECT, lang),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INCORRECT_LOGIN_LIMIT_ACCOUNT_BLOCKED_TITLE, lang),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, lang)
+        );
     }
 
     /**
@@ -131,7 +158,7 @@ public class EmailService {
         String receiverAddress, String name, String content, String signature,
         String action, String link, String subject, String title, String greeting) {
 
-        String templateMessage = loadTemplate("template-without-link.html")
+        String templateMessage = loadTemplate("template-with-link.html")
             .replace("$username", name)
             .replace("$link", link)
             .replace("$message", content)
@@ -158,7 +185,7 @@ public class EmailService {
         String receiverAddress, String name, String content, String signature,
         String subject, String title, String greeting) {
 
-        String templateMessage = loadTemplate("template-with-link.html")
+        String templateMessage = loadTemplate("template-without-link.html")
             .replace("$username", name)
             .replace("$message", content)
             .replace("$last", signature)

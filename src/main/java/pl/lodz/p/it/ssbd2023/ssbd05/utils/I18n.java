@@ -32,6 +32,13 @@ public class I18n {
     public static final String EMAIL_MESSAGE_INCORRECT_LOGIN_LIMIT_ACCOUNT_BLOCKED_TITLE =
         "email.message.incorrect-login-limit-account-blocked.title";
 
+    public static final String EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_TITLE =
+        "email.message.admin-auth-success.title";
+    public static final String EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_MESSAGE =
+        "email.message.admin-auth-success.message";
+    public static final String EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_SUBJECT =
+        "email.message.admin-auth-success.subject";
+
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);
         ResourceBundle resourceBundle = ResourceBundle.getBundle("messages", locale);
