@@ -148,4 +148,11 @@ public class Account extends AbstractEntity implements Serializable {
         this.activityTracker.setLastSuccessfulLoginIp(ip);
         this.activityTracker.setUnsuccessfulLoginChainCounter(0);
     }
+
+    public boolean isAbleToAuthenticate() {
+        boolean hasActiveAccessLevels = getAccessLevels().stream()
+            .anyMatch(AccessLevel::isActive);
+
+        return (hasActiveAccessLevels && active && verified);
+    }
 }

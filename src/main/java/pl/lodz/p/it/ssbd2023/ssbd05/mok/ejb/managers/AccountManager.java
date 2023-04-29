@@ -9,8 +9,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
@@ -26,7 +24,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -79,7 +76,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     public void confirmRegistration(UUID confirmToken) throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
-        validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
+        token.validateSelf(TokenType.CONFIRM_REGISTRATION_TOKEN);
 
         Account account = token.getAccount();
         account.setVerified(true);
@@ -111,7 +108,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     public void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
-        validateToken(token, TokenType.CONFIRM_EMAIL_TOKEN);
+        token.validateSelf(TokenType.CONFIRM_EMAIL_TOKEN);
 
         Account account = token.getAccount();
 
@@ -154,7 +151,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void resetPassword(String password, UUID token) throws AppBaseException {
         Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
-        validateToken(resetPasswordToken, TokenType.PASSWORD_RESET_TOKEN);
+        resetPasswordToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
         Account account = resetPasswordToken.getAccount();
         if (!account.isActive()) {
             throw new InactiveAccountException();
@@ -165,15 +162,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             accountFacade.edit(account);
         } catch (DatabaseException e) {
             throw new ConstraintViolationException(e.getMessage(), e);
-        }
-    }
-
-    private void validateToken(Token token, TokenType tokenType) throws AppBaseException {
-        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ExpiredTokenException();
-        }
-        if (token.getTokenType() != tokenType) {
-            throw new InvalidTokenTypeException();
         }
     }
 
