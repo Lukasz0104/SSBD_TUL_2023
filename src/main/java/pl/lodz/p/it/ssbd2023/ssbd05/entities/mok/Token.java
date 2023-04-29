@@ -14,6 +14,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -98,9 +101,18 @@ public class Token extends AbstractEntity {
         this.account = account;
         this.tokenType = tokenType;
         this.expiresAt = switch (tokenType) {
-            case REFRESH_TOKEN -> LocalDateTime.now().plusHours(24);
+            case REFRESH_TOKEN -> LocalDateTime.now().plusHours(1);
             case PASSWORD_RESET_TOKEN -> LocalDateTime.now().plusMinutes(15);
             default -> LocalDateTime.now().plusHours(2);
         };
+    }
+
+    public void validateSelf(TokenType tokenType) throws AppBaseException {
+        if (expiresAt.isBefore(LocalDateTime.now())) {
+            throw new ExpiredTokenException();
+        }
+        if (this.tokenType != tokenType) {
+            throw new InvalidTokenException();
+        }
     }
 }

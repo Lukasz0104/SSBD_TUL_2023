@@ -153,4 +153,10 @@ public class Account extends AbstractEntity implements Serializable {
         return accessLevels.stream().filter(AccessLevel::isActive).anyMatch(x -> x.getLevel() == accessType);
     }
 
+    public boolean isAbleToAuthenticate() {
+        boolean hasActiveAccessLevels = getAccessLevels().stream()
+            .anyMatch(AccessLevel::isActive);
+
+        return (hasActiveAccessLevels && active && verified);
+    }
 }
