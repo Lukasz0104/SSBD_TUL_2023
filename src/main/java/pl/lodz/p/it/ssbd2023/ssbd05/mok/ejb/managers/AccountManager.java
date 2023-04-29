@@ -14,7 +14,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalLoginException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
@@ -145,7 +145,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
 
         if (Objects.equals(managerLogin, account.getLogin())) {
-            throw new IllegalLoginException();
+            throw new IllegalSelfActionException();
         }
 
         if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
@@ -177,7 +177,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
 
         if (Objects.equals(adminLogin, account.getLogin())) {
-            throw new IllegalLoginException();
+            throw new IllegalSelfActionException();
         }
 
         if (account.isActive() == status) {
