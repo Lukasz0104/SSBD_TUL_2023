@@ -4,6 +4,8 @@ import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
@@ -13,6 +15,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViol
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
@@ -199,5 +202,20 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public Account getAccountDetails(String login) throws AppBaseException {
         return accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+    }
+
+    @Override
+    public AccessType changeAccessLevel(String login, AccessType accessType) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+
+        boolean canChangeAccessLevel = account.getAccessLevels().stream()
+            .filter(AccessLevel::isActive)
+            .anyMatch(accessLevel -> accessLevel.getLevel() == accessType);
+        if (!canChangeAccessLevel) {
+            throw new NoAccessLevelException();
+        }
+
+        return accessType;
+
     }
 }

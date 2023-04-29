@@ -24,17 +24,20 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessTypeDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
@@ -108,13 +111,10 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/change-password")
+    @Path("/me/change-password")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
-
-        if (dto.getOldPassword().equals(dto.getNewPassword())) {
-            throw new RepeatedPasswordException();
-        }
 
         try {
             String login = securityContext.getUserPrincipal().getName();
@@ -130,6 +130,7 @@ public class AccountEndpoint {
     @Path("/change-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail() throws AppBaseException {
+
         accountManager.changeEmail(securityContext.getUserPrincipal().getName());
         return Response.noContent().build();
     }
@@ -157,5 +158,21 @@ public class AccountEndpoint {
     @RolesAllowed("ADMIN")
     public AccountDto getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
         return createAccountDto(accountManager.getAccountDetails(id));
+    }
+
+    @PUT
+    @Path("/me/change-access-level")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public AccessTypeDto changeAccessLevel(@Valid ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
+        AccessType accessType;
+        try {
+            accessType = AccessType.valueOf(accessLevelDto.getAccessType());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidAccessLevelException();
+        }
+
+        accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
+
+        return new AccessTypeDto(accessType);
     }
 }
