@@ -90,7 +90,7 @@ public class AccountEndpoint {
     @POST
     @Path("/reset-password-message")
     public Response sendResetPasswordMessage(@NotNull @Email @QueryParam("email") String email)
-            throws AppBaseException {
+        throws AppBaseException {
         accountManager.sendResetPasswordMessage(email);
         return Response.noContent().build();
     }
@@ -102,7 +102,7 @@ public class AccountEndpoint {
         try {
             accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
         } catch (DatabaseException e) {
-            //TODO
+            // TODO
         }
         return Response.noContent().build();
     }
@@ -129,9 +129,7 @@ public class AccountEndpoint {
     @POST
     @Path("/change-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response changeEmail()
-            throws AppBaseException {
-
+    public Response changeEmail() throws AppBaseException {
         accountManager.changeEmail(securityContext.getUserPrincipal().getName());
         return Response.noContent().build();
     }
@@ -140,7 +138,7 @@ public class AccountEndpoint {
     @Path("/confirm-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response confirmEmail(@Valid ChangeEmailDto dto, @NotNull @QueryParam("token") UUID token)
-            throws AppBaseException {
+        throws AppBaseException {
 
         accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
         return Response.ok().build();

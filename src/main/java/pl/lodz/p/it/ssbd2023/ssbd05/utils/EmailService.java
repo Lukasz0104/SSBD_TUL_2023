@@ -59,51 +59,6 @@ public class EmailService {
         }
     }
 
-    /**
-     * Sends email with link to action.
-     *
-     * @param receiverAddress Email address of the receiver.
-     * @param name            Name used in greeting.
-     * @param content         Body of the message.
-     * @param signature       Signature.
-     * @param action          Name of the action.
-     * @param link            Link to action.
-     * @param subject         Subject of the message.
-     * @param title           Title.
-     * @param greeting        Greeting.
-     */
-    private void sendMessageWithLink(
-        String receiverAddress, String name, String content, String signature,
-        String action, String link, String subject, String title, String greeting) {
-        StringBuilder builder = new StringBuilder();
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("templates/template.html");
-             BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            String str;
-            while ((str = in.readLine()) != null) {
-                builder.append(str);
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.INFO, "Error while reading email message template file", e.getCause());
-        }
-        String templateMessage = builder.toString()
-            .replace("$username", name)
-            .replace("$link", link)
-            .replace("$message", content)
-            .replace("$last", signature)
-            .replace("$action", action)
-            .replace("$title", title)
-            .replace("$greeting", greeting);
-        try {
-            InternetAddress[] addresses = {new InternetAddress(receiverAddress)};
-            mimeMessage.setRecipients(Message.RecipientType.TO, addresses);
-            mimeMessage.setSubject(subject);
-            mimeMessage.setContent(templateMessage, "text/html; charset=utf-8");
-            Transport.send(mimeMessage);
-        } catch (MessagingException e) {
-            LOGGER.log(Level.INFO, "Error while sending an email " + receiverAddress, e.getCause());
-        }
-    }
-
     @Asynchronous
     public void resetPasswordEmail(String to, String name, String link, String language) {
         this.sendMessageWithLink(
@@ -136,9 +91,119 @@ public class EmailService {
 
     @Asynchronous
     public void changeEmailAddress(String receiverAddress, String name, String link, String language) {
+        this.sendMessageWithLink(
+            receiverAddress,
+            name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CHANGE_EMAIL_MESSAGE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CHANGE_EMAIL_ACTION, language),
+            link,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CHANGE_EMAIL_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CHANGE_EMAIL_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
     }
 
     @Asynchronous
     void notifyAboutAdminLogin(String receiverAddress, String name, String language) {
+        // TODO
+    }
+
+    @Asynchronous
+    void notifyBlockedAccIncorrectLoginLimit(String receiver, String name, String lang) {
+        // TODO
+    }
+
+    /**
+     * Sends email with link to action.
+     *
+     * @param receiverAddress Email address of the receiver.
+     * @param name            Name used in greeting.
+     * @param content         Body of the message.
+     * @param signature       Signature.
+     * @param action          Name of the action.
+     * @param link            Link to action.
+     * @param subject         Subject of the message.
+     * @param title           Title.
+     * @param greeting        Greeting.
+     */
+    private void sendMessageWithLink(
+        String receiverAddress, String name, String content, String signature,
+        String action, String link, String subject, String title, String greeting) {
+
+        String templateMessage = loadTemplate("template-without-link.html")
+            .replace("$username", name)
+            .replace("$link", link)
+            .replace("$message", content)
+            .replace("$last", signature)
+            .replace("$action", action)
+            .replace("$title", title)
+            .replace("$greeting", greeting);
+
+        sendMimeMessage(receiverAddress, subject, templateMessage);
+    }
+
+    /**
+     * Sends email with simple message.
+     *
+     * @param receiverAddress Email address of the receiver.
+     * @param name            Name used in greeting.
+     * @param content         Body of the message.
+     * @param signature       Signature.
+     * @param subject         Subject of the message.
+     * @param title           Title.
+     * @param greeting        Greeting.
+     */
+    private void sendMessageWithoutLink(
+        String receiverAddress, String name, String content, String signature,
+        String subject, String title, String greeting) {
+
+        String templateMessage = loadTemplate("template-with-link.html")
+            .replace("$username", name)
+            .replace("$message", content)
+            .replace("$last", signature)
+            .replace("$title", title)
+            .replace("$greeting", greeting);
+
+        sendMimeMessage(receiverAddress, subject, templateMessage);
+    }
+
+    /**
+     * Send message with filled in data to user.
+     *
+     * @param receiverAddress Email address of the receiver.
+     * @param subject         Subject of the message.
+     * @param message         Message with filled in data.
+     */
+    private void sendMimeMessage(String receiverAddress, String subject, String message) {
+        try {
+            InternetAddress[] addresses = {new InternetAddress(receiverAddress)};
+            mimeMessage.setRecipients(Message.RecipientType.TO, addresses);
+            mimeMessage.setSubject(subject);
+            mimeMessage.setContent(message, "text/html; charset=utf-8");
+            Transport.send(mimeMessage);
+        } catch (MessagingException e) {
+            LOGGER.log(Level.INFO, "Error while sending an email to" + receiverAddress, e.getCause());
+        }
+    }
+
+    /**
+     * Load message template with given name.
+     *
+     * @param templateName Name of the template.
+     * @return Content of the template.
+     */
+    private String loadTemplate(String templateName) {
+        StringBuilder builder = new StringBuilder();
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("templates/" + templateName);
+             BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String str;
+            while ((str = in.readLine()) != null) {
+                builder.append(str);
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.INFO, "Error while reading email message template file", e.getCause());
+        }
+        return builder.toString();
     }
 }

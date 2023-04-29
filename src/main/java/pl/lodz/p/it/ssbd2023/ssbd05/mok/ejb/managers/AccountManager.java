@@ -102,9 +102,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        // String fullName = account.getFirstName() + " " + account.getLastName();
-        // String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
-        // emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage());
+        String fullName = account.getFirstName() + " " + account.getLastName();
+        String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
+        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage());
     }
 
     @Override
