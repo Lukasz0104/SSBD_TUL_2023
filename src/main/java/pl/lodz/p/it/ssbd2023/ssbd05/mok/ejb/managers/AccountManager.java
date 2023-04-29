@@ -16,7 +16,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
@@ -212,28 +211,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public AccessType changeAccessLevel(String login, AccessType accessType) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
-        if (!account.isVerified()) {
-            throw new UnverifiedAccountException();
-        }
-        if (!account.isActive()) {
-            throw new InactiveAccountException();
-        }
 
-        List<AccessType> accessTypes = account.getAccessLevels().stream().map(AccessLevel::getLevel).toList();
-        if (!accessTypes.contains(accessType)) {
+        boolean canChangeAccessLevel = account.getAccessLevels().stream()
+            .filter(AccessLevel::isActive)
+            .anyMatch(accessLevel -> accessLevel.getLevel() == accessType);
+        if (!canChangeAccessLevel) {
             throw new NoAccessLevelException();
         }
 
-        List<AccessLevel> accessLevels =
-            account.getAccessLevels().stream().filter(x -> x.getLevel() == accessType).toList();
-        if (accessLevels.size() != 1) {
-            throw new NoAccessLevelException();
-        }
-        if (!accessLevels.get(0).isActive()) {
-            throw new InactiveAccessLevelException();
-        }
-
-        return accessLevels.get(0).getLevel();
+        return accessType;
 
     }
 }

@@ -30,6 +30,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -168,10 +169,15 @@ public class AccountEndpoint {
     @Path("/me/change-access-level")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public AccessTypeDto changeAccessLevel(@Valid ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
+        AccessType accessType;
+        try {
+            accessType = AccessType.valueOf(accessLevelDto.getAccessType());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidAccessLevelException();
+        }
 
-        AccessType type = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(),
-            accessLevelDto.getAccessType());
+        accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
 
-        return new AccessTypeDto(type);
+        return new AccessTypeDto(accessType);
     }
 }
