@@ -29,7 +29,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedLoginException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
@@ -90,7 +92,7 @@ public class AccountEndpoint {
     @POST
     @Path("/reset-password-message")
     public Response sendResetPasswordMessage(@NotNull @Email @QueryParam("email") String email)
-            throws AppBaseException {
+        throws AppBaseException {
         accountManager.sendResetPasswordMessage(email);
         return Response.noContent().build();
     }
@@ -130,7 +132,7 @@ public class AccountEndpoint {
     @Path("/change-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail()
-            throws AppBaseException {
+        throws AppBaseException {
 
         accountManager.changeEmail(securityContext.getUserPrincipal().getName());
         return Response.noContent().build();
@@ -140,9 +142,41 @@ public class AccountEndpoint {
     @Path("/confirm-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response confirmEmail(@Valid ChangeEmailDto dto, @NotNull @QueryParam("token") UUID token)
-            throws AppBaseException {
+        throws AppBaseException {
 
         accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/change-active-status/manager")
+    @RolesAllowed({"MANAGER"})
+    public Response changeActiveStatusAsManager(@Valid ChangeActiveStatusDto dto)
+        throws AppBaseException {
+        String managerLogin = securityContext.getUserPrincipal().getName();
+
+        if (managerLogin.equals(dto.getLogin())) {
+            throw new RepeatedLoginException();
+        }
+
+        accountManager.changeActiveStatusAsManager(managerLogin,
+            dto.getLogin(), dto.getActive());
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/change-active-status/admin")
+    @RolesAllowed({"ADMIN"})
+    public Response changeActiveStatusAsAdmin(@Valid ChangeActiveStatusDto dto)
+        throws AppBaseException {
+        String adminLogin = securityContext.getUserPrincipal().getName();
+
+        if (adminLogin.equals(dto.getLogin())) {
+            throw new RepeatedLoginException();
+        }
+
+        accountManager.changeActiveStatusAsAdmin(adminLogin,
+            dto.getLogin(), dto.getActive());
         return Response.ok().build();
     }
 

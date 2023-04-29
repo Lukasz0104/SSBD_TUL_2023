@@ -4,6 +4,7 @@ import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
@@ -14,6 +15,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
@@ -70,7 +72,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmRegistration(UUID confirmToken)
-            throws AppBaseException {
+        throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -84,7 +86,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void changeEmail(String login)
-            throws AppBaseException {
+        throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -102,7 +104,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void confirmEmail(String email, UUID confirmToken, String login)
-            throws AppBaseException {
+        throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_EMAIL_TOKEN);
@@ -125,6 +127,45 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    public void changeActiveStatusAsManager(String managerLogin, String userLogin, boolean status)
+        throws AppBaseException {
+
+        Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
+
+        if (!account.hasAccessLevel(AccessType.OWNER)) {
+            throw new BadAccessLevelException();
+        }
+
+        account.setActive(status);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
+
+        //todo send mail about changing access level status
+
+    }
+
+    @Override
+    public void changeActiveStatusAsAdmin(String adminLogin, String userLogin, boolean status)
+        throws AppBaseException {
+
+        Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
+
+        account.setActive(status);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
+
+        //todo send mail about changing access level status
+    }
+
+    @Override
     public void sendResetPasswordMessage(String email) throws AppBaseException {
         Account account = accountFacade.findByEmail(email).orElseThrow(AccountNotFoundException::new);
         if (!account.isVerified()) {
@@ -134,7 +175,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
         List<Token> resetPasswordTokens =
-                tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
         for (Token t : resetPasswordTokens) {
             tokenFacade.remove(t);
         }
@@ -142,7 +183,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-                properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
     }
 
     @Override
