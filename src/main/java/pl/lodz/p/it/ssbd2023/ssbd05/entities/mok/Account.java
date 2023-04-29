@@ -149,6 +149,10 @@ public class Account extends AbstractEntity implements Serializable {
         this.activityTracker.setUnsuccessfulLoginChainCounter(0);
     }
 
+    public boolean hasAccessLevel(AccessType accessType) {
+        return accessLevels.stream().filter(AccessLevel::isActive).anyMatch(x -> x.getLevel() == accessType);
+    }
+
     public boolean isAbleToAuthenticate() {
         boolean hasActiveAccessLevels = getAccessLevels().stream()
             .anyMatch(AccessLevel::isActive);

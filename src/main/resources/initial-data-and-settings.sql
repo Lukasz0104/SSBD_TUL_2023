@@ -87,6 +87,8 @@ insert into public.access_level (id, level, version, account_id, active) values 
 insert into public.access_level (id, level, version, account_id, active) values (-6, 'MANAGER', 0, -5, TRUE);
 
 insert into public.access_level (id, level, version, account_id, active) values (-7, 'ADMIN', 0, -6, TRUE);
+insert into public.access_level (id, level, version, account_id, active) values (-8, 'ADMIN', 0, -5, TRUE);
+insert into public.access_level (id, level, version, account_id, active) values (-9, 'ADMIN', 0, -1, TRUE);
 
 
 -- Owner Data
@@ -101,6 +103,8 @@ insert into public.manager_data (id, license_number, building_number, city, post
 
 -- Admin Data
 insert into public.admin_data (id) values (-7);
+insert into public.admin_data (id) values (-8);
+insert into public.admin_data (id) values (-9);
 
 --region building
 -- Building

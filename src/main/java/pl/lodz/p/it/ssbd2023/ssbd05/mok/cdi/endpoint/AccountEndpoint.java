@@ -32,6 +32,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
@@ -143,6 +144,30 @@ public class AccountEndpoint {
 
         accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
         return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/manager/change-active-status")
+    @RolesAllowed({"MANAGER"})
+    public Response changeActiveStatusAsManager(@Valid ChangeActiveStatusDto dto)
+        throws AppBaseException {
+        String managerLogin = securityContext.getUserPrincipal().getName();
+
+        accountManager.changeActiveStatusAsManager(managerLogin,
+            dto.getId(), dto.getActive());
+        return Response.noContent().build();
+    }
+
+    @PUT
+    @Path("/admin/change-active-status")
+    @RolesAllowed({"ADMIN"})
+    public Response changeActiveStatusAsAdmin(@Valid ChangeActiveStatusDto dto)
+        throws AppBaseException {
+        String adminLogin = securityContext.getUserPrincipal().getName();
+
+        accountManager.changeActiveStatusAsAdmin(adminLogin,
+            dto.getId(), dto.getActive());
+        return Response.noContent().build();
     }
 
     @GET

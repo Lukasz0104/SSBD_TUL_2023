@@ -14,6 +14,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
@@ -76,7 +78,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void confirmRegistration(UUID confirmToken) throws AppBaseException {
+    public void confirmRegistration(UUID confirmToken)
+        throws AppBaseException {
+
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         token.validateSelf(TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -89,7 +93,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeEmail(String login) throws AppBaseException {
+    public void changeEmail(String login)
+        throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -108,7 +113,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException {
+    public void confirmEmail(String email, UUID confirmToken, String login)
+        throws AppBaseException {
+
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         token.validateSelf(TokenType.CONFIRM_EMAIL_TOKEN);
@@ -128,6 +135,64 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         } catch (DatabaseException de) {
             throw new ConstraintViolationException(de.getMessage(), de);
         }
+    }
+
+    @Override
+    public void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status)
+        throws AppBaseException {
+
+
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(managerLogin, account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
+
+        if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
+            throw new BadAccessLevelException();
+        }
+
+        if (account.isActive() == status) {
+            return;
+        }
+
+        account.setActive(status);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
+
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
+            + " " + account.getLastName(), account.getLanguage(), status);
+    }
+
+    @Override
+    public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
+        throws AppBaseException {
+
+
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(adminLogin, account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
+
+        if (account.isActive() == status) {
+            return;
+        }
+
+        account.setActive(status);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
+
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
+            + " " + account.getLastName(), account.getLanguage(), status);
     }
 
     @Override
