@@ -9,14 +9,11 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Languages;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -172,12 +169,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException de) {
-            throw new ConstraintViolationException(de.getMessage(), de);
+        } catch (AppDatabaseException ade) {
+            throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override
@@ -199,12 +196,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException de) {
-            throw new ConstraintViolationException(de.getMessage(), de);
+        } catch (AppDatabaseException ade) {
+            throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override
@@ -301,7 +298,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AccountNotFoundException::new);
         try {
-            account.setLanguage(Languages.valueOf(language));
+            account.setLanguage(Language.valueOf(language));
         } catch (IllegalArgumentException e) {
             throw new LanguageNotFoundException();
         }

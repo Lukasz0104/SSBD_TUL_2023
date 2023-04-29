@@ -50,7 +50,6 @@ public class I18n {
     public static String RESET_PASSWORD_EMAIL_MESSAGE_CONTENT = "reset.password.email.message.content";
     public static String RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT = "reset.password.email.message.subject";
     public static String EMAIL_MESSAGE_LAST = "email.message.last";
-    public static String EMAIL_MESSAGE_GREETING = "email.message.greeting";
 
     public static final String EXPIRED_TOKEN = "response.message.expired_token";
     public static final String INVALID_TOKEN_TYPE = "response.message.invalid_token_type";

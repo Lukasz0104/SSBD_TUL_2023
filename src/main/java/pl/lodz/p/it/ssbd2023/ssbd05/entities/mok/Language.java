@@ -1,12 +1,12 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
-public enum Languages {
+public enum Language {
     PL("PL"),
     EN("EN");
 
     private final String text;
 
-    Languages(final String text) {
+    Language(final String text) {
         this.text = text;
     }
 
