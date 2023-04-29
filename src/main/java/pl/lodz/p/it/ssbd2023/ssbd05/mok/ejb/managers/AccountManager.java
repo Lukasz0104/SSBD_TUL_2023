@@ -65,12 +65,18 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         tokenFacade.create(token);
 
-        //emailService.sendMessage();
+        String fullName = account.getFirstName() + " " + account.getLastName();
+        String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+
+        emailService.sendConfirmRegistrationEmail(
+            account.getEmail(),
+            fullName,
+            actionLink,
+            account.getLanguage());
     }
 
     @Override
-    public void confirmRegistration(UUID confirmToken)
-            throws AppBaseException {
+    public void confirmRegistration(UUID confirmToken) throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -83,8 +89,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeEmail(String login)
-            throws AppBaseException {
+    public void changeEmail(String login) throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -97,12 +102,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        //        emailService.sendMessage(); //TODO token UUID in message
+        String fullName = account.getFirstName() + " " + account.getLastName();
+        String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
+        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage());
     }
 
     @Override
-    public void confirmEmail(String email, UUID confirmToken, String login)
-            throws AppBaseException {
+    public void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         validateToken(token, TokenType.CONFIRM_EMAIL_TOKEN);
@@ -134,7 +140,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
         List<Token> resetPasswordTokens =
-                tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
         for (Token t : resetPasswordTokens) {
             tokenFacade.remove(t);
         }
@@ -142,7 +148,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-                properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
     }
 
     @Override

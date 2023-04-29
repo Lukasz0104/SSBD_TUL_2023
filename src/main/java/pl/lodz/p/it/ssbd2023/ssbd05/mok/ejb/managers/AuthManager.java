@@ -5,6 +5,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
@@ -46,6 +47,16 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
 
         account.registerSuccessfulLogin(ip);
 
+        account.getAccessLevels()
+            .stream()
+            .filter(accessLevel -> accessLevel.getLevel() == AccessType.ADMIN)
+            .findFirst()
+            .ifPresent((al) -> emailService.notifyAboutAdminLogin(
+                account.getEmail(), account.getEmail(), account.getLanguage(),
+                account.getActivityTracker().getLastSuccessfulLoginIp(),
+                account.getActivityTracker().getLastSuccessfulLogin()
+            ));
+
         String jwt = jwtUtils.generateJWT(account);
         Token refreshToken = new Token(UUID.randomUUID(), account, TokenType.REFRESH_TOKEN);
 
@@ -69,7 +80,8 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
                 account.setActive(false);
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
                 accountFacade.edit(account);
-                //emailService.sendMessage();
+                emailService.notifyBlockedAccIncorrectLoginLimit(
+                    account.getEmail(), account.getEmail(), account.getLanguage());
             }
         }
     }
