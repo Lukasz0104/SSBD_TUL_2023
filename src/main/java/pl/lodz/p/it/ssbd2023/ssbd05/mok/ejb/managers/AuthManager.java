@@ -50,21 +50,21 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
 
         account.registerSuccessfulLogin(ip);
 
+        account.getAccessLevels()
+            .stream()
+            .filter(accessLevel -> accessLevel.getLevel() == AccessType.ADMIN)
+            .findFirst()
+            .ifPresent((al) -> emailService.notifyAboutAdminLogin(
+                account.getEmail(), account.getEmail(), account.getLanguage(),
+                account.getActivityTracker().getLastSuccessfulLoginIp(),
+                account.getActivityTracker().getLastSuccessfulLogin()
+            ));
+
+        String jwt = jwtUtils.generateJWT(account);
         Token refreshToken = new Token(UUID.randomUUID(), account, TokenType.REFRESH_TOKEN);
 
         tokenFacade.create(refreshToken);
         accountFacade.edit(account);
-
-        boolean hasAdministratorAccessLevel = account.getAccessLevels().stream()
-            .filter(AccessLevel::isActive)
-            .anyMatch(accessLevel -> accessLevel.getLevel() == AccessType.ADMIN);
-
-        if (hasAdministratorAccessLevel) {
-            //Send message to admin every time someone successfully logs in to his account
-            //(email contains IP of user that logged in)
-            //emailService.sendMessage();
-        }
-        String jwt = jwtUtils.generateJWT(account);
 
         return new JwtRefreshTokenDto(jwt, refreshToken.getToken());
     }
@@ -81,7 +81,8 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
                 account.setActive(false);
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
                 accountFacade.edit(account);
-                //emailService.sendMessage();
+                emailService.notifyBlockedAccIncorrectLoginLimit(
+                    account.getEmail(), account.getEmail(), account.getLanguage());
             }
         }
     }
