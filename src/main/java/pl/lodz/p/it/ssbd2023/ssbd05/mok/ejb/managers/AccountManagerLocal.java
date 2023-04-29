@@ -25,4 +25,6 @@ public interface AccountManagerLocal {
     Account getAccountDetails(Long id) throws AppBaseException;
 
     Account getAccountDetails(String login) throws AppBaseException;
+
+    void changeAccountLanguage(String login, String language) throws AppBaseException;
 }
