@@ -35,15 +35,10 @@ public abstract class AbstractEntity {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof AbstractEntity)) {
+        if (!(object instanceof AbstractEntity other)) {
             return false;
         }
-        AbstractEntity other = (AbstractEntity) object;
-        if ((this.getId() == null && other.getId() != null)
-            || (this.getId() != null
-            && !this.getId().equals(other.getId()))) {
-            return false;
-        }
-        return true;
+        return (this.getId() != null || other.getId() == null)
+            && (this.getId() == null || this.getId().equals(other.getId()));
     }
 }

@@ -4,17 +4,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 
-import java.util.UUID;
-
-
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class LoginResponseDto {
-    @NotNull
-    private String jwt;
+public class AccessTypeDto {
 
     @NotNull
-    private UUID refreshToken;
+    private AccessType accessType;
 }

@@ -1,6 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
 import jakarta.ejb.Local;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
@@ -23,7 +24,15 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException;
 
+    void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status) throws AppBaseException;
+
+    void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status) throws AppBaseException;
+
     Account getAccountDetails(Long id) throws AppBaseException;
 
     Account getAccountDetails(String login) throws AppBaseException;
+
+    AccessType changeAccessLevel(String login, AccessType accessLevel) throws AppBaseException;
+
+    void changeAccountLanguage(String login, String language) throws AppBaseException;
 }
