@@ -76,7 +76,7 @@ public class AuthEndpoint {
         do {
             try {
                 JwtRefreshTokenDto jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
-                return Response.status(200).entity(jwtRefreshTokenDto).build();
+                return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
             } catch (DatabaseException de) {
                 txCounter++;
             }
@@ -89,19 +89,14 @@ public class AuthEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
-        UUID token;
-        try {
-            token = UUID.fromString(dto.getRefreshToken());
-        } catch (IllegalArgumentException iae) {
-            throw new InvalidTokenException();
-        }
+        UUID token = UUID.fromString(dto.getRefreshToken());
 
         int txLimit = properties.getTransactionRepeatLimit();
         int txCounter = 0;
         do {
             try {
                 JwtRefreshTokenDto jwtRefreshTokenDto = authManager.refreshJwt(token, dto.getLogin());
-                return Response.status(200).entity(jwtRefreshTokenDto).build();
+                return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
             } catch (InvalidTokenException | ExpiredTokenException e) {
                 throw new AuthenticationException();
             } catch (DatabaseException de) {
