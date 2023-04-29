@@ -33,18 +33,18 @@ public class I18n {
         "email.message.admin-auth-success.message";
     public static final String EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_SUBJECT =
         "email.message.admin-auth-success.subject";
-    public static String RESET_PASSWORD_EMAIL_MESSAGE_ACTION = "reset.password.email.message.action";
-    public static String RESET_PASSWORD_EMAIL_MESSAGE_CONTENT = "reset.password.email.message.content";
-    public static String RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT = "reset.password.email.message.subject";
-    public static String BLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_ACTION = "blocked.account.status.email.message.action";
-    public static String BLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_CONTENT = "blocked.account.status.email.message.content";
-    public static String BLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT = "blocked.account.status.email.message.subject";
-    public static String UNBLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_ACTION
-        = "unblocked.account.status.email.message.action";
-    public static String UNBLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_CONTENT
-        = "unblocked.account.status.email.message.content";
-    public static String UNBLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT = "unblocked.account.status.email.message.subject";
-    public static String EMAIL_MESSAGE_LAST = "email.message.last";
+    public static final String EMAIL_MESSAGE_BLOCKED_ACCOUNT_STATUS_ACTION =
+        "email.message.blocked.account.status.action";
+    public static final String EMAIL_MESSAGE_BLOCKED_ACCOUNT_STATUS_MESSAGE =
+        "email.message.blocked.account.status.message";
+    public static final String EMAIL_MESSAGE_BLOCKED_ACCOUNT_STATUS_SUBJECT =
+        "email.message.blocked.account.status.subject";
+    public static final String EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_ACTION =
+        "email.message.unblocked.account.status.action";
+    public static final String EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_MESSAGE =
+        "email.message.unblocked.account.status.message";
+    public static final String EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_SUBJECT =
+        "email.message.unblocked.account.status.subject";
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);
