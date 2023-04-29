@@ -4,6 +4,8 @@ import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Languages;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
@@ -17,6 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViol
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
@@ -28,7 +31,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -67,15 +69,21 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         tokenFacade.create(token);
 
-        //emailService.sendMessage();
+        String fullName = account.getFirstName() + " " + account.getLastName();
+        String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+
+        emailService.sendConfirmRegistrationEmail(
+            account.getEmail(),
+            fullName,
+            actionLink,
+            account.getLanguage());
     }
 
     @Override
-    public void confirmRegistration(UUID confirmToken)
-        throws AppBaseException {
+    public void confirmRegistration(UUID confirmToken) throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
-        validateToken(token, TokenType.CONFIRM_REGISTRATION_TOKEN);
+        token.validateSelf(TokenType.CONFIRM_REGISTRATION_TOKEN);
 
         Account account = token.getAccount();
         account.setVerified(true);
@@ -85,8 +93,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeEmail(String login)
-        throws AppBaseException {
+    public void changeEmail(String login) throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -99,15 +106,16 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        //        emailService.sendMessage(); //TODO token UUID in message
+        String fullName = account.getFirstName() + " " + account.getLastName();
+        String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
+        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage());
     }
 
     @Override
-    public void confirmEmail(String email, UUID confirmToken, String login)
-        throws AppBaseException {
+    public void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
-        validateToken(token, TokenType.CONFIRM_EMAIL_TOKEN);
+        token.validateSelf(TokenType.CONFIRM_EMAIL_TOKEN);
 
         Account account = token.getAccount();
 
@@ -144,13 +152,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage().toString());
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
     }
 
     @Override
     public void resetPassword(String password, UUID token) throws AppBaseException {
         Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
-        validateToken(resetPasswordToken, TokenType.PASSWORD_RESET_TOKEN);
+        resetPasswordToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
         Account account = resetPasswordToken.getAccount();
         if (!account.isActive()) {
             throw new InactiveAccountException();
@@ -161,15 +169,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             accountFacade.edit(account);
         } catch (DatabaseException e) {
             throw new ConstraintViolationException(e.getMessage(), e);
-        }
-    }
-
-    private void validateToken(Token token, TokenType tokenType) throws AppBaseException {
-        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ExpiredTokenException();
-        }
-        if (token.getTokenType() != tokenType) {
-            throw new InvalidTokenTypeException();
         }
     }
 
@@ -207,6 +206,21 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public Account getAccountDetails(String login) throws AppBaseException {
         return accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+    }
+
+    @Override
+    public AccessType changeAccessLevel(String login, AccessType accessType) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+
+        boolean canChangeAccessLevel = account.getAccessLevels().stream()
+            .filter(AccessLevel::isActive)
+            .anyMatch(accessLevel -> accessLevel.getLevel() == accessType);
+        if (!canChangeAccessLevel) {
+            throw new NoAccessLevelException();
+        }
+
+        return accessType;
+
     }
 
     @Override
