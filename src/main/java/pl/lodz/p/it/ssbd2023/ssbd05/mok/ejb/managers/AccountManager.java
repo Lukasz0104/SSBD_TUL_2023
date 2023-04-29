@@ -15,6 +15,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenTypeExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedActiveStatusException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedLoginException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
@@ -130,10 +132,18 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     public void changeActiveStatusAsManager(String managerLogin, String userLogin, boolean status)
         throws AppBaseException {
 
+        if (Objects.equals(managerLogin, userLogin)) {
+            throw new RepeatedLoginException();
+        }
+
         Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
 
         if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
             throw new BadAccessLevelException();
+        }
+
+        if (account.isActive() == status) {
+            throw new RepeatedActiveStatusException();
         }
 
         account.setActive(status);
@@ -144,7 +154,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(de.getMessage(), de);
         }
 
-        //todo send mail about changing access level status
+        //emailService.changeActiveStatusEmail(account.getEmail(), account.getEmail(), properties.getFrontendUrl()
+        //    + "/", account.getLanguage(), status); //FIXME not sure about the link here
 
     }
 
@@ -152,7 +163,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     public void changeActiveStatusAsAdmin(String adminLogin, String userLogin, boolean status)
         throws AppBaseException {
 
+        if (Objects.equals(adminLogin, userLogin)) {
+            throw new RepeatedLoginException();
+        }
+
         Account account = accountFacade.findByLogin(userLogin).orElseThrow(AccountNotFoundException::new);
+
+        if (account.isActive() == status) {
+            throw new RepeatedActiveStatusException();
+        }
 
         account.setActive(status);
 
@@ -162,7 +181,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(de.getMessage(), de);
         }
 
-        //todo send mail about changing access level status
+        //emailService.changeActiveStatusEmail(account.getEmail(), account.getEmail(), properties.getFrontendUrl()
+        //    + "/", account.getLanguage(), status); //FIXME not sure about the link here
     }
 
     @Override

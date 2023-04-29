@@ -1,10 +1,16 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.BLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_ACTION;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.BLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_CONTENT;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.BLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.EMAIL_MESSAGE_GREETING;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.EMAIL_MESSAGE_LAST;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_ACTION;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_CONTENT;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.UNBLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_ACTION;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.UNBLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_CONTENT;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n.UNBLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Asynchronous;
@@ -30,14 +36,11 @@ import java.util.logging.Logger;
 @Stateless
 public class EmailService {
 
+    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
     @Inject
     Properties applicationProperties;
-
     @Inject
     I18n i18n;
-
-    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
-
     private Session session;
 
     private MimeMessage mimeMessage;
@@ -113,5 +116,31 @@ public class EmailService {
             i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT, language),
             i18n.getMessage(RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT, language),
             i18n.getMessage(EMAIL_MESSAGE_GREETING, language));
+    }
+
+    @Asynchronous
+    public void changeActiveStatusEmail(String to, String name, String link, String language, boolean status) {
+
+        if (status) {
+            this.sendMessage(to,
+                name,
+                i18n.getMessage(BLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_CONTENT, language),
+                i18n.getMessage(EMAIL_MESSAGE_LAST, language),
+                i18n.getMessage(BLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_ACTION, language),
+                link,
+                i18n.getMessage(BLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT, language),
+                i18n.getMessage(BLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT, language),
+                i18n.getMessage(EMAIL_MESSAGE_GREETING, language));
+        } else {
+            this.sendMessage(to,
+                name,
+                i18n.getMessage(UNBLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_CONTENT, language),
+                i18n.getMessage(EMAIL_MESSAGE_LAST, language),
+                i18n.getMessage(UNBLOCKED_ACCOUNT_STATUS_EMAIL_MESSAGE_ACTION, language),
+                link,
+                i18n.getMessage(UNBLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT, language),
+                i18n.getMessage(UNBLOCKED_ACCOUNT_STATUS_MESSAGE_SUBJECT, language),
+                i18n.getMessage(EMAIL_MESSAGE_GREETING, language));
+        }
     }
 }
