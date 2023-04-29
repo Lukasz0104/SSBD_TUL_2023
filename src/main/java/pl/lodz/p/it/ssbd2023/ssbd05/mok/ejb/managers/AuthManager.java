@@ -77,8 +77,8 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
         }
     }
 
-    public void logout(UUID token, String login) throws AppBaseException {
-        Token refreshToken = tokenFacade.findByToken(token)
+    public void logout(String token, String login) throws AppBaseException {
+        Token refreshToken = tokenFacade.findByToken(UUID.fromString(token))
             .orElseThrow(TokenNotFoundException::new);
 
         Account account = refreshToken.getAccount();
