@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -234,32 +235,32 @@ public class AccountEndpoint {
 
     @GET
     @RolesAllowed({"ADMIN"})
-    public Response getAllAccounts(@NotNull @QueryParam("active") Boolean active) {
+    public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAllAccounts(active));
-        return Response.status(Response.Status.OK).entity(accounts).build();
+        return Response.ok(accounts).build();
     }
 
     @GET
     @Path("owners")
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Response getOwnerAccounts(@NotNull @QueryParam("active") Boolean active) {
+    public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
-        return Response.status(Response.Status.OK).entity(accounts).build();
+        return Response.ok(accounts).build();
     }
 
     @GET
     @Path("managers")
     @RolesAllowed({"ADMIN"})
-    public Response getManagerAccounts(@NotNull @QueryParam("active") Boolean active) {
+    public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
-        return Response.status(Response.Status.OK).entity(accounts).build();
+        return Response.ok(accounts).build();
     }
 
     @GET
     @Path("admins")
     @RolesAllowed({"ADMIN"})
-    public Response getAdminAccounts(@NotNull @QueryParam("active") Boolean active) {
+    public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
-        return Response.status(Response.Status.OK).entity(accounts).build();
+        return Response.ok(accounts).build();
     }
 }
