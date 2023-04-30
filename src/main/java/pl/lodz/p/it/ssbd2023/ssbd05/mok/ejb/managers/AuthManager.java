@@ -9,6 +9,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
@@ -117,6 +118,11 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
         if (!Objects.equals(account.getLogin(), login) || refreshToken.getTokenType() != TokenType.REFRESH_TOKEN) {
             throw new InvalidTokenException();
         }
-        tokenFacade.remove(refreshToken);
+
+        try {
+            tokenFacade.remove(refreshToken);
+        } catch (DatabaseException de) {
+            throw new TokenNotFoundException();
+        }
     }
 }

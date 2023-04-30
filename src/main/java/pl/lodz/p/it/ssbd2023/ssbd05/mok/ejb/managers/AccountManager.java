@@ -12,8 +12,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -169,7 +167,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override
@@ -196,7 +194,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override

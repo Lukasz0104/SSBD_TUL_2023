@@ -19,9 +19,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
-import org.hibernate.validator.constraints.UUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
@@ -35,6 +33,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.util.UUID;
+
 
 @Path("")
 @RequestScoped
@@ -117,16 +116,10 @@ public class AuthEndpoint {
 
     @DELETE
     @Path("/logout")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response logout(@NotNull @UUID @QueryParam("token") String token) throws AppBaseException {
-        try {
-            authManager.logout(token, securityContext.getUserPrincipal().getName());
-        } catch (DatabaseException de) {
-            //repeat transaction
-            //should log out successfully anyway
-            return Response.noContent().build();
-        }
+    public Response logout(@NotNull @org.hibernate.validator.constraints.UUID @QueryParam("token") String token)
+        throws AppBaseException {
+        authManager.logout(token, securityContext.getUserPrincipal().getName());
         return Response.noContent().build();
     }
 }
