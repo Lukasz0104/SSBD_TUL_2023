@@ -1,17 +1,19 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
+import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Languages;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -24,6 +26,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -37,7 +41,11 @@ import java.util.UUID;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-public class AccountManager extends AbstractManager implements AccountManagerLocal {
+@Interceptors({
+    GenericManagerExceptionsInterceptor.class,
+    LoggerInterceptor.class,
+})
+public class AccountManager extends AbstractManager implements AccountManagerLocal, SessionSynchronization {
 
     @Inject
     private AccountFacade accountFacade;
@@ -61,7 +69,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.create(account);
-        } catch (DatabaseException exc) {
+        } catch (AppDatabaseException exc) {
             throw new ConstraintViolationException(exc.getMessage(), exc);
         }
 
@@ -82,7 +90,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void confirmRegistration(UUID confirmToken)
         throws AppBaseException {
-
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         token.validateSelf(TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -134,7 +141,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException de) {
+        } catch (AppDatabaseException de) {
             throw new ConstraintViolationException(de.getMessage(), de);
         }
     }
@@ -162,12 +169,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException de) {
-            throw new ConstraintViolationException(de.getMessage(), de);
+        } catch (AppDatabaseException ade) {
+            throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override
@@ -189,12 +196,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException de) {
-            throw new ConstraintViolationException(de.getMessage(), de);
+        } catch (AppDatabaseException ade) {
+            throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override
@@ -230,7 +237,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setPassword(hashGenerator.generate(password.toCharArray()));
         try {
             accountFacade.edit(account);
-        } catch (DatabaseException e) {
+        } catch (AppDatabaseException e) {
             throw new ConstraintViolationException(e.getMessage(), e);
         }
     }
@@ -255,7 +262,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         try {
             account.setPassword(hashGenerator.generate(newPass.toCharArray()));
             accountFacade.edit(account);
-        } catch (DatabaseException e) {
+        } catch (AppDatabaseException e) {
             throw new PasswordConstraintViolationException();
         }
     }
@@ -291,7 +298,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AccountNotFoundException::new);
         try {
-            account.setLanguage(Languages.valueOf(language));
+            account.setLanguage(Language.valueOf(language));
         } catch (IllegalArgumentException e) {
             throw new LanguageNotFoundException();
         }

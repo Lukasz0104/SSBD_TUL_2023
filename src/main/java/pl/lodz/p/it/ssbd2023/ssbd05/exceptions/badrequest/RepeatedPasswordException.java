@@ -3,8 +3,8 @@ package pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBadRequestException;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
-public class LanguageNotFoundException extends AppBadRequestException {
-    public LanguageNotFoundException() {
-        super(I18n.LANGUAGE_NOT_FOUND);
+public class RepeatedPasswordException extends AppBadRequestException {
+    public RepeatedPasswordException() {
+        super(I18n.REPEATED_PASSWORD);
     }
 }
