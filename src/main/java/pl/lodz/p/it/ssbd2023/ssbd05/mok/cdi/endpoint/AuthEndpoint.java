@@ -11,11 +11,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
@@ -30,6 +34,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.util.UUID;
 
+
 @Path("")
 @RequestScoped
 @TransactionAttribute(TransactionAttributeType.NEVER)
@@ -43,6 +48,9 @@ public class AuthEndpoint {
 
     @Inject
     private AuthManagerLocal authManager;
+
+    @Context
+    private SecurityContext securityContext;
 
     @Inject
     private Properties properties;
@@ -104,5 +112,14 @@ public class AuthEndpoint {
             }
         } while (txCounter < txLimit);
         throw new AuthenticationException();
+    }
+
+    @DELETE
+    @Path("/logout")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response logout(@NotNull @org.hibernate.validator.constraints.UUID @QueryParam("token") String token)
+        throws AppBaseException {
+        authManager.logout(token, securityContext.getUserPrincipal().getName());
+        return Response.noContent().build();
     }
 }

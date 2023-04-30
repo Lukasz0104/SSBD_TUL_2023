@@ -308,6 +308,26 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    public List<Account> getAllAccounts(boolean active) {
+        return accountFacade.findByActive(active);
+    }
+
+    @Override
+    public List<Account> getOwnerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active);
+    }
+
+    @Override
+    public List<Account> getManagerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active);
+    }
+
+    @Override
+    public List<Account> getAdminAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active);
+    }
+
+    @Override
     public void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException {
         List<Token> unverifiedTokens =
             tokenFacade.findByTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
