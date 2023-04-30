@@ -46,7 +46,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequestScoped
@@ -228,5 +230,36 @@ public class AccountEndpoint {
             }
         } while (txCounter < txLimit);
         throw new LanguageChangeDatabaseException();
+    }
+
+    @GET
+    @RolesAllowed({"ADMIN"})
+    public Response getAllAccounts(@NotNull @QueryParam("active") Boolean active) {
+        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAllAccounts(active));
+        return Response.status(Response.Status.OK).entity(accounts).build();
+    }
+
+    @GET
+    @Path("owners")
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public Response getOwnerAccounts(@NotNull @QueryParam("active") Boolean active) {
+        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
+        return Response.status(Response.Status.OK).entity(accounts).build();
+    }
+
+    @GET
+    @Path("managers")
+    @RolesAllowed({"ADMIN"})
+    public Response getManagerAccounts(@NotNull @QueryParam("active") Boolean active) {
+        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
+        return Response.status(Response.Status.OK).entity(accounts).build();
+    }
+
+    @GET
+    @Path("admins")
+    @RolesAllowed({"ADMIN"})
+    public Response getAdminAccounts(@NotNull @QueryParam("active") Boolean active) {
+        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
+        return Response.status(Response.Status.OK).entity(accounts).build();
     }
 }

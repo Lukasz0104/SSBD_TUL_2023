@@ -63,7 +63,23 @@ import java.util.Set;
         query = "SELECT a FROM Account a WHERE a.active = TRUE"),
     @NamedQuery(
         name = "Account.findAllNotActiveAccounts",
-        query = "SELECT a FROM Account a WHERE a.active = FALSE")
+        query = "SELECT a FROM Account a WHERE a.active = FALSE"),
+    @NamedQuery(
+        name = "Account.findAllActiveAccountsByAccessLevel",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al on al.account = a
+            WHERE a.active = TRUE
+                AND al.level = :level
+                AND al.active = TRUE"""),
+    @NamedQuery(
+        name = "Account.findAllInactiveAccountsByAccessLevel",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al on al.account = a
+            WHERE a.active = FALSE
+                AND al.level = :level
+                AND al.active = TRUE""")
 })
 @Getter
 @Setter

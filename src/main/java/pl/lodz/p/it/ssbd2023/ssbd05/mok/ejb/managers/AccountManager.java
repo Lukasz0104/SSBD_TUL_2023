@@ -167,7 +167,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override
@@ -194,7 +194,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage(), status);
+            + " " + account.getLastName(), account.getLanguage().toString(), status);
     }
 
     @Override
@@ -296,5 +296,25 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new LanguageNotFoundException();
         }
         accountFacade.edit(account);
+    }
+
+    @Override
+    public List<Account> getAllAccounts(boolean active) {
+        return accountFacade.findByActive(active);
+    }
+
+    @Override
+    public List<Account> getOwnerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active);
+    }
+
+    @Override
+    public List<Account> getManagerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active);
+    }
+
+    @Override
+    public List<Account> getAdminAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active);
     }
 }

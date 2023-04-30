@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
@@ -77,6 +78,17 @@ public class AccountFacade extends AbstractFacade<Account> {
         } else {
             tq = em.createNamedQuery("Account.findAllNotActiveAccounts", Account.class);
         }
+        return tq.getResultList();
+    }
+
+    public List<Account> findByActiveAccessLevel(AccessType accessType, boolean active) {
+        TypedQuery<Account> tq;
+        if (active) {
+            tq = em.createNamedQuery("Account.findAllActiveAccountsByAccessLevel", Account.class);
+        } else {
+            tq = em.createNamedQuery("Account.findAllInactiveAccountsByAccessLevel", Account.class);
+        }
+        tq.setParameter("level", accessType);
         return tq.getResultList();
     }
 }

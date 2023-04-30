@@ -18,6 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnerDataDto;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AccountDtoConverter {
@@ -109,5 +110,11 @@ public class AccountDtoConverter {
             }
         }
         return accessLevelDtoSet;
+    }
+
+    public static List<AccountDto> createAccountDtoList(List<Account> accounts) {
+        return accounts.stream()
+            .map(AccountDtoConverter::createAccountDto)
+            .toList();
     }
 }
