@@ -6,6 +6,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Local
@@ -35,4 +36,8 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     AccessType changeAccessLevel(String login, AccessType accessLevel) throws AppBaseException;
 
     void changeAccountLanguage(String login, String language) throws AppBaseException;
+
+    void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
+
+    void remindToConfirmRegistration(LocalDateTime now);
 }

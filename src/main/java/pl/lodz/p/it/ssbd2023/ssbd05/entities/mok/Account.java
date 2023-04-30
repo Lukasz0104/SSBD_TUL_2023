@@ -122,6 +122,11 @@ public class Account extends AbstractEntity implements Serializable {
     private boolean active = true;
 
     @NotNull
+    @Basic(optional = false)
+    @Column(name = "reminded", nullable = false)
+    private boolean reminded = false;
+
+    @NotNull
     @Column(name = "language", nullable = false)
     @Enumerated(EnumType.STRING)
     @Basic(optional = false)
