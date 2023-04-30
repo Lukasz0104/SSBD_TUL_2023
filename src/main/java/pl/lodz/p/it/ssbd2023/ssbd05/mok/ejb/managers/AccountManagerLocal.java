@@ -6,6 +6,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.util.List;
 import java.util.UUID;
 
 @Local
@@ -35,4 +36,12 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     AccessType changeAccessLevel(String login, AccessType accessLevel) throws AppBaseException;
 
     void changeAccountLanguage(String login, String language) throws AppBaseException;
+
+    List<Account> getAllAccounts(boolean active);
+
+    List<Account> getOwnerAccounts(boolean active);
+
+    List<Account> getManagerAccounts(boolean active);
+
+    List<Account> getAdminAccounts(boolean active);
 }

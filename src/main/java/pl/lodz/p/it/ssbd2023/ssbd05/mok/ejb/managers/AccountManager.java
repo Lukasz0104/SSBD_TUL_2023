@@ -304,4 +304,24 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
         accountFacade.edit(account);
     }
+
+    @Override
+    public List<Account> getAllAccounts(boolean active) {
+        return accountFacade.findByActive(active);
+    }
+
+    @Override
+    public List<Account> getOwnerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active);
+    }
+
+    @Override
+    public List<Account> getManagerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active);
+    }
+
+    @Override
+    public List<Account> getAdminAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active);
+    }
 }
