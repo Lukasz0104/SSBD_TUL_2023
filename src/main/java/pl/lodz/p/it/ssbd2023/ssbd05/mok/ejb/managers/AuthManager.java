@@ -56,7 +56,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
             .filter(accessLevel -> accessLevel.getLevel() == AccessType.ADMIN)
             .findFirst()
             .ifPresent((al) -> emailService.notifyAboutAdminLogin(
-                account.getEmail(), account.getEmail(), account.getLanguage(),
+                account.getEmail(), account.getEmail(), account.getLanguage().toString(),
                 account.getActivityTracker().getLastSuccessfulLoginIp(),
                 account.getActivityTracker().getLastSuccessfulLogin()
             ));
@@ -83,7 +83,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal {
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
                 accountFacade.edit(account);
                 emailService.notifyBlockedAccIncorrectLoginLimit(
-                    account.getEmail(), account.getEmail(), account.getLanguage());
+                    account.getEmail(), account.getEmail(), account.getLanguage().toString());
             }
         }
     }

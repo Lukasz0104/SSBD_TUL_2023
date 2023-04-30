@@ -7,15 +7,19 @@ import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Languages;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
@@ -74,11 +78,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             account.getEmail(),
             fullName,
             actionLink,
-            account.getLanguage());
+            account.getLanguage().toString());
     }
 
     @Override
-    public void confirmRegistration(UUID confirmToken) throws AppBaseException {
+    public void confirmRegistration(UUID confirmToken)
+        throws AppBaseException {
+
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         token.validateSelf(TokenType.CONFIRM_REGISTRATION_TOKEN);
@@ -91,7 +97,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void changeEmail(String login) throws AppBaseException {
+    public void changeEmail(String login)
+        throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -106,11 +113,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         String fullName = account.getFirstName() + " " + account.getLastName();
         String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
-        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage());
+        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage().toString());
     }
 
     @Override
-    public void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException {
+    public void confirmEmail(String email, UUID confirmToken, String login)
+        throws AppBaseException {
+
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
         token.validateSelf(TokenType.CONFIRM_EMAIL_TOKEN);
@@ -133,6 +142,64 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    public void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status)
+        throws AppBaseException {
+
+
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(managerLogin, account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
+
+        if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
+            throw new BadAccessLevelException();
+        }
+
+        if (account.isActive() == status) {
+            return;
+        }
+
+        account.setActive(status);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
+
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
+            + " " + account.getLastName(), account.getLanguage(), status);
+    }
+
+    @Override
+    public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
+        throws AppBaseException {
+
+
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(adminLogin, account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
+
+        if (account.isActive() == status) {
+            return;
+        }
+
+        account.setActive(status);
+
+        try {
+            accountFacade.edit(account);
+        } catch (DatabaseException de) {
+            throw new ConstraintViolationException(de.getMessage(), de);
+        }
+
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
+            + " " + account.getLastName(), account.getLanguage(), status);
+    }
+
+    @Override
     public void sendResetPasswordMessage(String email) throws AppBaseException {
         Account account = accountFacade.findByEmail(email).orElseThrow(AccountNotFoundException::new);
         if (!account.isVerified()) {
@@ -142,7 +209,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
         List<Token> resetPasswordTokens =
-                tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
         for (Token t : resetPasswordTokens) {
             tokenFacade.remove(t);
         }
@@ -150,7 +217,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
-                properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage());
+            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage().toString());
     }
 
     @Override
@@ -219,5 +286,17 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         return accessType;
 
+    }
+
+    @Override
+    public void changeAccountLanguage(String login, String language) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login)
+            .orElseThrow(AccountNotFoundException::new);
+        try {
+            account.setLanguage(Languages.valueOf(language));
+        } catch (IllegalArgumentException e) {
+            throw new LanguageNotFoundException();
+        }
+        accountFacade.edit(account);
     }
 }

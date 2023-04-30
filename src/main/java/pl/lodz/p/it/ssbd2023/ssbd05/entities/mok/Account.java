@@ -5,6 +5,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
@@ -120,10 +122,10 @@ public class Account extends AbstractEntity implements Serializable {
     private boolean active = true;
 
     @NotNull
-    @Column(name = "language", nullable = false, length = 2)
-    @Size(min = 2, max = 2)
+    @Column(name = "language", nullable = false)
+    @Enumerated(EnumType.STRING)
     @Basic(optional = false)
-    private String language = "PL";
+    private Languages language = Languages.PL;
 
 
     @Embedded
@@ -147,6 +149,10 @@ public class Account extends AbstractEntity implements Serializable {
         this.activityTracker.setLastSuccessfulLogin(LocalDateTime.now());
         this.activityTracker.setLastSuccessfulLoginIp(ip);
         this.activityTracker.setUnsuccessfulLoginChainCounter(0);
+    }
+
+    public boolean hasAccessLevel(AccessType accessType) {
+        return accessLevels.stream().filter(AccessLevel::isActive).anyMatch(x -> x.getLevel() == accessType);
     }
 
     public boolean isAbleToAuthenticate() {

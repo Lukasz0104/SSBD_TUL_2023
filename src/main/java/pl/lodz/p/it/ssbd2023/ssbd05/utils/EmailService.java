@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
+
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
@@ -28,10 +29,10 @@ import java.util.logging.Logger;
 @Stateless
 public class EmailService {
 
+    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
+
     @Inject
     private Properties applicationProperties;
-
-    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
     private Session session;
 
@@ -232,5 +233,27 @@ public class EmailService {
             LOGGER.log(Level.INFO, "Error while reading email message template file", e.getCause());
         }
         return builder.toString();
+    }
+
+    @Asynchronous
+    public void changeActiveStatusEmail(String to, String name, String language, boolean status) {
+
+        if (status) {
+            this.sendMessageWithoutLink(to,
+                name,
+                I18n.getMessage(I18n.EMAIL_MESSAGE_BLOCKED_ACCOUNT_STATUS_MESSAGE, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_BLOCKED_ACCOUNT_STATUS_ACTION, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_BLOCKED_ACCOUNT_STATUS_SUBJECT, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language));
+        } else {
+            this.sendMessageWithoutLink(to,
+                name,
+                I18n.getMessage(I18n.EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_MESSAGE, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_ACTION, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_SUBJECT, language),
+                I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language));
+        }
     }
 }
