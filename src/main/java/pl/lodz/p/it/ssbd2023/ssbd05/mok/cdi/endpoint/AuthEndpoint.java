@@ -17,7 +17,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
@@ -66,7 +66,7 @@ public class AuthEndpoint {
                     throw new AuthenticationException();
                 } catch (AccountNotFoundException anfe) {
                     throw new AuthenticationException();
-                } catch (DatabaseException de) {
+                } catch (AppDatabaseException ade) {
                     txCounter++;
                 }
             } while (txCounter < txLimit);
@@ -77,7 +77,7 @@ public class AuthEndpoint {
             try {
                 JwtRefreshTokenDto jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
                 return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
-            } catch (DatabaseException de) {
+            } catch (AppDatabaseException de) {
                 txCounter++;
             }
         } while (txCounter < txLimit);
@@ -99,7 +99,7 @@ public class AuthEndpoint {
                 return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
             } catch (InvalidTokenException | ExpiredTokenException e) {
                 throw new AuthenticationException();
-            } catch (DatabaseException de) {
+            } catch (AppDatabaseException de) {
                 txCounter++;
             }
         } while (txCounter < txLimit);

@@ -30,10 +30,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -114,8 +114,8 @@ public class AccountEndpoint {
     public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
         try {
             accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
-        } catch (DatabaseException e) {
-            // TODO
+        } catch (AppDatabaseException e) {
+            //TODO
         }
         return Response.noContent().build();
     }
@@ -133,7 +133,7 @@ public class AccountEndpoint {
         try {
             String login = securityContext.getUserPrincipal().getName();
             accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
-        } catch (DatabaseException databaseException) {
+        } catch (AppDatabaseException appDatabaseException) {
             // TODO: repeat transaction
         }
 
@@ -225,7 +225,7 @@ public class AccountEndpoint {
                 accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
                     language.toUpperCase());
                 return Response.status(Response.Status.NO_CONTENT).build();
-            } catch (DatabaseException e) {
+            } catch (AppDatabaseException ade) {
                 txCounter++;
             }
         } while (txCounter < txLimit);

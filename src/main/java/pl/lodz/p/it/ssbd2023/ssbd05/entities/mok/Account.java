@@ -141,7 +141,7 @@ public class Account extends AbstractEntity implements Serializable {
     @Column(name = "language", nullable = false)
     @Enumerated(EnumType.STRING)
     @Basic(optional = false)
-    private Languages language = Languages.PL;
+    private Language language = Language.PL;
 
 
     @Embedded

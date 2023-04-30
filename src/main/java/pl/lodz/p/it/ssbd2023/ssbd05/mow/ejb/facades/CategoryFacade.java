@@ -8,7 +8,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.DatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 @Stateless
@@ -27,13 +27,13 @@ public class CategoryFacade extends AbstractFacade<Category> {
         return em;
     }
 
-    public Category findByName(String name) throws DatabaseException {
+    public Category findByName(String name) throws AppDatabaseException {
         try {
             TypedQuery<Category> tq = em.createNamedQuery("Category.findByName", Category.class);
             tq.setParameter("name", name);
             return tq.getSingleResult();
         } catch (PersistenceException e) {
-            throw new DatabaseException("Category.findByName", e);
+            throw new AppDatabaseException("Category.findByName", e);
         }
     }
 }

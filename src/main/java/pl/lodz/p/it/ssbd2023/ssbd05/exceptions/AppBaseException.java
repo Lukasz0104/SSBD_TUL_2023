@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @ApplicationException(rollback = true)
 public abstract class AppBaseException extends Exception {
+
     public AppBaseException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -13,4 +14,9 @@ public abstract class AppBaseException extends Exception {
     public AppBaseException(Throwable cause) {
         super(cause);
     }
+
+    public AppBaseException(String message) {
+        super(message);
+    }
+
 }
