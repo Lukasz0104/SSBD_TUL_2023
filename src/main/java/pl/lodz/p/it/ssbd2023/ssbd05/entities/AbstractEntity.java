@@ -26,6 +26,14 @@ public abstract class AbstractEntity {
     @Getter
     private long version;
 
+    public AbstractEntity(Long id) {
+        this.id = id;
+    }
+
+    public AbstractEntity() {
+        
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;

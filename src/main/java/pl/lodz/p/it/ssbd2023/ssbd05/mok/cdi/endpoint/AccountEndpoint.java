@@ -1,6 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccessLevelFromEditDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountDto;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromRegisterDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createOwnAccountDto;
@@ -42,6 +44,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordD
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.edit.EditAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessTypeDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
@@ -50,6 +53,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RequestScoped
@@ -57,11 +61,9 @@ import java.util.UUID;
 public class AccountEndpoint {
 
     @Inject
-    private AccountManagerLocal accountManager;
-
-    @Inject
     Properties properties;
-
+    @Inject
+    private AccountManagerLocal accountManager;
     @Context
     private SecurityContext securityContext;
 
@@ -262,5 +264,20 @@ public class AccountEndpoint {
     public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
         return Response.ok(accounts).build();
+    }
+
+    @POST
+    @Path("/admin/editOther/{id}")
+    @RolesAllowed({"ADMIN"})
+    public Response editDetailsByAdmin(@Valid @NotNull EditAccountDto ownerDto,
+                                       @NotNull @PathParam("id") Long id) throws AppBaseException {
+        Account account = createAccountFromEditDto(ownerDto);
+        Set<AccessLevel> accessLevels = createAccessLevelFromEditDto(ownerDto, account);
+        for (AccessLevel a : accessLevels) {
+            account.getAccessLevels().add(a);
+        }
+        account = accountManager.editDetailsByAdmin(id, account, securityContext.getUserPrincipal().getName());
+
+        return Response.ok().entity(createAccountDto(account)).build();
     }
 }

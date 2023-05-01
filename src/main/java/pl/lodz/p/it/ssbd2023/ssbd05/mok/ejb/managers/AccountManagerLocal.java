@@ -44,4 +44,6 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     List<Account> getManagerAccounts(boolean active);
 
     List<Account> getAdminAccounts(boolean active);
+
+    Account editDetailsByAdmin(Long id, Account account, String login) throws AppBaseException;
 }
