@@ -346,9 +346,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void deleteExpiredTokens(LocalDateTime now) throws AppBaseException {
-        List<Token> expiredTokens =
-            tokenFacade.findByExpiresAtBefore(now).stream()
-                .filter(x -> x.getTokenType() != TokenType.CONFIRM_REGISTRATION_TOKEN).toList();
+        List<Token> expiredTokens = tokenFacade
+            .findByNotTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
         for (Token token : expiredTokens) {
             tokenFacade.remove(token);
         }

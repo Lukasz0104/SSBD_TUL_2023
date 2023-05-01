@@ -68,7 +68,10 @@ import java.util.UUID;
         query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.expiresAt < :expiresAt"),
     @NamedQuery(
         name = "Token.findByAccountLoginAndTokenType",
-        query = "SELECT t FROM Token t WHERE t.account.login = :login AND t.tokenType = :tokenType")
+        query = "SELECT t FROM Token t WHERE t.account.login = :login AND t.tokenType = :tokenType"),
+    @NamedQuery(
+        name = "Token.findByNotTokenTypeAndExpiresAtBefore",
+        query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt")
 })
 public class Token extends AbstractEntity {
 
