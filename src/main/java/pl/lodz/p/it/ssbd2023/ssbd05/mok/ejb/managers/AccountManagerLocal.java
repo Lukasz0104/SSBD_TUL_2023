@@ -35,4 +35,8 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     AccessType changeAccessLevel(String login, AccessType accessLevel) throws AppBaseException;
 
     void changeAccountLanguage(String login, String language) throws AppBaseException;
+
+    void forcePasswordChange(String login) throws AppBaseException;
+
+    void overrideForcedPassword(String password, UUID token) throws AppBaseException;
 }

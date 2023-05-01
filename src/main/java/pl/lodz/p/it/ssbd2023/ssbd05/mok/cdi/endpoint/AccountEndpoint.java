@@ -23,6 +23,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
@@ -33,7 +34,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -228,5 +232,42 @@ public class AccountEndpoint {
             }
         } while (txCounter < txLimit);
         throw new LanguageChangeDatabaseException();
+    }
+
+    @PUT
+    @Path("/force-password-change/{login}")
+    @RolesAllowed({"ADMIN"})
+    public Response forcePasswordChange(@NotBlank @PathParam("login") String login) throws AppBaseException {
+        if (login.equals(securityContext.getUserPrincipal().getName())) {
+            throw new IllegalSelfActionException();
+        }
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
+        do {
+            try {
+                accountManager.forcePasswordChange(login);
+                return Response.noContent().build();
+            } catch (AppDatabaseException ade) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new ForcePasswordChangeDatabaseException();
+    }
+
+    @PUT
+    @Path("/override-forced-password")
+    public Response overrideForcedPassword(@Valid @RequestBody ResetPasswordDto resetPasswordDto)
+        throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
+        do {
+            try {
+                accountManager.overrideForcedPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
+                return Response.noContent().build();
+            } catch (AppDatabaseException ade) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new OverrideForcedPasswordDatabaseException();
     }
 }
