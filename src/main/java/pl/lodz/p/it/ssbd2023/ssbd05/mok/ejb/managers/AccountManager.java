@@ -176,7 +176,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage().toString(), status);
+                                                                 + " " + account.getLastName(),
+            account.getLanguage().toString(), status);
     }
 
     @Override
@@ -203,7 +204,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage().toString(), status);
+                                                                 + " " + account.getLastName(),
+            account.getLanguage().toString(), status);
     }
 
     @Override
@@ -368,5 +370,35 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                     account.getLanguage().toString());
             }
         }
+    }
+
+    /**
+     * Add access level to given account or mark it as active if it already exists.
+     *
+     * @param id          account id
+     * @param accessLevel access level to be added
+     * @throws AppBaseException When account was not found or adding access level failed.
+     */
+    @Override
+    public void grantAccessLevel(Long id, AccessLevel accessLevel) throws AppBaseException {
+        // TODO check if self action
+        Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
+
+        account.getAccessLevels()
+            .stream()
+            .filter(al -> al.getLevel() == accessLevel.getLevel())
+            .findFirst()
+            .ifPresentOrElse(al -> {
+                al.setVerified(true);
+                al.setActive(true);
+            }, () -> {
+                accessLevel.setAccount(account);
+                accessLevel.setActive(true);
+                accessLevel.setVerified(true);
+                account.getAccessLevels().add(accessLevel);
+            });
+
+        accountFacade.edit(account);
+        // TODO send email message
     }
 }

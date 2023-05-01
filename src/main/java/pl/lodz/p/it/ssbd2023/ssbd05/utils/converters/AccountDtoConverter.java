@@ -8,6 +8,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
@@ -35,7 +37,7 @@ public class AccountDtoConverter {
         return new Address(dto.postalCode(), dto.city(), dto.street(), dto.buildingNumber());
     }
 
-    public static AddressDto createAddressDtoFromAdress(Address address) {
+    public static AddressDto createAddressDtoFromAddress(Address address) {
         return new AddressDto(
             address.getPostalCode(),
             address.getCity(),
@@ -86,7 +88,7 @@ public class AccountDtoConverter {
                         ownerData.getId(),
                         ownerData.getVersion(),
                         ownerData.getLevel(),
-                        createAddressDtoFromAdress(ownerData.getAddress())
+                        createAddressDtoFromAddress(ownerData.getAddress())
                     )
                 );
             } else if (accessLevel instanceof ManagerData managerData) {
@@ -95,7 +97,7 @@ public class AccountDtoConverter {
                         managerData.getId(),
                         managerData.getVersion(),
                         managerData.getLevel(),
-                        createAddressDtoFromAdress(managerData.getAddress()),
+                        createAddressDtoFromAddress(managerData.getAddress()),
                         managerData.getLicenseNumber()
                     )
                 );
@@ -116,5 +118,13 @@ public class AccountDtoConverter {
         return accounts.stream()
             .map(AccountDtoConverter::createAccountDto)
             .toList();
+    }
+
+    public static AccessLevel createManagerAccessLevelFromDto(AddManagerAccessLevelDto dto) {
+        return new ManagerData(createAddressFromDto(dto.address()), dto.licenseNumber());
+    }
+
+    public static AccessLevel createOwnerAccessLevelFromDto(AddOwnerAccessLevelDto dto) {
+        return new OwnerData((createAddressFromDto(dto.address())));
     }
 }

@@ -6,6 +6,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE manager_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE owner_data TO ssbd05mok;
 GRANT SELECT, INSERT, DELETE ON TABLE token TO ssbd05mok;
 
+-- TODO include access_level.verified field
 CREATE VIEW auth_view AS SELECT login, password, level FROM account a, access_level al WHERE (a.id = al.account_id) AND a.active = TRUE AND a.verified = TRUE AND al.active = TRUE;
 
 GRANT SELECT ON auth_view TO ssbd05auth;
@@ -75,20 +76,20 @@ insert into public.account_data (id, first_name, last_name) values (-5, 'Dominik
 insert into public.account_data (id, first_name, last_name) values (-6, 'Bartosz', 'Jaworski');
 
 -- Access Levels
-insert into public.access_level (id, level, version, account_id, active) values (-1, 'OWNER', 0, -1, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-1, 'OWNER', 0, -1, TRUE, TRUE);
 
-insert into public.access_level (id, level, version, account_id, active) values (-2, 'OWNER', 0, -2, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-2, 'OWNER', 0, -2, TRUE, TRUE);
 
-insert into public.access_level (id, level, version, account_id, active) values (-3, 'OWNER', 0, -3, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-3, 'OWNER', 0, -3, TRUE, TRUE);
 
-insert into public.access_level (id, level, version, account_id, active) values (-4, 'OWNER', 0, -4, TRUE);
-insert into public.access_level (id, level, version, account_id, active) values (-5, 'MANAGER', 0, -4, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-4, 'OWNER', 0, -4, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-5, 'MANAGER', 0, -4, TRUE, TRUE);
 
-insert into public.access_level (id, level, version, account_id, active) values (-6, 'MANAGER', 0, -5, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-6, 'MANAGER', 0, -5, TRUE, TRUE);
 
-insert into public.access_level (id, level, version, account_id, active) values (-7, 'ADMIN', 0, -6, TRUE);
-insert into public.access_level (id, level, version, account_id, active) values (-8, 'ADMIN', 0, -5, TRUE);
-insert into public.access_level (id, level, version, account_id, active) values (-9, 'ADMIN', 0, -1, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-7, 'ADMIN', 0, -6, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-8, 'ADMIN', 0, -5, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-9, 'ADMIN', 0, -1, TRUE, TRUE);
 
 
 -- Owner Data
