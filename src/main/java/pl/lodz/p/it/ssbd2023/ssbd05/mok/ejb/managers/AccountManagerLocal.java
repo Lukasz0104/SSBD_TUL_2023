@@ -48,5 +48,7 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 
+    void deleteExpiredTokens(LocalDateTime now) throws AppBaseException;
+
     void remindToConfirmRegistration(LocalDateTime now);
 }

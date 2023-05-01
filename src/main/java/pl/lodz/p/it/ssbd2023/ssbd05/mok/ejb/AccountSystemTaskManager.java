@@ -39,4 +39,14 @@ public class AccountSystemTaskManager {
             LOGGER.log(Level.SEVERE, "Exception while reminding to confirm registration: ", e);
         }
     }
+
+    @Schedule(hour = "5")
+    private void deleteExpiredTokens() {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            accountManager.deleteExpiredTokens(now);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Exception while deleting expired tokens: ", e);
+        }
+    }
 }
