@@ -269,4 +269,43 @@ public class EmailService {
                 I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language));
         }
     }
+
+    @Asynchronous
+    public void sendConfirmRegistrationReminderEmail(
+        String receiverAddress, String name, String linkToAction, LocalDateTime expirationDate, String language) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+            .withLocale(new Locale(language));
+
+        String message = I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_REMINDER_MESSAGE, language)
+            .replace(
+                "$date", expirationDate.format(formatter)
+            );
+        this.sendMessageWithLink(
+            receiverAddress,
+            name,
+            message,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_ACTION, language),
+            linkToAction,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_REMINDER_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_REMINDER_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
+    @Asynchronous
+    public void sendConfirmRegistrationFailEmail(
+        String receiverAddress, String name, String language) {
+        this.sendMessageWithoutLink(
+            receiverAddress,
+            name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_FAIL_MESSAGE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_FAIL_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_CONFIRM_ACCOUNT_FAIL_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
+
 }

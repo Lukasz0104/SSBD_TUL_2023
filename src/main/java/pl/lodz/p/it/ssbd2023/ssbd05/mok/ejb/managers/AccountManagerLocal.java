@@ -6,6 +6,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Local
@@ -39,4 +41,18 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     void forcePasswordChange(String login) throws AppBaseException;
 
     void overrideForcedPassword(String password, UUID token) throws AppBaseException;
+
+    List<Account> getAllAccounts(boolean active);
+
+    List<Account> getOwnerAccounts(boolean active);
+
+    List<Account> getManagerAccounts(boolean active);
+
+    List<Account> getAdminAccounts(boolean active);
+
+    void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
+
+    void deleteExpiredTokens(LocalDateTime now) throws AppBaseException;
+
+    void remindToConfirmRegistration(LocalDateTime now);
 }

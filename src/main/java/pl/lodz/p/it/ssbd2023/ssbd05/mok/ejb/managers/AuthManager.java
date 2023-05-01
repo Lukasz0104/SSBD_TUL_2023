@@ -11,6 +11,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
@@ -112,5 +115,22 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         tokenFacade.create(newRefreshToken);
 
         return new JwtRefreshTokenDto(jwt, newRefreshToken.getToken());
+    }
+
+    public void logout(String token, String login) throws AppBaseException {
+        Token refreshToken = tokenFacade.findByToken(UUID.fromString(token))
+            .orElseThrow(TokenNotFoundException::new);
+
+        Account account = refreshToken.getAccount();
+
+        if (!Objects.equals(account.getLogin(), login) || refreshToken.getTokenType() != TokenType.REFRESH_TOKEN) {
+            throw new InvalidTokenException();
+        }
+
+        try {
+            tokenFacade.remove(refreshToken);
+        } catch (AppDatabaseException ade) {
+            throw new TokenNotFoundException();
+        }
     }
 }

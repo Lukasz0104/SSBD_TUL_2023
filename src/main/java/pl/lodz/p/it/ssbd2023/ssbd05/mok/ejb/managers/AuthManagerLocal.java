@@ -13,5 +13,7 @@ public interface AuthManagerLocal extends CommonManagerInterface {
 
     void registerUnsuccessfulLogin(String login, String ip) throws AppBaseException;
 
+    void logout(String token, String login) throws AppBaseException;
+
     JwtRefreshTokenDto refreshJwt(UUID refreshToken, String login) throws AppBaseException;
 }

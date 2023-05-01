@@ -36,6 +36,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -75,7 +77,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(exc.getMessage(), exc);
         }
 
-        Token token = new Token(account, TokenType.CONFIRM_REGISTRATION_TOKEN);
+        Token token = new Token(account, properties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
 
         tokenFacade.create(token);
 
@@ -305,6 +307,78 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new LanguageNotFoundException();
         }
         accountFacade.edit(account);
+    }
+
+    @Override
+    public List<Account> getAllAccounts(boolean active) {
+        return accountFacade.findByActive(active);
+    }
+
+    @Override
+    public List<Account> getOwnerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active);
+    }
+
+    @Override
+    public List<Account> getManagerAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active);
+    }
+
+    @Override
+    public List<Account> getAdminAccounts(boolean active) {
+        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active);
+    }
+
+    @Override
+    public void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException {
+        List<Token> unverifiedTokens =
+            tokenFacade.findByTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
+        for (Token token : unverifiedTokens) {
+            Account account = token.getAccount();
+            String fullName = account.getFirstName() + " " + account.getLastName();
+            tokenFacade.remove(token);
+            accountFacade.remove(account);
+            emailService.sendConfirmRegistrationFailEmail(
+                account.getEmail(),
+                fullName,
+                account.getLanguage().toString()
+            );
+        }
+    }
+
+    @Override
+    public void deleteExpiredTokens(LocalDateTime now) throws AppBaseException {
+        List<Token> expiredTokens = tokenFacade
+            .findByNotTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
+        for (Token token : expiredTokens) {
+            tokenFacade.remove(token);
+        }
+    }
+
+    @Override
+    public void remindToConfirmRegistration(LocalDateTime now) {
+        List<Token> unverifiedTokens =
+            tokenFacade.findByTokenTypeAndExpiresAtAfter(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
+        for (Token token : unverifiedTokens) {
+            Account account = token.getAccount();
+            if (account.isReminded()) {
+                continue;
+            }
+            long timeLeft = Duration.between(now, token.getExpiresAt()).toMillis();
+            if (timeLeft < (properties.getAccountConfirmationTime() / 2.0)) {
+
+                String fullName =
+                    account.getFirstName() + " " + account.getLastName();
+                String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+                account.setReminded(true);
+                emailService.sendConfirmRegistrationReminderEmail(
+                    account.getEmail(),
+                    fullName,
+                    actionLink,
+                    token.getExpiresAt(),
+                    account.getLanguage().toString());
+            }
+        }
     }
 
     @Override
