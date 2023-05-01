@@ -24,7 +24,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
@@ -290,7 +289,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/override-forced-password")
-    public Response overrideForcedPassword(@Valid @RequestBody ResetPasswordDto resetPasswordDto)
+    public Response overrideForcedPassword(@Valid ResetPasswordDto resetPasswordDto)
         throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
         int txCounter = 0;
