@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccessLevelFromEditDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditDto;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditOwnPersonalDataDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromRegisterDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createOwnAccountDto;
@@ -34,6 +35,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppInternalServerErrorException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
@@ -41,6 +43,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLev
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditOwnPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
@@ -62,8 +65,10 @@ public class AccountEndpoint {
 
     @Inject
     Properties properties;
+
     @Inject
     private AccountManagerLocal accountManager;
+
     @Context
     private SecurityContext securityContext;
 
@@ -264,6 +269,24 @@ public class AccountEndpoint {
     public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
         return Response.ok(accounts).build();
+    }
+
+    @PUT
+    @Path("me")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response updatePersonalData(@Valid EditOwnPersonalDataDto editOwnPersonalDataDTO) throws AppBaseException {
+        String login = securityContext.getUserPrincipal().getName();
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
+        do {
+            try {
+                accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login);
+                return Response.status(Response.Status.NO_CONTENT).build();
+            } catch (AppDatabaseException ade) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new AppInternalServerErrorException();
     }
 
     @POST

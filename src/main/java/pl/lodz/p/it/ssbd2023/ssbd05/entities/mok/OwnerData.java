@@ -59,4 +59,9 @@ public class OwnerData extends AccessLevel implements Serializable {
         super(AccessType.OWNER, account);
         this.address = address;
     }
+
+    public OwnerData(Long id, Long version, Address address) {
+        super(id, version, AccessType.OWNER);
+        this.address = address;
+    }
 }

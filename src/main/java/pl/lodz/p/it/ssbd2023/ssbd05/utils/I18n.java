@@ -17,6 +17,18 @@ public class I18n {
     public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_MESSAGE = "email.message.confirm-account.message";
     public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_SUBJECT = "email.message.confirm-account.subject";
     public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_TITLE = "email.message.confirm-account.title";
+    public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_REMINDER_TITLE =
+        "email.message.confirm-account.reminder.title";
+    public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_REMINDER_SUBJECT =
+        "email.message.confirm-account.reminder.subject";
+    public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_REMINDER_MESSAGE =
+        "email.message.confirm-account.reminder.message";
+
+    public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_FAIL_MESSAGE =
+        "email.message.confirm-account.fail.message";
+    public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_FAIL_SUBJECT =
+        "email.message.confirm-account.fail.subject";
+    public static final String EMAIL_MESSAGE_CONFIRM_ACCOUNT_FAIL_TITLE = "email.message.confirm-account.fail.title";
     public static final String EMAIL_MESSAGE_CHANGE_EMAIL_ACTION = "email.message.change-email.action";
     public static final String EMAIL_MESSAGE_CHANGE_EMAIL_MESSAGE = "email.message.change-email.message";
     public static final String EMAIL_MESSAGE_CHANGE_EMAIL_SUBJECT = "email.message.change-email.subject";
@@ -65,6 +77,7 @@ public class I18n {
     public static final String AUTHENTICATION_EXCEPTION = "response.message.authentiaction_exception";
     public static final String INVALID_PASSWORD = "response.message.invalid_password";
     public static final String LANGUAGE_NOT_FOUND = "response.message.language_not_found";
+    public static final String ACCESS_LEVEL_NOT_FOUND = "response.message.access_level_not_found";
 
     public static final String BAD_REQUEST = "response.message.bad_request";
     public static final String CONFLICT = "response.message.conflict";

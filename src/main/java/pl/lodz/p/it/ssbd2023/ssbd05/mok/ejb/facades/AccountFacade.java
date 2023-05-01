@@ -48,6 +48,11 @@ public class AccountFacade extends AbstractFacade<Account> {
         super.edit(entity);
     }
 
+    @Override
+    public void remove(Account entity) throws AppBaseException {
+        super.remove(entity);
+    }
+
     public Optional<Account> findByLogin(String login) {
         try {
             TypedQuery<Account> tq = em.createNamedQuery("Account.findByLogin", Account.class);

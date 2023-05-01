@@ -68,4 +68,8 @@ public class Properties {
     @Inject
     @ConfigProperty(name = "transaction.repeat.limit", defaultValue = "3")
     private int transactionRepeatLimit;
+
+    @Inject
+    @ConfigProperty(name = "account.confirmationTime", defaultValue = "86400000")
+    private long accountConfirmationTime;
 }

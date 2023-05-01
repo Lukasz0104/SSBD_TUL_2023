@@ -18,6 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -39,6 +40,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -77,7 +80,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(exc.getMessage(), exc);
         }
 
-        Token token = new Token(account, TokenType.CONFIRM_REGISTRATION_TOKEN);
+        Token token = new Token(account, properties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
 
         tokenFacade.create(token);
 
@@ -307,6 +310,80 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public List<Account> getAdminAccounts(boolean active) {
         return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active);
+    }
+
+    @Override
+    public void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException {
+        List<Token> unverifiedTokens =
+            tokenFacade.findByTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
+        for (Token token : unverifiedTokens) {
+            Account account = token.getAccount();
+            String fullName = account.getFirstName() + " " + account.getLastName();
+            tokenFacade.remove(token);
+            accountFacade.remove(account);
+            emailService.sendConfirmRegistrationFailEmail(
+                account.getEmail(),
+                fullName,
+                account.getLanguage().toString()
+            );
+        }
+    }
+
+    @Override
+    public void remindToConfirmRegistration(LocalDateTime now) {
+        List<Token> unverifiedTokens =
+            tokenFacade.findByTokenTypeAndExpiresAtAfter(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
+        for (Token token : unverifiedTokens) {
+            Account account = token.getAccount();
+            if (account.isReminded()) {
+                continue;
+            }
+            long timeLeft = Duration.between(now, token.getExpiresAt()).toMillis();
+            if (timeLeft < (properties.getAccountConfirmationTime() / 2.0)) {
+
+                String fullName =
+                    account.getFirstName() + " " + account.getLastName();
+                String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+                account.setReminded(true);
+                emailService.sendConfirmRegistrationReminderEmail(
+                    account.getEmail(),
+                    fullName,
+                    actionLink,
+                    token.getExpiresAt(),
+                    account.getLanguage().toString());
+            }
+        }
+    }
+
+    @Override
+    public void editPersonalData(Account newData, String login) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        account.setFirstName(newData.getFirstName());
+        account.setLastName(newData.getLastName());
+        for (AccessLevel accessLevel : account.getAccessLevels()) {
+            if (accessLevel.isActive()) {
+                AccessLevel newAccessLevel =
+                    newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
+                        .findFirst()
+                        .orElseThrow(AccessLevelNotFoundException::new);
+                switch (accessLevel.getLevel()) {
+                    case OWNER:
+                        OwnerData ownerData = (OwnerData) accessLevel;
+                        OwnerData newOwnerData = (OwnerData) newAccessLevel;
+                        ownerData.setAddress(newOwnerData.getAddress());
+                        break;
+                    case MANAGER:
+                        ManagerData managerData = (ManagerData) accessLevel;
+                        ManagerData newManagerData = (ManagerData) newAccessLevel;
+                        managerData.setAddress(newManagerData.getAddress());
+                        managerData.setLicenseNumber(newManagerData.getLicenseNumber());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        accountFacade.edit(account);
     }
 
     @Override

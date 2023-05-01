@@ -6,6 +6,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +45,12 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     List<Account> getManagerAccounts(boolean active);
 
     List<Account> getAdminAccounts(boolean active);
+
+    void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
+
+    void remindToConfirmRegistration(LocalDateTime now);
+
+    void editPersonalData(Account account, String login) throws AppBaseException;
 
     Account editDetailsByAdmin(Long id, Account account, String login) throws AppBaseException;
 }

@@ -107,7 +107,7 @@ public class Account extends AbstractEntity implements Serializable {
     @NotNull
     @Basic(optional = false)
     @Size(min = 3, max = 100)
-    @Column(name = "login", nullable = false, unique = true, length = 100)
+    @Column(name = "login", updatable = false, nullable = false, unique = true, length = 100)
     private String login;
 
     @NotNull
@@ -138,6 +138,11 @@ public class Account extends AbstractEntity implements Serializable {
     private boolean active = true;
 
     @NotNull
+    @Basic(optional = false)
+    @Column(name = "reminded", nullable = false)
+    private boolean reminded = false;
+
+    @NotNull
     @Column(name = "language", nullable = false)
     @Enumerated(EnumType.STRING)
     @Basic(optional = false)
@@ -153,6 +158,20 @@ public class Account extends AbstractEntity implements Serializable {
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
+    }
+
+    public Account(Long id, @NotNull Long version, Set<AccessLevel> accessLevels, String firstName, String lastName) {
+        super(id, version);
+        this.accessLevels = accessLevels;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Account(@NotNull Long version, Set<AccessLevel> accessLevels, String firstName, String lastName) {
+        super(version);
+        this.accessLevels = accessLevels;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     public Account(String login, String email, String firstName, String lastName) {

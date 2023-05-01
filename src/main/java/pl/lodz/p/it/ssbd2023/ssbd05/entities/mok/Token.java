@@ -19,6 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Getter
@@ -105,6 +106,13 @@ public class Token extends AbstractEntity {
             case PASSWORD_RESET_TOKEN -> LocalDateTime.now().plusMinutes(15);
             default -> LocalDateTime.now().plusHours(2);
         };
+    }
+
+    public Token(Account account, long confirmationTime, TokenType tokenType) {
+        this.token = UUID.randomUUID();
+        this.account = account;
+        this.expiresAt = LocalDateTime.now().plus(confirmationTime, ChronoUnit.MILLIS);
+        this.tokenType = tokenType;
     }
 
     public void validateSelf(TokenType tokenType) throws AppBaseException {
