@@ -49,4 +49,6 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 
     void remindToConfirmRegistration(LocalDateTime now);
+
+    void editPersonalData(Account account, String login) throws AppBaseException;
 }
