@@ -118,7 +118,7 @@ public class AccountEndpoint {
     @Path("/reset-password")
     public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
         try {
-            accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
+            accountManager.resetPassword(resetPasswordDto.getPassword(), UUID.fromString(resetPasswordDto.getToken()));
         } catch (AppDatabaseException e) {
             //TODO
         }
@@ -296,7 +296,8 @@ public class AccountEndpoint {
         int txCounter = 0;
         do {
             try {
-                accountManager.overrideForcedPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
+                accountManager.overrideForcedPassword(resetPasswordDto.getPassword(),
+                    UUID.fromString(resetPasswordDto.getToken()));
                 return Response.noContent().build();
             } catch (AppDatabaseException ade) {
                 txCounter++;
