@@ -279,12 +279,12 @@ public class AccountEndpoint {
     }
 
     @POST
-    @Path("/admin/editOther/{id}")
+    @Path("/admin/editOther")
     @RolesAllowed({"ADMIN"})
-    public Response editDetailsByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto,
-                                       @NotNull @PathParam("id") Long id) throws AppBaseException {
+    public Response editDetailsByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto) throws AppBaseException {
         Account account = createAccountFromEditDto(dto);
-        accountManager.editDetailsByAdmin(id, account, securityContext.getUserPrincipal().getName());
-        return Response.noContent().build();
+        String adminLogin = securityContext.getUserPrincipal().getName();
+        AccountDto accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, adminLogin));
+        return Response.ok().entity(accountDto).build();
     }
 }

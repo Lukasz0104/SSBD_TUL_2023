@@ -22,9 +22,6 @@ public class EditAnotherPersonalDataDto {
     @NotNull
     private Long version;
 
-    @NotBlank
-    private String login;
-
     @Email
     @NotBlank
     private String email;

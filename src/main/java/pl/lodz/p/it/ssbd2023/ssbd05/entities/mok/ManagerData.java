@@ -79,4 +79,37 @@ public class ManagerData extends AccessLevel implements Serializable {
         this.address = address;
         this.licenseNumber = licenseNumber;
     }
+
+    public ManagerData(Long id, Long version, Address address, boolean active, String licenseNumber) {
+        super(id, version, AccessType.MANAGER, active);
+        this.address = address;
+        this.licenseNumber = licenseNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ManagerData that)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        if (getAddress() != null ? !getAddress().equals(that.getAddress()) : that.getAddress() != null) {
+            return false;
+        }
+        return getLicenseNumber() != null ? getLicenseNumber().equals(that.getLicenseNumber()) :
+            that.getLicenseNumber() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (getAddress() != null ? getAddress().hashCode() : 0);
+        result = 31 * result + (getLicenseNumber() != null ? getLicenseNumber().hashCode() : 0);
+        return result;
+    }
 }

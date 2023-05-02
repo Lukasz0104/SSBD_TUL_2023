@@ -9,7 +9,6 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
@@ -18,7 +17,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -45,6 +43,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Stateful
@@ -373,7 +372,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
         account.setFirstName(newData.getFirstName());
         account.setLastName(newData.getLastName());
-        for (AccessLevel accessLevel : account.getAccessLevels()) {
+        editAccessLevels(newData.getAccessLevels(), newData);
+        accountFacade.lockAndEdit(account);
+        return account;
+    }
+
+    private void editAccessLevels(Set<AccessLevel> accessLevels, Account newData) throws AppBaseException {
+        for (AccessLevel accessLevel : accessLevels) {
             if (accessLevel.isActive()) {
                 AccessLevel newAccessLevel =
                     newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
@@ -401,53 +406,28 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 }
             }
         }
-        accountFacade.lockAndEdit(account);
-        return account;
     }
 
     @Override
-    public Account editDetailsByAdmin(Long id, Account newAccount, String login) throws AppBaseException {
-        Account adminAccount = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+    public Account editPersonalDataByAdmin(Account newData, String adminLogin) throws AppBaseException {
+        Account adminAccount = accountFacade.findByLogin(adminLogin).orElseThrow(AccountNotFoundException::new);
         if (!adminAccount.hasAccessLevel(AccessType.ADMIN)) {
             throw new BadAccessLevelException();
         }
-
-        Account accountOrig = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
-        accountOrig.setLanguage(newAccount.getLanguage());
-        accountOrig.setFirstName(newAccount.getFirstName());
-        accountOrig.setLastName(newAccount.getLastName());
-        for (AccessLevel a : accountOrig.getAccessLevels()) {
-            if (a.isActive()) {
-                if (a instanceof OwnerData oldData) {
-                    OwnerData newOwnerData = (OwnerData) newAccount.getAccessLevels().stream()
-                        .filter(x -> x instanceof OwnerData)
-                        .findFirst()
-                        .orElseThrow(InvalidAccessLevelException::new);
-                    oldData.setAddress(newOwnerData.getAddress());
-                } else if (a instanceof ManagerData oldData) {
-                    ManagerData newOwnerData = (ManagerData) newAccount.getAccessLevels().stream()
-                        .filter(x -> x instanceof ManagerData)
-                        .findFirst()
-                        .orElseThrow(InvalidAccessLevelException::new);
-                    oldData.setAddress(newOwnerData.getAddress());
-                    oldData.setLicenseNumber(newOwnerData.getLicenseNumber());
-                } else if (a instanceof AdminData) {
-                    newAccount.getAccessLevels().stream()
-                        .filter(x -> x instanceof AdminData)
-                        .findFirst()
-                        .orElseThrow(InvalidAccessLevelException::new);
-                } else {
-                    throw new InvalidAccessLevelException();
-                }
-            }
+        Account accountOrig = accountFacade.find(newData.getId()).orElseThrow(AccountNotFoundException::new);
+        System.out.println("\n\n\n\n\n\n" + accountOrig.getAccessLevels() + "\n\n\n\n\n\n");
+        System.out.println("\n\n\n\n\n\n" + newData.getAccessLevels() + "\n\n\n\n\n\n");
+        if (accountOrig.getVersion() != newData.getVersion()) {
+            throw new AppOptimisticLockException();
         }
 
-        try {
-            accountFacade.edit(accountOrig);
-        } catch (AppDatabaseException e) {
-            throw new PasswordConstraintViolationException();
-        }
+        accountOrig.setEmail(newData.getEmail());
+        accountOrig.setFirstName(newData.getFirstName());
+        accountOrig.setLastName(newData.getLastName());
+        accountOrig.setLanguage(newData.getLanguage());
+
+        editAccessLevels(accountOrig.getAccessLevels(), newData);
+        accountFacade.lockAndEdit(accountOrig);
         return accountOrig;
-
     }
 }

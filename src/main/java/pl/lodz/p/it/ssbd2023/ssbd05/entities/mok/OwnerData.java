@@ -64,4 +64,31 @@ public class OwnerData extends AccessLevel implements Serializable {
         super(id, version, AccessType.OWNER);
         this.address = address;
     }
+
+    public OwnerData(Long id, Long version, Address address, boolean active) {
+        super(id, version, AccessType.OWNER, active);
+        this.address = address;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OwnerData ownerData)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        return getAddress() != null ? getAddress().equals(ownerData.getAddress()) : ownerData.getAddress() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (getAddress() != null ? getAddress().hashCode() : 0);
+        return result;
+    }
 }

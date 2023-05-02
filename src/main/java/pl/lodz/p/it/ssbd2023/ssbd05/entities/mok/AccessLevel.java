@@ -85,4 +85,40 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
         super(id, version);
         this.level = level;
     }
+
+    public AccessLevel(Long id, Long version, AccessType accessTypes, boolean active) {
+        super(id, version);
+        this.level = accessTypes;
+        this.active = active;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AccessLevel that)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        if (isActive() != that.isActive()) {
+            return false;
+        }
+        if (getLevel() != that.getLevel()) {
+            return false;
+        }
+        return getAccount() != null ? getAccount().equals(that.getAccount()) : that.getAccount() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (getLevel() != null ? getLevel().hashCode() : 0);
+        result = 31 * result + (getAccount() != null ? getAccount().hashCode() : 0);
+        result = 31 * result + (isActive() ? 1 : 0);
+        return result;
+    }
 }

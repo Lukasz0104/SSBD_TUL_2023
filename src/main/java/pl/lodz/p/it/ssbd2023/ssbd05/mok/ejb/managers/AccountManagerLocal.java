@@ -52,7 +52,7 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void remindToConfirmRegistration(LocalDateTime now);
 
-    Account editDetailsByAdmin(Long id, Account account, String login) throws AppBaseException;
+    Account editPersonalDataByAdmin(Account account, String login) throws AppBaseException;
 
     Account editPersonalData(Account account, String login) throws AppBaseException;
 }
