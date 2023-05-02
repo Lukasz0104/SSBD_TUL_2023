@@ -291,7 +291,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/override-forced-password")
-    public Response overrideForcedPassword(@Valid ResetPasswordDto resetPasswordDto)
+    public Response overrideForcedPassword(@Valid @NotNull ResetPasswordDto resetPasswordDto)
         throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
         int txCounter = 0;
