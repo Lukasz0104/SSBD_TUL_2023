@@ -28,7 +28,6 @@ import java.util.Set;
 
 public class AccountDtoConverter {
 
-    // dto ----> entity
     public static Account createAccountFromRegisterDto(RegisterAccountDto dto) {
         return new Account(
             dto.getEmail(),
@@ -65,10 +64,7 @@ public class AccountDtoConverter {
 
     public static Set<AccessLevel> createAccessLevelSet(Collection<AccessLevelDto> accessLevelDtos) {
         Set<AccessLevel> accessLevelSet = new HashSet<>();
-        System.out.println(
-            "\nInside createAccessLevelSet: " + accessLevelDtos.size() + ", " + accessLevelDtos + "\n\n");
         for (AccessLevelDto accessLevelDto : accessLevelDtos) {
-            System.out.println("Adding: " + accessLevelDto);
             if (accessLevelDto instanceof OwnerDataDto ownerDataDto) {
                 accessLevelSet.add(new OwnerData(ownerDataDto.getId(), ownerDataDto.getVersion(),
                     createAddressFromDto(ownerDataDto.getAddress()), true));
@@ -81,14 +77,10 @@ public class AccountDtoConverter {
                 accessLevelSet.add(new AdminData(adminDataDto.getId(), adminDataDto.getVersion(), true));
             }
         }
-
-        System.out.println(
-            "\nInside createAccessLevelSet: " + accessLevelSet.size() + ", " + accessLevelSet + "\n\n");
         return accessLevelSet;
     }
 
 
-    // entity ----> DTO
     public static AddressDto createAddressDtoFromAddress(Address address) {
         return new AddressDto(
             address.getPostalCode(),

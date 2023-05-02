@@ -61,7 +61,7 @@ import java.util.UUID;
 public class AccountEndpoint {
 
     @Inject
-    Properties properties;
+    private Properties properties;
 
     @Inject
     private AccountManagerLocal accountManager;
@@ -279,8 +279,8 @@ public class AccountEndpoint {
         return Response.ok().entity(ownAccountDto).build();
     }
 
-    @POST
-    @Path("/admin/editOther")
+    @PUT
+    @Path("/admin/edit-other")
     @RolesAllowed({"ADMIN"})
     public Response editDetailsByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto) throws AppBaseException {
         Account account = createAccountFromEditDto(dto);

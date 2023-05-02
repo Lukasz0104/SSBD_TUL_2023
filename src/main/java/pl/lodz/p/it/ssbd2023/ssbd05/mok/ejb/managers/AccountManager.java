@@ -452,8 +452,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new BadAccessLevelException();
         }
         Account accountOrig = accountFacade.find(newData.getId()).orElseThrow(AccountNotFoundException::new);
-        System.out.println("\n\n\n\n\n\n" + accountOrig.getAccessLevels() + "\n\n\n\n\n\n");
-        System.out.println("\n\n\n\n\n\n" + newData.getAccessLevels() + "\n\n\n\n\n\n");
         if (accountOrig.getVersion() != newData.getVersion()) {
             throw new AppOptimisticLockException();
         }

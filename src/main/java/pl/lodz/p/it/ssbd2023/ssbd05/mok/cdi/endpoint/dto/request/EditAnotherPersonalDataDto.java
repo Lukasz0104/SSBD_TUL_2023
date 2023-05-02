@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,5 +39,5 @@ public class EditAnotherPersonalDataDto {
     private Language language;
 
     @NotNull
-    private List<AccessLevelDto> accessLevels;
+    private List<@Valid AccessLevelDto> accessLevels;
 }

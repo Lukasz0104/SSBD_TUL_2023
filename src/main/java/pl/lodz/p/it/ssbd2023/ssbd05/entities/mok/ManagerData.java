@@ -9,6 +9,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "manager_data")
 @DiscriminatorValue("MANAGER")
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -84,33 +86,6 @@ public class ManagerData extends AccessLevel implements Serializable {
         super(id, version, AccessType.MANAGER, active);
         this.address = address;
         this.licenseNumber = licenseNumber;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ManagerData that)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        if (getAddress() != null ? !getAddress().equals(that.getAddress()) : that.getAddress() != null) {
-            return false;
-        }
-        return getLicenseNumber() != null ? getLicenseNumber().equals(that.getLicenseNumber()) :
-            that.getLicenseNumber() == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (getAddress() != null ? getAddress().hashCode() : 0);
-        result = 31 * result + (getLicenseNumber() != null ? getLicenseNumber().hashCode() : 0);
-        return result;
     }
 
     public ManagerData(Address address, String licenseNumber) {

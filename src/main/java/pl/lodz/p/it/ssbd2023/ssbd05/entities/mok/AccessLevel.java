@@ -16,6 +16,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import java.io.Serializable;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING, name = "level")
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @NamedQueries({
     @NamedQuery(
         name = "AccessLevel.findAccessLevelById",
@@ -99,37 +101,8 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
         this.active = active;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof AccessLevel that)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        if (isActive() != that.isActive()) {
-            return false;
-        }
-        if (getLevel() != that.getLevel()) {
-            return false;
-        }
-        return getAccount() != null ? getAccount().equals(that.getAccount()) : that.getAccount() == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (getLevel() != null ? getLevel().hashCode() : 0);
-        result = 31 * result + (getAccount() != null ? getAccount().hashCode() : 0);
-        result = 31 * result + (isActive() ? 1 : 0);
-        return result;
-    }
-
     public AccessLevel(AccessType level) {
         this.level = level;
     }
+
 }
