@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,13 +20,10 @@ public class ManagerDataDto extends AccessLevelDto {
     @NotNull
     private String licenseNumber;
 
-    public ManagerDataDto(Long id,
-                          Long version,
-                          @NotNull AccessType level,
-                          AddressDto address,
-                          String licenseNumber) {
-        super(id, version, level);
+    public ManagerDataDto(Long id, Long version, AddressDto address, String licenseNumber) {
+        super(id, version);
         this.address = address;
         this.licenseNumber = licenseNumber;
     }
+
 }

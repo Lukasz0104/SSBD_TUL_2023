@@ -14,6 +14,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditOwnPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 public class AccountDtoConverter {
+
     public static Account createAccountFromRegisterDto(RegisterAccountDto dto) {
         return new Account(
             dto.getEmail(),
@@ -47,6 +49,37 @@ public class AccountDtoConverter {
     public static Address createAddressFromDto(AddressDto dto) {
         return new Address(dto.postalCode(), dto.city(), dto.street(), dto.buildingNumber());
     }
+
+    public static Account createAccountFromEditDto(EditAnotherPersonalDataDto dto) {
+        return new Account(
+            dto.getId(),
+            dto.getVersion(),
+            dto.getEmail(),
+            dto.getFirstName(),
+            dto.getLastName(),
+            dto.getLanguage(),
+            createAccessLevelSet(dto.getAccessLevels())
+        );
+    }
+
+    public static Set<AccessLevel> createAccessLevelSet(Collection<AccessLevelDto> accessLevelDtos) {
+        Set<AccessLevel> accessLevelSet = new HashSet<>();
+        for (AccessLevelDto accessLevelDto : accessLevelDtos) {
+            if (accessLevelDto instanceof OwnerDataDto ownerDataDto) {
+                accessLevelSet.add(new OwnerData(ownerDataDto.getId(), ownerDataDto.getVersion(),
+                    createAddressFromDto(ownerDataDto.getAddress()), true));
+            } else if (accessLevelDto instanceof ManagerDataDto managerDataDto) {
+                accessLevelSet.add(
+                    new ManagerData(managerDataDto.getId(), managerDataDto.getVersion(),
+                        createAddressFromDto(managerDataDto.getAddress()), true,
+                        managerDataDto.getLicenseNumber()));
+            } else if (accessLevelDto instanceof AdminDataDto adminDataDto) {
+                accessLevelSet.add(new AdminData(adminDataDto.getId(), adminDataDto.getVersion(), true));
+            }
+        }
+        return accessLevelSet;
+    }
+
 
     public static AddressDto createAddressDtoFromAddress(Address address) {
         return new AddressDto(
@@ -96,38 +129,6 @@ public class AccountDtoConverter {
         );
     }
 
-    public static Set<AccessLevel> createAccessLevelSet(Collection<AccessLevelDto> accessLevelDtos) {
-        Set<AccessLevel> accessLevelSet = new HashSet<>();
-        for (AccessLevelDto accessLevelDto : accessLevelDtos) {
-            if (accessLevelDto instanceof OwnerDataDto ownerDataDto) {
-                accessLevelSet.add(
-                    new OwnerData(
-                        ownerDataDto.getId(),
-                        ownerDataDto.getVersion(),
-                        createAddressFromDto(ownerDataDto.getAddress())
-                    )
-                );
-            } else if (accessLevelDto instanceof ManagerDataDto managerDataDto) {
-                accessLevelSet.add(
-                    new ManagerData(
-                        managerDataDto.getId(),
-                        managerDataDto.getVersion(),
-                        createAddressFromDto(managerDataDto.getAddress()),
-                        managerDataDto.getLicenseNumber()
-                    )
-                );
-            } else if (accessLevelDto instanceof AdminDataDto adminDataDto) {
-                accessLevelSet.add(
-                    new AdminData(
-                        adminDataDto.getId(),
-                        adminDataDto.getVersion()
-                    )
-                );
-            }
-        }
-        return accessLevelSet;
-    }
-
     public static Set<AccessLevelDto> createAccessLevelDtoSet(Set<AccessLevel> accessLevels) {
         Set<AccessLevelDto> accessLevelDtoSet = new HashSet<>();
         for (AccessLevel accessLevel : accessLevels) {
@@ -139,7 +140,6 @@ public class AccountDtoConverter {
                     new OwnerDataDto(
                         ownerData.getId(),
                         ownerData.getVersion(),
-                        ownerData.getLevel(),
                         createAddressDtoFromAddress(ownerData.getAddress())
                     )
                 );
@@ -148,7 +148,6 @@ public class AccountDtoConverter {
                     new ManagerDataDto(
                         managerData.getId(),
                         managerData.getVersion(),
-                        managerData.getLevel(),
                         createAddressDtoFromAddress(managerData.getAddress()),
                         managerData.getLicenseNumber()
                     )
@@ -157,9 +156,7 @@ public class AccountDtoConverter {
                 accessLevelDtoSet.add(
                     new AdminDataDto(
                         adminData.getId(),
-                        adminData.getVersion(),
-                        adminData.getLevel()
-                    )
+                        adminData.getVersion())
                 );
             }
         }

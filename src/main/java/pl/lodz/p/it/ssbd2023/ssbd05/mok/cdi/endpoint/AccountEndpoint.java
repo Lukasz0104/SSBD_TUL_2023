@@ -1,6 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountDto;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditOwnPersonalDataDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromRegisterDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
@@ -43,6 +44,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLev
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditOwnPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
@@ -62,10 +64,10 @@ import java.util.UUID;
 public class AccountEndpoint {
 
     @Inject
-    private AccountManagerLocal accountManager;
+    private Properties properties;
 
     @Inject
-    Properties properties;
+    private AccountManagerLocal accountManager;
 
     @Context
     private SecurityContext securityContext;
@@ -246,7 +248,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("owners")
+    @Path("/owners")
     @RolesAllowed({"ADMIN", "MANAGER"})
     public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
@@ -254,7 +256,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("managers")
+    @Path("/managers")
     @RolesAllowed({"ADMIN"})
     public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
@@ -262,7 +264,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("admins")
+    @Path("/admins")
     @RolesAllowed({"ADMIN"})
     public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
@@ -308,7 +310,7 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("me")
+    @Path("/me")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response updatePersonalData(@Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO)
         throws AppBaseException {
@@ -316,5 +318,15 @@ public class AccountEndpoint {
         OwnAccountDto ownAccountDto = AccountDtoConverter.createOwnAccountDto(
             accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login));
         return Response.ok().entity(ownAccountDto).build();
+    }
+
+    @PUT
+    @Path("/admin/edit-other")
+    @RolesAllowed({"ADMIN"})
+    public Response editDetailsByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto) throws AppBaseException {
+        Account account = createAccountFromEditDto(dto);
+        String adminLogin = securityContext.getUserPrincipal().getName();
+        AccountDto accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, adminLogin));
+        return Response.ok().entity(accountDto).build();
     }
 }

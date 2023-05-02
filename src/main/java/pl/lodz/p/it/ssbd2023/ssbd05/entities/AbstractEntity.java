@@ -34,6 +34,10 @@ public abstract class AbstractEntity {
         this.version = version;
     }
 
+    public AbstractEntity(Long id) {
+        this.id = id;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;

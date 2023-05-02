@@ -9,6 +9,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "manager_data")
 @DiscriminatorValue("MANAGER")
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -76,6 +78,12 @@ public class ManagerData extends AccessLevel implements Serializable {
 
     public ManagerData(Long id, Long version, Address address, String licenseNumber) {
         super(id, version, AccessType.MANAGER);
+        this.address = address;
+        this.licenseNumber = licenseNumber;
+    }
+
+    public ManagerData(Long id, Long version, Address address, boolean active, String licenseNumber) {
+        super(id, version, AccessType.MANAGER, active);
         this.address = address;
         this.licenseNumber = licenseNumber;
     }

@@ -46,6 +46,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 @Stateful
@@ -158,24 +159,24 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status)
         throws AppBaseException {
-
-
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
-
-        if (Objects.equals(managerLogin, account.getLogin())) {
-            throw new IllegalSelfActionException();
-        }
-
         if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
             throw new BadAccessLevelException();
         }
+        changeActiveStatus(managerLogin, account, status);
+    }
 
+    private void changeActiveStatus(String adminOrManagerLogin, Account account, boolean status)
+        throws AppBaseException {
+
+        if (Objects.equals(adminOrManagerLogin, account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
         if (account.isActive() == status) {
             return;
         }
 
         account.setActive(status);
-
         try {
             accountFacade.edit(account);
         } catch (AppDatabaseException ade) {
@@ -189,28 +190,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
         throws AppBaseException {
-
-
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
-
-        if (Objects.equals(adminLogin, account.getLogin())) {
-            throw new IllegalSelfActionException();
-        }
-
-        if (account.isActive() == status) {
-            return;
-        }
-
-        account.setActive(status);
-
-        try {
-            accountFacade.edit(account);
-        } catch (AppDatabaseException ade) {
-            throw new ConstraintViolationException(ade.getMessage(), ade);
-        }
-
-        emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
-            account.getLanguage().toString(), status);
+        changeActiveStatus(adminLogin, account, status);
     }
 
     @Override
@@ -430,7 +411,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
         account.setFirstName(newData.getFirstName());
         account.setLastName(newData.getLastName());
-        for (AccessLevel accessLevel : account.getAccessLevels()) {
+        editAccessLevels(newData.getAccessLevels(), newData);
+        accountFacade.lockAndEdit(account);
+        return account;
+    }
+
+    private void editAccessLevels(Set<AccessLevel> accessLevels, Account newData) throws AppBaseException {
+        for (AccessLevel accessLevel : accessLevels) {
             if (accessLevel.isActive()) {
                 AccessLevel newAccessLevel =
                     newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
@@ -442,24 +429,43 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 }
 
                 switch (accessLevel.getLevel()) {
-                    case OWNER:
+                    case OWNER -> {
                         OwnerData ownerData = (OwnerData) accessLevel;
                         OwnerData newOwnerData = (OwnerData) newAccessLevel;
                         ownerData.setAddress(newOwnerData.getAddress());
-                        break;
-                    case MANAGER:
+                    }
+                    case MANAGER -> {
                         ManagerData managerData = (ManagerData) accessLevel;
                         ManagerData newManagerData = (ManagerData) newAccessLevel;
                         managerData.setAddress(newManagerData.getAddress());
                         managerData.setLicenseNumber(newManagerData.getLicenseNumber());
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                    }
                 }
             }
         }
-        accountFacade.lockAndEdit(account);
-        return account;
+    }
+
+    @Override
+    public Account editPersonalDataByAdmin(Account newData, String adminLogin) throws AppBaseException {
+        Account adminAccount = accountFacade.findByLogin(adminLogin).orElseThrow(AccountNotFoundException::new);
+        if (!adminAccount.hasAccessLevel(AccessType.ADMIN)) {
+            throw new BadAccessLevelException();
+        }
+        Account accountOrig = accountFacade.find(newData.getId()).orElseThrow(AccountNotFoundException::new);
+        if (accountOrig.getVersion() != newData.getVersion()) {
+            throw new AppOptimisticLockException();
+        }
+
+        accountOrig.setEmail(newData.getEmail());
+        accountOrig.setFirstName(newData.getFirstName());
+        accountOrig.setLastName(newData.getLastName());
+        accountOrig.setLanguage(newData.getLanguage());
+
+        editAccessLevels(accountOrig.getAccessLevels(), newData);
+        accountFacade.lockAndEdit(accountOrig);
+        return accountOrig;
     }
 
     @Override

@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,8 +16,8 @@ public class OwnerDataDto extends AccessLevelDto {
     @Valid
     private AddressDto address;
 
-    public OwnerDataDto(Long id, Long version, @NotNull AccessType level, AddressDto address) {
-        super(id, version, level);
+    public OwnerDataDto(Long id, Long version, AddressDto address) {
+        super(id, version);
         this.address = address;
     }
 }

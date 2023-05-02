@@ -16,6 +16,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import java.io.Serializable;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING, name = "level")
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @NamedQueries({
     @NamedQuery(
         name = "AccessLevel.findAccessLevelById",
@@ -93,7 +95,14 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
         this.level = level;
     }
 
+    public AccessLevel(Long id, Long version, AccessType accessTypes, boolean active) {
+        super(id, version);
+        this.level = accessTypes;
+        this.active = active;
+    }
+
     public AccessLevel(AccessType level) {
         this.level = level;
     }
+
 }
