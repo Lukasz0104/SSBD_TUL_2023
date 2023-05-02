@@ -26,6 +26,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionExcepti
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessGrantException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
@@ -83,12 +84,11 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         tokenFacade.create(token);
 
-        String fullName = account.getFirstName() + " " + account.getLastName();
         String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
 
         emailService.sendConfirmRegistrationEmail(
             account.getEmail(),
-            fullName,
+            account.getFullName(),
             actionLink,
             account.getLanguage().toString());
     }
@@ -122,9 +122,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        String fullName = account.getFirstName() + " " + account.getLastName();
         String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
-        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage().toString());
+        emailService.changeEmailAddress(
+            account.getEmail(), account.getFullName(), link,
+            account.getLanguage().toString());
     }
 
     @Override
@@ -179,8 +180,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
-        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage().toString(), status);
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
+            account.getLanguage().toString(), status);
     }
 
     @Override
@@ -206,8 +207,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
-        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage().toString(), status);
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
+            account.getLanguage().toString(), status);
     }
 
     @Override
@@ -337,14 +338,22 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             tokenFacade.findByTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
         for (Token token : unverifiedTokens) {
             Account account = token.getAccount();
-            String fullName = account.getFirstName() + " " + account.getLastName();
             tokenFacade.remove(token);
             accountFacade.remove(account);
             emailService.sendConfirmRegistrationFailEmail(
                 account.getEmail(),
-                fullName,
+                account.getFullName(),
                 account.getLanguage().toString()
             );
+        }
+    }
+
+    @Override
+    public void deleteExpiredTokens(LocalDateTime now) throws AppBaseException {
+        List<Token> expiredTokens = tokenFacade
+            .findByNotTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
+        for (Token token : expiredTokens) {
+            tokenFacade.remove(token);
         }
     }
 
@@ -360,18 +369,55 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             long timeLeft = Duration.between(now, token.getExpiresAt()).toMillis();
             if (timeLeft < (properties.getAccountConfirmationTime() / 2.0)) {
 
-                String fullName =
-                    account.getFirstName() + " " + account.getLastName();
                 String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
                 account.setReminded(true);
                 emailService.sendConfirmRegistrationReminderEmail(
                     account.getEmail(),
-                    fullName,
+                    account.getFullName(),
                     actionLink,
                     token.getExpiresAt(),
                     account.getLanguage().toString());
             }
         }
+    }
+
+    /**
+     * Add access level to given account or mark it as active if it already exists.
+     *
+     * @param id          account id
+     * @param accessLevel access level to be added
+     * @param login       login of currently authenticated user
+     * @throws AppBaseException When account was not found or adding access level failed.
+     */
+    @Override
+    public void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException {
+        Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(login, account.getLogin())) {
+            throw new SelfAccessGrantException();
+        }
+
+        account.getAccessLevels()
+            .stream()
+            .filter(al -> al.getLevel() == accessLevel.getLevel())
+            .findFirst()
+            .ifPresentOrElse(al -> {
+                al.setVerified(true);
+                al.setActive(true);
+            }, () -> {
+                accessLevel.setAccount(account);
+                accessLevel.setActive(true);
+                accessLevel.setVerified(true);
+                account.getAccessLevels().add(accessLevel);
+            });
+
+        accountFacade.edit(account);
+
+        emailService.notifyAboutNewAccessLevel(
+            account.getEmail(),
+            account.getFullName(),
+            account.getLanguage().toString(),
+            accessLevel.getLevel());
     }
 
     @Override

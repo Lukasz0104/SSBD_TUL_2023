@@ -13,6 +13,7 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -294,5 +295,18 @@ public class EmailService {
         );
     }
 
+    @Asynchronous
+    public void notifyAboutNewAccessLevel(String receiver, String name, String language, AccessType accessType) {
+        String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
+        String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_MESSAGE, language)
+            .replace("$LEVEL", localizedName);
 
+        this.sendMessageWithoutLink(
+            receiver, name, content,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
 }

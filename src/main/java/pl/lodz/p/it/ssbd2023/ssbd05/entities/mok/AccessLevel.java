@@ -71,6 +71,13 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
     @Column(name = "active", nullable = false)
     private boolean active = false;
 
+    @NotNull
+    @Getter
+    @Setter
+    @Basic(optional = false)
+    @Column(name = "verified", nullable = false)
+    private boolean verified = false;
+
     public AccessLevel(AccessType accessTypes, Account account) {
         this.level = accessTypes;
         this.account = account;
@@ -83,6 +90,10 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
 
     public AccessLevel(Long id, @NotNull Long version, AccessType level) {
         super(id, version);
+        this.level = level;
+    }
+
+    public AccessLevel(AccessType level) {
         this.level = level;
     }
 }

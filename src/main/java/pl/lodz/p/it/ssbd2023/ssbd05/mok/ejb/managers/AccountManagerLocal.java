@@ -1,6 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
 import jakarta.ejb.Local;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -48,7 +49,11 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 
+    void deleteExpiredTokens(LocalDateTime now) throws AppBaseException;
+
     void remindToConfirmRegistration(LocalDateTime now);
+
+    void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException;
 
     Account editPersonalData(Account account, String login) throws AppBaseException;
 }

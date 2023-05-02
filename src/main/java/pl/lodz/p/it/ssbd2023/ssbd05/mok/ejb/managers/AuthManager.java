@@ -92,7 +92,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
                 accountFacade.edit(account);
                 emailService.notifyBlockedAccIncorrectLoginLimit(
-                    account.getEmail(), account.getEmail(), account.getLanguage().toString());
+                    account.getEmail(), account.getFullName(), account.getLanguage().toString());
             }
         }
     }
