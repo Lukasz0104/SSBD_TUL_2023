@@ -309,4 +309,19 @@ public class EmailService {
             I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
         );
     }
+
+    @Asynchronous
+    public void notifyAboutRevokedAccessLevel(String receiver, String name, String language, AccessType accessType) {
+        String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
+        String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_MESSAGE, language)
+            .replace("$LEVEL", localizedName);
+
+        this.sendMessageWithoutLink(
+            receiver, name, content,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
 }

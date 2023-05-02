@@ -68,6 +68,13 @@ public class I18n {
         "email.message.access-level-granted.subject";
     public static final String EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_TITLE = "email.message.access-level-granted.title";
 
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_MESSAGE =
+        "email.message.access-level-revoked.message";
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_SUBJECT =
+        "email.message.access-level-revoked.subject";
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_TITLE =
+        "email.message.access-level-revoked.title";
+
     public static String RESET_PASSWORD_EMAIL_MESSAGE_ACTION = "reset.password.email.message.action";
     public static String RESET_PASSWORD_EMAIL_MESSAGE_CONTENT = "reset.password.email.message.content";
     public static String RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT = "reset.password.email.message.subject";
@@ -88,7 +95,7 @@ public class I18n {
     public static final String INVALID_PASSWORD = "response.message.invalid_password";
     public static final String LANGUAGE_NOT_FOUND = "response.message.language_not_found";
     public static final String LICENSE_NUMBER_ALREADY_TAKEN = "response.message.license-number-already-taken";
-    public static final String ACCESS_GRANTED_SELF = "response.message-access-granted-self";
+    public static final String ACCESS_MANAGEMENT_SELF = "response.message-access-management-self";
 
     public static final String BAD_REQUEST = "response.message.bad_request";
     public static final String CONFLICT = "response.message.conflict";

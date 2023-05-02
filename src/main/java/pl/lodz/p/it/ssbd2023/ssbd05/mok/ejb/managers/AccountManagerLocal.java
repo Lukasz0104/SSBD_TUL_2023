@@ -54,4 +54,6 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     void remindToConfirmRegistration(LocalDateTime now);
 
     void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException;
+
+    void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException;
 }

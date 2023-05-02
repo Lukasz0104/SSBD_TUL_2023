@@ -22,7 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionExcepti
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessGrantException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessManagementException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
@@ -390,7 +390,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
 
         if (Objects.equals(login, account.getLogin())) {
-            throw new SelfAccessGrantException();
+            throw new SelfAccessManagementException();
         }
 
         account.getAccessLevels()
@@ -414,5 +414,29 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             account.getFullName(),
             account.getLanguage().toString(),
             accessLevel.getLevel());
+    }
+
+    @Override
+    public void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException {
+        Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(login, account.getLogin())) {
+            throw new SelfAccessManagementException();
+        }
+
+        account.getAccessLevels()
+            .stream()
+            .filter(al -> al.getLevel() == accessType)
+            .findFirst()
+            .ifPresent(al -> al.setActive(false));
+
+        accountFacade.edit(account);
+
+        emailService.notifyAboutRevokedAccessLevel(
+            account.getEmail(),
+            account.getFullName(),
+            account.getLanguage().toString(),
+            accessType
+        );
     }
 }
