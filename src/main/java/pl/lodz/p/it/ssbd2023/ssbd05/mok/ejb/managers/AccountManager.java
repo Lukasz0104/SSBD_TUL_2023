@@ -44,6 +44,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Stateful
@@ -468,19 +469,21 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new SelfAccessManagementException();
         }
 
-        account.getAccessLevels()
+        Optional<AccessLevel> accessLevel = account.getAccessLevels()
             .stream()
-            .filter(al -> al.getLevel() == accessType)
-            .findFirst()
-            .ifPresent(al -> al.setActive(false));
+            .filter(al -> al.isVerified() && al.isActive() && al.getLevel() == accessType)
+            .findFirst();
 
-        accountFacade.edit(account);
+        if (accessLevel.isPresent()) {
+            accessLevel.get().setActive(false);
+            accountFacade.edit(account);
 
-        emailService.notifyAboutRevokedAccessLevel(
-            account.getEmail(),
-            account.getFullName(),
-            account.getLanguage().toString(),
-            accessType
-        );
+            emailService.notifyAboutRevokedAccessLevel(
+                account.getEmail(),
+                account.getFullName(),
+                account.getLanguage().toString(),
+                accessType
+            );
+        }
     }
 }
