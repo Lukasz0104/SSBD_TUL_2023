@@ -269,7 +269,8 @@ public class AccountEndpoint {
     @PUT
     @Path("me")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response updatePersonalData(@Valid EditOwnPersonalDataDto editOwnPersonalDataDTO) throws AppBaseException {
+    public Response updatePersonalData(@Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO)
+        throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
         OwnAccountDto ownAccountDto = AccountDtoConverter.createOwnAccountDto(
             accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login));
