@@ -88,6 +88,11 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
         this.active = active;
     }
 
+    public AccessLevel(Long id, @NotNull Long version, AccessType level) {
+        super(id, version);
+        this.level = level;
+    }
+
     public AccessLevel(AccessType level) {
         this.level = level;
     }

@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class LoggerInterceptor {
     @Resource
     private SessionContext sctx;
-    private static final Logger loger = Logger.getLogger(LoggerInterceptor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LoggerInterceptor.class.getName());
 
     @AroundInvoke
     public Object traceInvoke(InvocationContext ictx) throws Exception {
@@ -28,7 +28,7 @@ public class LoggerInterceptor {
                     }
                 }
             } catch (Exception e) {
-                loger.log(Level.SEVERE, "Unexpected exception in interceptor's code: ", e);
+                LOGGER.log(Level.SEVERE, "Unexpected exception in interceptor's code: ", e);
                 throw e;
             }
 
@@ -36,13 +36,13 @@ public class LoggerInterceptor {
 
         } catch (Exception e) {
             message.append(" ended with exception: ").append(e);
-            loger.log(Level.SEVERE, message.toString(), e);
+            LOGGER.log(Level.SEVERE, message.toString(), e);
             throw e;
         }
 
         message.append(" returned value: ").append(result).append(" ");
 
-        loger.info(message.toString());
+        LOGGER.info(message.toString());
 
         return result;
     }

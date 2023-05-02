@@ -95,6 +95,7 @@ public class I18n {
     public static final String INVALID_PASSWORD = "response.message.invalid_password";
     public static final String LANGUAGE_NOT_FOUND = "response.message.language_not_found";
     public static final String LICENSE_NUMBER_ALREADY_TAKEN = "response.message.license-number-already-taken";
+    public static final String ACCESS_LEVEL_NOT_FOUND = "response.message.access_level_not_found";
     public static final String ACCESS_MANAGEMENT_SELF = "response.message-access-management-self";
 
     public static final String BAD_REQUEST = "response.message.bad_request";
