@@ -31,12 +31,8 @@ public abstract class AbstractFacade<T> {
     }
 
     protected void edit(T entity) throws AppBaseException {
-        try {
-            getEntityManager().merge(entity);
-            getEntityManager().flush();
-        } catch (PersistenceException pe) {
-            throw new AppDatabaseException(pe);
-        }
+        getEntityManager().merge(entity);
+        getEntityManager().flush();
     }
 
     protected void remove(T entity) throws AppBaseException {
