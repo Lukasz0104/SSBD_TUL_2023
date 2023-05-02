@@ -22,8 +22,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViol
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessGrantException;
@@ -40,10 +40,12 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -464,5 +466,44 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         editAccessLevels(accountOrig.getAccessLevels(), newData);
         accountFacade.lockAndEdit(accountOrig);
         return accountOrig;
+    }
+
+    @Override
+    public void forcePasswordChange(String login) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        byte[] array = new byte[28];
+        new Random().nextBytes(array);
+        account.setPassword(hashGenerator.generate(new String(array, StandardCharsets.UTF_8).toCharArray()));
+        if (!account.isActive()) {
+            throw new InactiveAccountException();
+        }
+        if (!account.isVerified()) {
+            throw new UnverifiedAccountException();
+        }
+        account.setActive(false);
+        accountFacade.edit(account);
+
+        List<Token> resetPasswordTokens =
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+        for (Token t : resetPasswordTokens) {
+            tokenFacade.remove(t);
+        }
+
+        Token passwordChangeToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
+        tokenFacade.create(passwordChangeToken);
+        String link = properties.getFrontendUrl() + "/" + passwordChangeToken.getToken();
+        emailService.forcePasswordChangeEmail(account.getEmail(), account.getFirstName() + " " + account.getLastName(),
+            account.getLanguage().toString(), link);
+    }
+
+    @Override
+    public void overrideForcedPassword(String password, UUID token) throws AppBaseException {
+        Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
+        resetPasswordToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
+        Account account = resetPasswordToken.getAccount();
+        tokenFacade.remove(resetPasswordToken);
+        account.setPassword(hashGenerator.generate(password.toCharArray()));
+        account.setActive(true);
+        accountFacade.edit(account);
     }
 }
