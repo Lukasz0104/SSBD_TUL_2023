@@ -39,6 +39,10 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void changeAccountLanguage(String login, String language) throws AppBaseException;
 
+    void forcePasswordChange(String login) throws AppBaseException;
+
+    void overrideForcedPassword(String password, UUID token) throws AppBaseException;
+
     List<Account> getAllAccounts(boolean active);
 
     List<Account> getOwnerAccounts(boolean active);

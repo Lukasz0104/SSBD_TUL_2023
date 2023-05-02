@@ -1,10 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.hibernate.validator.constraints.UUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidPassword;
-
-import java.util.UUID;
 
 @Data
 public class ResetPasswordDto {
@@ -12,6 +11,7 @@ public class ResetPasswordDto {
     @ValidPassword
     private String password;
 
-    @NotNull
-    private UUID token;
+    @UUID
+    @NotBlank
+    private String token;
 }
