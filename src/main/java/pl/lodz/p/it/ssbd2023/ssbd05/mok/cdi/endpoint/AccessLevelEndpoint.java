@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
@@ -23,11 +25,14 @@ public class AccessLevelEndpoint {
     @Inject
     private AccountManagerLocal accountManager;
 
+    @Context
+    private SecurityContext securityContext;
+
     @PUT
     @RolesAllowed({"ADMIN"})
     @Path("/administrator")
     public void grantAdminAccessLevel(@PathParam("id") Long id) throws AppBaseException {
-        accountManager.grantAccessLevel(id, new AdminData());
+        accountManager.grantAccessLevel(id, new AdminData(), securityContext.getUserPrincipal().getName());
     }
 
     @PUT
@@ -35,7 +40,9 @@ public class AccessLevelEndpoint {
     @Path("/manager")
     public void grantManagerAccessLevel(@PathParam("id") Long id, @Valid AddManagerAccessLevelDto dto)
         throws AppBaseException {
-        accountManager.grantAccessLevel(id, createManagerAccessLevelFromDto(dto));
+        accountManager.grantAccessLevel(
+            id, createManagerAccessLevelFromDto(dto),
+            securityContext.getUserPrincipal().getName());
     }
 
     @PUT
@@ -43,6 +50,8 @@ public class AccessLevelEndpoint {
     @Path("/owner")
     public void grantOwnerAccessLevel(@PathParam("id") Long id, @Valid AddOwnerAccessLevelDto dto)
         throws AppBaseException {
-        accountManager.grantAccessLevel(id, createOwnerAccessLevelFromDto(dto));
+        accountManager.grantAccessLevel(
+            id, createOwnerAccessLevelFromDto(dto),
+            securityContext.getUserPrincipal().getName());
     }
 }

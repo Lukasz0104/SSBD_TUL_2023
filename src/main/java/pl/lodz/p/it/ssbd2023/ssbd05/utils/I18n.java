@@ -58,6 +58,12 @@ public class I18n {
     public static final String EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_SUBJECT =
         "email.message.unblocked.account.status.subject";
 
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_MESSAGE =
+        "email.message.access-level-granted.message";
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_SUBJECT =
+        "email.message.access-level-granted.subject";
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_TITLE = "email.message.access-level-granted.title";
+
     public static String RESET_PASSWORD_EMAIL_MESSAGE_ACTION = "reset.password.email.message.action";
     public static String RESET_PASSWORD_EMAIL_MESSAGE_CONTENT = "reset.password.email.message.content";
     public static String RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT = "reset.password.email.message.subject";
@@ -77,6 +83,7 @@ public class I18n {
     public static final String AUTHENTICATION_EXCEPTION = "response.message.authentiaction_exception";
     public static final String INVALID_PASSWORD = "response.message.invalid_password";
     public static final String LANGUAGE_NOT_FOUND = "response.message.language_not_found";
+    public static final String LICENSE_NUMBER_ALREADY_TAKEN = "response.message.license-number-already-taken";
 
     public static final String BAD_REQUEST = "response.message.bad_request";
     public static final String CONFLICT = "response.message.conflict";
