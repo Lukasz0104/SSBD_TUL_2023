@@ -8,9 +8,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @MappedSuperclass
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class AbstractEntity {
 
     @Id
@@ -25,6 +29,10 @@ public abstract class AbstractEntity {
     @NotNull
     @Getter
     private long version;
+
+    public AbstractEntity(long version) {
+        this.version = version;
+    }
 
     @Override
     public int hashCode() {

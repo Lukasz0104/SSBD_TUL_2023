@@ -107,7 +107,7 @@ public class Account extends AbstractEntity implements Serializable {
     @NotNull
     @Basic(optional = false)
     @Size(min = 3, max = 100)
-    @Column(name = "login", nullable = false, unique = true, length = 100)
+    @Column(name = "login", updatable = false, nullable = false, unique = true, length = 100)
     private String login;
 
     @NotNull
@@ -160,6 +160,20 @@ public class Account extends AbstractEntity implements Serializable {
         this.login = login;
     }
 
+    public Account(Long id, @NotNull Long version, Set<AccessLevel> accessLevels, String firstName, String lastName) {
+        super(id, version);
+        this.accessLevels = accessLevels;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Account(@NotNull Long version, Set<AccessLevel> accessLevels, String firstName, String lastName) {
+        super(version);
+        this.accessLevels = accessLevels;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public void registerUnsuccessfulLogin(String ip) {
         this.activityTracker.setLastUnsuccessfulLogin(LocalDateTime.now());
         this.activityTracker.setLastUnsuccessfulLoginIp(ip);
@@ -181,5 +195,9 @@ public class Account extends AbstractEntity implements Serializable {
             .anyMatch(AccessLevel::isActive);
 
         return (hasActiveAccessLevels && active && verified);
+    }
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
     }
 }

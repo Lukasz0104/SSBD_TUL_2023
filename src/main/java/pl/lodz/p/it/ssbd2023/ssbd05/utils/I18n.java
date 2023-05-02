@@ -7,6 +7,10 @@ import java.util.ResourceBundle;
 
 @Stateless
 public class I18n {
+    public static final String ACCESS_LEVEL_ADMINISTRATOR = "access-level.administrator";
+    public static final String ACCESS_LEVEL_MANAGER = "access-level.manager";
+    public static final String ACCESS_LEVEL_OWNER = "access-level.owner";
+
     public static final String EMAIL_MESSAGE_SIGNATURE = "email.message.signature";
     public static final String EMAIL_MESSAGE_GREETING = "email.message.greeting";
     public static final String EMAIL_MESSAGE_RESET_PASSWORD_ACTION = "email.message.reset-password.action";
@@ -57,6 +61,17 @@ public class I18n {
         "email.message.unblocked.account.status.message";
     public static final String EMAIL_MESSAGE_UNBLOCKED_ACCOUNT_STATUS_SUBJECT =
         "email.message.unblocked.account.status.subject";
+
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_MESSAGE =
+        "email.message.access-level-granted.message";
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_SUBJECT =
+        "email.message.access-level-granted.subject";
+    public static final String EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_TITLE = "email.message.access-level-granted.title";
+
+    public static String RESET_PASSWORD_EMAIL_MESSAGE_ACTION = "reset.password.email.message.action";
+    public static String RESET_PASSWORD_EMAIL_MESSAGE_CONTENT = "reset.password.email.message.content";
+    public static String RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT = "reset.password.email.message.subject";
+    public static String EMAIL_MESSAGE_LAST = "email.message.last";
     public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_TITLE = "email.message.force-password-change.title";
     public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_SUBJECT =
         "email.message.force-password-change.subject";
@@ -76,9 +91,12 @@ public class I18n {
     public static final String INACTIVE_ACCOUNT = "response.message.inactive_account";
     public static final String ACCOUNT_NOT_FOUND = "response.message.account_not_found";
     public static final String UNVERIFIED_ACCOUNT = "response.message.unverified_account";
-    public static final String AUTHENTICATION_EXCEPTION = "response.message.authentiaction_exception";
+    public static final String AUTHENTICATION_EXCEPTION = "response.message.authentication_exception";
     public static final String INVALID_PASSWORD = "response.message.invalid_password";
     public static final String LANGUAGE_NOT_FOUND = "response.message.language_not_found";
+    public static final String LICENSE_NUMBER_ALREADY_TAKEN = "response.message.license-number-already-taken";
+    public static final String ACCESS_GRANTED_SELF = "response.message-access-granted-self";
+    public static final String ACCESS_LEVEL_NOT_FOUND = "response.message.access_level_not_found";
     public static final String FORCE_PASSWORD_CHANGE_DATABASE_EXCEPTION =
         "response.message.force_password_change_database_exception";
     public static final String ILLEGAL_SELF_ACTION = "response.message.illegal_self_action";

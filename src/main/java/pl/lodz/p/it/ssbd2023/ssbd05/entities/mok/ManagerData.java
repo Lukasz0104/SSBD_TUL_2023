@@ -73,4 +73,16 @@ public class ManagerData extends AccessLevel implements Serializable {
         this.address = address;
         this.licenseNumber = licenseNumber;
     }
+
+    public ManagerData(Long id, Long version, Address address, String licenseNumber) {
+        super(id, version, AccessType.MANAGER);
+        this.address = address;
+        this.licenseNumber = licenseNumber;
+    }
+
+    public ManagerData(Address address, String licenseNumber) {
+        super(AccessType.MANAGER);
+        this.address = address;
+        this.licenseNumber = licenseNumber;
+    }
 }

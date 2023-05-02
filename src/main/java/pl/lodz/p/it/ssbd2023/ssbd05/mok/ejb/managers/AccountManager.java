@@ -10,18 +10,23 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessGrantException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
@@ -81,12 +86,11 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         tokenFacade.create(token);
 
-        String fullName = account.getFirstName() + " " + account.getLastName();
         String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
 
         emailService.sendConfirmRegistrationEmail(
             account.getEmail(),
-            fullName,
+            account.getFullName(),
             actionLink,
             account.getLanguage().toString());
     }
@@ -120,9 +124,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        String fullName = account.getFirstName() + " " + account.getLastName();
         String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
-        emailService.changeEmailAddress(account.getEmail(), fullName, link, account.getLanguage().toString());
+        emailService.changeEmailAddress(
+            account.getEmail(), account.getFullName(), link,
+            account.getLanguage().toString());
     }
 
     @Override
@@ -177,8 +182,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
-        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage().toString(), status);
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
+            account.getLanguage().toString(), status);
     }
 
     @Override
@@ -204,8 +209,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new ConstraintViolationException(ade.getMessage(), ade);
         }
 
-        emailService.changeActiveStatusEmail(account.getEmail(), account.getFirstName()
-            + " " + account.getLastName(), account.getLanguage().toString(), status);
+        emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
+            account.getLanguage().toString(), status);
     }
 
     @Override
@@ -335,12 +340,11 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             tokenFacade.findByTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
         for (Token token : unverifiedTokens) {
             Account account = token.getAccount();
-            String fullName = account.getFirstName() + " " + account.getLastName();
             tokenFacade.remove(token);
             accountFacade.remove(account);
             emailService.sendConfirmRegistrationFailEmail(
                 account.getEmail(),
-                fullName,
+                account.getFullName(),
                 account.getLanguage().toString()
             );
         }
@@ -367,18 +371,95 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             long timeLeft = Duration.between(now, token.getExpiresAt()).toMillis();
             if (timeLeft < (properties.getAccountConfirmationTime() / 2.0)) {
 
-                String fullName =
-                    account.getFirstName() + " " + account.getLastName();
                 String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
                 account.setReminded(true);
                 emailService.sendConfirmRegistrationReminderEmail(
                     account.getEmail(),
-                    fullName,
+                    account.getFullName(),
                     actionLink,
                     token.getExpiresAt(),
                     account.getLanguage().toString());
             }
         }
+    }
+
+    /**
+     * Add access level to given account or mark it as active if it already exists.
+     *
+     * @param id          account id
+     * @param accessLevel access level to be added
+     * @param login       login of currently authenticated user
+     * @throws AppBaseException When account was not found or adding access level failed.
+     */
+    @Override
+    public void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException {
+        Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(login, account.getLogin())) {
+            throw new SelfAccessGrantException();
+        }
+
+        account.getAccessLevels()
+            .stream()
+            .filter(al -> al.getLevel() == accessLevel.getLevel())
+            .findFirst()
+            .ifPresentOrElse(al -> {
+                al.setVerified(true);
+                al.setActive(true);
+            }, () -> {
+                accessLevel.setAccount(account);
+                accessLevel.setActive(true);
+                accessLevel.setVerified(true);
+                account.getAccessLevels().add(accessLevel);
+            });
+
+        accountFacade.edit(account);
+
+        emailService.notifyAboutNewAccessLevel(
+            account.getEmail(),
+            account.getFullName(),
+            account.getLanguage().toString(),
+            accessLevel.getLevel());
+    }
+
+    @Override
+    public Account editPersonalData(Account newData, String login) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        if (account.getVersion() != newData.getVersion()) {
+            throw new AppOptimisticLockException();
+        }
+        account.setFirstName(newData.getFirstName());
+        account.setLastName(newData.getLastName());
+        for (AccessLevel accessLevel : account.getAccessLevels()) {
+            if (accessLevel.isActive()) {
+                AccessLevel newAccessLevel =
+                    newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
+                        .findFirst()
+                        .orElseThrow(AccessLevelNotFoundException::new);
+
+                if (accessLevel.getVersion() != newAccessLevel.getVersion()) {
+                    throw new AppOptimisticLockException();
+                }
+
+                switch (accessLevel.getLevel()) {
+                    case OWNER:
+                        OwnerData ownerData = (OwnerData) accessLevel;
+                        OwnerData newOwnerData = (OwnerData) newAccessLevel;
+                        ownerData.setAddress(newOwnerData.getAddress());
+                        break;
+                    case MANAGER:
+                        ManagerData managerData = (ManagerData) accessLevel;
+                        ManagerData newManagerData = (ManagerData) newAccessLevel;
+                        managerData.setAddress(newManagerData.getAddress());
+                        managerData.setLicenseNumber(newManagerData.getLicenseNumber());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        accountFacade.lockAndEdit(account);
+        return account;
     }
 
     @Override
