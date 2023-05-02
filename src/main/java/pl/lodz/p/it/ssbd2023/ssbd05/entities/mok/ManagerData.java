@@ -112,4 +112,10 @@ public class ManagerData extends AccessLevel implements Serializable {
         result = 31 * result + (getLicenseNumber() != null ? getLicenseNumber().hashCode() : 0);
         return result;
     }
+
+    public ManagerData(Address address, String licenseNumber) {
+        super(AccessType.MANAGER);
+        this.address = address;
+        this.licenseNumber = licenseNumber;
+    }
 }

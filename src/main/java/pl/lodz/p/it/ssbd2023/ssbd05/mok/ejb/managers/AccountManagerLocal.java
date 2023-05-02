@@ -1,6 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
 import jakarta.ejb.Local;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -53,6 +54,8 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     void remindToConfirmRegistration(LocalDateTime now);
 
     Account editPersonalDataByAdmin(Account account, String login) throws AppBaseException;
+
+    void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException;
 
     Account editPersonalData(Account account, String login) throws AppBaseException;
 }

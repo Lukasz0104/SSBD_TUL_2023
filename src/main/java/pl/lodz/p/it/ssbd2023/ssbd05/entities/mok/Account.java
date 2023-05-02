@@ -206,4 +206,8 @@ public class Account extends AbstractEntity implements Serializable {
 
         return (hasActiveAccessLevels && active && verified);
     }
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
 }

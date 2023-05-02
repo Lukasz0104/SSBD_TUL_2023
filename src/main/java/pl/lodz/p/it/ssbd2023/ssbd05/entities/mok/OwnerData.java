@@ -91,4 +91,9 @@ public class OwnerData extends AccessLevel implements Serializable {
         result = 31 * result + (getAddress() != null ? getAddress().hashCode() : 0);
         return result;
     }
+
+    public OwnerData(Address address) {
+        super(AccessType.OWNER);
+        this.address = address;
+    }
 }

@@ -12,6 +12,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditOwnPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterAccountDto;
@@ -173,5 +175,13 @@ public class AccountDtoConverter {
         return accounts.stream()
             .map(AccountDtoConverter::createAccountDto)
             .toList();
+    }
+
+    public static AccessLevel createManagerAccessLevelFromDto(AddManagerAccessLevelDto dto) {
+        return new ManagerData(createAddressFromDto(dto.address()), dto.licenseNumber());
+    }
+
+    public static AccessLevel createOwnerAccessLevelFromDto(AddOwnerAccessLevelDto dto) {
+        return new OwnerData((createAddressFromDto(dto.address())));
     }
 }
