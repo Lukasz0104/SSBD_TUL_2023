@@ -404,7 +404,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Token passwordChangeToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(passwordChangeToken);
-        String link = properties.getFrontendUrl() + "/" + passwordChangeToken;
+        String link = properties.getFrontendUrl() + "/" + passwordChangeToken.getToken();
         emailService.forcePasswordChangeEmail(account.getEmail(), account.getFirstName() + " " + account.getLastName(),
             account.getLanguage().toString(), link);
     }
