@@ -5,6 +5,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
@@ -48,6 +49,12 @@ public class AccountFacade extends AbstractFacade<Account> {
     @Override
     public void edit(Account entity) throws AppBaseException {
         super.edit(entity);
+    }
+
+    public void lockAndEdit(Account account) throws AppBaseException {
+        em.lock(account, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+        em.merge(account);
+        em.flush();
     }
 
     @Override

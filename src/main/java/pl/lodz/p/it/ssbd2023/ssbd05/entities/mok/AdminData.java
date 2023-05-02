@@ -20,4 +20,8 @@ public class AdminData extends AccessLevel implements Serializable {
     public AdminData() {
         super(AccessType.ADMIN);
     }
+
+    public AdminData(Long id, Long version) {
+        super(id, version, AccessType.ADMIN);
+    }
 }
