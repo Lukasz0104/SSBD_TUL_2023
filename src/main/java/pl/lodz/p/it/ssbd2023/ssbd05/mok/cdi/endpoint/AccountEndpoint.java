@@ -1,6 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountDto;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditOwnPersonalDataDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromRegisterDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
@@ -35,11 +36,15 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditOwnPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterOwnerDto;
@@ -59,10 +64,10 @@ import java.util.UUID;
 public class AccountEndpoint {
 
     @Inject
-    private AccountManagerLocal accountManager;
+    private Properties properties;
 
     @Inject
-    Properties properties;
+    private AccountManagerLocal accountManager;
 
     @Context
     private SecurityContext securityContext;
@@ -116,7 +121,7 @@ public class AccountEndpoint {
     @Path("/reset-password")
     public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
         try {
-            accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken());
+            accountManager.resetPassword(resetPasswordDto.getPassword(), UUID.fromString(resetPasswordDto.getToken()));
         } catch (AppDatabaseException e) {
             //TODO
         }
@@ -243,7 +248,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("owners")
+    @Path("/owners")
     @RolesAllowed({"ADMIN", "MANAGER"})
     public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
@@ -251,7 +256,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("managers")
+    @Path("/managers")
     @RolesAllowed({"ADMIN"})
     public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
@@ -259,7 +264,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("admins")
+    @Path("/admins")
     @RolesAllowed({"ADMIN"})
     public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
         List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
@@ -267,7 +272,45 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("me")
+    @Path("/force-password-change/{login}")
+    @RolesAllowed({"ADMIN"})
+    public Response forcePasswordChange(@NotBlank @PathParam("login") String login) throws AppBaseException {
+        if (login.equals(securityContext.getUserPrincipal().getName())) {
+            throw new IllegalSelfActionException();
+        }
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
+        do {
+            try {
+                accountManager.forcePasswordChange(login);
+                return Response.noContent().build();
+            } catch (AppDatabaseException ade) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new ForcePasswordChangeDatabaseException();
+    }
+
+    @PUT
+    @Path("/override-forced-password")
+    public Response overrideForcedPassword(@Valid @NotNull ResetPasswordDto resetPasswordDto)
+        throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        int txCounter = 0;
+        do {
+            try {
+                accountManager.overrideForcedPassword(resetPasswordDto.getPassword(),
+                    UUID.fromString(resetPasswordDto.getToken()));
+                return Response.noContent().build();
+            } catch (AppDatabaseException ade) {
+                txCounter++;
+            }
+        } while (txCounter < txLimit);
+        throw new OverrideForcedPasswordDatabaseException();
+    }
+
+    @PUT
+    @Path("/me")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response updatePersonalData(@Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO)
         throws AppBaseException {
@@ -275,5 +318,15 @@ public class AccountEndpoint {
         OwnAccountDto ownAccountDto = AccountDtoConverter.createOwnAccountDto(
             accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login));
         return Response.ok().entity(ownAccountDto).build();
+    }
+
+    @PUT
+    @Path("/admin/edit-other")
+    @RolesAllowed({"ADMIN"})
+    public Response editDetailsByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto) throws AppBaseException {
+        Account account = createAccountFromEditDto(dto);
+        String adminLogin = securityContext.getUserPrincipal().getName();
+        AccountDto accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, adminLogin));
+        return Response.ok().entity(accountDto).build();
     }
 }

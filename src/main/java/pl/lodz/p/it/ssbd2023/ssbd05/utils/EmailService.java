@@ -143,6 +143,19 @@ public class EmailService {
         );
     }
 
+    @Asynchronous
+    public void forcePasswordChangeEmail(String receiver, String name, String language, String link) {
+        this.sendMessageWithLink(receiver, name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_MESSAGE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_ACTION, language),
+            link,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
     /**
      * Sends email with link to action.
      *

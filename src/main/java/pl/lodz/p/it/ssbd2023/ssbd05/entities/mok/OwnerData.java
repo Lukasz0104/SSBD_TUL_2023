@@ -7,6 +7,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +19,7 @@ import java.io.Serializable;
 @Table(name = "owner_data")
 @DiscriminatorValue("OWNER")
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NamedQueries({
     @NamedQuery(
         name = "OwnerData.findOwnerDataByAddressPostalCode",
@@ -62,6 +64,11 @@ public class OwnerData extends AccessLevel implements Serializable {
 
     public OwnerData(Long id, Long version, Address address) {
         super(id, version, AccessType.OWNER);
+        this.address = address;
+    }
+
+    public OwnerData(Long id, Long version, Address address, boolean active) {
+        super(id, version, AccessType.OWNER, active);
         this.address = address;
     }
 

@@ -79,6 +79,13 @@ public class I18n {
     public static String RESET_PASSWORD_EMAIL_MESSAGE_CONTENT = "reset.password.email.message.content";
     public static String RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT = "reset.password.email.message.subject";
     public static String EMAIL_MESSAGE_LAST = "email.message.last";
+    public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_TITLE = "email.message.force-password-change.title";
+    public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_SUBJECT =
+        "email.message.force-password-change.subject";
+    public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_MESSAGE =
+        "email.message.force-password-change.message";
+    public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_ACTION =
+        "email.message.force-password-change.action";
 
     public static final String EXPIRED_TOKEN = "response.message.expired_token";
     public static final String INVALID_TOKEN_TYPE = "response.message.invalid_token_type";
@@ -96,6 +103,11 @@ public class I18n {
     public static final String LANGUAGE_NOT_FOUND = "response.message.language_not_found";
     public static final String LICENSE_NUMBER_ALREADY_TAKEN = "response.message.license-number-already-taken";
     public static final String ACCESS_LEVEL_NOT_FOUND = "response.message.access_level_not_found";
+    public static final String FORCE_PASSWORD_CHANGE_DATABASE_EXCEPTION =
+        "response.message.force_password_change_database_exception";
+    public static final String ILLEGAL_SELF_ACTION = "response.message.illegal_self_action";
+    public static final String OVERRIDE_FORCED_PASSWORD_DATABASE_EXCEPTION =
+        "response.message.override_forced_password_database_exception";
     public static final String ACCESS_MANAGEMENT_SELF = "response.message-access-management-self";
 
     public static final String BAD_REQUEST = "response.message.bad_request";

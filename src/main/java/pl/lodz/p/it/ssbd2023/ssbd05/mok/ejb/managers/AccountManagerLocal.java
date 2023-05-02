@@ -39,6 +39,10 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void changeAccountLanguage(String login, String language) throws AppBaseException;
 
+    void forcePasswordChange(String login) throws AppBaseException;
+
+    void overrideForcedPassword(String password, UUID token) throws AppBaseException;
+
     List<Account> getAllAccounts(boolean active);
 
     List<Account> getOwnerAccounts(boolean active);
@@ -52,6 +56,8 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     void deleteExpiredTokens(LocalDateTime now) throws AppBaseException;
 
     void remindToConfirmRegistration(LocalDateTime now);
+
+    Account editPersonalDataByAdmin(Account account, String login) throws AppBaseException;
 
     void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException;
 

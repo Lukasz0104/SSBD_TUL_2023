@@ -174,6 +174,16 @@ public class Account extends AbstractEntity implements Serializable {
         this.lastName = lastName;
     }
 
+    public Account(Long id, Long version, String email, String firstName, String lastName,
+                   Language language, Set<AccessLevel> accessLevelSet) {
+        super(id, version);
+        this.email = email;
+        this.language = language;
+        this.accessLevels = accessLevelSet;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public void registerUnsuccessfulLogin(String ip) {
         this.activityTracker.setLastUnsuccessfulLogin(LocalDateTime.now());
         this.activityTracker.setLastUnsuccessfulLoginIp(ip);

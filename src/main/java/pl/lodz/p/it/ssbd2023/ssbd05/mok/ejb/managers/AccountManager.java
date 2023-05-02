@@ -22,8 +22,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViol
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessManagementException;
@@ -40,11 +40,14 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 @Stateful
@@ -157,24 +160,24 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status)
         throws AppBaseException {
-
-
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
-
-        if (Objects.equals(managerLogin, account.getLogin())) {
-            throw new IllegalSelfActionException();
-        }
-
         if (account.hasAccessLevel(AccessType.MANAGER) || account.hasAccessLevel(AccessType.ADMIN)) {
             throw new BadAccessLevelException();
         }
+        changeActiveStatus(managerLogin, account, status);
+    }
 
+    private void changeActiveStatus(String adminOrManagerLogin, Account account, boolean status)
+        throws AppBaseException {
+
+        if (Objects.equals(adminOrManagerLogin, account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
         if (account.isActive() == status) {
             return;
         }
 
         account.setActive(status);
-
         try {
             accountFacade.edit(account);
         } catch (AppDatabaseException ade) {
@@ -188,28 +191,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
         throws AppBaseException {
-
-
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
-
-        if (Objects.equals(adminLogin, account.getLogin())) {
-            throw new IllegalSelfActionException();
-        }
-
-        if (account.isActive() == status) {
-            return;
-        }
-
-        account.setActive(status);
-
-        try {
-            accountFacade.edit(account);
-        } catch (AppDatabaseException ade) {
-            throw new ConstraintViolationException(ade.getMessage(), ade);
-        }
-
-        emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
-            account.getLanguage().toString(), status);
+        changeActiveStatus(adminLogin, account, status);
     }
 
     @Override
@@ -429,7 +412,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
         account.setFirstName(newData.getFirstName());
         account.setLastName(newData.getLastName());
-        for (AccessLevel accessLevel : account.getAccessLevels()) {
+        editAccessLevels(newData.getAccessLevels(), newData);
+        accountFacade.lockAndEdit(account);
+        return account;
+    }
+
+    private void editAccessLevels(Set<AccessLevel> accessLevels, Account newData) throws AppBaseException {
+        for (AccessLevel accessLevel : accessLevels) {
             if (accessLevel.isActive()) {
                 AccessLevel newAccessLevel =
                     newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
@@ -441,24 +430,82 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 }
 
                 switch (accessLevel.getLevel()) {
-                    case OWNER:
+                    case OWNER -> {
                         OwnerData ownerData = (OwnerData) accessLevel;
                         OwnerData newOwnerData = (OwnerData) newAccessLevel;
                         ownerData.setAddress(newOwnerData.getAddress());
-                        break;
-                    case MANAGER:
+                    }
+                    case MANAGER -> {
                         ManagerData managerData = (ManagerData) accessLevel;
                         ManagerData newManagerData = (ManagerData) newAccessLevel;
                         managerData.setAddress(newManagerData.getAddress());
                         managerData.setLicenseNumber(newManagerData.getLicenseNumber());
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                    }
                 }
             }
         }
-        accountFacade.lockAndEdit(account);
-        return account;
+    }
+
+    @Override
+    public Account editPersonalDataByAdmin(Account newData, String adminLogin) throws AppBaseException {
+        Account adminAccount = accountFacade.findByLogin(adminLogin).orElseThrow(AccountNotFoundException::new);
+        if (!adminAccount.hasAccessLevel(AccessType.ADMIN)) {
+            throw new BadAccessLevelException();
+        }
+        Account accountOrig = accountFacade.find(newData.getId()).orElseThrow(AccountNotFoundException::new);
+        if (accountOrig.getVersion() != newData.getVersion()) {
+            throw new AppOptimisticLockException();
+        }
+
+        accountOrig.setEmail(newData.getEmail());
+        accountOrig.setFirstName(newData.getFirstName());
+        accountOrig.setLastName(newData.getLastName());
+        accountOrig.setLanguage(newData.getLanguage());
+
+        editAccessLevels(accountOrig.getAccessLevels(), newData);
+        accountFacade.lockAndEdit(accountOrig);
+        return accountOrig;
+    }
+
+    @Override
+    public void forcePasswordChange(String login) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        byte[] array = new byte[28];
+        new Random().nextBytes(array);
+        account.setPassword(hashGenerator.generate(new String(array, StandardCharsets.UTF_8).toCharArray()));
+        if (!account.isActive()) {
+            throw new InactiveAccountException();
+        }
+        if (!account.isVerified()) {
+            throw new UnverifiedAccountException();
+        }
+        account.setActive(false);
+        accountFacade.edit(account);
+
+        List<Token> resetPasswordTokens =
+            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
+        for (Token t : resetPasswordTokens) {
+            tokenFacade.remove(t);
+        }
+
+        Token passwordChangeToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
+        tokenFacade.create(passwordChangeToken);
+        String link = properties.getFrontendUrl() + "/" + passwordChangeToken.getToken();
+        emailService.forcePasswordChangeEmail(account.getEmail(), account.getFirstName() + " " + account.getLastName(),
+            account.getLanguage().toString(), link);
+    }
+
+    @Override
+    public void overrideForcedPassword(String password, UUID token) throws AppBaseException {
+        Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
+        resetPasswordToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
+        Account account = resetPasswordToken.getAccount();
+        tokenFacade.remove(resetPasswordToken);
+        account.setPassword(hashGenerator.generate(password.toCharArray()));
+        account.setActive(true);
+        accountFacade.edit(account);
     }
 
     @Override

@@ -11,7 +11,11 @@ public class Properties {
 
     @Inject
     @ConfigProperty(name = "security.jwt.secret")
-    private String secret;
+    private String jwtSecret;
+
+    @Inject
+    @ConfigProperty(name = "security.jws.secret")
+    private String jwsSecret;
 
     @Inject
     @ConfigProperty(name = "security.jwt.expirationTime", defaultValue = "900000")
