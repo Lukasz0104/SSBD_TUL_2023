@@ -7,6 +7,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -38,7 +39,7 @@ public class AccessLevelEndpoint {
     @PUT
     @RolesAllowed({"ADMIN"})
     @Path("/manager")
-    public void grantManagerAccessLevel(@PathParam("id") Long id, @Valid AddManagerAccessLevelDto dto)
+    public void grantManagerAccessLevel(@PathParam("id") Long id, @NotNull @Valid AddManagerAccessLevelDto dto)
         throws AppBaseException {
         accountManager.grantAccessLevel(
             id, createManagerAccessLevelFromDto(dto),
@@ -48,7 +49,7 @@ public class AccessLevelEndpoint {
     @PUT
     @RolesAllowed({"MANAGER"})
     @Path("/owner")
-    public void grantOwnerAccessLevel(@PathParam("id") Long id, @Valid AddOwnerAccessLevelDto dto)
+    public void grantOwnerAccessLevel(@PathParam("id") Long id, @NotNull @Valid AddOwnerAccessLevelDto dto)
         throws AppBaseException {
         accountManager.grantAccessLevel(
             id, createOwnerAccessLevelFromDto(dto),
