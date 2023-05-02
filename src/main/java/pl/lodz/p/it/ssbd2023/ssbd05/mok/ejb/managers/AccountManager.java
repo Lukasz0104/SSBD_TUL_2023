@@ -404,6 +404,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             account.getEmail(),
             account.getFullName(),
             account.getLanguage().toString(),
-            accessLevel.getLevel().toString());
+            accessLevel.getLevel());
     }
 }
