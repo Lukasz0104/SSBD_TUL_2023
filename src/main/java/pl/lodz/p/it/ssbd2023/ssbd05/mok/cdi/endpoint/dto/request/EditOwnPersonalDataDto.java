@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,11 +21,11 @@ public class EditOwnPersonalDataDto {
     @NotNull
     private List<AccessLevelDto> accessLevels = new ArrayList<>();
 
-    @NotNull
+    @NotBlank
     @Size(min = 1, max = 100)
     private String firstName;
 
-    @NotNull
+    @NotBlank
     @Size(min = 1, max = 100)
     private String lastName;
 }

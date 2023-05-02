@@ -17,8 +17,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -367,19 +367,19 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                         .findFirst()
                         .orElseThrow(AccessLevelNotFoundException::new);
                 switch (accessLevel.getLevel()) {
-                    case OWNER:
+                    case OWNER -> {
                         OwnerData ownerData = (OwnerData) accessLevel;
                         OwnerData newOwnerData = (OwnerData) newAccessLevel;
                         ownerData.setAddress(newOwnerData.getAddress());
-                        break;
-                    case MANAGER:
+                    }
+                    case MANAGER -> {
                         ManagerData managerData = (ManagerData) accessLevel;
                         ManagerData newManagerData = (ManagerData) newAccessLevel;
                         managerData.setAddress(newManagerData.getAddress());
                         managerData.setLicenseNumber(newManagerData.getLicenseNumber());
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                    }
                 }
             }
         }
