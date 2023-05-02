@@ -12,4 +12,8 @@ public class ConstraintViolationException extends AppConflictException {
     public ConstraintViolationException() {
         super(I18n.CONSTRAINT_VIOLATION);
     }
+
+    public ConstraintViolationException(String message) {
+        super(message);
+    }
 }

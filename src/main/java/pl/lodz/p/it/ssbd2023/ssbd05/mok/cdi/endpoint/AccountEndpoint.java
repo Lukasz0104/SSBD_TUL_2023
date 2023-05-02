@@ -33,7 +33,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppInternalServerErrorException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
@@ -272,16 +271,8 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response updatePersonalData(@Valid EditOwnPersonalDataDto editOwnPersonalDataDTO) throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
-        do {
-            try {
-                accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login);
-                return Response.status(Response.Status.NO_CONTENT).build();
-            } catch (AppDatabaseException ade) {
-                txCounter++;
-            }
-        } while (txCounter < txLimit);
-        throw new AppInternalServerErrorException();
+        OwnAccountDto ownAccountDto = AccountDtoConverter.createOwnAccountDto(
+            accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login));
+        return Response.ok().entity(ownAccountDto).build();
     }
 }

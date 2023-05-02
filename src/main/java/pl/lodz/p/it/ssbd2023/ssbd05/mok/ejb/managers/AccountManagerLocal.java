@@ -50,5 +50,5 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void remindToConfirmRegistration(LocalDateTime now);
 
-    void editPersonalData(Account account, String login) throws AppBaseException;
+    Account editPersonalData(Account account, String login) throws AppBaseException;
 }

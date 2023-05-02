@@ -20,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundExc
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
@@ -374,8 +375,11 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void editPersonalData(Account newData, String login) throws AppBaseException {
+    public Account editPersonalData(Account newData, String login) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        if (account.getVersion() != newData.getVersion()) {
+            throw new AppOptimisticLockException();
+        }
         account.setFirstName(newData.getFirstName());
         account.setLastName(newData.getLastName());
         for (AccessLevel accessLevel : account.getAccessLevels()) {
@@ -384,6 +388,11 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                     newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
                         .findFirst()
                         .orElseThrow(AccessLevelNotFoundException::new);
+
+                if (accessLevel.getVersion() != newAccessLevel.getVersion()) {
+                    throw new AppOptimisticLockException();
+                }
+
                 switch (accessLevel.getLevel()) {
                     case OWNER:
                         OwnerData ownerData = (OwnerData) accessLevel;
@@ -402,5 +411,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             }
         }
         accountFacade.edit(account);
+        return account;
     }
 }

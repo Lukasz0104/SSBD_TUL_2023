@@ -1,12 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.shared;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,30 +20,18 @@ public abstract class AbstractFacade<T> {
     protected abstract EntityManager getEntityManager();
 
     protected void create(T entity) throws AppBaseException {
-        try {
-            getEntityManager().persist(entity);
-            getEntityManager().flush();
-        } catch (PersistenceException pe) {
-            throw new AppDatabaseException("", pe); // TODO
-        }
+        getEntityManager().persist(entity);
+        getEntityManager().flush();
     }
 
     protected void edit(T entity) throws AppBaseException {
-        try {
-            getEntityManager().merge(entity);
-            getEntityManager().flush();
-        } catch (PersistenceException pe) {
-            throw new AppDatabaseException(pe);
-        }
+        getEntityManager().merge(entity);
+        getEntityManager().flush();
     }
 
     protected void remove(T entity) throws AppBaseException {
-        try {
-            getEntityManager().remove(getEntityManager().merge(entity));
-            getEntityManager().flush();
-        } catch (PersistenceException pe) {
-            throw new AppDatabaseException(pe);
-        }
+        getEntityManager().remove(getEntityManager().merge(entity));
+        getEntityManager().flush();
     }
 
     public Optional<T> find(Object id) {

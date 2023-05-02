@@ -56,7 +56,16 @@ public class AccountDtoConverter {
     }
 
     public static OwnAccountDto createOwnAccountDto(Account account) {
-        return createAccountDto(account);
+        return new OwnAccountDto(
+            account.getId(),
+            account.getVersion(),
+            createAccessLevelDtoSet(account.getAccessLevels()),
+            account.getEmail(),
+            account.getLogin(),
+            account.getFirstName(),
+            account.getLastName(),
+            account.getLanguage().toString()
+        );
     }
 
     public static AccountDto createAccountDto(Account account) {
