@@ -410,7 +410,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 }
             }
         }
-        accountFacade.edit(account);
+        accountFacade.lockAndEdit(account);
         return account;
     }
 }
