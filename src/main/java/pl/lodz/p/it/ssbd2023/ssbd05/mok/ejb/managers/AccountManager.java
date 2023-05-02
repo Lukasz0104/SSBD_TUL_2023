@@ -373,14 +373,14 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
      *
      * @param id          account id
      * @param accessLevel access level to be added
-     * @param username    username of currently authenticated user
+     * @param login       login of currently authenticated user
      * @throws AppBaseException When account was not found or adding access level failed.
      */
     @Override
-    public void grantAccessLevel(Long id, AccessLevel accessLevel, String username) throws AppBaseException {
+    public void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException {
         Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
 
-        if (Objects.equals(username, account.getLogin())) {
+        if (Objects.equals(login, account.getLogin())) {
             throw new SelfAccessGrantException();
         }
 
