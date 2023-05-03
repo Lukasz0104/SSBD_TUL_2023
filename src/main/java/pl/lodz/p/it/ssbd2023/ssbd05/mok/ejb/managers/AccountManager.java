@@ -26,7 +26,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessGrantException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessManagementException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
@@ -45,6 +45,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -377,7 +378,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
 
         if (Objects.equals(login, account.getLogin())) {
-            throw new SelfAccessGrantException();
+            throw new SelfAccessManagementException();
         }
 
         account.getAccessLevels()
@@ -505,5 +506,31 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setPassword(hashGenerator.generate(password.toCharArray()));
         account.setActive(true);
         accountFacade.edit(account);
+    }
+
+    @Override
+    public void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException {
+        Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
+
+        if (Objects.equals(login, account.getLogin())) {
+            throw new SelfAccessManagementException();
+        }
+
+        Optional<AccessLevel> accessLevel = account.getAccessLevels()
+            .stream()
+            .filter(al -> al.isVerified() && al.isActive() && al.getLevel() == accessType)
+            .findFirst();
+
+        if (accessLevel.isPresent()) {
+            accessLevel.get().setActive(false);
+            accountFacade.edit(account);
+
+            emailService.notifyAboutRevokedAccessLevel(
+                account.getEmail(),
+                account.getFullName(),
+                account.getLanguage().toString(),
+                accessType
+            );
+        }
     }
 }
