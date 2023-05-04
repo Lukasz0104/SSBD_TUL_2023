@@ -3,32 +3,47 @@
         <div class="row d-flex justify-content-center">
             <div class="col-12 col-md-8 col-lg-6">
                 <div class="card bg-white">
-                    <div class="card-body p-5">
-                        <form class="mb-3 mt-md-4" (submit)="onSubmit()"
+                    <div class="card-body p-5 bg-light">
+                        <form class="mb-3 md-4"
+                              (submit)="onSubmit()"
                               [formGroup]="loginForm">
                             <h2 class="fw-bold mb-2 text-uppercase ">eBok</h2>
-                            <p class=" mb-5">Please enter your login and password!</p>
+                            <p i18n
+                               class="mb-5">Please enter your login and password!</p>
                             <div class="mb-3">
-                                <label for="login" class="form-label ">Login</label>
-                                <input type="text" class="form-control" id="login" placeholder="Login"
+                                <label for="login"
+                                       class="form-label ">Login</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="login"
                                        formControlName="login">
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" placeholder="*******"
+                                <label i18n
+                                       for="password"
+                                       class="form-label">Password</label>
+                                <input i18n
+                                       type="password"
+                                       class="form-control"
+                                       id="password"
                                        formControlName="password">
                             </div>
-                            <p class="small"><a class="text-primary" href="#">Forgot password?</a>
+                            <p i18n
+                               class="small text-center"><a class="text-primary"
+                                                            href="#">Forgot password?</a>
                             </p>
-                            <div class="d-grid">
-                                <button class="btn btn-outline-dark"
+                            <div i18n
+                                 class="d-grid">
+                                <button class="btn btn-primary"
                                         type="submit">Login
                                 </button>
                             </div>
                         </form>
                         <div>
-                            <p class="mb-0  text-center">Don't have an account? <a href="signup.html"
-                                                                                   class="text-primary fw-bold">Sign
+                            <p i18n
+                               class="mb-0  text-center">Don't have an account? <a
+                                href="signup.html"
+                                class="text-primary fw-bold">Sign
                                 Up</a></p>
                         </div>
                     </div>

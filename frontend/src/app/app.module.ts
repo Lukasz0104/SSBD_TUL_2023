@@ -5,12 +5,19 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
+import { JwtInterceptor } from './interceptors/jwt.interceptor';
 
 @NgModule({
-    declarations: [AppComponent, LoginComponent, DashboardComponent],
+    declarations: [
+        AppComponent,
+        LoginComponent,
+        DashboardComponent,
+        ChooseAccessLevelComponent,
+    ],
     imports: [
         BrowserModule,
         AppRoutingModule,
@@ -18,7 +25,9 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
         HttpClientModule,
         ReactiveFormsModule,
     ],
-    providers: [],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    ],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -1,0 +1,24 @@
+<div class="modal-header">
+    <h4 class="modal-title"
+        id="modal-basic-title">Choose access level</h4>
+    <button type="button"
+            class="btn-close"
+            (click)="activeModal.dismiss('Cross click')">
+    </button>
+</div>
+
+<div>
+    <div class="p-4 d-flex justify-content-around">
+        <div *ngFor="let group of groups">
+            <div class="p-3 btn"
+                 [ngClass]="{
+                 'btn-primary' : group === 'MANAGER',
+                 'btn-danger' : group === 'ADMIN',
+                 'btn-success' : group === 'OWNER'}"
+                 (click)="onClick(group)">
+                {{group}}
+            </div>
+        </div>
+    </div>
+</div>
+

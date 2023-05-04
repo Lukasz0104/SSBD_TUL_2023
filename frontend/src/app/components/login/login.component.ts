@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ChooseAccessLevelComponent } from '../modals/choose-access-level/choose-access-level.component';
+import { AccessLevel } from '../../model/access-level';
 
 @Component({
     selector: 'app-login',
@@ -14,32 +17,56 @@ export class LoginComponent {
         password: new FormControl('', [Validators.required]),
     });
 
-    constructor(private authService: AuthService, private router: Router) {}
+    constructor(
+        private authService: AuthService,
+        private router: Router,
+        private modalService: NgbModal
+    ) {}
 
     onSubmit() {
         if (this.loginForm.valid) {
             const username = this.loginForm.getRawValue().login ?? '';
             const password = this.loginForm.getRawValue().password ?? '';
 
-            this.authService
-                .login(username.toString(), password.toString())
-                .subscribe(
-                    (result) => {
-                        if (result.status == 200) {
-                            this.authService.saveUserData(result);
-                            this.authService.authenticated.next(true);
+            this.authService.login(username, password).subscribe(
+                (result) => {
+                    if (result.status == 200) {
+                        const groupsFromJwt = this.authService.getGroupsFromJwt(
+                            result.body?.jwt
+                        );
+                        if (groupsFromJwt.length > 1) {
+                            const modalRef = this.modalService.open(
+                                ChooseAccessLevelComponent
+                            );
+                            modalRef.componentInstance.groups = groupsFromJwt;
+                            modalRef.result.then((choice) => {
+                                this.notifyServiceAboutLogin(result, choice);
+                                this.router.navigate(['/dashboard']);
+                            });
+                        } else {
+                            this.notifyServiceAboutLogin(
+                                result,
+                                groupsFromJwt[0]
+                            );
                             this.router.navigate(['/dashboard']);
                         }
-                    },
-                    () => {
-                        this.authService.authenticated.next(false);
-                        this.clearPassword();
                     }
-                );
+                },
+                () => {
+                    this.authService.setAuthenticated(false);
+                    this.clearPassword();
+                }
+            );
         }
     }
 
     clearPassword() {
         this.loginForm.get('password')?.reset();
+    }
+
+    notifyServiceAboutLogin(userData: any, group: AccessLevel) {
+        this.authService.saveUserData(userData);
+        this.authService.setAuthenticated(true);
+        this.authService.setCurrentGroup(group);
     }
 }
