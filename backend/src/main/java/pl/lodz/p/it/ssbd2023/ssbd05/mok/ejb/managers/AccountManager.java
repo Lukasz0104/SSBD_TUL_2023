@@ -18,7 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
@@ -238,24 +238,16 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
-        if (!account.isVerified()) {
-            throw new UnverifiedAccountException();
-        }
-        if (!account.isActive()) {
-            throw new InactiveAccountException();
-        }
-
         // check if old password is correct
         if (!hashGenerator.verify(oldPass.toCharArray(), account.getPassword())) {
             throw new InvalidPasswordException();
+        } else if (hashGenerator.verify(newPass.toCharArray(), account.getPassword())) {
+            // check if new password is same as old password
+            throw new RepeatedPasswordException();
         }
 
-        try {
-            account.setPassword(hashGenerator.generate(newPass.toCharArray()));
-            accountFacade.edit(account);
-        } catch (AppDatabaseException e) {
-            throw new PasswordConstraintViolationException();
-        }
+        account.setPassword(hashGenerator.generate(newPass.toCharArray()));
+        accountFacade.edit(account);
     }
 
 

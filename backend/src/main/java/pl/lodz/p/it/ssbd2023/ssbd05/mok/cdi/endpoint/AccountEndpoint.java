@@ -35,7 +35,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
@@ -138,16 +137,8 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
 
-        if (dto.getOldPassword().equals(dto.getNewPassword())) {
-            throw new RepeatedPasswordException();
-        }
-
-        try {
-            String login = securityContext.getUserPrincipal().getName();
-            accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
-        } catch (AppDatabaseException appDatabaseException) {
-            // TODO: repeat transaction
-        }
+        String login = securityContext.getUserPrincipal().getName();
+        accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
 
         return Response.noContent().build();
     }
