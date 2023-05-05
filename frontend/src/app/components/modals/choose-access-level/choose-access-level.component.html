@@ -13,8 +13,8 @@
             <div class="p-3 btn"
                  [ngClass]="{
                  'btn-primary' : group === 'MANAGER',
-                 'btn-danger' : group === 'ADMIN',
-                 'btn-success' : group === 'OWNER'}"
+                 'btn-secondary' : group === 'ADMIN',
+                 'btn-warning' : group === 'OWNER'}"
                  (click)="onClick(group)">
                 {{group}}
             </div>

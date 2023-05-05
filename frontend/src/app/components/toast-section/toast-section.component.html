@@ -1,0 +1,10 @@
+<section class="toast-container">
+    <ngb-toast
+        *ngFor="let toast of toastService.toasts"
+        [autohide]="true"
+        [delay]="toast.delay || 5000"
+        (hidden)="toastService.remove(toast)"
+        [class]="toast.className">
+        {{toast.body}}
+    </ngb-toast>
+</section>

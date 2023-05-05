@@ -35,7 +35,14 @@
                             <div i18n
                                  class="d-grid">
                                 <button class="btn btn-primary"
-                                        type="submit">Login
+                                        type="submit">
+                                    <ng-container *ngIf="loading; else loginButton">
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            role="status">
+                                        </span>
+                                    </ng-container>
+                                    <ng-template #loginButton>Login</ng-template>
                                 </button>
                             </div>
                         </form>

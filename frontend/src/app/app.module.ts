@@ -10,8 +10,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
-import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastSectionComponent } from './components/toast-section/toast-section.component';
 
 @NgModule({
     declarations: [
@@ -19,6 +19,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         LoginComponent,
         DashboardComponent,
         ChooseAccessLevelComponent,
+        ToastSectionComponent,
     ],
     imports: [
         BrowserModule,
@@ -26,7 +27,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         NgbModule,
         HttpClientModule,
         ReactiveFormsModule,
-        ToastrModule.forRoot(),
         BrowserAnimationsModule,
     ],
     providers: [

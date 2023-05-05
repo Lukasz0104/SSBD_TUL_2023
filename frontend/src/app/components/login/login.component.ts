@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ChooseAccessLevelComponent } from '../modals/choose-access-level/choose-access-level.component';
 import { AccessLevel } from '../../model/access-level';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-login',
@@ -18,21 +18,26 @@ export class LoginComponent {
         password: new FormControl('', [Validators.required]),
     });
 
+    loading = false;
+
     constructor(
         private authService: AuthService,
         private router: Router,
         private modalService: NgbModal,
-        private toastr: ToastrService
+        private toastService: ToastService
     ) {}
 
     onSubmit() {
         if (this.loginForm.valid) {
+            this.loading = true;
             const username = this.loginForm.getRawValue().login ?? '';
             const password = this.loginForm.getRawValue().password ?? '';
 
             this.authService.login(username, password).subscribe(
                 (result) => {
                     if (result.status == 200) {
+                        this.loading = false;
+                        this.toastService.showSuccess('Login successful!');
                         const groupsFromJwt = this.authService.getGroupsFromJwt(
                             result.body?.jwt
                         );
@@ -69,7 +74,8 @@ export class LoginComponent {
                     }
                 },
                 (error) => {
-                    this.toastr.error(error.error.message);
+                    this.loading = false;
+                    this.toastService.showDanger('Failed to login.');
                     this.authService.setAuthenticated(false);
                     this.clearPassword();
                 }
