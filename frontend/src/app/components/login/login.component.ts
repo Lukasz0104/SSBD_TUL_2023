@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ChooseAccessLevelComponent } from '../modals/choose-access-level/choose-access-level.component';
 import { AccessLevel } from '../../model/access-level';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-login',
@@ -20,7 +21,8 @@ export class LoginComponent {
     constructor(
         private authService: AuthService,
         private router: Router,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private toastr: ToastrService
     ) {}
 
     onSubmit() {
@@ -36,13 +38,27 @@ export class LoginComponent {
                         );
                         if (groupsFromJwt.length > 1) {
                             const modalRef = this.modalService.open(
-                                ChooseAccessLevelComponent
+                                ChooseAccessLevelComponent,
+                                {
+                                    centered: true,
+                                }
                             );
                             modalRef.componentInstance.groups = groupsFromJwt;
-                            modalRef.result.then((choice) => {
-                                this.notifyServiceAboutLogin(result, choice);
-                                this.router.navigate(['/dashboard']);
-                            });
+                            modalRef.result
+                                .then((choice) => {
+                                    this.notifyServiceAboutLogin(
+                                        result,
+                                        choice
+                                    );
+                                    this.router.navigate(['/dashboard']);
+                                })
+                                .catch(() => {
+                                    this.notifyServiceAboutLogin(
+                                        result,
+                                        groupsFromJwt[0]
+                                    );
+                                    this.router.navigate(['/dashboard']);
+                                });
                         } else {
                             this.notifyServiceAboutLogin(
                                 result,
@@ -52,7 +68,8 @@ export class LoginComponent {
                         }
                     }
                 },
-                () => {
+                (error) => {
+                    this.toastr.error(error.error.message);
                     this.authService.setAuthenticated(false);
                     this.clearPassword();
                 }
