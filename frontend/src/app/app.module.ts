@@ -12,6 +12,7 @@ import { ChooseAccessLevelComponent } from './components/modals/choose-access-le
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastSectionComponent } from './components/toast-section/toast-section.component';
+import { RefreshSessionComponent } from './components/modals/refresh-session/refresh-session.component';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { ToastSectionComponent } from './components/toast-section/toast-section.
         LoginComponent,
         DashboardComponent,
         ChooseAccessLevelComponent,
-        ToastSectionComponent
+        ToastSectionComponent,
+        RefreshSessionComponent
     ],
     imports: [
         BrowserModule,

@@ -37,7 +37,6 @@ export class LoginComponent {
                 (result) => {
                     if (result.status == 200) {
                         this.loading = false;
-                        this.toastService.showSuccess('Login successful!');
                         const groupsFromJwt = this.authService.getGroupsFromJwt(
                             result.body?.jwt
                         );
@@ -73,7 +72,7 @@ export class LoginComponent {
                         }
                     }
                 },
-                (error) => {
+                () => {
                     this.loading = false;
                     this.toastService.showDanger('Failed to login.');
                     this.authService.setAuthenticated(false);
@@ -91,5 +90,6 @@ export class LoginComponent {
         this.authService.saveUserData(userData);
         this.authService.setAuthenticated(true);
         this.authService.setCurrentGroup(group);
+        this.authService.scheduleRefreshSessionPopUp();
     }
 }

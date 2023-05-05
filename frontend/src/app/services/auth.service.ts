@@ -5,6 +5,8 @@ import { BehaviorSubject } from 'rxjs';
 import { LoginResponse } from '../model/login-response';
 import jwtDecode from 'jwt-decode';
 import { AccessLevel } from '../model/access-level';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { RefreshSessionComponent } from '../components/modals/refresh-session/refresh-session.component';
 
 @Injectable({
     providedIn: 'root'
@@ -13,7 +15,7 @@ export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);
     private currentGroup = new BehaviorSubject<AccessLevel>(AccessLevel.NONE);
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private modalService: NgbModal) {
         const jwt = localStorage.getItem('jwt');
         if (jwt != null) {
             const expires = this.getDecodedJwtToken(jwt).exp;
@@ -28,13 +30,14 @@ export class AuthService {
                         localStorage.getItem('currentGroup') ?? ''
                     ]
                 );
+                this.scheduleRefreshSessionPopUp();
             }
         }
         window.addEventListener(
             'storage',
             (event) => {
                 if (event.storageArea == localStorage) {
-                    const token = localStorage.getItem('jwt');
+                    const token = this.getJwt();
                     if (token == undefined) {
                         window.location.href = '/login';
                         this.clearUserData();
@@ -53,10 +56,45 @@ export class AuthService {
         );
     }
 
+    refreshToken() {
+        return this.http.post<LoginResponse>(
+            `${environment.apiUrl}/refresh`,
+            { login: this.getLogin(), refreshToken: this.getRefreshToken() },
+            { observe: 'response' }
+        );
+    }
+
+    scheduleRefreshSessionPopUp() {
+        const decodedJwtToken = this.getDecodedJwtToken(this.getJwt());
+        const millisBeforeJwtExpires = decodedJwtToken.exp * 1000 - Date.now();
+        setTimeout(() => {
+            this.modalService
+                .open(RefreshSessionComponent)
+                .result.then((refresh) => {
+                    if (refresh) {
+                        this.refreshToken().subscribe(
+                            (result) => {
+                                this.saveUserData(result);
+                                this.scheduleRefreshSessionPopUp();
+                            },
+                            () => {
+                                this.setAuthenticated(false);
+                                this.clearUserData();
+                            }
+                        );
+                    }
+                })
+                .catch(() => {
+                    console.log('Popup closed, session ending soon..');
+                });
+        }, millisBeforeJwtExpires * 0.9);
+    }
+
     saveUserData(result: any) {
         const tokenInfo = this.getDecodedJwtToken(result.body.jwt);
-        localStorage.setItem('login', tokenInfo.sub);
-        localStorage.setItem('jwt', result.body.jwt);
+        this.setLogin(tokenInfo.sub);
+        this.setJwt(result.body.jwt);
+        this.setRefreshToken(result.body.refreshToken);
     }
 
     getGroups(): AccessLevel[] {
@@ -82,6 +120,22 @@ export class AuthService {
 
     getJwt(): string {
         return localStorage.getItem('jwt') ?? '';
+    }
+
+    getRefreshToken(): string {
+        return localStorage.getItem('refreshToken') ?? '';
+    }
+
+    setLogin(login: string) {
+        localStorage.setItem('login', login);
+    }
+
+    setJwt(jwt: string) {
+        localStorage.setItem('jwt', jwt);
+    }
+
+    setRefreshToken(refreshToken: string) {
+        localStorage.setItem('refreshToken', refreshToken);
     }
 
     getDecodedJwtToken(token: string): any {
