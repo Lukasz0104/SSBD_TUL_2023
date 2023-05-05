@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.RequestScoped;
@@ -116,6 +117,7 @@ public class AuthEndpoint {
 
     @DELETE
     @Path("/logout")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     @Consumes(MediaType.APPLICATION_JSON)
     public Response logout(@NotNull @org.hibernate.validator.constraints.UUID @QueryParam("token") String token)
         throws AppBaseException {
