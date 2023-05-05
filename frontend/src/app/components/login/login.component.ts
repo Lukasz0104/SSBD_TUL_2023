@@ -10,12 +10,12 @@ import { ToastService } from '../../services/toast.service';
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css'],
+    styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
     loginForm = new FormGroup({
         login: new FormControl('', [Validators.required]),
-        password: new FormControl('', [Validators.required]),
+        password: new FormControl('', [Validators.required])
     });
 
     loading = false;
@@ -45,7 +45,7 @@ export class LoginComponent {
                             const modalRef = this.modalService.open(
                                 ChooseAccessLevelComponent,
                                 {
-                                    centered: true,
+                                    centered: true
                                 }
                             );
                             modalRef.componentInstance.groups = groupsFromJwt;

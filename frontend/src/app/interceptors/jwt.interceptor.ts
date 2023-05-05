@@ -3,7 +3,7 @@ import {
     HttpEvent,
     HttpHandler,
     HttpInterceptor,
-    HttpRequest,
+    HttpRequest
 } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
@@ -24,8 +24,8 @@ export class JwtInterceptor implements HttpInterceptor {
         ) {
             const cloned = request.clone({
                 setHeaders: {
-                    Authorization: `Bearer ${this.authService.getJwt()}`,
-                },
+                    Authorization: `Bearer ${this.authService.getJwt()}`
+                }
             });
             return next.handle(cloned).pipe(
                 catchError((err) => {

@@ -7,7 +7,7 @@ import jwtDecode from 'jwt-decode';
 import { AccessLevel } from '../model/access-level';
 
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
 export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);

@@ -19,7 +19,7 @@ import { ToastSectionComponent } from './components/toast-section/toast-section.
         LoginComponent,
         DashboardComponent,
         ChooseAccessLevelComponent,
-        ToastSectionComponent,
+        ToastSectionComponent
     ],
     imports: [
         BrowserModule,
@@ -27,11 +27,11 @@ import { ToastSectionComponent } from './components/toast-section/toast-section.
         NgbModule,
         HttpClientModule,
         ReactiveFormsModule,
-        BrowserAnimationsModule,
+        BrowserAnimationsModule
     ],
     providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
     ],
-    bootstrap: [AppComponent],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}

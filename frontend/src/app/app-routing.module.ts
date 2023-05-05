@@ -8,20 +8,20 @@ const routes: Routes = [
         path: 'login',
         component: LoginComponent,
         data: {
-            title: 'Sign in',
-        },
+            title: 'Sign in'
+        }
     },
     {
         path: 'dashboard',
         component: DashboardComponent,
         data: {
-            title: 'Dashboard',
-        },
-    },
+            title: 'Dashboard'
+        }
+    }
 ];
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule],
+    exports: [RouterModule]
 })
 export class AppRoutingModule {}

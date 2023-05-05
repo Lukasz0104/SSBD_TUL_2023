@@ -4,54 +4,81 @@
             <div class="col-12 col-md-8 col-lg-6">
                 <div class="card border bg-white rounded-5 shadow-lg">
                     <div class="card-body p-5 bg-light rounded-5">
-                        <form class="mb-3 md-4"
-                              (submit)="onSubmit()"
-                              [formGroup]="loginForm">
-                            <h2 class="fw-bold mb-2 text-uppercase ">eBok</h2>
-                            <p i18n
-                               class="mb-5">Please enter your login and password!</p>
-                            <div class="mb-3">
-                                <label for="login"
-                                       class="form-label ">Login</label>
-                                <input type="text"
-                                       class="form-control"
-                                       id="login"
-                                       formControlName="login">
-                            </div>
-                            <div class="mb-3">
-                                <label i18n
-                                       for="password"
-                                       class="form-label">Password</label>
-                                <input i18n
-                                       type="password"
-                                       class="form-control"
-                                       id="password"
-                                       formControlName="password">
-                            </div>
-                            <p i18n
-                               class="small text-center"><a class="text-primary"
-                                                            href="#">Forgot password?</a>
+                        <form
+                            (submit)="onSubmit()"
+                            [formGroup]="loginForm"
+                            class="mb-3 md-4">
+                            <h2 class="fw-bold mb-2 text-uppercase">eBok</h2>
+                            <p
+                                class="mb-5"
+                                i18n>
+                                Please enter your login and password!
                             </p>
-                            <div i18n
-                                 class="d-grid">
-                                <button class="btn btn-primary"
-                                        type="submit">
-                                    <ng-container *ngIf="loading; else loginButton">
+                            <div class="mb-3">
+                                <label
+                                    class="form-label"
+                                    for="login"
+                                    >Login</label
+                                >
+                                <input
+                                    class="form-control"
+                                    formControlName="login"
+                                    id="login"
+                                    type="text" />
+                            </div>
+                            <div class="mb-3">
+                                <label
+                                    class="form-label"
+                                    for="password"
+                                    i18n
+                                    >Password</label
+                                >
+                                <input
+                                    class="form-control"
+                                    formControlName="password"
+                                    i18n
+                                    id="password"
+                                    type="password" />
+                            </div>
+                            <p
+                                class="small text-center"
+                                i18n>
+                                <a
+                                    class="text-primary"
+                                    href="#"
+                                    >Forgot password?</a
+                                >
+                            </p>
+                            <div
+                                class="d-grid"
+                                i18n>
+                                <button
+                                    class="btn btn-primary"
+                                    type="submit">
+                                    <ng-container
+                                        *ngIf="loading; else loginButton">
                                         <span
                                             class="spinner-border spinner-border-sm"
                                             role="status">
                                         </span>
                                     </ng-container>
-                                    <ng-template #loginButton>Login</ng-template>
+                                    <ng-template #loginButton
+                                        >Login</ng-template
+                                    >
                                 </button>
                             </div>
                         </form>
                         <div>
-                            <p i18n
-                               class="mb-0  text-center">Don't have an account? <a
-                                href="#"
-                                class="text-primary fw-bold">Sign
-                                Up</a></p>
+                            <p
+                                class="mb-0 text-center"
+                                i18n>
+                                Don't have an account?
+                                <a
+                                    class="text-primary fw-bold"
+                                    href="#"
+                                    >Sign Up</a
+                                >
+                            </p>
                         </div>
                     </div>
                 </div>
