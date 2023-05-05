@@ -87,9 +87,13 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         if (account.isAbleToAuthenticate()) {
             account.registerUnsuccessfulLogin(ip);
             if (account.getActivityTracker().getUnsuccessfulLoginChainCounter()
-                > properties.getUnsuccessfulLoginChainLimit()) {
+                >= properties.getUnsuccessfulLoginChainLimit()) {
                 account.setActive(false);
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
+
+                Token blockedAccountToken = new Token(account, TokenType.BLOCKED_ACCOUNT_TOKEN);
+                tokenFacade.create(blockedAccountToken);
+
                 accountFacade.edit(account);
                 emailService.notifyBlockedAccIncorrectLoginLimit(
                     account.getEmail(), account.getFullName(), account.getLanguage().toString());
