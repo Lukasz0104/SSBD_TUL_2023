@@ -53,6 +53,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessTypeDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
@@ -68,6 +69,9 @@ public class AccountEndpoint {
 
     @Inject
     private AccountManagerLocal accountManager;
+
+    @Inject
+    private JwsProvider jwsProvider;
 
     @Context
     private SecurityContext securityContext;
@@ -192,18 +196,22 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("/me/details")
+    @Path("/me")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public OwnAccountDto getOwnAccountDetails() throws AppBaseException {
+    public Response getOwnAccountDetails() throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        return createOwnAccountDto(accountManager.getAccountDetails(login));
+        OwnAccountDto dto = createOwnAccountDto(accountManager.getAccountDetails(login));
+        String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
+        return Response.ok().entity(dto).tag(ifMatch).build();
     }
 
     @GET
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public AccountDto getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
-        return createAccountDto(accountManager.getAccountDetails(id));
+    public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
+        AccountDto dto = createAccountDto(accountManager.getAccountDetails(id));
+        String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
+        return Response.ok().entity(dto).tag(ifMatch).build();
     }
 
     @PUT
