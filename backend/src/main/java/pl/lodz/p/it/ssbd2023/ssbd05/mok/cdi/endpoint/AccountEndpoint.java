@@ -34,8 +34,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
@@ -75,7 +77,7 @@ public class AccountEndpoint {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/owner")
-    public Response registerOwner(@Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
+    public Response registerOwner(@NotNull @Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
         Account account = createAccountFromRegisterDto(registerOwnerDto);
         Address address = createAddressFromDto(registerOwnerDto.getAddress());
         AccessLevel accessLevel = new OwnerData(account, address);
@@ -89,7 +91,7 @@ public class AccountEndpoint {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/manager")
-    public Response registerManager(@Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
+    public Response registerManager(@NotNull @Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
         Account account = createAccountFromRegisterDto(registerManagerDto);
         Address address = createAddressFromDto(registerManagerDto.getAddress());
 
@@ -104,7 +106,25 @@ public class AccountEndpoint {
     @POST
     @Path("/confirm-registration")
     public Response confirmRegistration(@NotNull @QueryParam("token") UUID token) throws AppBaseException {
-        accountManager.confirmRegistration(token);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+        do {
+            try {
+                accountManager.confirmRegistration(token);
+                rollbackTx = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTx = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
@@ -123,7 +143,7 @@ public class AccountEndpoint {
         try {
             accountManager.resetPassword(resetPasswordDto.getPassword(), UUID.fromString(resetPasswordDto.getToken()));
         } catch (AppDatabaseException e) {
-            //TODO
+            // TODO
         }
         return Response.noContent().build();
     }
