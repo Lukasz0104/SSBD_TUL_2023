@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -381,13 +382,25 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new SelfAccessManagementException();
         }
 
+        AtomicBoolean wasActive = new AtomicBoolean(false);
+
         account.getAccessLevels()
             .stream()
             .filter(al -> al.getLevel() == accessLevel.getLevel())
             .findFirst()
             .ifPresentOrElse(al -> {
+                wasActive.set(al.isActive());
+
                 al.setVerified(true);
                 al.setActive(true);
+
+                if (accessLevel instanceof OwnerData ownerData) {
+                    ((OwnerData) al).setAddress(ownerData.getAddress());
+                } else if (accessLevel instanceof ManagerData managerData) {
+                    ManagerData md = (ManagerData) al;
+                    md.setLicenseNumber(managerData.getLicenseNumber());
+                    md.setAddress(managerData.getAddress());
+                }
             }, () -> {
                 accessLevel.setAccount(account);
                 accessLevel.setActive(true);
@@ -397,11 +410,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         accountFacade.edit(account);
 
-        emailService.notifyAboutNewAccessLevel(
-            account.getEmail(),
-            account.getFullName(),
-            account.getLanguage().toString(),
-            accessLevel.getLevel());
+        if (!wasActive.get()) {
+            emailService.notifyAboutNewAccessLevel(
+                account.getEmail(),
+                account.getFullName(),
+                account.getLanguage().toString(),
+                accessLevel.getLevel());
+        }
     }
 
     @Override
@@ -518,7 +533,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Optional<AccessLevel> accessLevel = account.getAccessLevels()
             .stream()
-            .filter(al -> al.isVerified() && al.isActive() && al.getLevel() == accessType)
+            .filter(al -> al.isValidAccessLevel(accessType))
             .findFirst();
 
         if (accessLevel.isPresent()) {
