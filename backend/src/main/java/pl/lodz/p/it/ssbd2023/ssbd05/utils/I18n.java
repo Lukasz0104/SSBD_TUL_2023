@@ -7,10 +7,6 @@ import java.util.ResourceBundle;
 
 @Stateless
 public class I18n {
-    public static String RESET_PASSWORD_EMAIL_MESSAGE_ACTION = "reset.password.email.message.action";
-    public static String RESET_PASSWORD_EMAIL_MESSAGE_CONTENT = "reset.password.email.message.content";
-    public static String RESET_PASSWORD_EMAIL_MESSAGE_SUBJECT = "reset.password.email.message.subject";
-    public static String EMAIL_MESSAGE_LAST = "email.message.last";
     public static final String ACCESS_LEVEL_ADMINISTRATOR = "access-level.administrator";
     public static final String ACCESS_LEVEL_MANAGER = "access-level.manager";
     public static final String ACCESS_LEVEL_OWNER = "access-level.owner";
