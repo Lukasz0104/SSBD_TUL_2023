@@ -39,8 +39,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
@@ -306,41 +304,58 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/force-password-change/{login}")
     @RolesAllowed({"ADMIN"})
+    @Path("/force-password-change/{login}")
     public Response forcePasswordChange(@NotBlank @PathParam("login") String login) throws AppBaseException {
         if (login.equals(securityContext.getUserPrincipal().getName())) {
             throw new IllegalSelfActionException();
         }
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.forcePasswordChange(login);
-                return Response.noContent().build();
-            } catch (AppDatabaseException ade) {
-                txCounter++;
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-        } while (txCounter < txLimit);
-        throw new ForcePasswordChangeDatabaseException();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
     }
 
     @PUT
+    @PermitAll
     @Path("/override-forced-password")
     public Response overrideForcedPassword(@Valid @NotNull ResetPasswordDto resetPasswordDto)
         throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.overrideForcedPassword(resetPasswordDto.getPassword(),
                     UUID.fromString(resetPasswordDto.getToken()));
-                return Response.noContent().build();
-            } catch (AppDatabaseException ade) {
-                txCounter++;
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-        } while (txCounter < txLimit);
-        throw new OverrideForcedPasswordDatabaseException();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
     }
 
     @PUT

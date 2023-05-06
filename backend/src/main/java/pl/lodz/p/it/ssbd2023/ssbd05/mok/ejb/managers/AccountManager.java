@@ -487,10 +487,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     public void overrideForcedPassword(String password, UUID token) throws AppBaseException {
-        Token overridePasswordChangeToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
-        overridePasswordChangeToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
-        Account account = overridePasswordChangeToken.getAccount();
+        Token overridePasswordChangeToken =
+            tokenFacade.findByTokenAndTokenType(token, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN)
+                .orElseThrow(TokenNotFoundException::new);
+        overridePasswordChangeToken.validateSelf();
 
+        Account account = overridePasswordChangeToken.getAccount();
+        tokenFacade.removeTokensByAccountIdAndTokenType(account.getId(), TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         account.setPassword(hashGenerator.generate(password.toCharArray()));
         account.setActive(true);
         accountFacade.edit(account);
