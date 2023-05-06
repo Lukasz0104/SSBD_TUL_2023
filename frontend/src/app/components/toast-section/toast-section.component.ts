@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ToastService } from '../../services/toast.service';
+import { ToastInfo, ToastService } from '../../services/toast.service';
 
 @Component({
     selector: 'app-toast-section',
@@ -7,5 +7,13 @@ import { ToastService } from '../../services/toast.service';
     styleUrls: ['./toast-section.component.css']
 })
 export class ToastSectionComponent {
-    constructor(public toastService: ToastService) {}
+    constructor(private toastService: ToastService) {}
+
+    removeToast(toast: ToastInfo) {
+        this.toastService.remove(toast);
+    }
+
+    getToasts() {
+        return this.toastService.toasts;
+    }
 }

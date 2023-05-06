@@ -4,8 +4,7 @@ import { AccessLevel } from '../../../model/access-level';
 
 @Component({
     selector: 'app-choose-access-level',
-    templateUrl: './choose-access-level.component.html',
-    styleUrls: ['./choose-access-level.component.css']
+    templateUrl: './choose-access-level.component.html'
 })
 export class ChooseAccessLevelComponent {
     @Input() public groups: AccessLevel[] | undefined;

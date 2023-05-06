@@ -3,8 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-refresh-session',
-    templateUrl: './refresh-session.component.html',
-    styleUrls: ['./refresh-session.component.css']
+    templateUrl: './refresh-session.component.html'
 })
 export class RefreshSessionComponent {
     constructor(public activeModal: NgbActiveModal) {}

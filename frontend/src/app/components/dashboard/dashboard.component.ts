@@ -3,9 +3,12 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-dashboard',
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.css']
+    templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent {
-    constructor(public authService: AuthService) {}
+    constructor(private authService: AuthService) {}
+
+    getCurrentGroup() {
+        return this.authService.getCurrentGroup();
+    }
 }

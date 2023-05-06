@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { LoginResponse } from '../model/login-response';
@@ -16,23 +16,39 @@ export class AuthService {
     private currentGroup = new BehaviorSubject<AccessLevel>(AccessLevel.NONE);
 
     constructor(private http: HttpClient, private modalService: NgbModal) {
+        this.handleLocalStorageContent();
+        this.addLocalStorageListener();
+    }
+
+    handleLocalStorageContent() {
         const jwt = localStorage.getItem('jwt');
-        if (jwt != null) {
-            const expires = this.getDecodedJwtToken(jwt).exp;
-            if (expires > Date.now()) {
-                window.location.href = '/login';
-                this.clearUserData();
-            }
+        if (jwt) {
+            const decodedJwt = this.getDecodedJwtToken(jwt);
+
             if (this.getDecodedJwtToken(jwt)) {
-                this.authenticated.next(true);
-                this.currentGroup.next(
-                    (<any>AccessLevel)[
-                        localStorage.getItem('currentGroup') ?? ''
-                    ]
-                );
-                this.scheduleRefreshSessionPopUp();
+                const expiresAtMs = decodedJwt.exp * 1000;
+                if (expiresAtMs < Date.now()) {
+                    window.location.href = '/login';
+                    this.clearUserData();
+                }
+                const group = localStorage.getItem('currentGroup');
+                if (
+                    group == AccessLevel.ADMIN ||
+                    group == AccessLevel.MANAGER ||
+                    group == AccessLevel.OWNER
+                ) {
+                    this.authenticated.next(true);
+                    this.currentGroup.next(group as AccessLevel);
+                    this.scheduleRefreshSessionPopUp();
+                } else {
+                    window.location.href = '/login';
+                    this.clearUserData();
+                }
             }
         }
+    }
+
+    addLocalStorageListener() {
         window.addEventListener(
             'storage',
             (event) => {
@@ -70,7 +86,7 @@ export class AuthService {
         setTimeout(() => {
             this.modalService
                 .open(RefreshSessionComponent)
-                .result.then((refresh) => {
+                .result.then((refresh: boolean) => {
                     if (refresh) {
                         this.refreshToken().subscribe(
                             (result) => {
@@ -85,16 +101,18 @@ export class AuthService {
                     }
                 })
                 .catch(() => {
-                    console.log('Popup closed, session ending soon..');
+                    return false;
                 });
         }, millisBeforeJwtExpires * 0.9);
     }
 
-    saveUserData(result: any) {
-        const tokenInfo = this.getDecodedJwtToken(result.body.jwt);
-        this.setLogin(tokenInfo.sub);
-        this.setJwt(result.body.jwt);
-        this.setRefreshToken(result.body.refreshToken);
+    saveUserData(result: HttpResponse<LoginResponse>) {
+        if (result.body) {
+            const tokenInfo = this.getDecodedJwtToken(result.body.jwt);
+            this.setLogin(tokenInfo.sub);
+            this.setJwt(result.body.jwt);
+            this.setRefreshToken(result.body.refreshToken);
+        }
     }
 
     getGroups(): AccessLevel[] {
@@ -146,7 +164,7 @@ export class AuthService {
         }
     }
 
-    isAuthenticated() {
+    isAuthenticated(): boolean {
         return this.authenticated.value;
     }
 
@@ -154,7 +172,7 @@ export class AuthService {
         this.authenticated.next(value);
     }
 
-    getCurrentGroup() {
+    getCurrentGroup(): AccessLevel {
         return this.currentGroup.value;
     }
 

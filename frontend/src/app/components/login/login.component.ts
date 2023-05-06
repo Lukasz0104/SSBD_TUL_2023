@@ -6,11 +6,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ChooseAccessLevelComponent } from '../modals/choose-access-level/choose-access-level.component';
 import { AccessLevel } from '../../model/access-level';
 import { ToastService } from '../../services/toast.service';
+import { HttpResponse } from '@angular/common/http';
+import { LoginResponse } from '../../model/login-response';
 
 @Component({
     selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css']
+    templateUrl: './login.component.html'
 })
 export class LoginComponent {
     loginForm = new FormGroup({
@@ -34,7 +35,7 @@ export class LoginComponent {
             const password = this.loginForm.getRawValue().password ?? '';
 
             this.authService.login(username, password).subscribe(
-                (result) => {
+                (result: HttpResponse<LoginResponse>) => {
                     if (result.status == 200) {
                         this.loading = false;
                         const groupsFromJwt = this.authService.getGroupsFromJwt(
@@ -86,7 +87,10 @@ export class LoginComponent {
         this.loginForm.get('password')?.reset();
     }
 
-    notifyServiceAboutLogin(userData: any, group: AccessLevel) {
+    notifyServiceAboutLogin(
+        userData: HttpResponse<LoginResponse>,
+        group: AccessLevel
+    ) {
         this.authService.saveUserData(userData);
         this.authService.setAuthenticated(true);
         this.authService.setCurrentGroup(group);
