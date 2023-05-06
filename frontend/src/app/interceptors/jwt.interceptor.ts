@@ -31,7 +31,7 @@ export class JwtInterceptor implements HttpInterceptor {
                 catchError((err) => {
                     if (
                         err.status === 403 &&
-                        !this.authService.isSessionValid()
+                        !this.authService.isJwtValid(this.authService.getJwt())
                     ) {
                         this.logout();
                     }

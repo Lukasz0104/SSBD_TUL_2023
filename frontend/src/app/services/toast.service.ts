@@ -29,4 +29,8 @@ export class ToastService {
     remove(toast: ToastInfo) {
         this.toasts = this.toasts.filter((t) => t != toast);
     }
+
+    clearAll() {
+        this.toasts = [];
+    }
 }

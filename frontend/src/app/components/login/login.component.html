@@ -13,7 +13,7 @@
                                 <label
                                     class="form-label"
                                     for="login"
-                                    >Login</label
+                                    >Login*</label
                                 >
                                 <input
                                     [ngClass]="{
@@ -32,9 +32,7 @@
                                     type="text" />
                                 <span
                                     *ngIf="
-                                        login &&
-                                        login.touched &&
-                                        login.hasError('loginRequired')
+                                        login && login.touched && login.invalid
                                     "
                                     class="validation-message"
                                     >Login is required</span
@@ -45,7 +43,7 @@
                                     class="form-label"
                                     for="password"
                                     i18n
-                                    >Password</label
+                                    >Password*</label
                                 >
                                 <input
                                     [ngClass]="{
@@ -67,7 +65,7 @@
                                     *ngIf="
                                         password &&
                                         password.touched &&
-                                        password.hasError('passwordRequired')
+                                        password.invalid
                                     "
                                     class="validation-message"
                                     >Password is required</span
