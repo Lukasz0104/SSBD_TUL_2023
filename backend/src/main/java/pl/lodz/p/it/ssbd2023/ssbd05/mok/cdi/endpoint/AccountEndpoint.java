@@ -34,10 +34,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
@@ -231,21 +232,29 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/change-language/{language}")
+    @Path("/me/change-language/{language}")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
                     language.toUpperCase());
-                return Response.status(Response.Status.NO_CONTENT).build();
-            } catch (AppDatabaseException ade) {
-                txCounter++;
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-        } while (txCounter < txLimit);
-        throw new LanguageChangeDatabaseException();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
     }
 
     @GET
