@@ -7,6 +7,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createOwnAccountDto;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -55,6 +56,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessTypeDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
@@ -70,6 +72,9 @@ public class AccountEndpoint {
 
     @Inject
     private AccountManagerLocal accountManager;
+
+    @Inject
+    private JwsProvider jwsProvider;
 
     @Context
     private SecurityContext securityContext;
@@ -129,8 +134,9 @@ public class AccountEndpoint {
     }
 
     @POST
+    @PermitAll
     @Path("/reset-password-message")
-    public Response sendResetPasswordMessage(@NotNull @Email @QueryParam("email") String email)
+    public Response sendResetPasswordMessage(@NotBlank @Email @QueryParam("email") String email)
         throws AppBaseException {
         accountManager.sendResetPasswordMessage(email);
         return Response.noContent().build();
@@ -138,13 +144,28 @@ public class AccountEndpoint {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @PermitAll
     @Path("/reset-password")
-    public Response resetPassword(@Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
-        try {
-            accountManager.resetPassword(resetPasswordDto.getPassword(), UUID.fromString(resetPasswordDto.getToken()));
-        } catch (AppDatabaseException e) {
-            // TODO
+    public Response resetPassword(@NotNull @Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                accountManager.resetPassword(resetPasswordDto.getPassword(),
+                    UUID.fromString(resetPasswordDto.getToken()));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
         }
+
         return Response.noContent().build();
     }
 
@@ -212,18 +233,22 @@ public class AccountEndpoint {
     }
 
     @GET
-    @Path("/me/details")
+    @Path("/me")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public OwnAccountDto getOwnAccountDetails() throws AppBaseException {
+    public Response getOwnAccountDetails() throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        return createOwnAccountDto(accountManager.getAccountDetails(login));
+        OwnAccountDto dto = createOwnAccountDto(accountManager.getAccountDetails(login));
+        String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
+        return Response.ok().entity(dto).tag(ifMatch).build();
     }
 
     @GET
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public AccountDto getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
-        return createAccountDto(accountManager.getAccountDetails(id));
+    public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
+        AccountDto dto = createAccountDto(accountManager.getAccountDetails(id));
+        String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
+        return Response.ok().entity(dto).tag(ifMatch).build();
     }
 
     @PUT

@@ -1,0 +1,9 @@
+<section class="toast-container">
+    <ngb-toast
+        (click)="removeToast(toast)"
+        *ngFor="let toast of getToasts()"
+        [autohide]="false"
+        [class]="toast.className">
+        {{ toast.body }}
+    </ngb-toast>
+</section>

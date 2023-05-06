@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -45,5 +46,10 @@ public class OwnAccountDto {
     @NotNull
     @Size(min = 2, max = 2)
     private String language = "PL";
+
+    public String getSignableFields() {
+        Map<String, String> fields = Map.of("login", login, "version", String.valueOf(version));
+        return fields.toString();
+    }
 }
 
