@@ -29,7 +29,10 @@ export class JwtInterceptor implements HttpInterceptor {
             });
             return next.handle(cloned).pipe(
                 catchError((err) => {
-                    if (err.status === 401) {
+                    if (
+                        err.status === 403 &&
+                        !this.authService.isSessionValid()
+                    ) {
                         this.logout();
                     }
                     throw err;

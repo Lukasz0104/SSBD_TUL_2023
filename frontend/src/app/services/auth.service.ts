@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, catchError, map, of, tap } from 'rxjs';
 import { LoginResponse } from '../model/login-response';
 import jwtDecode from 'jwt-decode';
 import { AccessLevel } from '../model/access-level';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RefreshSessionComponent } from '../components/modals/refresh-session/refresh-session.component';
+import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
+import { Router } from '@angular/router';
+import { ToastService } from './toast.service';
 
 @Injectable({
     providedIn: 'root'
@@ -15,7 +18,12 @@ export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);
     private currentGroup = new BehaviorSubject<AccessLevel>(AccessLevel.NONE);
 
-    constructor(private http: HttpClient, private modalService: NgbModal) {
+    constructor(
+        private http: HttpClient,
+        private modalService: NgbModal,
+        private router: Router,
+        private toastService: ToastService
+    ) {
         this.handleLocalStorageContent();
         this.addLocalStorageListener();
     }
@@ -23,11 +31,8 @@ export class AuthService {
     handleLocalStorageContent() {
         const jwt = localStorage.getItem('jwt');
         if (jwt) {
-            const decodedJwt = this.getDecodedJwtToken(jwt);
-
             if (this.getDecodedJwtToken(jwt)) {
-                const expiresAtMs = decodedJwt.exp * 1000;
-                if (expiresAtMs < Date.now()) {
+                if (!this.isJwtValid(jwt)) {
                     window.location.href = '/login';
                     this.clearUserData();
                 }
@@ -65,19 +70,83 @@ export class AuthService {
     }
 
     login(login: string, password: string) {
-        return this.http.post<LoginResponse>(
-            `${environment.apiUrl}/login`,
-            { login, password },
-            { observe: 'response' }
-        );
+        return this.http
+            .post<LoginResponse>(
+                `${environment.apiUrl}/login`,
+                { login, password },
+                { observe: 'response' }
+            )
+            .pipe(
+                map((response) => {
+                    this.handleMultipleAccessLevels(response);
+                    return true;
+                }),
+                catchError(() => of(false))
+            );
+    }
+
+    handleMultipleAccessLevels(userData: HttpResponse<LoginResponse>) {
+        const groups = this.getGroupsFromJwt(userData.body?.jwt);
+        if (groups.length === 1) {
+            this.loginSuccessfulHandler(userData, groups[0], true);
+        } else {
+            const modalRef = this.modalService.open(
+                ChooseAccessLevelComponent,
+                {
+                    centered: true
+                }
+            );
+            modalRef.componentInstance.groups = groups;
+            modalRef.result
+                .then((choice) => {
+                    this.loginSuccessfulHandler(userData, choice, true);
+                })
+                .catch(() => {
+                    this.loginSuccessfulHandler(userData, groups[0], true);
+                });
+        }
+    }
+
+    loginSuccessfulHandler(
+        userData: HttpResponse<LoginResponse>,
+        group: AccessLevel,
+        redirectToDashboard: boolean
+    ) {
+        this.saveUserData(userData);
+        this.setAuthenticated(true);
+        this.setCurrentGroup(group);
+        this.scheduleRefreshSessionPopUp();
+
+        if (redirectToDashboard) {
+            this.router.navigate(['/dashboard']);
+        }
     }
 
     refreshToken() {
-        return this.http.post<LoginResponse>(
-            `${environment.apiUrl}/refresh`,
-            { login: this.getLogin(), refreshToken: this.getRefreshToken() },
-            { observe: 'response' }
-        );
+        this.http
+            .post<LoginResponse>(
+                `${environment.apiUrl}/refresh`,
+                {
+                    login: this.getLogin(),
+                    refreshToken: this.getRefreshToken()
+                },
+                { observe: 'response' }
+            )
+            .pipe(
+                tap((response) => {
+                    this.loginSuccessfulHandler(
+                        response,
+                        this.getCurrentGroup(),
+                        false
+                    );
+                }),
+                catchError((err) => {
+                    this.logout();
+                    this.toastService.showDanger('Your session has expired.');
+                    throw err;
+                })
+            )
+            .subscribe();
     }
 
     scheduleRefreshSessionPopUp() {
@@ -88,20 +157,23 @@ export class AuthService {
                 .open(RefreshSessionComponent)
                 .result.then((refresh: boolean) => {
                     if (refresh) {
-                        this.refreshToken().subscribe(
-                            (result) => {
-                                this.saveUserData(result);
-                                this.scheduleRefreshSessionPopUp();
-                            },
-                            () => {
-                                this.setAuthenticated(false);
-                                this.clearUserData();
-                            }
-                        );
+                        this.refreshToken();
+                    } else {
+                        if (!this.isSessionValid()) {
+                            this.logout();
+                            this.toastService.showDanger(
+                                'Your session has expired.'
+                            );
+                        }
                     }
                 })
                 .catch(() => {
-                    return false;
+                    if (!this.isSessionValid()) {
+                        this.logout();
+                        this.toastService.showDanger(
+                            'Your session has expired.'
+                        );
+                    }
                 });
         }, millisBeforeJwtExpires * 0.9);
     }
@@ -168,6 +240,10 @@ export class AuthService {
         return this.authenticated.value;
     }
 
+    hasAccessLevel(accessLevel: AccessLevel) {
+        return this.getGroups().filter((al) => al == accessLevel).length > 0;
+    }
+
     setAuthenticated(value: boolean) {
         this.authenticated.next(value);
     }
@@ -183,5 +259,27 @@ export class AuthService {
 
     clearUserData() {
         localStorage.clear();
+    }
+
+    logout() {
+        this.clearUserData();
+        this.setAuthenticated(false);
+        this.router.navigate(['/login']);
+    }
+
+    isSessionValid(): boolean {
+        const decodedJwtToken = this.getDecodedJwtToken(this.getJwt());
+        if (decodedJwtToken) {
+            return decodedJwtToken.exp * 1000 > Date.now();
+        }
+        return false;
+    }
+
+    isJwtValid(jwt: string): boolean {
+        const decodedJwtToken = this.getDecodedJwtToken(jwt);
+        if (decodedJwtToken) {
+            return decodedJwtToken.exp * 1000 > Date.now();
+        }
+        return false;
     }
 }
