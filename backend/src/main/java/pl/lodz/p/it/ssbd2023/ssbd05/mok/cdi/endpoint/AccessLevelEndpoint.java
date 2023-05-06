@@ -74,16 +74,10 @@ public class AccessLevelEndpoint {
         boolean rollbackTx = false;
 
         do {
-            try {
-                accountManager.grantAccessLevel(
-                    id, createManagerAccessLevelFromDto(dto),
-                    securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
+            accountManager.grantAccessLevel(
+                id, createManagerAccessLevelFromDto(dto),
+                securityContext.getUserPrincipal().getName());
+            rollbackTx = accountManager.isLastTransactionRollback();
         } while (rollbackTx && --txLimit > 0);
 
         if (rollbackTx && txLimit == 0) {
@@ -102,16 +96,10 @@ public class AccessLevelEndpoint {
         boolean rollbackTx = false;
 
         do {
-            try {
-                accountManager.grantAccessLevel(
-                    id, createOwnerAccessLevelFromDto(dto),
-                    securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
+            accountManager.grantAccessLevel(
+                id, createOwnerAccessLevelFromDto(dto),
+                securityContext.getUserPrincipal().getName());
+            rollbackTx = accountManager.isLastTransactionRollback();
         } while (rollbackTx && --txLimit > 0);
 
         if (rollbackTx && txLimit == 0) {
