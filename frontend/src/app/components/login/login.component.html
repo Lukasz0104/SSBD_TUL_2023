@@ -3,17 +3,12 @@
         <div class="row d-flex justify-content-center">
             <div class="col-12 col-md-8 col-lg-6">
                 <div class="card border bg-white rounded-5 shadow-lg">
-                    <div class="card-body p-5 bg-light rounded-5">
+                    <div class="card-body p-3 p-sm-5 bg-light rounded-5">
                         <form
                             (submit)="onSubmit()"
                             [formGroup]="loginForm"
                             class="mb-3 md-4">
-                            <h2 class="fw-bold mb-2 text-uppercase">eBok</h2>
-                            <p
-                                class="mb-5"
-                                i18n>
-                                Please enter your login and password!
-                            </p>
+                            <h2 class="fw-bold mb-4">Login to eBok</h2>
                             <div class="mb-3">
                                 <label
                                     class="form-label"
@@ -21,10 +16,29 @@
                                     >Login</label
                                 >
                                 <input
+                                    [ngClass]="{
+                                        'is-valid':
+                                            login &&
+                                            login.touched &&
+                                            login.valid,
+                                        'is-invalid':
+                                            login &&
+                                            login.touched &&
+                                            login.invalid
+                                    }"
                                     class="form-control"
                                     formControlName="login"
                                     id="login"
                                     type="text" />
+                                <span
+                                    *ngIf="
+                                        login &&
+                                        login.touched &&
+                                        login.hasError('loginRequired')
+                                    "
+                                    class="validation-message"
+                                    >Login is required</span
+                                >
                             </div>
                             <div class="mb-3">
                                 <label
@@ -34,11 +48,30 @@
                                     >Password</label
                                 >
                                 <input
+                                    [ngClass]="{
+                                        'is-valid':
+                                            password &&
+                                            password.touched &&
+                                            password.valid,
+                                        'is-invalid':
+                                            password &&
+                                            password.touched &&
+                                            password.invalid
+                                    }"
                                     class="form-control"
                                     formControlName="password"
                                     i18n
                                     id="password"
                                     type="password" />
+                                <span
+                                    *ngIf="
+                                        password &&
+                                        password.touched &&
+                                        password.hasError('passwordRequired')
+                                    "
+                                    class="validation-message"
+                                    >Password is required</span
+                                >
                             </div>
                             <p
                                 class="small text-center"

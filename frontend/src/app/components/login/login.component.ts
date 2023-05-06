@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
+import { loginValidator } from '../../validators/login.validator';
+import { loginPasswordValidator } from '../../validators/login-password.validator';
 
 @Component({
     selector: 'app-login',
@@ -10,9 +12,17 @@ import { ToastService } from '../../services/toast.service';
 })
 export class LoginComponent {
     loginForm = new FormGroup({
-        login: new FormControl('', [Validators.required]),
-        password: new FormControl('', [Validators.required])
+        login: new FormControl('', [loginValidator]),
+        password: new FormControl('', [loginPasswordValidator])
     });
+
+    get login() {
+        return this.loginForm.get('login');
+    }
+
+    get password() {
+        return this.loginForm.get('password');
+    }
 
     loading = false;
 
