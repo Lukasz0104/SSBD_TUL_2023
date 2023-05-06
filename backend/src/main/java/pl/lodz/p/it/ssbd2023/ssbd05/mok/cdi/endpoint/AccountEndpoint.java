@@ -89,7 +89,18 @@ public class AccountEndpoint {
 
         account.getAccessLevels().add(accessLevel);
 
-        accountManager.registerAccount(account);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+
+        do {
+            accountManager.registerAccount(account);
+            rollbackTx = accountManager.isLastTransactionRollback();
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
@@ -104,7 +115,18 @@ public class AccountEndpoint {
 
         account.getAccessLevels().add(accessLevel);
 
-        accountManager.registerAccount(account);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+
+        do {
+            accountManager.registerAccount(account);
+            rollbackTx = accountManager.isLastTransactionRollback();
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
