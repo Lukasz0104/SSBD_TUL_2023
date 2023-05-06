@@ -16,7 +16,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -412,24 +411,25 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
         account.setFirstName(newData.getFirstName());
         account.setLastName(newData.getLastName());
-        editAccessLevels(newData.getAccessLevels(), newData);
-        accountFacade.lockAndEdit(account);
+        editAccessLevels(account.getAccessLevels(), newData);
+        accountFacade.edit(account);
         return account;
     }
 
     private void editAccessLevels(Set<AccessLevel> accessLevels, Account newData) throws AppBaseException {
-        for (AccessLevel accessLevel : accessLevels) {
-            if (accessLevel.isActive()) {
-                AccessLevel newAccessLevel =
-                    newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
-                        .findFirst()
-                        .orElseThrow(AccessLevelNotFoundException::new);
+        for (AccessLevel newAccessLevel : newData.getAccessLevels()) {
+            Optional<AccessLevel> optAccessLevel =
+                accessLevels.stream().filter(x -> x.getLevel().equals(newAccessLevel.getLevel()))
+                    .findFirst();
 
-                if (accessLevel.getVersion() != newAccessLevel.getVersion()) {
+            if (optAccessLevel.isPresent()) {
+                AccessLevel accessLevel = optAccessLevel.get();
+
+                if (newAccessLevel.getVersion() != accessLevel.getVersion()) {
                     throw new AppOptimisticLockException();
                 }
 
-                switch (accessLevel.getLevel()) {
+                switch (newAccessLevel.getLevel()) {
                     case OWNER -> {
                         OwnerData ownerData = (OwnerData) accessLevel;
                         OwnerData newOwnerData = (OwnerData) newAccessLevel;
@@ -445,6 +445,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                     }
                 }
             }
+
         }
     }
 

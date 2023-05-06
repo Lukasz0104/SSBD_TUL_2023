@@ -17,6 +17,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -36,6 +37,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
@@ -202,7 +204,7 @@ public class AccountEndpoint {
         String login = securityContext.getUserPrincipal().getName();
         OwnAccountDto dto = createOwnAccountDto(accountManager.getAccountDetails(login));
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
-        return Response.ok().entity(dto).tag(ifMatch).build();
+        return Response.ok().entity(dto).header("ETag", ifMatch).build();
     }
 
     @GET
@@ -211,7 +213,7 @@ public class AccountEndpoint {
     public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
         AccountDto dto = createAccountDto(accountManager.getAccountDetails(id));
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
-        return Response.ok().entity(dto).tag(ifMatch).build();
+        return Response.ok().entity(dto).header("ETag", ifMatch).build();
     }
 
     @PUT
@@ -320,11 +322,18 @@ public class AccountEndpoint {
     @PUT
     @Path("/me")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response updatePersonalData(@Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO)
+    public Response editPersonalData(
+        @Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO,
+        @NotNull @HeaderParam("If-Match") String ifMatch)
         throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
+
+        if (!jwsProvider.verify(ifMatch, editOwnPersonalDataDTO.getSignableFields())) {
+            throw new SignatureMismatchException();
+        }
         OwnAccountDto ownAccountDto = AccountDtoConverter.createOwnAccountDto(
-            accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login));
+            accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
+                login));
         return Response.ok().entity(ownAccountDto).build();
     }
 
