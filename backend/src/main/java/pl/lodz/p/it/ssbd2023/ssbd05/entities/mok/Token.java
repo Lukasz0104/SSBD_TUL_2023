@@ -71,7 +71,10 @@ import java.util.UUID;
         query = "SELECT t FROM Token t WHERE t.account.login = :login AND t.tokenType = :tokenType"),
     @NamedQuery(
         name = "Token.findByNotTokenTypeAndExpiresAtBefore",
-        query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt")
+        query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt"),
+    @NamedQuery(
+        name = "Token.deleteByAccountIdAndTokenType",
+        query = "DELETE FROM Token t WHERE t.account.id = :id AND t.tokenType = :tokenType")
 })
 public class Token extends AbstractEntity {
 

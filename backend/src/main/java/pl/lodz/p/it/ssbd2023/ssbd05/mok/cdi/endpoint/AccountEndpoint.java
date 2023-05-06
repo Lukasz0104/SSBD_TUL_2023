@@ -34,8 +34,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
@@ -153,7 +155,7 @@ public class AccountEndpoint {
     }
 
     @POST
-    @Path("/change-email")
+    @Path("/me/change-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail() throws AppBaseException {
 
@@ -162,13 +164,30 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/confirm-email")
+    @Path("/me/confirm-email/{token}")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response confirmEmail(@Valid ChangeEmailDto dto, @NotNull @QueryParam("token") UUID token)
+    public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto, @NotNull @PathParam("token") UUID token)
         throws AppBaseException {
 
-        accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
-        return Response.ok().build();
+        int retryTXCounter = properties.getTransactionRepeatLimit();
+        boolean rollbackTX = false;
+        do {
+            try {
+                accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
+                rollbackTX = accountManager.isLastTransactionRollback();
+
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (retryTXCounter < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --retryTXCounter > 0);
+
+        if (rollbackTX && retryTXCounter == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.noContent().build();
     }
 
     @PUT

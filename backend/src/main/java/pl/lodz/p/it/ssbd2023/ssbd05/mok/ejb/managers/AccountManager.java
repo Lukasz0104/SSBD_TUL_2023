@@ -17,6 +17,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -29,7 +30,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.NoAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.SelfAccessManagementException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnverifiedAccountException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
@@ -117,16 +117,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
-        List<Token> tokenList = tokenFacade.findByAccountLoginAndTokenType(login, TokenType.CONFIRM_EMAIL_TOKEN);
-
-        for (Token token : tokenList) {
-            tokenFacade.remove(token);
-        }
-
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        String link = properties.getFrontendUrl() + "/change-email?token=" + token.getToken();
+        String link = properties.getFrontendUrl() + "/confirm-email/" + token.getToken();
         emailService.changeEmailAddress(
             account.getEmail(), account.getFullName(), link,
             account.getLanguage().toString());
@@ -143,18 +137,16 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = token.getAccount();
 
         if (!Objects.equals(account.getLogin(), login)) {
-            throw new AuthenticationException();
+            throw new InvalidTokenException();
         }
 
         tokenFacade.remove(token);
 
         account.setEmail(email);
 
-        try {
-            accountFacade.edit(account);
-        } catch (AppDatabaseException de) {
-            throw new ConstraintViolationException(de.getMessage(), de);
-        }
+        accountFacade.edit(account);
+
+        tokenFacade.deleteTokenByAccountIdAndTokenType(account.getId(), TokenType.CONFIRM_EMAIL_TOKEN);
     }
 
     @Override
