@@ -135,6 +135,7 @@ public class AccountEndpoint {
             try {
                 accountManager.resetPassword(resetPasswordDto.getPassword(),
                     UUID.fromString(resetPasswordDto.getToken()));
+                rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollBackTX = true;
                 if (txLimit < 2) {
