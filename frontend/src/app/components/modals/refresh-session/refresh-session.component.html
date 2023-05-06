@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h6
+        class="modal-title"
+        id="modal-basic-title">
+        Your session will expire soon. Do you want to stay logged in?
+    </h6>
+    <button
+        (click)="activeModal.dismiss('Cross click')"
+        class="btn-close"
+        type="button"></button>
+</div>
+<div>
+    <div class="p-4 d-flex justify-content-between">
+        <div
+            (click)="onClick(true)"
+            class="btn btn-primary">
+            Stay
+        </div>
+        <div
+            (click)="onClick(false)"
+            class="btn btn-outline-secondary">
+            Cancel
+        </div>
+    </div>
+</div>
