@@ -253,16 +253,9 @@ public class AccountEndpoint {
         int txLimit = properties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
-            try {
-                accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
-                    language.toUpperCase());
-                rollBackTX = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollBackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
+            accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
+                language.toUpperCase());
+            rollBackTX = accountManager.isLastTransactionRollback();
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
