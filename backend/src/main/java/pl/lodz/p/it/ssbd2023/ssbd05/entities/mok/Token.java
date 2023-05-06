@@ -52,6 +52,9 @@ import java.util.UUID;
         name = "Token.findByExpiresAtBefore",
         query = "SELECT t FROM Token t WHERE t.expiresAt < :expiresAt"),
     @NamedQuery(
+        name = "Token.findByTokenAndTokenType",
+        query = "SELECT t FROM Token t WHERE t.token = :token AND t.tokenType = :tokenType"),
+    @NamedQuery(
         name = "Token.findByAccountIdAndTokenType",
         query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.tokenType = :tokenType"),
     @NamedQuery(
@@ -71,7 +74,10 @@ import java.util.UUID;
         query = "SELECT t FROM Token t WHERE t.account.login = :login AND t.tokenType = :tokenType"),
     @NamedQuery(
         name = "Token.findByNotTokenTypeAndExpiresAtBefore",
-        query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt")
+        query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt"),
+    @NamedQuery(
+        name = "Token.removeTokensByAccountIdAndTokenType",
+        query = "DELETE FROM Token t WHERE t.account.id = :accountId AND t.tokenType = :tokenType")
 })
 public class Token extends AbstractEntity {
 
@@ -125,6 +131,12 @@ public class Token extends AbstractEntity {
         }
         if (this.tokenType != tokenType) {
             throw new InvalidTokenException();
+        }
+    }
+
+    public void validateSelf() throws AppBaseException {
+        if (expiresAt.isBefore(LocalDateTime.now())) {
+            throw new ExpiredTokenException();
         }
     }
 }
