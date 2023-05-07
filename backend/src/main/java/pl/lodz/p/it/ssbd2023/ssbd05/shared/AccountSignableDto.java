@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountSignableDto implements SignableDto {
+public abstract class AccountSignableDto implements SignableDto {
 
     @NotBlank
     private String login;
