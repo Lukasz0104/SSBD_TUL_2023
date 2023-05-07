@@ -432,9 +432,28 @@ public class AccountEndpoint {
     @PUT
     @Path("/admin/edit-other")
     @RolesAllowed({"ADMIN"})
-    public Response editPersonalDataByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto) throws AppBaseException {
+    public Response editPersonalDataByAdmin(
+        @Valid @NotNull EditAnotherPersonalDataDto dto,
+        @NotNull @HeaderParam("If-Match") String ifMatch) throws AppBaseException {
+
+        if (!jwsProvider.verify(ifMatch, dto.getSignableFields())) {
+            throw new SignatureMismatchException();
+        }
+
         Account account = createAccountFromEditDto(dto);
-        AccountDto accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
+        OwnAccountDto accountDto;
+
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.ok().entity(accountDto).build();
     }
 }
