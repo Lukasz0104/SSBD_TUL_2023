@@ -18,6 +18,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -38,10 +39,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.OverrideForcedPasswordDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
@@ -83,21 +82,32 @@ public class AccountEndpoint {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/owner")
-    public Response registerOwner(@Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
+    public Response registerOwner(@NotNull @Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
         Account account = createAccountFromRegisterDto(registerOwnerDto);
         Address address = createAddressFromDto(registerOwnerDto.getAddress());
         AccessLevel accessLevel = new OwnerData(account, address);
 
         account.getAccessLevels().add(accessLevel);
 
-        accountManager.registerAccount(account);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+
+        do {
+            accountManager.registerAccount(account);
+            rollbackTx = accountManager.isLastTransactionRollback();
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/manager")
-    public Response registerManager(@Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
+    public Response registerManager(@NotNull @Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
         Account account = createAccountFromRegisterDto(registerManagerDto);
         Address address = createAddressFromDto(registerManagerDto.getAddress());
 
@@ -105,14 +115,43 @@ public class AccountEndpoint {
 
         account.getAccessLevels().add(accessLevel);
 
-        accountManager.registerAccount(account);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+
+        do {
+            accountManager.registerAccount(account);
+            rollbackTx = accountManager.isLastTransactionRollback();
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
     @POST
     @Path("/confirm-registration")
     public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
-        accountManager.confirmRegistration(UUID.fromString(token));
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+        do {
+            try {
+                accountManager.confirmRegistration(UUID.fromString(token));
+                rollbackTx = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTx = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
@@ -223,7 +262,7 @@ public class AccountEndpoint {
         String login = securityContext.getUserPrincipal().getName();
         OwnAccountDto dto = createOwnAccountDto(accountManager.getAccountDetails(login));
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
-        return Response.ok().entity(dto).tag(ifMatch).build();
+        return Response.ok().entity(dto).header("ETag", ifMatch).build();
     }
 
     @GET
@@ -232,7 +271,7 @@ public class AccountEndpoint {
     public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
         AccountDto dto = createAccountDto(accountManager.getAccountDetails(id));
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
-        return Response.ok().entity(dto).tag(ifMatch).build();
+        return Response.ok().entity(dto).header("ETag", ifMatch).build();
     }
 
     @PUT
@@ -252,21 +291,29 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/change-language/{language}")
+    @Path("/me/change-language/{language}")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
                     language.toUpperCase());
-                return Response.status(Response.Status.NO_CONTENT).build();
-            } catch (AppDatabaseException ade) {
-                txCounter++;
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-        } while (txCounter < txLimit);
-        throw new LanguageChangeDatabaseException();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
     }
 
     @GET
@@ -301,51 +348,87 @@ public class AccountEndpoint {
     }
 
     @PUT
-    @Path("/force-password-change/{login}")
     @RolesAllowed({"ADMIN"})
+    @Path("/force-password-change/{login}")
     public Response forcePasswordChange(@NotBlank @PathParam("login") String login) throws AppBaseException {
         if (login.equals(securityContext.getUserPrincipal().getName())) {
             throw new IllegalSelfActionException();
         }
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.forcePasswordChange(login);
-                return Response.noContent().build();
-            } catch (AppDatabaseException ade) {
-                txCounter++;
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-        } while (txCounter < txLimit);
-        throw new ForcePasswordChangeDatabaseException();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
     }
 
     @PUT
+    @PermitAll
     @Path("/override-forced-password")
     public Response overrideForcedPassword(@Valid @NotNull ResetPasswordDto resetPasswordDto)
         throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.overrideForcedPassword(resetPasswordDto.getPassword(),
                     UUID.fromString(resetPasswordDto.getToken()));
-                return Response.noContent().build();
-            } catch (AppDatabaseException ade) {
-                txCounter++;
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-        } while (txCounter < txLimit);
-        throw new OverrideForcedPasswordDatabaseException();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
     }
 
     @PUT
     @Path("/me")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response updatePersonalData(@Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO)
+    public Response editPersonalData(
+        @Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO,
+        @NotNull @HeaderParam("If-Match") String ifMatch)
         throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        OwnAccountDto ownAccountDto = AccountDtoConverter.createOwnAccountDto(
-            accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO), login));
+
+        if (!jwsProvider.verify(ifMatch, editOwnPersonalDataDTO.getSignableFields())) {
+            throw new SignatureMismatchException();
+        }
+
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        OwnAccountDto ownAccountDto = null;
+        do {
+            ownAccountDto = AccountDtoConverter.createOwnAccountDto(
+                accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
+                    login));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.ok().entity(ownAccountDto).build();
     }
 
