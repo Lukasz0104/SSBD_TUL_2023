@@ -476,37 +476,36 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void forcePasswordChange(String login) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
-        byte[] array = new byte[28];
-        new Random().nextBytes(array);
-        account.setPassword(hashGenerator.generate(new String(array, StandardCharsets.UTF_8).toCharArray()));
+
         if (!account.isActive()) {
             throw new InactiveAccountException();
         }
         if (!account.isVerified()) {
             throw new UnverifiedAccountException();
         }
+
+        byte[] array = new byte[28];
+        new Random().nextBytes(array);
+        account.setPassword(hashGenerator.generate(new String(array, StandardCharsets.UTF_8).toCharArray()));
         account.setActive(false);
         accountFacade.edit(account);
 
-        List<Token> resetPasswordTokens =
-            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
-        for (Token t : resetPasswordTokens) {
-            tokenFacade.remove(t);
-        }
-
-        Token passwordChangeToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
+        Token passwordChangeToken = new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         tokenFacade.create(passwordChangeToken);
         String link = properties.getFrontendUrl() + "/" + passwordChangeToken.getToken();
-        emailService.forcePasswordChangeEmail(account.getEmail(), account.getFirstName() + " " + account.getLastName(),
+        emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), link);
     }
 
     @Override
     public void overrideForcedPassword(String password, UUID token) throws AppBaseException {
-        Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
-        resetPasswordToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
-        Account account = resetPasswordToken.getAccount();
-        tokenFacade.remove(resetPasswordToken);
+        Token overridePasswordChangeToken =
+            tokenFacade.findByTokenAndTokenType(token, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN)
+                .orElseThrow(TokenNotFoundException::new);
+        overridePasswordChangeToken.validateSelf();
+
+        Account account = overridePasswordChangeToken.getAccount();
+        tokenFacade.removeTokensByAccountIdAndTokenType(account.getId(), TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         account.setPassword(hashGenerator.generate(password.toCharArray()));
         account.setActive(true);
         accountFacade.edit(account);
