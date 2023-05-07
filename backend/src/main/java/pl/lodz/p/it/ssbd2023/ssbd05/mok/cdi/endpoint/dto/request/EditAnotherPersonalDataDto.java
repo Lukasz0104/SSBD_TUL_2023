@@ -20,8 +20,8 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EditAnotherPersonalDataDto implements SignableDto {
-    @NotNull
-    private Long id;
+    @NotBlank
+    private String login;
 
     @NotNull
     private Long version;
@@ -47,7 +47,7 @@ public class EditAnotherPersonalDataDto implements SignableDto {
     @Override
     public String getSignableFields() {
         Map<String, String> fields = new HashMap<>();
-        fields.put("id", String.valueOf(id));
+        fields.put("login", login);
         fields.put("version", String.valueOf(version));
         getAccessLevels().forEach(al -> fields.put(
             String.valueOf(al.getId()),

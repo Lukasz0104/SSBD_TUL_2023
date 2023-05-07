@@ -445,7 +445,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public Account editPersonalDataByAdmin(Account newData) throws AppBaseException {
 
-        Account accountOrig = accountFacade.find(newData.getId()).orElseThrow(AccountNotFoundException::new);
+        Account accountOrig = accountFacade.findByLogin(newData.getLogin()).orElseThrow(AccountNotFoundException::new);
         if (accountOrig.getVersion() != newData.getVersion()) {
             throw new AppOptimisticLockException();
         }

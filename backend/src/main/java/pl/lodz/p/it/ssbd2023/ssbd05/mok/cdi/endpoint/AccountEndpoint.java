@@ -440,6 +440,10 @@ public class AccountEndpoint {
             throw new SignatureMismatchException();
         }
 
+        if (dto.getLogin().equals(securityContext.getUserPrincipal().getName())) {
+            throw new IllegalSelfActionException();
+        }
+
         Account account = createAccountFromEditDto(dto);
         AccountDto accountDto = null;
 
