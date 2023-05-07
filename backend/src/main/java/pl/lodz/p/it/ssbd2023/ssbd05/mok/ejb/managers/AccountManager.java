@@ -16,7 +16,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AccessLevelNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.PasswordConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -49,6 +48,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -78,11 +78,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         String hashedPwd = hashGenerator.generate(account.getPassword().toCharArray());
         account.setPassword(hashedPwd);
 
-        try {
-            accountFacade.create(account);
-        } catch (AppDatabaseException exc) {
-            throw new ConstraintViolationException(exc.getMessage(), exc);
-        }
+        accountFacade.create(account);
 
         Token token = new Token(account, properties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
 
@@ -370,13 +366,25 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new SelfAccessManagementException();
         }
 
+        AtomicBoolean wasActive = new AtomicBoolean(false);
+
         account.getAccessLevels()
             .stream()
             .filter(al -> al.getLevel() == accessLevel.getLevel())
             .findFirst()
             .ifPresentOrElse(al -> {
+                wasActive.set(al.isActive());
+
                 al.setVerified(true);
                 al.setActive(true);
+
+                if (accessLevel instanceof OwnerData ownerData) {
+                    ((OwnerData) al).setAddress(ownerData.getAddress());
+                } else if (accessLevel instanceof ManagerData managerData) {
+                    ManagerData md = (ManagerData) al;
+                    md.setLicenseNumber(managerData.getLicenseNumber());
+                    md.setAddress(managerData.getAddress());
+                }
             }, () -> {
                 accessLevel.setAccount(account);
                 accessLevel.setActive(true);
@@ -386,11 +394,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         accountFacade.edit(account);
 
-        emailService.notifyAboutNewAccessLevel(
-            account.getEmail(),
-            account.getFullName(),
-            account.getLanguage().toString(),
-            accessLevel.getLevel());
+        if (!wasActive.get()) {
+            emailService.notifyAboutNewAccessLevel(
+                account.getEmail(),
+                account.getFullName(),
+                account.getLanguage().toString(),
+                accessLevel.getLevel());
+        }
     }
 
     @Override
@@ -401,24 +411,25 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
         account.setFirstName(newData.getFirstName());
         account.setLastName(newData.getLastName());
-        editAccessLevels(newData.getAccessLevels(), newData);
-        accountFacade.lockAndEdit(account);
+        editAccessLevels(account.getAccessLevels(), newData);
+        accountFacade.edit(account);
         return account;
     }
 
     private void editAccessLevels(Set<AccessLevel> accessLevels, Account newData) throws AppBaseException {
-        for (AccessLevel accessLevel : accessLevels) {
-            if (accessLevel.isActive()) {
-                AccessLevel newAccessLevel =
-                    newData.getAccessLevels().stream().filter(x -> x.getLevel().equals(accessLevel.getLevel()))
-                        .findFirst()
-                        .orElseThrow(AccessLevelNotFoundException::new);
+        for (AccessLevel newAccessLevel : newData.getAccessLevels()) {
+            Optional<AccessLevel> optAccessLevel =
+                accessLevels.stream().filter(x -> x.getLevel().equals(newAccessLevel.getLevel()))
+                    .findFirst();
 
-                if (accessLevel.getVersion() != newAccessLevel.getVersion()) {
+            if (optAccessLevel.isPresent()) {
+                AccessLevel accessLevel = optAccessLevel.get();
+
+                if (newAccessLevel.getVersion() != accessLevel.getVersion()) {
                     throw new AppOptimisticLockException();
                 }
 
-                switch (accessLevel.getLevel()) {
+                switch (newAccessLevel.getLevel()) {
                     case OWNER -> {
                         OwnerData ownerData = (OwnerData) accessLevel;
                         OwnerData newOwnerData = (OwnerData) newAccessLevel;
@@ -434,6 +445,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                     }
                 }
             }
+
         }
     }
 
@@ -458,37 +470,36 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void forcePasswordChange(String login) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
-        byte[] array = new byte[28];
-        new Random().nextBytes(array);
-        account.setPassword(hashGenerator.generate(new String(array, StandardCharsets.UTF_8).toCharArray()));
+
         if (!account.isActive()) {
             throw new InactiveAccountException();
         }
         if (!account.isVerified()) {
             throw new UnverifiedAccountException();
         }
+
+        byte[] array = new byte[28];
+        new Random().nextBytes(array);
+        account.setPassword(hashGenerator.generate(new String(array, StandardCharsets.UTF_8).toCharArray()));
         account.setActive(false);
         accountFacade.edit(account);
 
-        List<Token> resetPasswordTokens =
-            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
-        for (Token t : resetPasswordTokens) {
-            tokenFacade.remove(t);
-        }
-
-        Token passwordChangeToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
+        Token passwordChangeToken = new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         tokenFacade.create(passwordChangeToken);
         String link = properties.getFrontendUrl() + "/" + passwordChangeToken.getToken();
-        emailService.forcePasswordChangeEmail(account.getEmail(), account.getFirstName() + " " + account.getLastName(),
+        emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), link);
     }
 
     @Override
     public void overrideForcedPassword(String password, UUID token) throws AppBaseException {
-        Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
-        resetPasswordToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
-        Account account = resetPasswordToken.getAccount();
-        tokenFacade.remove(resetPasswordToken);
+        Token overridePasswordChangeToken =
+            tokenFacade.findByTokenAndTokenType(token, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN)
+                .orElseThrow(TokenNotFoundException::new);
+        overridePasswordChangeToken.validateSelf();
+
+        Account account = overridePasswordChangeToken.getAccount();
+        tokenFacade.removeTokensByAccountIdAndTokenType(account.getId(), TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         account.setPassword(hashGenerator.generate(password.toCharArray()));
         account.setActive(true);
         accountFacade.edit(account);
@@ -504,7 +515,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Optional<AccessLevel> accessLevel = account.getAccessLevels()
             .stream()
-            .filter(al -> al.isVerified() && al.isActive() && al.getLevel() == accessType)
+            .filter(al -> al.isValidAccessLevel(accessType))
             .findFirst();
 
         if (accessLevel.isPresent()) {

@@ -152,12 +152,13 @@ public class Account extends AbstractEntity implements Serializable {
     @Embedded
     private ActivityTracker activityTracker = new ActivityTracker();
 
-    public Account(String email, String password, String firstName, String lastName, String login) {
+    public Account(String email, String password, String firstName, String lastName, String login, Language language) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
+        this.language = language;
     }
 
     public Account(Long id, @NotNull Long version, Set<AccessLevel> accessLevels, String firstName, String lastName) {

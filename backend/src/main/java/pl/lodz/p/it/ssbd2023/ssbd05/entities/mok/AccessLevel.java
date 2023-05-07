@@ -105,4 +105,8 @@ public abstract class AccessLevel extends AbstractEntity implements Serializable
         this.level = level;
     }
 
+    public boolean isValidAccessLevel(AccessType type) {
+        return active && verified && this.level == type;
+    }
+
 }
