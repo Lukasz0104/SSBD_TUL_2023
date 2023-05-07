@@ -11,9 +11,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.AuthManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
@@ -27,6 +24,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwtUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Stateful
@@ -123,19 +121,17 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     }
 
     public void logout(String token, String login) throws AppBaseException {
-        Token refreshToken = tokenFacade.findByToken(UUID.fromString(token))
-            .orElseThrow(TokenNotFoundException::new);
+        Optional<Token> optionalToken =
+            tokenFacade.findByTokenAndTokenType(UUID.fromString(token), TokenType.REFRESH_TOKEN);
 
-        Account account = refreshToken.getAccount();
+        if (optionalToken.isPresent()) {
+            Token refreshToken = optionalToken.get();
+            Account account = refreshToken.getAccount();
 
-        if (!Objects.equals(account.getLogin(), login) || refreshToken.getTokenType() != TokenType.REFRESH_TOKEN) {
-            throw new InvalidTokenException();
-        }
-
-        try {
+            if (!Objects.equals(account.getLogin(), login)) {
+                return;
+            }
             tokenFacade.remove(refreshToken);
-        } catch (AppDatabaseException ade) {
-            throw new TokenNotFoundException();
         }
     }
 }

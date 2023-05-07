@@ -113,7 +113,8 @@ public class I18n {
     public static final String INTERNAL = "response.message.internal";
     public static final String NOT_FOUND = "response.message.not_found";
     public static final String UNAUTHORIZED = "response.message.unauthorized";
-
+    
+    public static final String INVALID_UUID = "response.message.invalid.uuid";
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);

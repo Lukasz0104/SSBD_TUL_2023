@@ -54,6 +54,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
 import java.util.List;
@@ -128,12 +129,12 @@ public class AccountEndpoint {
 
     @POST
     @Path("/confirm-registration")
-    public Response confirmRegistration(@NotNull @QueryParam("token") UUID token) throws AppBaseException {
+    public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
         do {
             try {
-                accountManager.confirmRegistration(token);
+                accountManager.confirmRegistration(UUID.fromString(token));
                 rollbackTx = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollbackTx = true;
@@ -226,14 +227,15 @@ public class AccountEndpoint {
     @PUT
     @Path("/me/confirm-email/{token}")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto, @NotNull @PathParam("token") UUID token)
+    public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto, @ValidUUID @PathParam("token") String token)
         throws AppBaseException {
 
         int retryTXCounter = properties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {
-                accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
+                accountManager.confirmEmail(dto.getEmail(), UUID.fromString(token),
+                    securityContext.getUserPrincipal().getName());
                 rollbackTX = accountManager.isLastTransactionRollback();
 
             } catch (AppOptimisticLockException aole) {
