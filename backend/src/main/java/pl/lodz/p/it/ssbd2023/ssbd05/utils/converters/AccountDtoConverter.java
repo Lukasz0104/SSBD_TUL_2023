@@ -62,7 +62,7 @@ public class AccountDtoConverter {
 
     public static Account createAccountFromEditDto(EditAnotherPersonalDataDto dto) {
         return new Account(
-            dto.getId(),
+            dto.getLogin(),
             dto.getVersion(),
             dto.getEmail(),
             dto.getFirstName(),
