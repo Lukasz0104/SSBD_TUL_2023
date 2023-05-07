@@ -1,6 +1,5 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,22 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.SignableDto;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.AccountSignableDto;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EditAnotherPersonalDataDto implements SignableDto {
-    @NotBlank
-    private String login;
-
-    @NotNull
-    private Long version;
+public class EditAnotherPersonalDataDto extends AccountSignableDto {
 
     @Email
     @NotBlank
@@ -40,19 +29,4 @@ public class EditAnotherPersonalDataDto implements SignableDto {
 
     @NotNull
     private Language language;
-
-    @NotNull
-    private List<@Valid AccessLevelDto> accessLevels;
-
-    @Override
-    public String getSignableFields() {
-        Map<String, String> fields = new HashMap<>();
-        fields.put("login", login);
-        fields.put("version", String.valueOf(version));
-        getAccessLevels().forEach(al -> fields.put(
-            String.valueOf(al.getId()),
-            String.valueOf(al.getVersion())
-        ));
-        return fields.toString();
-    }
 }
