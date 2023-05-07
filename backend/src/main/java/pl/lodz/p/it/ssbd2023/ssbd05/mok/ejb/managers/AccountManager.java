@@ -146,7 +146,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         accountFacade.edit(account);
 
-        tokenFacade.deleteTokenByAccountIdAndTokenType(account.getId(), TokenType.CONFIRM_EMAIL_TOKEN);
+        tokenFacade.removeTokensByAccountIdAndTokenType(account.getId(), TokenType.CONFIRM_EMAIL_TOKEN);
     }
 
     @Override

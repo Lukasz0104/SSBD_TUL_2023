@@ -164,13 +164,4 @@ public class TokenFacade extends AbstractFacade<Token> {
         tq.setParameter("expiresAt", expiresAt);
         return tq.getResultList();
     }
-
-    public void deleteTokenByAccountIdAndTokenType(Long id, TokenType tokenType) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.deleteByAccountIdAndTokenType", Token.class);
-        tq.setParameter("id", id);
-        tq.setParameter("tokenType", tokenType);
-
-        tq.executeUpdate();
-        em.flush();
-    }
 }
