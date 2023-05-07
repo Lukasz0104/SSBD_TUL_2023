@@ -36,7 +36,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
@@ -243,17 +242,12 @@ public class AccountEndpoint {
     @PUT
     @Path("/me/change-access-level")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public AccessTypeDto changeAccessLevel(@Valid ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
-        AccessType accessType;
-        try {
-            accessType = AccessType.valueOf(accessLevelDto.getAccessType());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidAccessLevelException();
-        }
+    public Response changeAccessLevel(@Valid @NotNull ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
+        AccessType accessType = AccessType.valueOf(accessLevelDto.getAccessType());
 
         accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
 
-        return new AccessTypeDto(accessType);
+        return Response.ok().entity(new AccessTypeDto(accessType)).build();
     }
 
     @PUT
