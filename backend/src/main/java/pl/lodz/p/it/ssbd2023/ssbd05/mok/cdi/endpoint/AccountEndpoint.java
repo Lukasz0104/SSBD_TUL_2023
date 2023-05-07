@@ -255,24 +255,58 @@ public class AccountEndpoint {
     @PUT
     @Path("/manager/change-active-status")
     @RolesAllowed({"MANAGER"})
-    public Response changeActiveStatusAsManager(@Valid ChangeActiveStatusDto dto)
+    public Response changeActiveStatusAsManager(@NotNull @Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String managerLogin = securityContext.getUserPrincipal().getName();
 
-        accountManager.changeActiveStatusAsManager(managerLogin,
-            dto.getId(), dto.getActive());
+        int retryTXCounter = properties.getTransactionRepeatLimit();
+        boolean rollbackTX = false;
+        do {
+            try {
+                accountManager.changeActiveStatusAsManager(managerLogin,
+                    dto.getId(), dto.getActive());
+                rollbackTX = accountManager.isLastTransactionRollback();
+
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (retryTXCounter < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --retryTXCounter > 0);
+
+        if (rollbackTX && retryTXCounter == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.noContent().build();
     }
 
     @PUT
     @Path("/admin/change-active-status")
     @RolesAllowed({"ADMIN"})
-    public Response changeActiveStatusAsAdmin(@Valid ChangeActiveStatusDto dto)
+    public Response changeActiveStatusAsAdmin(@NotNull @Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String adminLogin = securityContext.getUserPrincipal().getName();
+        
+        int retryTXCounter = properties.getTransactionRepeatLimit();
+        boolean rollbackTX = false;
+        do {
+            try {
+                accountManager.changeActiveStatusAsAdmin(adminLogin,
+                    dto.getId(), dto.getActive());
+                rollbackTX = accountManager.isLastTransactionRollback();
 
-        accountManager.changeActiveStatusAsAdmin(adminLogin,
-            dto.getId(), dto.getActive());
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (retryTXCounter < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --retryTXCounter > 0);
+
+        if (rollbackTX && retryTXCounter == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.noContent().build();
     }
 
