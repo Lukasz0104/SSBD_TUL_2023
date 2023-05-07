@@ -84,21 +84,32 @@ public class AccountEndpoint {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/owner")
-    public Response registerOwner(@Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
+    public Response registerOwner(@NotNull @Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
         Account account = createAccountFromRegisterDto(registerOwnerDto);
         Address address = createAddressFromDto(registerOwnerDto.getAddress());
         AccessLevel accessLevel = new OwnerData(account, address);
 
         account.getAccessLevels().add(accessLevel);
 
-        accountManager.registerAccount(account);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+
+        do {
+            accountManager.registerAccount(account);
+            rollbackTx = accountManager.isLastTransactionRollback();
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/manager")
-    public Response registerManager(@Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
+    public Response registerManager(@NotNull @Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
         Account account = createAccountFromRegisterDto(registerManagerDto);
         Address address = createAddressFromDto(registerManagerDto.getAddress());
 
@@ -106,14 +117,43 @@ public class AccountEndpoint {
 
         account.getAccessLevels().add(accessLevel);
 
-        accountManager.registerAccount(account);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+
+        do {
+            accountManager.registerAccount(account);
+            rollbackTx = accountManager.isLastTransactionRollback();
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
     @POST
     @Path("/confirm-registration")
     public Response confirmRegistration(@NotNull @QueryParam("token") UUID token) throws AppBaseException {
-        accountManager.confirmRegistration(token);
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+        do {
+            try {
+                accountManager.confirmRegistration(token);
+                rollbackTx = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTx = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+
+        } while (rollbackTx && --txLimit > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 

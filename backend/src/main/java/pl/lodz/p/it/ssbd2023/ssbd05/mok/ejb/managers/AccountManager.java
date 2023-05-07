@@ -77,11 +77,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         String hashedPwd = hashGenerator.generate(account.getPassword().toCharArray());
         account.setPassword(hashedPwd);
 
-        try {
-            accountFacade.create(account);
-        } catch (AppDatabaseException exc) {
-            throw new ConstraintViolationException(exc.getMessage(), exc);
-        }
+        accountFacade.create(account);
 
         Token token = new Token(account, properties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
 
