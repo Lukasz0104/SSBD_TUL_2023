@@ -14,7 +14,7 @@ public class ChangePasswordDto {
     private String newPassword;
 
     @AssertFalse
-    public boolean isPasswordsSame() {
+    public boolean isPasswordSame() {
         return oldPassword.equals(newPassword);
     }
 
