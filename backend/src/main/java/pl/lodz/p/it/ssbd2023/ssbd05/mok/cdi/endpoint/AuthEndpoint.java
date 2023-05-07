@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.RequestScoped;
@@ -22,8 +23,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
@@ -31,6 +34,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshTokenDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 
 import java.util.UUID;
 
@@ -117,9 +121,28 @@ public class AuthEndpoint {
     @DELETE
     @Path("logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response logout(@NotNull @org.hibernate.validator.constraints.UUID @QueryParam("token") String token)
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response logout(@ValidUUID @QueryParam("token") String token)
         throws AppBaseException {
-        authManager.logout(token, securityContext.getUserPrincipal().getName());
+
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTX;
+        do {
+            try {
+                authManager.logout(token, securityContext.getUserPrincipal().getName());
+                rollbackTX = authManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --txLimit > 0);
+
+        if (rollbackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 }

@@ -58,6 +58,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
 import java.util.List;
@@ -110,8 +111,8 @@ public class AccountEndpoint {
 
     @POST
     @Path("/confirm-registration")
-    public Response confirmRegistration(@NotNull @QueryParam("token") UUID token) throws AppBaseException {
-        accountManager.confirmRegistration(token);
+    public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
+        accountManager.confirmRegistration(UUID.fromString(token));
         return Response.noContent().build();
     }
 
@@ -183,10 +184,11 @@ public class AccountEndpoint {
     @PUT
     @Path("/confirm-email")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response confirmEmail(@Valid ChangeEmailDto dto, @NotNull @QueryParam("token") UUID token)
+    public Response confirmEmail(@Valid ChangeEmailDto dto, @ValidUUID @QueryParam("token") String token)
         throws AppBaseException {
 
-        accountManager.confirmEmail(dto.getEmail(), token, securityContext.getUserPrincipal().getName());
+        accountManager.confirmEmail(dto.getEmail(), UUID.fromString(token),
+            securityContext.getUserPrincipal().getName());
         return Response.ok().build();
     }
 
