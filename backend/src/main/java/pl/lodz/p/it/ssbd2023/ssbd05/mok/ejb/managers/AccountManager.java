@@ -204,33 +204,25 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         if (!account.isActive()) {
             throw new InactiveAccountException();
         }
-        List<Token> resetPasswordTokens =
-            tokenFacade.findByAccountLoginAndTokenType(account.getLogin(), TokenType.PASSWORD_RESET_TOKEN);
-        for (Token t : resetPasswordTokens) {
-            tokenFacade.remove(t);
-        }
 
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
-        emailService.resetPasswordEmail(account.getEmail(), account.getEmail(),
+        emailService.resetPasswordEmail(account.getEmail(), account.getFullName(),
             properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage().toString());
     }
 
     @Override
     public void resetPassword(String password, UUID token) throws AppBaseException {
-        Token resetPasswordToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
-        resetPasswordToken.validateSelf(TokenType.PASSWORD_RESET_TOKEN);
+        Token resetPasswordToken = tokenFacade.findByTokenAndTokenType(token, TokenType.PASSWORD_RESET_TOKEN)
+            .orElseThrow(TokenNotFoundException::new);
+        resetPasswordToken.validateSelf();
         Account account = resetPasswordToken.getAccount();
         if (!account.isActive()) {
             throw new InactiveAccountException();
         }
-        tokenFacade.remove(resetPasswordToken);
+        tokenFacade.removeTokensByAccountIdAndTokenType(account.getId(), TokenType.PASSWORD_RESET_TOKEN);
         account.setPassword(hashGenerator.generate(password.toCharArray()));
-        try {
-            accountFacade.edit(account);
-        } catch (AppDatabaseException e) {
-            throw new ConstraintViolationException(e.getMessage(), e);
-        }
+        accountFacade.edit(account);
     }
 
     @Override
