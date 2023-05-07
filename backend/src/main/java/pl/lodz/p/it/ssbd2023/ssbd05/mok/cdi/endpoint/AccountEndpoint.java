@@ -37,7 +37,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
@@ -156,9 +155,24 @@ public class AccountEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                String login = securityContext.getUserPrincipal().getName();
+                accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollBackTX && --txLimit > 0);
 
-        String login = securityContext.getUserPrincipal().getName();
-        accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
 
         return Response.noContent().build();
     }
@@ -169,6 +183,7 @@ public class AccountEndpoint {
     public Response changeEmail() throws AppBaseException {
 
         accountManager.changeEmail(securityContext.getUserPrincipal().getName());
+
         return Response.noContent().build();
     }
 

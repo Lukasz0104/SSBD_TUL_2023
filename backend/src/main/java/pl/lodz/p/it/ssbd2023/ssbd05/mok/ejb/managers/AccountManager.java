@@ -235,6 +235,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InvalidPasswordException();
         } else if (hashGenerator.verify(newPass.toCharArray(), account.getPassword())) {
             // check if new password is same as old password
+            // TODO: zmienić na sprawdzanie histori haseł jak będziemy robić to rozszerzenie
             throw new RepeatedPasswordException();
         }
 
