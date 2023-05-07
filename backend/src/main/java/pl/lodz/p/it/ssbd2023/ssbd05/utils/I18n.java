@@ -102,6 +102,8 @@ public class I18n {
     public static final String ACCESS_MANAGEMENT_SELF = "response.message-access-management-self";
     public static final String ROLLBACK_LIMIT_EXCEEDED = "response.message.rollback.limit.exceeded";
 
+    public static final String ROLLBACK_LIMIT_EXCEEDED = "response.message.rollback.limit.exceeded";
+
     public static final String BAD_REQUEST = "response.message.bad_request";
     public static final String CONFLICT = "response.message.conflict";
     public static final String FORBIDDEN = "response.message.forbidden";

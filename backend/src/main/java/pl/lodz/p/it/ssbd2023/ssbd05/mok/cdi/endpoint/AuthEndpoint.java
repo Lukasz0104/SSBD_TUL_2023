@@ -56,7 +56,7 @@ public class AuthEndpoint {
     private Properties properties;
 
     @POST
-    @Path("/login")
+    @Path("login")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(@NotNull @Valid LoginDto dto) throws AppBaseException {
@@ -93,7 +93,7 @@ public class AuthEndpoint {
     }
 
     @POST
-    @Path("/refresh")
+    @Path("refresh")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
@@ -115,7 +115,7 @@ public class AuthEndpoint {
     }
 
     @DELETE
-    @Path("/logout")
+    @Path("logout")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response logout(@NotNull @org.hibernate.validator.constraints.UUID @QueryParam("token") String token)
         throws AppBaseException {

@@ -84,6 +84,25 @@ public class TokenFacade extends AbstractFacade<Token> {
         return this.findByExpiresAtIf(expiresAt, true);
     }
 
+    public Optional<Token> findByTokenAndTokenType(UUID token, TokenType tokenType) {
+        TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenAndTokenType", Token.class);
+        tq.setParameter("token", token);
+        tq.setParameter("tokenType", tokenType);
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException nre) {
+            return Optional.empty();
+        }
+    }
+
+    public void removeTokensByAccountIdAndTokenType(Long accountId, TokenType tokenType) {
+        TypedQuery tq = em.createNamedQuery("Token.removeTokensByAccountIdAndTokenType", Token.class);
+        tq.setParameter("accountId", accountId);
+        tq.setParameter("tokenType", tokenType);
+        tq.executeUpdate();
+        em.flush();
+    }
+
     public List<Token> findByAccountIdAndTokenType(Long accountId, TokenType tokenType) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountIdAndTokenType", Token.class);
         tq.setParameter("accountId", accountId);
