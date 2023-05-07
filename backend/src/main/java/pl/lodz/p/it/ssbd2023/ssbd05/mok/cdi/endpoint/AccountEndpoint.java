@@ -36,8 +36,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidAccessLevelException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ForcePasswordChangeDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LanguageChangeDatabaseException;
@@ -352,10 +350,9 @@ public class AccountEndpoint {
     @PUT
     @Path("/admin/edit-other")
     @RolesAllowed({"ADMIN"})
-    public Response editDetailsByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto) throws AppBaseException {
+    public Response editPersonalDataByAdmin(@Valid @NotNull EditAnotherPersonalDataDto dto) throws AppBaseException {
         Account account = createAccountFromEditDto(dto);
-        String adminLogin = securityContext.getUserPrincipal().getName();
-        AccountDto accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, adminLogin));
+        AccountDto accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
         return Response.ok().entity(accountDto).build();
     }
 }

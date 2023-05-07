@@ -438,11 +438,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public Account editPersonalDataByAdmin(Account newData, String adminLogin) throws AppBaseException {
-        Account adminAccount = accountFacade.findByLogin(adminLogin).orElseThrow(AccountNotFoundException::new);
-        if (!adminAccount.hasAccessLevel(AccessType.ADMIN)) {
-            throw new BadAccessLevelException();
-        }
+    public Account editPersonalDataByAdmin(Account newData) throws AppBaseException {
+
         Account accountOrig = accountFacade.find(newData.getId()).orElseThrow(AccountNotFoundException::new);
         if (accountOrig.getVersion() != newData.getVersion()) {
             throw new AppOptimisticLockException();
@@ -454,7 +451,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         accountOrig.setLanguage(newData.getLanguage());
 
         editAccessLevels(accountOrig.getAccessLevels(), newData);
-        accountFacade.lockAndEdit(accountOrig);
+        accountFacade.edit(accountOrig);
         return accountOrig;
     }
 
