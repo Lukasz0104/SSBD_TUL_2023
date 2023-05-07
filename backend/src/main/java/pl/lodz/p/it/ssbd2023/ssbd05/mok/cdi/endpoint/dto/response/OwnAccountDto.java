@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.SignableDto;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class OwnAccountDto {
+public class OwnAccountDto implements SignableDto {
 
     @NotNull
     private Long id;
@@ -47,8 +49,16 @@ public class OwnAccountDto {
     @Size(min = 2, max = 2)
     private String language = "PL";
 
+
+    @Override
     public String getSignableFields() {
-        Map<String, String> fields = Map.of("login", login, "version", String.valueOf(version));
+        Map<String, String> fields = new HashMap<>();
+        fields.put("login", login);
+        fields.put("version", String.valueOf(version));
+        getAccessLevels().forEach(al -> fields.put(
+            String.valueOf(al.getId()),
+            String.valueOf(al.getVersion())
+        ));
         return fields.toString();
     }
 }
