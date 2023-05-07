@@ -5,6 +5,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ActivityTracker;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
@@ -29,12 +30,21 @@ import java.util.Set;
 public class AccountDtoConverter {
 
     public static Account createAccountFromRegisterDto(RegisterAccountDto dto) {
+        Language lang;
+
+        try {
+            lang = Language.valueOf(dto.getLanguage().toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+            lang = Language.EN;
+        }
+
         return new Account(
             dto.getEmail(),
             dto.getPassword(),
             dto.getFirstName(),
             dto.getLastName(),
-            dto.getLogin());
+            dto.getLogin(),
+            lang);
     }
 
     public static Account createAccountFromEditOwnPersonalDataDto(EditOwnPersonalDataDto dto) {
