@@ -167,6 +167,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         changeActiveStatus(managerLogin, account, status);
     }
 
+    @Override
+    public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
+        throws AppBaseException {
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+        changeActiveStatus(adminLogin, account, status);
+    }
+
     private void changeActiveStatus(String adminOrManagerLogin, Account account, boolean status)
         throws AppBaseException {
 
@@ -178,21 +185,11 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         account.setActive(status);
-        try {
-            accountFacade.edit(account);
-        } catch (AppDatabaseException ade) {
-            throw new ConstraintViolationException(ade.getMessage(), ade);
-        }
+
+        accountFacade.edit(account);
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), status);
-    }
-
-    @Override
-    public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
-        throws AppBaseException {
-        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
-        changeActiveStatus(adminLogin, account, status);
     }
 
     @Override
