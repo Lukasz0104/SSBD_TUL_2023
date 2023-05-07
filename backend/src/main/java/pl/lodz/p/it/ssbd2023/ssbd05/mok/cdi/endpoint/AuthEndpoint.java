@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -22,12 +23,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
@@ -63,6 +60,7 @@ public class AuthEndpoint {
     @Path("login")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @PermitAll
     public Response login(@NotNull @Valid LoginDto dto) throws AppBaseException {
         String ip = httpServletRequest.getRemoteAddr();
 
@@ -70,52 +68,73 @@ public class AuthEndpoint {
             identityStoreHandler.validate(new UsernamePasswordCredential(dto.getLogin(), dto.getPassword()));
 
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollbackTX = false;
         if (credentialValidationResult.getStatus() != CredentialValidationResult.Status.VALID) {
             do {
                 try {
                     authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
-                    throw new AuthenticationException();
-                } catch (AccountNotFoundException anfe) {
-                    throw new AuthenticationException();
-                } catch (AppDatabaseException ade) {
-                    txCounter++;
+                    rollbackTX = authManager.isLastTransactionRollback();
+                } catch (AppOptimisticLockException aole) {
+                    rollbackTX = true;
+                    if (txLimit < 2) {
+                        throw aole;
+                    }
                 }
-            } while (txCounter < txLimit);
-            throw new AuthenticationException();
-        }
+            } while (rollbackTX && --txLimit > 0);
 
-        do {
-            try {
-                JwtRefreshTokenDto jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
-                return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
-            } catch (AppDatabaseException de) {
-                txCounter++;
+            if (rollbackTX && txLimit == 0) {
+                throw new AppRollbackLimitExceededException();
             }
-        } while (txCounter < txLimit);
-        throw new AuthenticationException();
+            throw new AuthenticationException();
+
+        } else {
+            JwtRefreshTokenDto jwtRefreshTokenDto = null;
+            do {
+                try {
+                    jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
+                    rollbackTX = authManager.isLastTransactionRollback();
+                } catch (AppOptimisticLockException aole) {
+                    rollbackTX = true;
+                    if (txLimit < 2) {
+                        throw aole;
+                    }
+                }
+            } while (rollbackTX && --txLimit > 0);
+
+            if (rollbackTX && txLimit == 0) {
+                throw new AppRollbackLimitExceededException();
+            }
+            return Response.ok(jwtRefreshTokenDto).build();
+        }
     }
 
     @POST
     @Path("refresh")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @PermitAll
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
         UUID token = UUID.fromString(dto.getRefreshToken());
 
         int txLimit = properties.getTransactionRepeatLimit();
-        int txCounter = 0;
+        boolean rollbackTX = false;
+        JwtRefreshTokenDto jwtRefreshTokenDto = null;
         do {
             try {
-                JwtRefreshTokenDto jwtRefreshTokenDto = authManager.refreshJwt(token, dto.getLogin());
-                return Response.status(Response.Status.OK).entity(jwtRefreshTokenDto).build();
-            } catch (InvalidTokenException | ExpiredTokenException e) {
-                throw new AuthenticationException();
-            } catch (AppDatabaseException de) {
-                txCounter++;
+                jwtRefreshTokenDto = authManager.refreshJwt(token, dto.getLogin());
+                rollbackTX = authManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-        } while (txCounter < txLimit);
-        throw new AuthenticationException();
+        } while (rollbackTX && --txLimit > 0);
+
+        if (rollbackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(jwtRefreshTokenDto).build();
     }
 
     @DELETE
@@ -126,7 +145,7 @@ public class AuthEndpoint {
         throws AppBaseException {
 
         int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollbackTX;
+        boolean rollbackTX = false;
         do {
             try {
                 authManager.logout(token, securityContext.getUserPrincipal().getName());
