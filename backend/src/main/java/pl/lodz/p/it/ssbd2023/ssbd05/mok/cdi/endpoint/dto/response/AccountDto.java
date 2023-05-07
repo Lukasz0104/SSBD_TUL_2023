@@ -27,7 +27,8 @@ public class AccountDto extends OwnAccountDto {
 
     public AccountDto(Long id,
                       Long version,
-                      @NotNull Set<AccessLevelDto> accessLevels, @NotNull @Email @Size(min = 3, max = 320) String email,
+                      @NotNull Set<AccessLevelDto> accessLevels,
+                      @NotNull @Email @Size(min = 3, max = 320) String email,
                       @NotNull @Size(min = 3, max = 100) String login,
                       @NotNull @Size(min = 1, max = 100) String firstName,
                       @NotNull @Size(min = 1, max = 100) String lastName,

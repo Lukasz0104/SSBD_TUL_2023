@@ -15,9 +15,9 @@
             <div
                 (click)="onClick(group)"
                 [ngClass]="{
-                    'btn-primary': group === 'MANAGER',
-                    'btn-secondary': group === 'ADMIN',
-                    'btn-warning': group === 'OWNER'
+                    'btn-warning': group === 'MANAGER',
+                    'btn-danger': group === 'ADMIN',
+                    'btn-success': group === 'OWNER'
                 }"
                 class="p-2 btn">
                 {{ group }}

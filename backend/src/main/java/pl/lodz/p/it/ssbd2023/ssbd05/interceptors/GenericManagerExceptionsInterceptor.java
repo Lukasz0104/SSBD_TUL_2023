@@ -21,6 +21,5 @@ public class GenericManagerExceptionsInterceptor {
         } catch (Exception e) {
             throw new AppInternalServerErrorException(e);
         }
-
     }
 }

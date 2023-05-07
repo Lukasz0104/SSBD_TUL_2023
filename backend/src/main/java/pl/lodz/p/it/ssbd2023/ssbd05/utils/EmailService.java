@@ -30,14 +30,11 @@ import java.util.logging.Logger;
 @Stateless
 public class EmailService {
 
-    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
-
     @Inject
     private Properties applicationProperties;
-
     private Session session;
-
     private MimeMessage mimeMessage;
+    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
     @PostConstruct
     private void init() {
@@ -252,7 +249,7 @@ public class EmailService {
     @Asynchronous
     public void changeActiveStatusEmail(String to, String name, String language, boolean status) {
 
-        if (status) {
+        if (!status) {
             this.sendMessageWithoutLink(to,
                 name,
                 I18n.getMessage(I18n.EMAIL_MESSAGE_BLOCKED_ACCOUNT_STATUS_MESSAGE, language),

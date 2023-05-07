@@ -1,0 +1,12 @@
+<nav
+    class="d-flex justify-content-end fs-3 navbar navbar-expand shadow w-100"
+    [ngClass]="{
+        'bg-warning': authService.getCurrentGroup() === 'MANAGER',
+        'bg-danger': authService.getCurrentGroup() === 'ADMIN',
+        'bg-success': authService.getCurrentGroup() === 'OWNER'
+    }">
+    <div class="text-white px-3">
+        {{ authService.getLogin() }}
+        <i class="bi bi-person"></i>
+    </div>
+</nav>
