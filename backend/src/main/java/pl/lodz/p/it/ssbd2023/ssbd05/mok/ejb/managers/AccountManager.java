@@ -265,10 +265,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     public AccessType changeAccessLevel(String login, AccessType accessType) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
-        boolean canChangeAccessLevel = account.getAccessLevels().stream()
-            .filter(AccessLevel::isActive)
-            .anyMatch(accessLevel -> accessLevel.getLevel() == accessType);
-        if (!canChangeAccessLevel) {
+        if (!account.hasAccessLevel(accessType)) {
             throw new NoAccessLevelException();
         }
 

@@ -156,16 +156,23 @@ public class AccountEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                String login = securityContext.getUserPrincipal().getName();
+                accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollBackTX && --txLimit > 0);
 
-        if (dto.getOldPassword().equals(dto.getNewPassword())) {
-            throw new RepeatedPasswordException();
-        }
-
-        try {
-            String login = securityContext.getUserPrincipal().getName();
-            accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
-        } catch (AppDatabaseException appDatabaseException) {
-            // TODO: repeat transaction
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
         }
 
         return Response.noContent().build();
@@ -236,17 +243,12 @@ public class AccountEndpoint {
     @PUT
     @Path("/me/change-access-level")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public AccessTypeDto changeAccessLevel(@Valid ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
-        AccessType accessType;
-        try {
-            accessType = AccessType.valueOf(accessLevelDto.getAccessType());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidAccessLevelException();
-        }
+    public Response changeAccessLevel(@Valid @NotNull ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
+        AccessType accessType = AccessType.valueOf(accessLevelDto.getAccessType());
 
         accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
 
-        return new AccessTypeDto(accessType);
+        return Response.ok().entity(new AccessTypeDto(accessType)).build();
     }
 
     @PUT
