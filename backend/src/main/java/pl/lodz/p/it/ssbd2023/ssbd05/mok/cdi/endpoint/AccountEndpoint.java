@@ -441,7 +441,7 @@ public class AccountEndpoint {
         }
 
         Account account = createAccountFromEditDto(dto);
-        OwnAccountDto accountDto;
+        AccountDto accountDto = null;
 
         int txLimit = properties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
