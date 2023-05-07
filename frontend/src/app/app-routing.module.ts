@@ -4,15 +4,25 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
+import { HomeComponent } from './components/home/home.component';
 
 const routes: Routes = [
     {
-        path: 'login',
-        component: LoginComponent,
+        path: '',
+        component: HomeComponent,
         data: {
-            title: 'Sign in'
+            title: 'Home'
         },
-        canActivate: [canActivateLoginOrRegister]
+        children: [
+            {
+                path: 'login',
+                component: LoginComponent,
+                data: {
+                    title: 'Sign in'
+                },
+                canActivate: [canActivateLoginOrRegister]
+            }
+        ]
     },
     {
         path: 'dashboard',
@@ -20,7 +30,8 @@ const routes: Routes = [
         data: {
             title: 'Dashboard'
         },
-        canActivate: [canActivateAuthenticated]
+        canActivate: [canActivateAuthenticated],
+        children: []
     }
 ];
 

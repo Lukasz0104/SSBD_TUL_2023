@@ -1,1 +1,39 @@
-<p>{{ getCurrentGroup() }}</p>
+<div class="d-flex">
+    <app-sidebar></app-sidebar>
+    <div class="d-flex flex-column w-100">
+        <app-navbar class="d-flex w-100 flex-column"></app-navbar>
+        <div class="card m-3 ps-2">
+            <div
+                class="justify-content-start navbar navbar-expand"
+                id="navbarNav">
+                <ul
+                    style="--bs-breadcrumb-divider: '>'"
+                    class="navbar-nav breadcrumb mb-0">
+                    <ng-container
+                        *ngFor="
+                            let breadcrumb of getBreadCrumbs();
+                            let i = index
+                        ">
+                        <li
+                            routerLink="{{ breadcrumb[1] }}"
+                            class="nav-item pe-0 nav-link breadcrumb-item">
+                            <span
+                                [ngClass]="{
+                                    'fw-bold': i === getBreadCrumbs().length - 1
+                                }"
+                                class="hover"
+                                >{{ breadcrumb[0] | titlecase }}</span
+                            >
+                        </li>
+                    </ng-container>
+                </ul>
+            </div>
+        </div>
+        <div class="card m-3 mt-0">
+            <div
+                class="container-fluid h-100 d-flex overflow-auto p-3 overflow-x-hidden w-100">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+    </div>
+</div>
