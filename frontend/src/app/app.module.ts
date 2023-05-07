@@ -13,6 +13,8 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastSectionComponent } from './components/toast-section/toast-section.component';
 import { RefreshSessionComponent } from './components/modals/refresh-session/refresh-session.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 
 @NgModule({
     declarations: [
@@ -21,7 +23,9 @@ import { RefreshSessionComponent } from './components/modals/refresh-session/ref
         DashboardComponent,
         ChooseAccessLevelComponent,
         ToastSectionComponent,
-        RefreshSessionComponent
+        RefreshSessionComponent,
+        ResetPasswordComponent,
+        ResetPasswordConfirmComponent
     ],
     imports: [
         BrowserModule,

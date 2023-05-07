@@ -4,6 +4,8 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 
 const routes: Routes = [
     {
@@ -21,6 +23,22 @@ const routes: Routes = [
             title: 'Dashboard'
         },
         canActivate: [canActivateAuthenticated]
+    },
+    {
+        path: 'reset-password',
+        component: ResetPasswordComponent,
+        data: {
+            title: 'Reset password'
+        },
+        canActivate: [canActivateLoginOrRegister]
+    },
+    {
+        path: 'reset-password-confirm/:token',
+        component: ResetPasswordConfirmComponent,
+        data: {
+            title: 'Confirm password reset'
+        },
+        canActivate: [canActivateLoginOrRegister]
     }
 ];
 
