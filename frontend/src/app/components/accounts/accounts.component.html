@@ -1,0 +1,57 @@
+<ng-container *ngIf="accounts$ | async as accounts; else loadingAccounts">
+    <div class="table-responsive border rounded">
+        <table class="table text-center table-hover">
+            <thead>
+                <tr class="bg-light">
+                    <th scope="col">Login</th>
+                    <th scope="col">First name</th>
+                    <th scope="col">Last name</th>
+                    <th scope="col">Active</th>
+                    <th scope="col">Verified</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    class="cursor-pointer"
+                    *ngFor="
+                        let account of accounts.slice(
+                            (page - 1) * pageSize,
+                            page * pageSize
+                        )
+                    ">
+                    <td>{{ account.login }}</td>
+                    <td>{{ account.firstName }}</td>
+                    <td>{{ account.lastName }}</td>
+                    <td>{{ account.active }}</td>
+                    <td>{{ account.verified }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="d-sm-flex justify-content-between m-2">
+            <div>
+                <ngb-pagination
+                    [collectionSize]="accounts.length"
+                    [(page)]="page"
+                    [pageSize]="pageSize">
+                </ngb-pagination>
+            </div>
+
+            <div>
+                <select
+                    class="form-select w-auto"
+                    [(ngModel)]="pageSize">
+                    <option [ngValue]="2">2 items per page</option>
+                    <option [ngValue]="3">3 items per page</option>
+                    <option [ngValue]="4">4 items per page</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #loadingAccounts>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">Loading accounts..</span>
+    </div>
+</ng-template>
