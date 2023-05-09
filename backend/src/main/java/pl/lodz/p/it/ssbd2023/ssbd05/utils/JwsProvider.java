@@ -34,7 +34,6 @@ public class JwsProvider {
             JWSSigner signer = new MACSigner(properties.getJwsSecret());
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(payload));
             jwsObject.sign(signer);
-            System.out.println(jwsObject.serialize());
             return ifMatch.equals(jwsObject.serialize());
         } catch (JOSEException je) {
             LOGGER.severe(je.getMessage() + " " + je.getCause().getMessage());

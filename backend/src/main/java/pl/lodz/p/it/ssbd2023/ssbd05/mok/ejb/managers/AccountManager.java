@@ -15,13 +15,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InactiveAccountException;
@@ -155,6 +153,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         changeActiveStatus(managerLogin, account, status);
     }
 
+    @Override
+    public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
+        throws AppBaseException {
+        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
+        changeActiveStatus(adminLogin, account, status);
+    }
+
     private void changeActiveStatus(String adminOrManagerLogin, Account account, boolean status)
         throws AppBaseException {
 
@@ -166,21 +171,11 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
 
         account.setActive(status);
-        try {
-            accountFacade.edit(account);
-        } catch (AppDatabaseException ade) {
-            throw new ConstraintViolationException(ade.getMessage(), ade);
-        }
+
+        accountFacade.edit(account);
 
         emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), status);
-    }
-
-    @Override
-    public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
-        throws AppBaseException {
-        Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
-        changeActiveStatus(adminLogin, account, status);
     }
 
     @Override
@@ -436,12 +431,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public Account editPersonalDataByAdmin(Account newData, String adminLogin) throws AppBaseException {
-        Account adminAccount = accountFacade.findByLogin(adminLogin).orElseThrow(AccountNotFoundException::new);
-        if (!adminAccount.hasAccessLevel(AccessType.ADMIN)) {
-            throw new BadAccessLevelException();
-        }
-        Account accountOrig = accountFacade.find(newData.getId()).orElseThrow(AccountNotFoundException::new);
+    public Account editPersonalDataByAdmin(Account newData) throws AppBaseException {
+
+        Account accountOrig = accountFacade.findByLogin(newData.getLogin()).orElseThrow(AccountNotFoundException::new);
         if (accountOrig.getVersion() != newData.getVersion()) {
             throw new AppOptimisticLockException();
         }
@@ -452,7 +444,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         accountOrig.setLanguage(newData.getLanguage());
 
         editAccessLevels(accountOrig.getAccessLevels(), newData);
-        accountFacade.lockAndEdit(accountOrig);
+        accountFacade.edit(accountOrig);
         return accountOrig;
     }
 
