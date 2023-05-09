@@ -167,17 +167,22 @@
                                 class="form-control"
                                 placeholder="Password"
                                 [ngClass]="{
-                                    'is-invalid': passwordControl.invalid,
-                                    'is-valid': passwordControl.valid
+                                    'is-invalid': passwordInvalid,
+                                    'is-valid': !passwordInvalid
                                 }" />
                             <div
-                                *ngIf="passwordControl.errors"
+                                *ngIf="passwordInvalid"
                                 class="invalid-feedback">
                                 <p
-                                    *ngIf="passwordControl.errors['required']"
+                                    *ngIf="passwordControl.errors?.['required']; else mismatch"
                                     class="mb-0">
                                     Password is required.
                                 </p>
+                                <ng-template #mismatch>
+                                    <p class="mb-0">
+                                        Password and repeat password must match.
+                                    </p>
+                                </ng-template>
                             </div>
                         </div>
                         <div class="mb-2 has-validation">
@@ -194,19 +199,24 @@
                                 formControlName="repeatPassword"
                                 placeholder="Repeat password"
                                 [ngClass]="{
-                                    'is-invalid': repeatPasswordControl.invalid,
-                                    'is-valid': repeatPasswordControl.valid
+                                    'is-invalid': repeatPasswordInvalid,
+                                    'is-valid': !repeatPasswordInvalid
                                 }" />
                             <div
-                                *ngIf="repeatPasswordControl.errors"
+                                *ngIf="repeatPasswordInvalid"
                                 class="invalid-feedback">
                                 <p
                                     *ngIf="
-                                        repeatPasswordControl.errors['required']
+                                        repeatPasswordControl.errors?.['required']; else mismatch
                                     "
                                     class="mb-0">
                                     Repeat password is required.
                                 </p>
+                                <ng-template #mismatch>
+                                    <p class="mb-0">
+                                        Password and repeat password must match.
+                                    </p>
+                                </ng-template>
                             </div>
                         </div>
                         <div class="mb-2">
@@ -407,7 +417,7 @@
                                         Back
                                     </button>
                                     <button
-                                        [disabled]="allFormsValid"
+                                        [disabled]="!allFormsValid"
                                         type="button"
                                         class="btn btn-primary ms-auto col col-12 col-sm-5">
                                         Register

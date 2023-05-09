@@ -6,6 +6,7 @@ import {
     Validators
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
 
 @Component({
     selector: 'app-register',
@@ -34,7 +35,7 @@ export class RegisterComponent {
             password: new FormControl('', [Validators.required]),
             repeatPassword: new FormControl('', [Validators.required])
         },
-        { validators: [] }
+        { validators: repeatPasswordValidator }
     );
 
     protected ownerOrManagerForm = new FormGroup({
@@ -75,9 +76,6 @@ export class RegisterComponent {
         const currentForm = this.currentForm;
         const controls = Object.values(currentForm.controls);
         const invalidCount = this.countInvalidFields(controls);
-        // Object.values(controls).filter(
-        //     (fc) => fc.status === 'INVALID'
-        // ).length;
         return (
             (100 / this.forms.length) *
             (this.formIndex + 1 - invalidCount / this.countAllFields(controls))
@@ -113,7 +111,7 @@ export class RegisterComponent {
     }
 
     protected get allFormsValid() {
-        return this.forms.some((f) => f.invalid);
+        return this.forms.every((f) => f.valid);
     }
 
     //#region control getters
@@ -163,6 +161,18 @@ export class RegisterComponent {
 
     protected get licenseNumberControl() {
         return this.ownerOrManagerForm.controls.licenseNumber;
+    }
+
+    protected get passwordInvalid() {
+        return this.passwordControl.invalid || this.passwordMismatch;
+    }
+
+    protected get repeatPasswordInvalid() {
+        return this.repeatPasswordControl.invalid || this.passwordMismatch;
+    }
+
+    protected get passwordMismatch() {
+        return this.authDetailsForm.errors?.['passwordMismatch'];
     }
     //#endregion
 }
