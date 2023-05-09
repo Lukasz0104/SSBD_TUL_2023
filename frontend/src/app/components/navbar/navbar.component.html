@@ -1,0 +1,34 @@
+<nav
+    class="d-flex justify-content-end fs-3 navbar navbar-expand shadow w-100"
+    [ngClass]="{
+        'bg-warning': authService.getCurrentGroup() === 'MANAGER',
+        'bg-danger': authService.getCurrentGroup() === 'ADMIN',
+        'bg-success': authService.getCurrentGroup() === 'OWNER'
+    }">
+    <div class="row">
+        <div class="col">
+            <div
+                ngbDropdown
+                class="d-inline-block">
+                <button
+                    type="button"
+                    class="btn"
+                    id="dropdownBasic1"
+                    ngbDropdownToggle>
+                    <i class="france flag"></i>
+                </button>
+                <div
+                    ngbDropdownMenu
+                    aria-labelledby="dropdownBasic1">
+                    <button ngbDropdownItem>Action - 1</button>
+                    <button ngbDropdownItem>Another Action</button>
+                    <button ngbDropdownItem>Something else is here</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-white px-3">
+        {{ authService.getLogin() }}
+        <i class="bi bi-person"></i>
+    </div>
+</nav>

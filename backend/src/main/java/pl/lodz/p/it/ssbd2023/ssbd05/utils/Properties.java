@@ -22,7 +22,7 @@ public class Properties {
     private int jwtExpirationTime;
 
     @Inject
-    @ConfigProperty(name = "security.login.fail.limit", defaultValue = "5")
+    @ConfigProperty(name = "security.login.fail.limit", defaultValue = "3")
     private int unsuccessfulLoginChainLimit;
 
     @Inject

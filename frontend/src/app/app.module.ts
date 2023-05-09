@@ -13,6 +13,9 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastSectionComponent } from './components/toast-section/toast-section.component';
 import { RefreshSessionComponent } from './components/modals/refresh-session/refresh-session.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { HomeComponent } from './components/home/home.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 
@@ -25,7 +28,11 @@ import { ResetPasswordConfirmComponent } from './components/reset-password-confi
         ToastSectionComponent,
         RefreshSessionComponent,
         ResetPasswordComponent,
-        ResetPasswordConfirmComponent
+        ResetPasswordConfirmComponent,
+        RefreshSessionComponent,
+        NavbarComponent,
+        SidebarComponent,
+        HomeComponent
     ],
     imports: [
         BrowserModule,
