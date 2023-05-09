@@ -5,13 +5,12 @@ import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-profile',
-    templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.css']
+    templateUrl: './profile.component.html'
 })
 export class ProfileComponent {
     ownAccount$: Observable<OwnAccount>;
 
     constructor(accountService: AccountService) {
-        this.ownAccount$ = accountService.getOwnProfilelogin();
+        this.ownAccount$ = accountService.getOwnProfile();
     }
 }

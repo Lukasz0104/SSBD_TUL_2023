@@ -9,10 +9,15 @@ import { catchError, Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { ToastService } from '../services/toast.service';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
-    constructor(private authService: AuthService, private router: Router) {}
+    constructor(
+        private authService: AuthService,
+        private router: Router,
+        private toastService: ToastService
+    ) {}
 
     intercept(
         request: HttpRequest<unknown>,
@@ -34,6 +39,15 @@ export class JwtInterceptor implements HttpInterceptor {
                         !this.authService.isJwtValid(this.authService.getJwt())
                     ) {
                         this.logout();
+                    } else if (
+                        err.status === 403 &&
+                        this.authService.isJwtValid(this.authService.getJwt())
+                    ) {
+                        this.router
+                            .navigate(['/dashboard'])
+                            .then(() =>
+                                this.toastService.showDanger('Access denied')
+                            );
                     }
                     throw err;
                 })

@@ -35,6 +35,8 @@ export interface Address {
 
 export interface ActivityTracker {
     unsuccessfulLoginChainCounter: number;
-    lastSuccessfulLogin?: string;
+    lastSuccessfulLogin?: Date;
     lastSuccessfulLoginIp?: string;
+    lastUnsuccessfulLogin?: Date;
+    lastUnsuccessfulLoginIp?: string;
 }
