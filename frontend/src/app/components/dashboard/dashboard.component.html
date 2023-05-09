@@ -15,7 +15,7 @@
                             let i = index
                         ">
                         <li
-                            routerLink="{{ breadcrumb[1] }}"
+                            routerLink="/{{ breadcrumb[1] }}"
                             class="nav-item pe-0 nav-link breadcrumb-item">
                             <span
                                 [ngClass]="{
@@ -31,7 +31,7 @@
         </div>
         <div class="card m-3 mt-0">
             <div
-                class="container-fluid h-100 d-flex overflow-auto p-3 overflow-x-hidden w-100">
+                class="container-fluid h-100 overflow-auto p-3 overflow-x-hidden">
                 <router-outlet></router-outlet>
             </div>
         </div>

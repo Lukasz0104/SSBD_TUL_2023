@@ -12,11 +12,14 @@ export class DashboardComponent {
         const url = this.router.url.split('/');
         url.shift();
         const breadcrumbs: string[][] = [];
-        url[url.length - 1] = this.removeParams(url[url.length - 1]);
+        // url[url.length - 1] = this.removeParams(url[url.length - 1]);
 
         for (let i = 0; i < url.length; i++) {
             let link = url[i];
-            const name = url[i];
+            let name = url[i];
+            if (i === url.length - 1) {
+                name = this.removeParams(name);
+            }
             if (i > 0) {
                 link = breadcrumbs[i - 1][1] + '/' + link;
             }

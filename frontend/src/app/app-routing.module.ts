@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
 import { HomeComponent } from './components/home/home.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
     {
@@ -31,7 +32,16 @@ const routes: Routes = [
             title: 'Dashboard'
         },
         canActivate: [canActivateAuthenticated],
-        children: []
+        children: [
+            {
+                path: 'profile',
+                component: ProfileComponent,
+                data: {
+                    title: 'My profile'
+                },
+                canActivate: [canActivateAuthenticated]
+            }
+        ]
     }
 ];
 
