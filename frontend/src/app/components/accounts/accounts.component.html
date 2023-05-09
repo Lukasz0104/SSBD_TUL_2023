@@ -1,3 +1,44 @@
+<div class="row">
+    <div
+        aria-label="Basic example"
+        class="btn-group mb-3 d-flex"
+        role="group">
+        <button
+            (click)="changeOption(1)"
+            [ngClass]="{ active: chosenOption.getValue() === 1 }"
+            class="btn btn-secondary"
+            type="button">
+            All
+        </button>
+        <button
+            (click)="changeOption(2)"
+            [ngClass]="{ active: chosenOption.getValue() === 2 }"
+            class="btn btn-secondary"
+            type="button">
+            Active
+        </button>
+        <button
+            (click)="changeOption(3)"
+            [ngClass]="{ active: chosenOption.getValue() === 3 }"
+            class="btn btn-secondary"
+            type="button">
+            Inactive
+        </button>
+        <button
+            (click)="changeOption(4)"
+            [ngClass]="{ active: chosenOption.getValue() === 4 }"
+            class="btn btn-secondary"
+            type="button">
+            Need approving
+        </button>
+        <span
+            (click)="reload()"
+            class="btn btn-primary flex-grow-0">
+            <i class="bi bi-arrow-clockwise"></i>
+        </span>
+    </div>
+</div>
+
 <ng-container *ngIf="accounts$ | async as accounts; else loadingAccounts">
     <div class="table-responsive border rounded">
         <table class="table text-center table-hover">
@@ -7,39 +48,37 @@
                     <th scope="col">First name</th>
                     <th scope="col">Last name</th>
                     <th scope="col">Active</th>
-                    <th scope="col">Verified</th>
                 </tr>
             </thead>
             <tbody>
                 <tr
-                    class="cursor-pointer"
                     *ngFor="
                         let account of accounts.slice(
                             (page - 1) * pageSize,
                             page * pageSize
                         )
-                    ">
+                    "
+                    class="cursor-pointer">
                     <td>{{ account.login }}</td>
                     <td>{{ account.firstName }}</td>
                     <td>{{ account.lastName }}</td>
                     <td>{{ account.active }}</td>
-                    <td>{{ account.verified }}</td>
                 </tr>
             </tbody>
         </table>
         <div class="d-sm-flex justify-content-between m-2">
             <div>
                 <ngb-pagination
-                    [collectionSize]="accounts.length"
                     [(page)]="page"
+                    [collectionSize]="accounts.length"
                     [pageSize]="pageSize">
                 </ngb-pagination>
             </div>
 
             <div>
                 <select
-                    class="form-select w-auto"
-                    [(ngModel)]="pageSize">
+                    [(ngModel)]="pageSize"
+                    class="form-select w-auto">
                     <option [ngValue]="2">2 items per page</option>
                     <option [ngValue]="3">3 items per page</option>
                     <option [ngValue]="4">4 items per page</option>

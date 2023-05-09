@@ -14,4 +14,10 @@ export class AccountService {
             `${environment.apiUrl}/accounts/owners`
         );
     }
+
+    getOwnersByActive(active: boolean) {
+        return this.http.get<Account[]>(
+            `${environment.apiUrl}/accounts/owners?active=${active}`
+        );
+    }
 }
