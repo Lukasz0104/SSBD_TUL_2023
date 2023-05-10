@@ -1,0 +1,177 @@
+<ng-container *ngIf="authService.getCurrentGroup() === 'ADMIN'">
+    <div
+        aria-label="Choose access type"
+        class="btn-group mb-3 d-flex"
+        role="group">
+        <button
+            (click)="changeAccessTypeOption('ALL')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'ALL'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            All
+        </button>
+        <button
+            (click)="changeAccessTypeOption('OWNER')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'OWNER'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            Owners
+        </button>
+        <button
+            (click)="changeAccessTypeOption('MANAGER')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'MANAGER'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isManager()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            Managers
+        </button>
+        <button
+            (click)="changeAccessTypeOption('ADMIN')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'ADMIN'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            Admins
+        </button>
+    </div>
+</ng-container>
+<div class="row">
+    <div
+        aria-label="Choose active"
+        class="btn-group mb-3 d-flex"
+        role="group">
+        <button
+            (click)="changeStatusOption(1)"
+            [ngClass]="[
+                chosenOption.getValue() === 1
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary'
+            ]"
+            class="btn"
+            type="button">
+            Active
+        </button>
+        <button
+            (click)="changeStatusOption(2)"
+            [ngClass]="[
+                chosenOption.getValue() === 2
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary'
+            ]"
+            class="btn"
+            type="button">
+            Inactive
+        </button>
+        <button
+            (click)="changeStatusOption(3)"
+            [ngClass]="[
+                chosenOption.getValue() === 3
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenAccessType.getValue() === 'ALL' ||
+                (chosenAccessType.getValue() === 'OWNER' &&
+                    !authService.isManager()) ||
+                (chosenAccessType.getValue() === 'MANAGER' &&
+                    !authService.isAdmin()) ||
+                chosenAccessType.getValue() === 'ADMIN'
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            Need approval
+        </button>
+        <span
+            (click)="reload()"
+            class="btn btn-primary flex-grow-0 d-flex justify-content-center align-items-center">
+            <i class="bi bi-arrow-clockwise"></i>
+        </span>
+    </div>
+</div>
+
+<ng-container *ngIf="accounts$ | async as accounts; else loadingAccounts">
+    <div class="table-responsive border rounded">
+        <table class="table text-center table-hover">
+            <thead>
+                <tr class="bg-light">
+                    <th scope="col">Login</th>
+                    <th scope="col">First name</th>
+                    <th scope="col">Last name</th>
+                    <th scope="col">Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="
+                        let account of accounts.slice(
+                            (page - 1) * pageSize,
+                            page * pageSize
+                        )
+                    "
+                    class="cursor-pointer">
+                    <td>{{ account.login }}</td>
+                    <td>{{ account.firstName }}</td>
+                    <td>{{ account.lastName }}</td>
+                    <td *ngIf="account.active">
+                        <i class="bi bi-unlock-fill"></i>
+                    </td>
+                    <td *ngIf="!account.active">
+                        <i class="bi bi-lock-fill"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="d-sm-flex justify-content-between m-2">
+            <div>
+                <ngb-pagination
+                    [(page)]="page"
+                    [collectionSize]="accounts.length"
+                    [pageSize]="pageSize">
+                </ngb-pagination>
+            </div>
+
+            <div>
+                <select
+                    [(ngModel)]="pageSize"
+                    class="form-select w-auto">
+                    <option [ngValue]="2">2 items per page</option>
+                    <option [ngValue]="3">3 items per page</option>
+                    <option [ngValue]="4">4 items per page</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #loadingAccounts>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">Loading accounts..</span>
+    </div>
+</ng-template>

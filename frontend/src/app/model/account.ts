@@ -32,6 +32,7 @@ export interface AccessLevel {
     address?: Address;
     licenseNumber?: string;
     verified: boolean;
+    active: boolean;
 }
 
 export interface Address {

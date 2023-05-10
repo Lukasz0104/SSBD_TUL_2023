@@ -20,8 +20,9 @@ public class ManagerDataDto extends AccessLevelDto {
     @NotNull
     private String licenseNumber;
 
-    public ManagerDataDto(Long id, Long version, AddressDto address, String licenseNumber) {
-        super(id, version);
+    public ManagerDataDto(Long id, Long version, AddressDto address, String licenseNumber, boolean verified,
+                          boolean active) {
+        super(id, version, verified, active);
         this.address = address;
         this.licenseNumber = licenseNumber;
     }

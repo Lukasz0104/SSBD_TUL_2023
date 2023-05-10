@@ -8,6 +8,8 @@ import { HomeComponent } from './components/home/home.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AccountComponent } from './components/account/account.component';
 import { canActivateAdmin } from './guards/admin.guard';
+import { AccountsComponent } from './components/accounts/accounts.component';
+import { canActivateManagerAdmin } from './guards/manager-admin.guard';
 
 const routes: Routes = [
     {
@@ -50,6 +52,14 @@ const routes: Routes = [
                     title: 'Account'
                 },
                 canActivate: [canActivateAdmin]
+            },
+            {
+                path: 'accounts',
+                component: AccountsComponent,
+                data: {
+                    title: 'Accounts'
+                },
+                canActivate: [canActivateManagerAdmin]
             }
         ]
     }

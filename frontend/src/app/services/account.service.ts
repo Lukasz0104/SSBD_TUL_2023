@@ -9,6 +9,7 @@ import { Account, EditPersonalData, OwnAccount } from '../model/account';
 import { catchError, map, of, tap } from 'rxjs';
 import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
+import { AccessType } from '../model/access-type';
 
 @Injectable({
     providedIn: 'root'
@@ -66,5 +67,39 @@ export class AccountService {
                     return of(false);
                 })
             );
+    }
+
+    getAccountsByTypeAndActive(type: AccessType, active: boolean) {
+        let url;
+        switch (type) {
+            case AccessType.OWNER:
+                url = 'accounts/owners';
+                break;
+            case AccessType.MANAGER:
+                url = 'accounts/managers';
+                break;
+            case AccessType.ADMIN:
+                url = 'accounts/admins';
+                break;
+            default:
+                url = 'accounts';
+                break;
+        }
+        return this.http.get<Account[]>(
+            `${environment.apiUrl}/${url}?active=${active}`
+        );
+    }
+
+    getUnapprovedAccountsByType(type: AccessType) {
+        if (type == AccessType.OWNER) {
+            return this.http.get<Account[]>(
+                `${environment.apiUrl}/accounts/owners/unapproved`
+            );
+        } else if (type == AccessType.MANAGER) {
+            return this.http.get<Account[]>(
+                `${environment.apiUrl}/accounts/managers/unapproved`
+            );
+        }
+        return of([]);
     }
 }

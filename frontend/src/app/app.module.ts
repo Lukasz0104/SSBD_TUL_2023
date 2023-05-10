@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -19,6 +19,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AccountComponent } from './components/account/account.component';
 import { EditPersonalDataComponent } from './components/modals/edit-personal-data/edit-personal-data.component';
+import { AccountsComponent } from './components/accounts/accounts.component';
 
 @NgModule({
     declarations: [
@@ -31,6 +32,7 @@ import { EditPersonalDataComponent } from './components/modals/edit-personal-dat
         NavbarComponent,
         SidebarComponent,
         HomeComponent,
+        AccountsComponent,
         ProfileComponent,
         AccountComponent,
         EditPersonalDataComponent
@@ -42,7 +44,8 @@ import { EditPersonalDataComponent } from './components/modals/edit-personal-dat
         NgbAccordionModule,
         HttpClientModule,
         ReactiveFormsModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        FormsModule
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
