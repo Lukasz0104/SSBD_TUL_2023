@@ -11,6 +11,14 @@ export interface OwnAccount {
     version: number;
 }
 
+export interface EditPersonalData {
+    accessLevels: AccessLevel[];
+    firstName: string;
+    lastName: string;
+    login: string;
+    version: number;
+}
+
 export interface Account extends OwnAccount {
     active: boolean;
     activityTracker: ActivityTracker;

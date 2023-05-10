@@ -18,6 +18,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HomeComponent } from './components/home/home.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AccountComponent } from './components/account/account.component';
+import { EditPersonalDataComponent } from './components/modals/edit-personal-data/edit-personal-data.component';
 
 @NgModule({
     declarations: [
@@ -31,7 +32,8 @@ import { AccountComponent } from './components/account/account.component';
         SidebarComponent,
         HomeComponent,
         ProfileComponent,
-        AccountComponent
+        AccountComponent,
+        EditPersonalDataComponent
     ],
     imports: [
         BrowserModule,

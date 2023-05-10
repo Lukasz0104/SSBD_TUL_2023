@@ -10,7 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class AccountComponent implements OnInit {
     id: number | undefined;
-    account$: Observable<Account> | undefined;
+    account$: Observable<Account | null> | undefined;
 
     constructor(
         private accountService: AccountService,

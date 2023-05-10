@@ -2,15 +2,31 @@ import { Component } from '@angular/core';
 import { AccountService } from '../../services/account.service';
 import { OwnAccount } from '../../model/account';
 import { Observable } from 'rxjs';
+import { EditPersonalDataComponent } from '../modals/edit-personal-data/edit-personal-data.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-profile',
     templateUrl: './profile.component.html'
 })
 export class ProfileComponent {
-    ownAccount$: Observable<OwnAccount>;
+    ownAccount$: Observable<OwnAccount | null>;
 
-    constructor(accountService: AccountService) {
+    constructor(
+        private accountService: AccountService,
+        private modalService: NgbModal
+    ) {
         this.ownAccount$ = accountService.getOwnProfile();
+    }
+
+    edit() {
+        const modalRef = this.modalService.open(EditPersonalDataComponent, {
+            centered: true,
+            size: 'xl',
+            scrollable: true
+        });
+        modalRef.result.then(() => {
+            this.ownAccount$ = this.accountService.getOwnProfile();
+        });
     }
 }
