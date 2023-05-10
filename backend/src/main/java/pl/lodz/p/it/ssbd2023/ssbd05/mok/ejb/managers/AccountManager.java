@@ -407,13 +407,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setFirstName(newData.getFirstName());
         account.setLastName(newData.getLastName());
         editAccessLevels(account.getAccessLevels(), newData);
-
-        try {
-            Thread.sleep(1201);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
         accountFacade.edit(account);
         return account;
     }
