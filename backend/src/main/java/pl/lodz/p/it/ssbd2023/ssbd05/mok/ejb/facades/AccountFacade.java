@@ -112,4 +112,11 @@ public class AccountFacade extends AbstractFacade<Account> {
         tq.setParameter("level", accessType);
         return tq.getResultList();
     }
+
+    public List<Account> findByActiveAndVerifiedAccessLevel(AccessType accessType) {
+        TypedQuery<Account> tq =
+            em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevel", Account.class);
+        tq.setParameter("level", accessType);
+        return tq.getResultList();
+    }
 }

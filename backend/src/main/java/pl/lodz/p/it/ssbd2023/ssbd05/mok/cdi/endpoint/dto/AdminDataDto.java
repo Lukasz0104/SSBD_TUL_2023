@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class AdminDataDto extends AccessLevelDto {
-    public AdminDataDto(Long id, Long version) {
-        super(id, version);
+    public AdminDataDto(Long id, Long version, boolean verified, boolean active) {
+        super(id, version, verified, active);
     }
 
 }
