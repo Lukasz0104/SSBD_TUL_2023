@@ -113,6 +113,7 @@ public class Token extends AbstractEntity {
         this.expiresAt = switch (tokenType) {
             case REFRESH_TOKEN -> LocalDateTime.now().plusHours(1);
             case PASSWORD_RESET_TOKEN -> LocalDateTime.now().plusMinutes(15);
+            case BLOCKED_ACCOUNT_TOKEN -> LocalDateTime.now().plusHours(24);
             default -> LocalDateTime.now().plusHours(2);
         };
     }

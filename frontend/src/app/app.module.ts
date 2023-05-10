@@ -13,6 +13,9 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastSectionComponent } from './components/toast-section/toast-section.component';
 import { RefreshSessionComponent } from './components/modals/refresh-session/refresh-session.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { HomeComponent } from './components/home/home.component';
 import { RegisterComponent } from './components/register/register.component';
 
 @NgModule({
@@ -23,7 +26,11 @@ import { RegisterComponent } from './components/register/register.component';
         ChooseAccessLevelComponent,
         ToastSectionComponent,
         RefreshSessionComponent,
-        RegisterComponent
+        RegisterComponent,
+        RefreshSessionComponent,
+        NavbarComponent,
+        SidebarComponent,
+        HomeComponent
     ],
     imports: [
         BrowserModule,

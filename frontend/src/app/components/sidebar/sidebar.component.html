@@ -1,0 +1,109 @@
+<div
+    class="d-flex flex-column flex-shrink-0 vh-100 p-3 bg-light shadow fixed-top sticky-sm-top"
+    [ngClass]="{ 'd-none': hidden }"
+    style="width: 280px">
+    <div class="d-flex align-items-center link-dark text-decoration-none">
+        <a
+            routerLink="/"
+            class="w-100 text-center fs-3 nav-link"
+            ><i class="bi bi-buildings"></i> eBok</a
+        >
+        <button
+            class="btn fs-2"
+            style="border-radius: 0 0 10px 0"
+            (click)="toggle()">
+            <i
+                *ngIf="hidden"
+                class="bi bi-chevron-double-right"></i>
+            <i
+                *ngIf="!hidden"
+                class="bi bi-chevron-double-left"></i>
+        </button>
+    </div>
+    <hr />
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a
+                routerLink="/dashboard"
+                class="nav-link active"
+                aria-current="page">
+                <i class="bi bi-buildings"></i> Dashboard
+            </a>
+        </li>
+        <li>
+            <a
+                href="#"
+                class="nav-link link-dark">
+                Link
+            </a>
+        </li>
+        <li>
+            <a
+                href="#"
+                class="nav-link link-dark">
+                Link
+            </a>
+        </li>
+        <li>
+            <a
+                href="#"
+                class="nav-link link-dark">
+                Link
+            </a>
+        </li>
+        <li>
+            <a
+                href="#"
+                class="nav-link link-dark">
+                Link
+            </a>
+        </li>
+    </ul>
+    <hr />
+    <div class="d-flex justify-content-center">
+        <a class="d-flex align-items-center link-dark text-decoration-none">
+            <i class="fs-2 bi bi-person"></i>
+            <strong class="px-2 text-center">{{
+                authService.getLogin()
+            }}</strong>
+        </a>
+    </div>
+</div>
+
+<!--Hidden sidebar mobile-->
+<div
+    *ngIf="hidden"
+    class="d-flex d-sm-none fixed-top">
+    <button
+        class="fs-2 btn bg-white border"
+        style="border-radius: 0 0 10px 0"
+        (click)="toggle()">
+        <i class="bi bi-chevron-double-right"></i>
+    </button>
+</div>
+
+<!--Hidden sidebar-->
+<div
+    *ngIf="hidden"
+    class="d-none d-sm-flex flex-column shadow vh-100">
+    <button
+        class="fs-2 btn"
+        (click)="toggle()">
+        <i
+            *ngIf="hidden"
+            class="bi bi-chevron-double-right"></i>
+        <i
+            *ngIf="!hidden"
+            class="bi bi-chevron-double-left"></i>
+    </button>
+    <button
+        class="fs-2 btn"
+        routerLink="/dashboard">
+        <i class="bi bi-buildings"></i>
+    </button>
+    <button
+        class="fs-2 btn"
+        routerLink="">
+        <i class="bi bi-person"></i>
+    </button>
+</div>

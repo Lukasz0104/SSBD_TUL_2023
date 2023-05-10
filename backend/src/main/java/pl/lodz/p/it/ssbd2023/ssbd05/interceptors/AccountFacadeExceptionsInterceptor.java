@@ -5,7 +5,9 @@ import jakarta.interceptor.InvocationContext;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.EmailAddressAlreadyTakenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LicenseNumberAlreadyTakenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LoginAlreadyTakenException;
 
 public class AccountFacadeExceptionsInterceptor {
     @AroundInvoke
@@ -15,8 +17,13 @@ public class AccountFacadeExceptionsInterceptor {
         } catch (OptimisticLockException ole) {
             throw ole;
         } catch (PersistenceException pe) {
-            if (pe.getMessage().contains("manager_data_license_number_key")) {
+            String exceptionMessage = pe.getMessage();
+            if (exceptionMessage.contains("manager_data_license_number_key")) {
                 throw new LicenseNumberAlreadyTakenException();
+            } else if (exceptionMessage.contains("account_email_key")) {
+                throw new EmailAddressAlreadyTakenException();
+            } else if (exceptionMessage.contains("account_login_key")) {
+                throw new LoginAlreadyTakenException();
             }
             throw new AppDatabaseException(pe);
         }

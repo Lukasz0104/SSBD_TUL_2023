@@ -152,12 +152,13 @@ public class Account extends AbstractEntity implements Serializable {
     @Embedded
     private ActivityTracker activityTracker = new ActivityTracker();
 
-    public Account(String email, String password, String firstName, String lastName, String login) {
+    public Account(String email, String password, String firstName, String lastName, String login, Language language) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
+        this.language = language;
     }
 
     public Account(Long id, @NotNull Long version, Set<AccessLevel> accessLevels, String firstName, String lastName) {
@@ -174,9 +175,10 @@ public class Account extends AbstractEntity implements Serializable {
         this.lastName = lastName;
     }
 
-    public Account(Long id, Long version, String email, String firstName, String lastName,
+    public Account(String login, Long version, String email, String firstName, String lastName,
                    Language language, Set<AccessLevel> accessLevelSet) {
-        super(id, version);
+        super(version);
+        this.login = login;
         this.email = email;
         this.language = language;
         this.accessLevels = accessLevelSet;
