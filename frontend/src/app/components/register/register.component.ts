@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import {
     AbstractControl,
-    FormControl,
     FormGroup,
+    NonNullableFormBuilder,
     Validators
 } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { ResponseMessage } from '../../common/response-message.enum';
+import { AccountService } from '../../services/account.service';
+import { ToastService } from '../../services/toast.service';
 import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
 
 @Component({
@@ -22,30 +24,50 @@ import { repeatPasswordValidator } from '../../validators/repeat-password.valida
 export class RegisterComponent {
     protected languages = ['EN', 'PL'];
 
-    protected personalDetailsForm = new FormGroup({
-        firstName: new FormControl('', [Validators.required]),
-        lastName: new FormControl('', [Validators.required]),
-        language: new FormControl(this.languages[0], [Validators.required])
+    protected personalDetailsForm = this.fb.group({
+        firstName: this.fb.control('', {
+            validators: [Validators.required]
+        }),
+        lastName: this.fb.control('', {
+            validators: [Validators.required]
+        }),
+        language: this.fb.control(this.languages[0], {
+            validators: [Validators.required]
+        })
     });
 
     protected authDetailsForm = new FormGroup(
         {
-            email: new FormControl('', [Validators.required, Validators.email]),
-            login: new FormControl('', [Validators.required]),
-            password: new FormControl('', [Validators.required]),
-            repeatPassword: new FormControl('', [Validators.required])
+            email: this.fb.control('', {
+                validators: [Validators.required, Validators.email]
+            }),
+            login: this.fb.control('', {
+                validators: [Validators.required]
+            }),
+            password: this.fb.control('', {
+                validators: [Validators.required]
+            }),
+            repeatPassword: this.fb.control('', {
+                validators: [Validators.required]
+            })
         },
         { validators: repeatPasswordValidator }
     );
 
     protected ownerOrManagerForm = new FormGroup({
-        address: new FormGroup({
-            postalCode: new FormControl('', [Validators.required]),
-            city: new FormControl('', [Validators.required]),
-            street: new FormControl('', [Validators.required]),
-            buildingNumber: new FormControl(0, [Validators.min(1)])
+        address: this.fb.group({
+            postalCode: this.fb.control('', {
+                validators: [Validators.required]
+            }),
+            city: this.fb.control('', { validators: [Validators.required] }),
+            street: this.fb.control('', { validators: [Validators.required] }),
+            buildingNumber: this.fb.control(0, {
+                validators: [Validators.min(1)]
+            })
         }),
-        licenseNumber: new FormControl('', [Validators.required])
+        licenseNumber: this.fb.control('', {
+            validators: [Validators.required]
+        })
     });
 
     protected readonly forms: FormGroup[] = [
@@ -56,7 +78,39 @@ export class RegisterComponent {
 
     protected formIndex = 0;
 
-    constructor(private authService: AuthService) {}
+    constructor(
+        private accountService: AccountService,
+        private fb: NonNullableFormBuilder,
+        private toast: ToastService
+    ) {}
+
+    register() {
+        const { repeatPassword, ...dto } = {
+            ...this.personalDetailsForm.getRawValue(),
+            ...this.authDetailsForm.getRawValue(),
+            address: this.ownerOrManagerForm.getRawValue().address,
+            licenseNumber: this.ownerOrManagerForm.value.licenseNumber
+        };
+
+        this.accountService.register(dto).subscribe((errorMsg) => {
+            switch (errorMsg) {
+                case ResponseMessage.LICENSE_NUMBER_ALREADY_TAKEN:
+                    this.toast.showDanger('License number is already taken.');
+                    break;
+                case ResponseMessage.EMAIL_ADDRESS_ALREADY_TAKEN:
+                    this.toast.showDanger('Email address is already taken.');
+                    break;
+                case ResponseMessage.LOGIN_ALREADY_TAKEN:
+                    this.toast.showDanger('Login is already taken.');
+                    break;
+                case null:
+                    this.toast.showSuccess('Registration successful.');
+                    this.forms.forEach((f) => f.reset());
+                    this.formIndex = 0;
+                    break;
+            }
+        });
+    }
 
     protected continueToOwnerForm() {
         this.licenseNumberControl.disable();
@@ -147,7 +201,7 @@ export class RegisterComponent {
         return this.ownerOrManagerForm.controls.address.controls.postalCode;
     }
 
-    protected get citControl() {
+    protected get cityControl() {
         return this.ownerOrManagerForm.controls.address.controls.city;
     }
 

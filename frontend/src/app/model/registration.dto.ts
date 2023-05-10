@@ -1,10 +1,9 @@
 import { Address } from './address.model';
 
-interface RegisterAccountDto {
+export interface RegisterAccountDto {
     email: string;
     login: string;
     password: string;
-    repeatPassword: string;
     firstName: string;
     lastName: string;
     language: string;

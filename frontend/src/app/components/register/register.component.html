@@ -1,7 +1,8 @@
-<div class="container">
-    <div class="row justify-content-center">
+<div class="container h-100">
+    <div class="row justify-content-center align-items-center h-100">
         <div class="col-12 col-md-8 col-lg-6">
-            <div class="card border bg-white rounded-5 shadow-lg p-3">
+            <div class="card border bg-light rounded-5 shadow-lg p-3">
+                <h2 class="fw-bold mb-4">Register to eBok</h2>
                 <p>
                     <ngb-progressbar
                         type="success"
@@ -102,7 +103,7 @@
                             </label>
                             <input
                                 id="emailInput"
-                                type="text"
+                                type="email"
                                 placeholder="Email address"
                                 formControlName="email"
                                 required
@@ -247,7 +248,8 @@
                     </form>
                     <form
                         *ngSwitchCase="ownerOrManagerForm"
-                        [formGroup]="ownerOrManagerForm">
+                        [formGroup]="ownerOrManagerForm"
+                        (ngSubmit)="register()">
                         <ng-container formGroupName="address">
                             <div class="mb-2 has-validation">
                                 <label
@@ -292,14 +294,14 @@
                                     placeholder="City"
                                     required
                                     [ngClass]="{
-                                        'is-invalid': citControl.invalid,
-                                        'is-valid': citControl.valid
+                                        'is-invalid': cityControl.invalid,
+                                        'is-valid': cityControl.valid
                                     }" />
                                 <div
-                                    *ngIf="citControl.errors"
+                                    *ngIf="cityControl.errors"
                                     class="invalid-feedback">
                                     <p
-                                        *ngIf="citControl.errors['required']"
+                                        *ngIf="cityControl.errors['required']"
                                         class="mb-0">
                                         City is required.
                                     </p>
@@ -317,7 +319,7 @@
                                     required
                                     formControlName="street"
                                     class="form-control"
-                                    placeholder="Password"
+                                    placeholder="Street"
                                     [ngClass]="{
                                         'is-invalid': streetControl.invalid,
                                         'is-valid': streetControl.valid
@@ -418,7 +420,7 @@
                                     </button>
                                     <button
                                         [disabled]="!allFormsValid"
-                                        type="button"
+                                        type="submit"
                                         class="btn btn-primary ms-auto col col-12 col-sm-5">
                                         Register
                                     </button>
