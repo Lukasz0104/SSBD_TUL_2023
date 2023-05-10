@@ -5,6 +5,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
 import { HomeComponent } from './components/home/home.component';
+import { AccountsComponent } from './components/accounts/accounts.component';
+import { canActivateManagerAdmin } from './guards/manager-admin.guard';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 
 const routes: Routes = [
@@ -32,7 +34,16 @@ const routes: Routes = [
             title: 'Dashboard'
         },
         canActivate: [canActivateAuthenticated],
-        children: []
+        children: [
+            {
+                path: 'accounts',
+                component: AccountsComponent,
+                data: {
+                    title: 'Accounts'
+                },
+                canActivate: [canActivateManagerAdmin]
+            }
+        ]
     },
     {
         path: 'change-password',

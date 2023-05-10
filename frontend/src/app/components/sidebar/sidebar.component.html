@@ -1,5 +1,5 @@
 <div
-    class="d-flex flex-column flex-shrink-0 vh-100 p-3 bg-light shadow fixed-top sticky-sm-top"
+    class="d-flex flex-column flex-shrink-0 vh-100 p-3 bg-light border fixed-top sticky-sm-top"
     [ngClass]="{ 'd-none': hidden }"
     style="width: 280px">
     <div class="d-flex align-items-center link-dark text-decoration-none">
@@ -25,16 +25,21 @@
         <li class="nav-item">
             <a
                 routerLink="/dashboard"
-                class="nav-link active"
-                aria-current="page">
+                class="nav-link link-dark"
+                aria-current="page"
+                routerLinkActive="active link-light"
+                [routerLinkActiveOptions]="{ exact: true }">
                 <i class="bi bi-buildings"></i> Dashboard
             </a>
         </li>
-        <li>
+        <li *ngIf="authService.isAdmin() || authService.isManager()">
             <a
+                routerLink="accounts"
                 href="#"
-                class="nav-link link-dark">
-                Link
+                class="nav-link link-dark"
+                routerLinkActive="active link-light"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-people"></i> Accounts
             </a>
         </li>
         <li>
@@ -63,9 +68,11 @@
     <div class="d-flex justify-content-center">
         <a class="d-flex align-items-center link-dark text-decoration-none">
             <i class="fs-2 bi bi-person"></i>
-            <strong class="px-2 text-center">{{
-                authService.getLogin()
-            }}</strong>
+            <strong class="px-2 text-center"
+                >{{ authService.getLogin() }} ({{
+                    authService.getCurrentGroup()
+                }})</strong
+            >
         </a>
     </div>
 </div>
@@ -73,7 +80,8 @@
 <!--Hidden sidebar mobile-->
 <div
     *ngIf="hidden"
-    class="d-flex d-sm-none fixed-top">
+    class="d-flex d-sm-none position-fixed top-0 start-0"
+    style="z-index: 20">
     <button
         class="fs-2 btn bg-white border"
         style="border-radius: 0 0 10px 0"
@@ -96,14 +104,21 @@
             *ngIf="!hidden"
             class="bi bi-chevron-double-left"></i>
     </button>
-    <button
-        class="fs-2 btn"
-        routerLink="/dashboard">
-        <i class="bi bi-buildings"></i>
-    </button>
-    <button
-        class="fs-2 btn"
-        routerLink="">
-        <i class="bi bi-person"></i>
-    </button>
+    <span class="nav-pills">
+        <button
+            class="nav-link link-dark mx-auto p-2 m-2"
+            routerLinkActive="active link-light"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard">
+            <i class="bi bi-buildings fs-2"></i>
+        </button>
+        <button
+            *ngIf="authService.isAdmin() || authService.isManager()"
+            class="nav-link link-dark mx-auto p-2 m-2"
+            routerLinkActive="active link-light"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="accounts">
+            <i class="bi bi-people fs-2"></i>
+        </button>
+    </span>
 </div>

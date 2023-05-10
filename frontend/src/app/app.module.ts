@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -16,6 +16,7 @@ import { RefreshSessionComponent } from './components/modals/refresh-session/ref
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HomeComponent } from './components/home/home.component';
+import { AccountsComponent } from './components/accounts/accounts.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 
 @NgModule({
@@ -29,6 +30,8 @@ import { ChangePasswordComponent } from './components/change-password/change-pas
         NavbarComponent,
         SidebarComponent,
         HomeComponent,
+        AccountsComponent,
+        HomeComponent,
         ChangePasswordComponent
     ],
     imports: [
@@ -37,7 +40,8 @@ import { ChangePasswordComponent } from './components/change-password/change-pas
         NgbModule,
         HttpClientModule,
         ReactiveFormsModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        FormsModule
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

@@ -71,7 +71,8 @@ import java.util.Set;
             JOIN AccessLevel al on al.account = a
             WHERE a.active = TRUE
                 AND al.level = :level
-                AND al.active = TRUE"""),
+                AND al.active = TRUE
+                AND al.verified = TRUE"""),
     @NamedQuery(
         name = "Account.findAllInactiveAccountsByAccessLevel",
         query = """
@@ -79,7 +80,17 @@ import java.util.Set;
             JOIN AccessLevel al on al.account = a
             WHERE a.active = FALSE
                 AND al.level = :level
-                AND al.active = TRUE""")
+                AND al.active = TRUE
+                AND al.verified = TRUE"""),
+    @NamedQuery(
+        name = "Account.findAccountsThatNeedApprovalByAccessLevel",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al on al.account = a
+            WHERE a.active = TRUE AND a.verified = TRUE
+                AND al.level = :level
+                AND al.active = FALSE
+                AND al.verified = FALSE"""),
 })
 @Getter
 @Setter
