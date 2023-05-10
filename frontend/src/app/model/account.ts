@@ -1,6 +1,6 @@
 import { AccessType } from './access-type';
 
-export interface Account {
+export interface OwnAccount {
     accessLevels: AccessLevel[];
     email: string;
     firstName: string;
@@ -9,6 +9,17 @@ export interface Account {
     lastName: string;
     login: string;
     version: number;
+}
+
+export interface EditPersonalData {
+    accessLevels: AccessLevel[];
+    firstName: string;
+    lastName: string;
+    login: string;
+    version: number;
+}
+
+export interface Account extends OwnAccount {
     active: boolean;
     activityTracker: ActivityTracker;
     verified: boolean;
@@ -33,6 +44,8 @@ export interface Address {
 
 export interface ActivityTracker {
     unsuccessfulLoginChainCounter: number;
-    lastSuccessfulLogin?: string;
+    lastSuccessfulLogin?: Date;
     lastSuccessfulLoginIp?: string;
+    lastUnsuccessfulLogin?: Date;
+    lastUnsuccessfulLoginIp?: string;
 }
