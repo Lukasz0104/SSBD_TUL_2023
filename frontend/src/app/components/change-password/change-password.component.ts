@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { AccountService } from '../../services/account.service';
+import { ToastService } from '../../services/toast.service';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-change-password',
@@ -21,15 +22,15 @@ export class ChangePasswordComponent {
         Validators.pattern(this.regexp)
     ];
 
-    changePasswdForm = new FormGroup({
-        oldPassword: new FormControl('', this.validators),
+    changePasswdForm: FormGroup = new FormGroup({
+        oldPassword: new FormControl('', Validators.required),
         password: new FormControl('', this.validators),
         repeatPassword: new FormControl('', this.validators)
     });
 
     constructor(
         private accountService: AccountService,
-        private route: ActivatedRoute
+        private toastService: ToastService
     ) {}
 
     get password() {
@@ -38,6 +39,10 @@ export class ChangePasswordComponent {
 
     get repeatPassword() {
         return this.changePasswdForm.get('repeatPassword');
+    }
+
+    get oldPassword() {
+        return this.changePasswdForm.get('oldPassword');
     }
 
     onSubmit() {
@@ -57,10 +62,18 @@ export class ChangePasswordComponent {
 
         if (this.changePasswdForm.valid) {
             const dto: object = {
-                password,
-                oldPassword
+                newPassword: password,
+                oldPassword: oldPassword
             };
-            this.accountService.changePassword(dto);
+            this.accountService.changePassword(dto).subscribe({
+                next: (res: boolean): void => {
+                    if (res) {
+                        this.changePasswdForm.reset();
+                    }
+                },
+                error: (err) => this.toastService.showWarning(err)
+            });
+            this.loading = false;
         }
     }
 }

@@ -1,22 +1,29 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, map, Observable, of } from 'rxjs';
 import { ToastService } from './toast.service';
-import { Router } from '@angular/router';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AccountService {
-    constructor(
-        private http: HttpClient,
-        private router: Router,
-        private toastService: ToastService
-    ) {}
+    constructor(private http: HttpClient, private toastService: ToastService) {}
 
-    changePassword(dto: object) {
-        return this.http.put(`${environment.apiUrl}/me/change-password`, {
-            dto
-        });
+    changePassword(dto: object): Observable<boolean> {
+        return this.http
+            .put(`${environment.apiUrl}/accounts/me/change-password`, dto)
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess(
+                        'toast.change-password-success'
+                    );
+                    return true;
+                }),
+                catchError((res: HttpErrorResponse) => {
+                    this.toastService.showDanger(`toast.${res.error.message}`);
+                    return of(false);
+                })
+            );
     }
 }
