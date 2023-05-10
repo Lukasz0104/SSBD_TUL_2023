@@ -1,0 +1,73 @@
+{
+  "validation": {
+    "password": {
+      "required": "Password is required",
+      "length": "Password must be at least 8 characters",
+      "strength": "Password is too weak"
+    },
+    "repeat-password": {
+      "required": "Repeated password is required",
+      "match": "Repeated password doesn't match password"
+    },
+    "login": {
+      "required": "Login is reqired"
+    },
+    "email": {
+      "required": "Email is required"
+    }
+  },
+  "form": {
+    "login": {
+      "title": "Login to eBok",
+      "action": "Login",
+      "no-account-info": "Don't have an account?",
+      "sign-up": "Sign Up"
+    },
+    "forgot-password": {
+      "title": "Forgot password?",
+      "content-before-bold": "In order to reset your password, provide an",
+      "content-after-bold": "associated with your account.",
+      "action": "Send message",
+      "go-back": "Go back to",
+      "go-back-to": "Login page"
+    },
+    "forgot-password-confirm": {
+      "title": "Reset your password.",
+      "action": "Reset password",
+      "go-to": "Go to",
+      "go-to-where": "Login page"
+    },
+    "fields": {
+      "login": "Login*",
+      "password": "Password*",
+      "email": "Email*",
+      "repeat-password": "Reapeat password*"
+    }
+  },
+  "modal": {
+    "access-level": "Choose access level",
+    "refresh-session": {
+      "info": "Your session will expire soon. Do you want to stay logged in?",
+      "stay": "Stay",
+      "cancel": "Cancel"
+    }
+  },
+  "access-levels": {
+    "OWNER": "Owner",
+    "MANAGER": "Manager",
+    "ADMIN": "Admin"
+  },
+  "nav": {
+    "dashboard": "Dashboard"
+  },
+  "toast": {
+    "auth": {
+      "expired-session": "Your session has expired",
+      "unsuccessful-login": "Login unsuccessful"
+    },
+    "account": {
+      "reset-password-message": "Reset password message has been sent",
+      "reset-password-change": "Password has been changed. You may log in now."
+    }
+  }
+}

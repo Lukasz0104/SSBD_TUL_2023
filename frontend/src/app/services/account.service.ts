@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, EMPTY, map, of } from 'rxjs';
 import { ToastService } from './toast.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
     providedIn: 'root'
@@ -12,7 +13,8 @@ export class AccountService {
     constructor(
         private http: HttpClient,
         private router: Router,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private translate: TranslateService
     ) {}
 
     resetPassword(email: string) {
@@ -26,13 +28,24 @@ export class AccountService {
                 map(() => {
                     this.router.navigate(['/login']);
                     this.toastService.showSuccess(
-                        'Reset password message has been sent'
+                        this.translate.instant(
+                            'toast.account.reset-password-message'
+                        )
                     );
                 }),
                 catchError((response: HttpErrorResponse) =>
                     of(this.handleResetPasswordError(response))
                 )
             );
+    }
+
+    changeLanguage(language: string) {
+        return this.http
+            .put(
+                `${environment.apiUrl}/accounts/me/change-language/` + language,
+                {}
+            )
+            .subscribe();
     }
 
     resetPasswordConfirm(resetPasswordDTO: object) {
@@ -45,7 +58,9 @@ export class AccountService {
                 map(() => {
                     this.router.navigate(['/login']);
                     this.toastService.showSuccess(
-                        'Password has been changed. You may log in now.'
+                        this.translate.instant(
+                            'toast.account.reset-password-change'
+                        )
                     );
                 }),
                 catchError((response: HttpErrorResponse) => {

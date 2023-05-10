@@ -1,0 +1,73 @@
+{
+  "validation": {
+    "password": {
+      "required": "Hasło jest wymagane",
+      "length": "Hasło musi mieć conajmniej 8 znaków",
+      "strength": "Hasło jest zbyt słabe"
+    },
+    "repeat-password": {
+      "required": "Powtórzone hasło jest wymagane",
+      "match": "Powtórzone hasło nie jest takie samo jak hasło."
+    },
+    "login": {
+      "required": "Login jest wymagany"
+    },
+    "email": {
+      "required": "Email jest wymagany"
+    }
+  },
+  "form": {
+    "login": {
+      "title": "Zaloguj się do eBok",
+      "action": "Zaloguj",
+      "no-account-info": "Nie masz jeszcze konta?",
+      "sign-up": "Zarejestruj się"
+    },
+    "forgot-password": {
+      "title": "Zapomniałeś hasła?",
+      "content-before-bold": "Aby zresetować swoje hasło, podaj adres",
+      "content-after-bold": "powiązany z twoim kontem.",
+      "action": "Wyślij wiadomość",
+      "go-back": "Powróć do",
+      "go-back-to": "Strony logowania"
+    },
+    "forgot-password-confirm": {
+      "title": "Zresetuj swoje hasło.",
+      "action": "Zresetuj hasło",
+      "go-to": "Przejdź do",
+      "go-to-where": "Strony logowania"
+    },
+    "fields": {
+      "login": "Login*",
+      "password": "Hasło*",
+      "email": "Email*",
+      "repeat-password": "Powtórz hasło*"
+    }
+  },
+  "modal": {
+    "access-level": "Wybierz poziom dostępu",
+    "refresh-session": {
+      "info": "Twoja sesja wkrótce wygaśnie. Czy chcesz pozostać zalogowany?",
+      "stay": "Zostań",
+      "cancel": "Anuluj"
+    }
+  },
+  "access-levels": {
+    "OWNER": "Właściciel",
+    "MANAGER": "Menadżer",
+    "ADMIN": "Admin"
+  },
+  "nav": {
+    "dashboard": "Panel główny"
+  },
+  "toast": {
+    "auth": {
+      "expired-session": "Twoja sesja wygasła",
+      "unsuccessful-login": "Logowanie nie powiodło się"
+    },
+    "account": {
+      "reset-password-message": "Wiadomość do zresetowania hasła została wysłana",
+      "reset-password-change": "Hasło zostało zmienione. Możesz się teraz zalogować"
+    }
+  }
+}

@@ -13,12 +13,15 @@ export class ResetPasswordConfirmComponent {
             Validators.required,
             Validators.minLength(8),
             Validators.pattern(
-                '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$'
+                '^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[\\-!_$@?()\\[\\]#%])[A-Za-z0-9\\-!_$@?()\\[\\]#%]{8,}$'
             )
         ]),
         repeatPassword: new FormControl('', [
             Validators.required,
-            Validators.minLength(8)
+            Validators.minLength(8),
+            Validators.pattern(
+                '^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[\\-!_$@?()\\[\\]#%])[A-Za-z0-9\\-!_$@?()\\[\\]#%]{8,}$'
+            )
         ])
     });
 

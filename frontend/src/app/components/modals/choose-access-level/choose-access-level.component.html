@@ -2,7 +2,7 @@
     <h6
         class="modal-title"
         id="modal-basic-title">
-        Choose access level
+        {{ 'modal.access-level' | translate }}
     </h6>
     <button
         (click)="activeModal.dismiss('Cross click')"
@@ -20,7 +20,7 @@
                     'btn-success': group === 'OWNER'
                 }"
                 class="p-2 btn">
-                {{ group }}
+                {{ 'access-levels.' + group | translate }}
             </div>
         </div>
     </div>

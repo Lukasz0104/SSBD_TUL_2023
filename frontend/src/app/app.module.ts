@@ -1,11 +1,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import {
+    HTTP_INTERCEPTORS,
+    HttpClient,
+    HttpClientModule
+} from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
@@ -18,6 +21,9 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HomeComponent } from './components/home/home.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
+import { ChangeLanguageComponent } from './components/change-language/change-language.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 @NgModule({
     declarations: [
@@ -32,7 +38,8 @@ import { ResetPasswordConfirmComponent } from './components/reset-password-confi
         RefreshSessionComponent,
         NavbarComponent,
         SidebarComponent,
-        HomeComponent
+        HomeComponent,
+        ChangeLanguageComponent
     ],
     imports: [
         BrowserModule,
@@ -40,7 +47,14 @@ import { ResetPasswordConfirmComponent } from './components/reset-password-confi
         NgbModule,
         HttpClientModule,
         ReactiveFormsModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        })
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
@@ -48,3 +62,7 @@ import { ResetPasswordConfirmComponent } from './components/reset-password-confi
     bootstrap: [AppComponent]
 })
 export class AppModule {}
+
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+    return new TranslateHttpLoader(http);
+}
