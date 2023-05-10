@@ -123,9 +123,11 @@
             <i class="bi bi-people fs-2"></i>
         </button>
         <button
-            class="fs-2 btn"
+            class="nav-link link-dark mx-auto p-2 m-2"
+            routerLinkActive="active link-light"
+            [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard/profile">
-            <i class="bi bi-person"></i>
+            <i class="bi bi-person fs-2"></i>
         </button>
     </span>
 </div>

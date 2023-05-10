@@ -154,11 +154,22 @@ export class EditPersonalDataComponent {
     }
 
     areAllValid() {
-        return (
-            this.editPersonalDataForm.valid &&
-            this.editOwnerDataForm.valid &&
-            this.editManagerDataForm.valid
-        );
+        if (this.ownAccount != null) {
+            let valid = this.editPersonalDataForm.valid;
+            for (const level of this.ownAccount.accessLevels) {
+                switch (level.level) {
+                    case AccessType.OWNER:
+                        valid = valid && this.editOwnerDataForm.valid;
+                        break;
+                    case AccessType.MANAGER:
+                        valid = valid && this.editManagerDataForm.valid;
+                        break;
+                }
+            }
+            return valid;
+        } else {
+            return false;
+        }
     }
 
     get firstNameControl() {

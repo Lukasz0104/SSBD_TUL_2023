@@ -17,6 +17,7 @@ import { ToastService } from './toast.service';
 export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);
     private currentGroup = new BehaviorSubject<AccessType>(AccessType.NONE);
+    private scheduledRefresh: any;
 
     constructor(
         private http: HttpClient,
@@ -150,7 +151,7 @@ export class AuthService {
     scheduleRefreshSessionPopUp() {
         const decodedJwtToken = this.getDecodedJwtToken(this.getJwt());
         const millisBeforeJwtExpires = decodedJwtToken.exp * 1000 - Date.now();
-        setTimeout(() => {
+        this.scheduledRefresh = setTimeout(() => {
             this.modalService
                 .open(RefreshSessionComponent)
                 .result.then((refresh: boolean) => {
@@ -273,9 +274,8 @@ export class AuthService {
     private handleLogout() {
         this.clearUserData();
         this.setAuthenticated(false);
-        this.router.navigate(['/login']).then(() => {
-            this.toastService.showSuccess('You have successfully logged out.');
-        });
+        clearTimeout(this.scheduledRefresh);
+        this.router.navigate(['/login']);
     }
 
     isJwtValid(jwt: string): boolean {
