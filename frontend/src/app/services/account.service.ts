@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Account } from '../model/account';
 import { environment } from '../../environments/environment';
 import {
     HttpClient,
@@ -103,6 +102,7 @@ export class AccountService {
         }
         return of([]);
     }
+
     changePassword(dto: object): Observable<boolean> {
         return this.http
             .put(`${environment.apiUrl}/accounts/me/change-password`, dto)

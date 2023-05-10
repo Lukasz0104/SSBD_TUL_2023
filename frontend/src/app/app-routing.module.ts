@@ -44,7 +44,17 @@ const routes: Routes = [
                 data: {
                     title: 'My profile'
                 },
-                canActivate: [canActivateAuthenticated]
+                canActivate: [canActivateAuthenticated],
+                children: [
+                    {
+                        path: 'change-password',
+                        component: ChangePasswordComponent,
+                        data: {
+                            title: 'Change password'
+                        },
+                        canActivate: [canActivateAuthenticated]
+                    }
+                ]
             },
             {
                 path: 'accounts/account',
@@ -63,14 +73,6 @@ const routes: Routes = [
                 canActivate: [canActivateManagerAdmin]
             }
         ]
-    },
-    {
-        path: 'change-password',
-        component: ChangePasswordComponent,
-        data: {
-            title: 'Zmiana hasła'
-        },
-        canActivate: [canActivateAuthenticated]
     }
 ];
 

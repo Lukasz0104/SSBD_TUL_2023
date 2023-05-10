@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
-import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-change-password',
