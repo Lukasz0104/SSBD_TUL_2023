@@ -26,16 +26,33 @@ export class AccountService {
             )
             .pipe(
                 map(() => {
-                    this.router.navigate(['/login']);
-                    this.toastService.showSuccess(
-                        this.translate.instant(
-                            'toast.account.reset-password-message'
-                        )
-                    );
+                    this.router.navigate(['/login']).then(() => {
+                        this.toastService.clearAll();
+                        this.toastService.showSuccess(
+                            this.translate.instant(
+                                'toast.account.reset-password-message'
+                            )
+                        );
+                    });
                 }),
-                catchError((response: HttpErrorResponse) =>
-                    of(this.handleResetPasswordError(response))
-                )
+                catchError((response: HttpErrorResponse) => {
+                    if (response.status == 404) {
+                        this.router.navigate(['/login']);
+                        this.toastService.clearAll();
+                        this.toastService.showSuccess(
+                            this.translate.instant(
+                                'toast.account.reset-password-message'
+                            )
+                        );
+                    } else {
+                        this.toastService.showDanger(
+                            this.translate.instant(
+                                'toast.account.reset-password-message-fail'
+                            )
+                        );
+                    }
+                    return of(null);
+                })
             );
     }
 
@@ -45,7 +62,12 @@ export class AccountService {
                 `${environment.apiUrl}/accounts/me/change-language/` + language,
                 {}
             )
-            .subscribe();
+            .pipe(
+                map(() => {
+                    return true;
+                }),
+                catchError(() => of(false))
+            );
     }
 
     resetPasswordConfirm(resetPasswordDTO: object) {
@@ -56,23 +78,31 @@ export class AccountService {
             )
             .pipe(
                 map(() => {
-                    this.router.navigate(['/login']);
-                    this.toastService.showSuccess(
-                        this.translate.instant(
-                            'toast.account.reset-password-change'
-                        )
-                    );
+                    this.router.navigate(['/login']).then(() => {
+                        this.toastService.clearAll();
+                        this.toastService.showSuccess(
+                            this.translate.instant(
+                                'toast.account.reset-password-change'
+                            )
+                        );
+                    });
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    this.handleResetPasswordError(response);
+                    if (response.status == 500) {
+                        this.toastService.showDanger(
+                            this.translate.instant(
+                                'toast.account.reset-password-fail'
+                            )
+                        );
+                    } else {
+                        this.toastService.showDanger(
+                            this.translate.instant(response.error.message)
+                        );
+                    }
                     this.router.navigate(['/']);
                     return EMPTY;
                 })
             )
             .subscribe();
-    }
-
-    handleResetPasswordError(response: HttpErrorResponse) {
-        this.toastService.showDanger(response.error.message);
     }
 }

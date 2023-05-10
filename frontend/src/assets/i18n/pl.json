@@ -67,7 +67,18 @@
     },
     "account": {
       "reset-password-message": "Wiadomość do zresetowania hasła została wysłana",
-      "reset-password-change": "Hasło zostało zmienione. Możesz się teraz zalogować"
+      "reset-password-change": "Hasło zostało zmienione. Możesz się teraz zalogować",
+      "language-fail": "Błąd zmiany hasła",
+      "reset-password-message-fail": "Błąd wysyłania wiadomości",
+      "reset-password-fail": "Bład podczas zmiany hasła"
+    }
+  },
+  "response": {
+    "message": {
+      "token_not_found": "Link został już wykorzystany",
+      "expired_token": "Link wygasł",
+      "inactive_account": "Konto zostało zablokowane",
+      "rollback.limit.exceeded": "Wygasł limit czasu żądania"
     }
   }
 }

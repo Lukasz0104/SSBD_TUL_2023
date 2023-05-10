@@ -12,12 +12,13 @@ export class AppComponent {
     title = 'eBok';
 
     constructor(private translate: TranslateService) {
-        const browserLanguage = translate.getBrowserLang()!;
+        const browserLanguage = translate.getBrowserLang();
         if (browserLanguage == 'pl') {
             translate.setTranslation(browserLanguage, plLocale);
+            translate.setDefaultLang(browserLanguage);
         } else {
-            translate.setTranslation(browserLanguage, enLocale);
+            translate.setTranslation('en', enLocale);
+            translate.setDefaultLang('en');
         }
-        translate.setDefaultLang(browserLanguage);
     }
 }

@@ -11,7 +11,6 @@ import { ChooseAccessLevelComponent } from '../components/modals/choose-access-l
 import { Router } from '@angular/router';
 import { ToastService } from './toast.service';
 import { TranslateService } from '@ngx-translate/core';
-import { AccountService } from './account.service';
 
 @Injectable({
     providedIn: 'root'
@@ -25,8 +24,7 @@ export class AuthService {
         private modalService: NgbModal,
         private router: Router,
         private toastService: ToastService,
-        private translate: TranslateService,
-        private accountService: AccountService
+        private translate: TranslateService
     ) {
         this.handleLocalStorageContent();
         this.addLocalStorageListener();
@@ -123,9 +121,7 @@ export class AuthService {
 
         if (redirectToDashboard) {
             this.router.navigate(['/dashboard']).then(() => {
-                this.accountService.changeLanguage(
-                    this.translate.getBrowserLang()!
-                );
+                this.translate.use(userData.language.toLowerCase());
                 this.toastService.clearAll();
             });
         }

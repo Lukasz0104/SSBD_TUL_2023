@@ -75,7 +75,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
             ));
 
         String jwt = jwtUtils.generateJWT(account);
-        return new JwtRefreshTokenDto(jwt, refreshToken.getToken());
+        return new JwtRefreshTokenDto(jwt, refreshToken.getToken(), account.getLanguage().toString());
     }
 
     @Override
@@ -117,7 +117,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         tokenFacade.remove(refreshToken);
         tokenFacade.create(newRefreshToken);
 
-        return new JwtRefreshTokenDto(jwt, newRefreshToken.getToken());
+        return new JwtRefreshTokenDto(jwt, newRefreshToken.getToken(), account.getLanguage().toString());
     }
 
     public void logout(String token, String login) throws AppBaseException {

@@ -67,7 +67,18 @@
     },
     "account": {
       "reset-password-message": "Reset password message has been sent",
-      "reset-password-change": "Password has been changed. You may log in now."
+      "reset-password-change": "Password has been changed. You may log in now.",
+      "language-fail": "Language change failure",
+      "reset-password-message-fail": "Error while sending the message",
+      "reset-password-fail": "Error while changing the password"
+    }
+  },
+  "response": {
+    "message": {
+      "token_not_found": "Link has been used",
+      "expired_token": "Link has expired",
+      "inactive_account": "Account has been blocked",
+      "rollback.limit.exceeded": "Request timed out"
     }
   }
 }

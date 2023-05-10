@@ -38,7 +38,10 @@ export class ResetPasswordConfirmComponent {
         private route: ActivatedRoute
     ) {
         this.route.paramMap.subscribe((params) => {
-            this.token = params.get('token')!.toString();
+            const param = params.get('token');
+            if (param != null) {
+                this.token = param.toString();
+            }
         });
     }
 
