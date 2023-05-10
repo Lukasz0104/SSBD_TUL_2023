@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
 import { HomeComponent } from './components/home/home.component';
+import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 
 const routes: Routes = [
     {
@@ -21,6 +22,13 @@ const routes: Routes = [
                     title: 'Sign in'
                 },
                 canActivate: [canActivateLoginOrRegister]
+            },
+            {
+                path: 'confirm-email/:id',
+                component: ConfirmEmailComponent,
+                data: {
+                    title: 'Change email'
+                }
             }
         ]
     },

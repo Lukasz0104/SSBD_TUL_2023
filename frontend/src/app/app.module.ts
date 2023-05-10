@@ -16,6 +16,8 @@ import { RefreshSessionComponent } from './components/modals/refresh-session/ref
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HomeComponent } from './components/home/home.component';
+import { ChangeEmailComponent } from './components/change-email/change-email.component';
+import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 
 @NgModule({
     declarations: [
@@ -27,7 +29,9 @@ import { HomeComponent } from './components/home/home.component';
         RefreshSessionComponent,
         NavbarComponent,
         SidebarComponent,
-        HomeComponent
+        HomeComponent,
+        ChangeEmailComponent,
+        ConfirmEmailComponent
     ],
     imports: [
         BrowserModule,
