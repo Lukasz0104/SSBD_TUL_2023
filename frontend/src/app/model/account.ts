@@ -1,3 +1,5 @@
+import { AccessType } from './access-type';
+
 export interface Account {
     accessLevels: AccessLevel[];
     email: string;
@@ -13,11 +15,13 @@ export interface Account {
 }
 
 export interface AccessLevel {
-    level: string;
+    level: AccessType;
     id: number;
     version: number;
     address?: Address;
     licenseNumber?: string;
+    verified: boolean;
+    active: boolean;
 }
 
 export interface Address {

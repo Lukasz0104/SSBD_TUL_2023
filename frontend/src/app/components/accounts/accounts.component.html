@@ -1,39 +1,115 @@
-<div class="row">
+<ng-container *ngIf="authService.getCurrentGroup() === 'ADMIN'">
     <div
-        aria-label="Basic example"
+        aria-label="Choose access type"
         class="btn-group mb-3 d-flex"
         role="group">
         <button
-            (click)="changeOption(1)"
-            [ngClass]="{ active: chosenOption.getValue() === 1 }"
-            class="btn btn-secondary"
+            (click)="changeAccessTypeOption('ALL')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'ALL'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
             type="button">
             All
         </button>
         <button
-            (click)="changeOption(2)"
-            [ngClass]="{ active: chosenOption.getValue() === 2 }"
-            class="btn btn-secondary"
+            (click)="changeAccessTypeOption('OWNER')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'OWNER'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            Owners
+        </button>
+        <button
+            (click)="changeAccessTypeOption('MANAGER')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'MANAGER'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isManager()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            Managers
+        </button>
+        <button
+            (click)="changeAccessTypeOption('ADMIN')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'ADMIN'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
+            type="button">
+            Admins
+        </button>
+    </div>
+</ng-container>
+<div class="row">
+    <div
+        aria-label="Choose active"
+        class="btn-group mb-3 d-flex"
+        role="group">
+        <button
+            (click)="changeStatusOption(1)"
+            [ngClass]="[
+                chosenOption.getValue() === 1
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary'
+            ]"
+            class="btn"
             type="button">
             Active
         </button>
         <button
-            (click)="changeOption(3)"
-            [ngClass]="{ active: chosenOption.getValue() === 3 }"
-            class="btn btn-secondary"
+            (click)="changeStatusOption(2)"
+            [ngClass]="[
+                chosenOption.getValue() === 2
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary'
+            ]"
+            class="btn"
             type="button">
             Inactive
         </button>
         <button
-            (click)="changeOption(4)"
-            [ngClass]="{ active: chosenOption.getValue() === 4 }"
-            class="btn btn-secondary"
+            (click)="changeStatusOption(3)"
+            [ngClass]="[
+                chosenOption.getValue() === 3
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenAccessType.getValue() === 'ALL' ||
+                (chosenAccessType.getValue() === 'OWNER' &&
+                    !authService.isManager()) ||
+                (chosenAccessType.getValue() === 'MANAGER' &&
+                    !authService.isAdmin()) ||
+                chosenAccessType.getValue() === 'ADMIN'
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn"
             type="button">
-            Need approving
+            Need approval
         </button>
         <span
             (click)="reload()"
-            class="btn btn-primary flex-grow-0">
+            class="btn btn-primary flex-grow-0 d-flex justify-content-center align-items-center">
             <i class="bi bi-arrow-clockwise"></i>
         </span>
     </div>
@@ -62,7 +138,12 @@
                     <td>{{ account.login }}</td>
                     <td>{{ account.firstName }}</td>
                     <td>{{ account.lastName }}</td>
-                    <td>{{ account.active }}</td>
+                    <td *ngIf="account.active">
+                        <i class="bi bi-unlock-fill"></i>
+                    </td>
+                    <td *ngIf="!account.active">
+                        <i class="bi bi-lock-fill"></i>
+                    </td>
                 </tr>
             </tbody>
         </table>

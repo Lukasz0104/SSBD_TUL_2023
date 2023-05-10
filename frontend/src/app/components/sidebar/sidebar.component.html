@@ -32,14 +32,14 @@
                 <i class="bi bi-buildings"></i> Dashboard
             </a>
         </li>
-        <li>
+        <li *ngIf="authService.isAdmin() || authService.isManager()">
             <a
                 routerLink="accounts"
                 href="#"
                 class="nav-link link-dark"
                 routerLinkActive="active link-light"
                 [routerLinkActiveOptions]="{ exact: true }">
-                <i class="bi bi-person"></i> Accounts
+                <i class="bi bi-people"></i> Accounts
             </a>
         </li>
         <li>
@@ -80,7 +80,8 @@
 <!--Hidden sidebar mobile-->
 <div
     *ngIf="hidden"
-    class="d-flex d-sm-none fixed-top">
+    class="d-flex d-sm-none position-fixed top-0 start-0"
+    style="z-index: 20">
     <button
         class="fs-2 btn bg-white border"
         style="border-radius: 0 0 10px 0"
@@ -112,11 +113,12 @@
             <i class="bi bi-buildings fs-2"></i>
         </button>
         <button
+            *ngIf="authService.isAdmin() || authService.isManager()"
             class="nav-link link-dark mx-auto p-2 m-2"
             routerLinkActive="active link-light"
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="accounts">
-            <i class="bi bi-person fs-2"></i>
+            <i class="bi bi-people fs-2"></i>
         </button>
     </span>
 </div>

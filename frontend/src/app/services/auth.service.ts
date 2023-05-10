@@ -236,10 +236,6 @@ export class AuthService {
         return this.authenticated.value;
     }
 
-    hasAccessLevel(accessLevel: AccessType) {
-        return this.getGroups().filter((al) => al == accessLevel).length > 0;
-    }
-
     setAuthenticated(value: boolean) {
         this.authenticated.next(value);
     }
@@ -258,9 +254,28 @@ export class AuthService {
     }
 
     logout() {
+        this.http
+            .delete(
+                `${environment.apiUrl}/logout?token=${this.getRefreshToken()}`
+            )
+            .pipe(
+                tap(() => {
+                    this.handleLogout();
+                }),
+                catchError(() => {
+                    this.handleLogout();
+                    return EMPTY;
+                })
+            )
+            .subscribe();
+    }
+
+    private handleLogout() {
         this.clearUserData();
         this.setAuthenticated(false);
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login']).then(() => {
+            this.toastService.showSuccess('You have successfully logged out.');
+        });
     }
 
     isJwtValid(jwt: string): boolean {
@@ -269,5 +284,17 @@ export class AuthService {
             return decodedJwtToken.exp * 1000 > Date.now();
         }
         return false;
+    }
+
+    isOwner() {
+        return this.getCurrentGroup() === AccessType.OWNER;
+    }
+
+    isManager() {
+        return this.getCurrentGroup() === AccessType.MANAGER;
+    }
+
+    isAdmin() {
+        return this.getCurrentGroup() === AccessType.ADMIN;
     }
 }

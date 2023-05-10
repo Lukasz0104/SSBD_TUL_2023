@@ -6,6 +6,7 @@ import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
 import { HomeComponent } from './components/home/home.component';
 import { AccountsComponent } from './components/accounts/accounts.component';
+import { canActivateManagerAdmin } from './guards/manager-admin.guard';
 
 const routes: Routes = [
     {
@@ -39,7 +40,7 @@ const routes: Routes = [
                 data: {
                     title: 'Accounts'
                 },
-                canActivate: [canActivateAuthenticated]
+                canActivate: [canActivateManagerAdmin]
             }
         ]
     }
