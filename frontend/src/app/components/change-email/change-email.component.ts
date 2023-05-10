@@ -15,9 +15,9 @@ export class ChangeEmailComponent {
     onClick() {
         this.emailService.changeEmail().subscribe((result: boolean) => {
             if (result) {
-                this.toastService.showSuccess('Mail has been sent.'); //todo i18n
+                this.toastService.showSuccess('mail.sent.success'); //todo i18n
             } else {
-                this.toastService.showDanger('Something went wrong.'); //todo i18n
+                this.toastService.showDanger('mail.sent.failure'); //todo i18n
             }
         });
     }

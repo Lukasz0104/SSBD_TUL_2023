@@ -18,6 +18,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HomeComponent } from './components/home/home.component';
 import { ChangeEmailComponent } from './components/change-email/change-email.component';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
+import { ChangeActiveStatusComponent } from './components/change-active-status/change-active-status.component';
 
 @NgModule({
     declarations: [
@@ -31,7 +32,8 @@ import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.
         SidebarComponent,
         HomeComponent,
         ChangeEmailComponent,
-        ConfirmEmailComponent
+        ConfirmEmailComponent,
+        ChangeActiveStatusComponent
     ],
     imports: [
         BrowserModule,

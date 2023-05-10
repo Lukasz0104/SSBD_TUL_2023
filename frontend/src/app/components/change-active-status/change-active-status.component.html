@@ -1,0 +1,20 @@
+<div>
+    <div class="p-4 d-flex justify-content-around">
+        <div *ngIf="status === true; then trueBlock; else falseBlock"></div>
+        <!--//FIXME NIE DZIAŁA-->
+        <ng-template #trueBlock>
+            <button
+                (click)="onClick()"
+                class="btn btn-primary">
+                Block account
+            </button>
+        </ng-template>
+        <ng-template #falseBlock>
+            <button
+                (click)="onClick()"
+                class="btn btn-primary">
+                Unblock account
+            </button>
+        </ng-template>
+    </div>
+</div>
