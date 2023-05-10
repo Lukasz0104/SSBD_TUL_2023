@@ -24,6 +24,7 @@ import { ResetPasswordConfirmComponent } from './components/reset-password-confi
 import { ChangeLanguageComponent } from './components/change-language/change-language.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { ConfirmActionComponent } from './components/modals/confirm-action/confirm-action.component';
 
 @NgModule({
     declarations: [
@@ -39,7 +40,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
         NavbarComponent,
         SidebarComponent,
         HomeComponent,
-        ChangeLanguageComponent
+        ChangeLanguageComponent,
+        ConfirmActionComponent
     ],
     imports: [
         BrowserModule,

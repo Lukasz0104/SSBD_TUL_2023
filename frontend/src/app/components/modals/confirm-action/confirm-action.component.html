@@ -2,7 +2,7 @@
     <h6
         class="modal-title"
         id="modal-basic-title">
-        Your session will expire soon. Do you want to stay logged in?
+        Action, is permament and cannot be undone.
     </h6>
     <button
         (click)="activeModal.dismiss('Cross click')"
@@ -12,14 +12,9 @@
 <div>
     <div class="p-4 d-flex justify-content-between">
         <div
-            (click)="onClick(true)"
-            class="btn btn-primary">
-            Stay
-        </div>
-        <div
-            (click)="onClick(false)"
-            class="btn btn-outline-secondary">
-            Cancel
+            (click)="onClick()"
+            class="btn btn-danger">
+            Confirm
         </div>
     </div>
 </div>

@@ -88,7 +88,10 @@ export class AccountService {
                     });
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    if (response.status == 500) {
+                    if (
+                        response.status == 500 ||
+                        response.error.message == undefined
+                    ) {
                         this.toastService.showDanger(
                             this.translate.instant(
                                 'toast.account.reset-password-fail'
@@ -104,5 +107,25 @@ export class AccountService {
                 })
             )
             .subscribe();
+    }
+
+    forcePasswordChange(login: string) {
+        return this.http.put(
+            `${environment.apiUrl}/accounts/force-password-change/` + login,
+            {}
+        );
+    }
+
+    overrideForcePasswordChange(resetPasswordDTO: object) {
+        return this.http
+            .put(
+                `${environment.apiUrl}/accounts/override-forced-password`,
+                resetPasswordDTO
+            )
+            .pipe(
+                catchError(() => {
+                    return EMPTY;
+                })
+            );
     }
 }

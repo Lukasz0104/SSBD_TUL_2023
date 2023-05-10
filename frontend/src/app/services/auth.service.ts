@@ -118,10 +118,10 @@ export class AuthService {
         this.setAuthenticated(true);
         this.setCurrentGroup(group);
         this.scheduleRefreshSessionPopUp();
+        this.translate.use(userData.language.toLowerCase());
 
         if (redirectToDashboard) {
             this.router.navigate(['/dashboard']).then(() => {
-                this.translate.use(userData.language.toLowerCase());
                 this.toastService.clearAll();
             });
         }
