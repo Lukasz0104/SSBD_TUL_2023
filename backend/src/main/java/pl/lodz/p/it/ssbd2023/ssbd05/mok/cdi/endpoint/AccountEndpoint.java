@@ -87,14 +87,14 @@ public class AccountEndpoint {
         account.getAccessLevels().add(accessLevel);
 
         int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
+        boolean rollbackTX = false;
 
         do {
             accountManager.registerAccount(account);
-            rollbackTx = accountManager.isLastTransactionRollback();
-        } while (rollbackTx && --txLimit > 0);
+            rollbackTX = accountManager.isLastTransactionRollback();
+        } while (rollbackTX && --txLimit > 0);
 
-        if (rollbackTx && txLimit == 0) {
+        if (rollbackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -113,14 +113,14 @@ public class AccountEndpoint {
         account.getAccessLevels().add(accessLevel);
 
         int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
+        boolean rollbackTX = false;
 
         do {
             accountManager.registerAccount(account);
-            rollbackTx = accountManager.isLastTransactionRollback();
-        } while (rollbackTx && --txLimit > 0);
+            rollbackTX = accountManager.isLastTransactionRollback();
+        } while (rollbackTX && --txLimit > 0);
 
-        if (rollbackTx && txLimit == 0) {
+        if (rollbackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -131,21 +131,21 @@ public class AccountEndpoint {
     @Path("/confirm-registration")
     public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
+        boolean rollbackTX = false;
         do {
             try {
                 accountManager.confirmRegistration(UUID.fromString(token));
-                rollbackTx = accountManager.isLastTransactionRollback();
+                rollbackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
-                rollbackTx = true;
+                rollbackTX = true;
                 if (txLimit < 2) {
                     throw aole;
                 }
             }
 
-        } while (rollbackTx && --txLimit > 0);
+        } while (rollbackTX && --txLimit > 0);
 
-        if (rollbackTx && txLimit == 0) {
+        if (rollbackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -334,32 +334,117 @@ public class AccountEndpoint {
 
     @GET
     @RolesAllowed({"ADMIN"})
-    public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
-        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAllAccounts(active));
+    public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<AccountDto> accounts;
+        do {
+            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAllAccounts(active));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.ok(accounts).build();
     }
 
     @GET
     @Path("/owners")
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
-        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
+    public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
+        throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<AccountDto> accounts;
+        do {
+            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(accounts).build();
+    }
+
+    @GET
+    @Path("/owners/unapproved")
+    @RolesAllowed({"MANAGER"})
+    public Response getUnapprovedOwnerAccounts() throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<AccountDto> accounts;
+        do {
+            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedOwnerAccounts());
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.ok(accounts).build();
     }
 
     @GET
     @Path("/managers")
     @RolesAllowed({"ADMIN"})
-    public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
-        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
+    public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
+        throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<AccountDto> accounts;
+        do {
+            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(accounts).build();
+    }
+
+    @GET
+    @Path("/managers/unapproved")
+    @RolesAllowed({"ADMIN"})
+    public Response getUnapprovedManagerAccounts() throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<AccountDto> accounts;
+        do {
+            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedManagerAccounts());
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.ok(accounts).build();
     }
 
     @GET
     @Path("/admins")
     @RolesAllowed({"ADMIN"})
-    public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) {
-        List<AccountDto> accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
+    public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
+        throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<AccountDto> accounts;
+        do {
+            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.ok(accounts).build();
     }
 

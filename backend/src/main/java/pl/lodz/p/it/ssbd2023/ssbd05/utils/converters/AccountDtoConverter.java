@@ -142,15 +142,14 @@ public class AccountDtoConverter {
     public static Set<AccessLevelDto> createAccessLevelDtoSet(Set<AccessLevel> accessLevels) {
         Set<AccessLevelDto> accessLevelDtoSet = new HashSet<>();
         for (AccessLevel accessLevel : accessLevels) {
-            if (!accessLevel.isActive()) {
-                continue;
-            }
             if (accessLevel instanceof OwnerData ownerData) {
                 accessLevelDtoSet.add(
                     new OwnerDataDto(
                         ownerData.getId(),
                         ownerData.getVersion(),
-                        createAddressDtoFromAddress(ownerData.getAddress())
+                        createAddressDtoFromAddress(ownerData.getAddress()),
+                        ownerData.isVerified(),
+                        ownerData.isActive()
                     )
                 );
             } else if (accessLevel instanceof ManagerData managerData) {
@@ -159,14 +158,18 @@ public class AccountDtoConverter {
                         managerData.getId(),
                         managerData.getVersion(),
                         createAddressDtoFromAddress(managerData.getAddress()),
-                        managerData.getLicenseNumber()
+                        managerData.getLicenseNumber(),
+                        managerData.isVerified(),
+                        managerData.isActive()
                     )
                 );
             } else if (accessLevel instanceof AdminData adminData) {
                 accessLevelDtoSet.add(
                     new AdminDataDto(
                         adminData.getId(),
-                        adminData.getVersion())
+                        adminData.getVersion(),
+                        adminData.isVerified(),
+                        adminData.isActive())
                 );
             }
         }
