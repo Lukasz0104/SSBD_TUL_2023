@@ -9,7 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -25,6 +25,8 @@ import { ChangeLanguageComponent } from './components/change-language/change-lan
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ConfirmActionComponent } from './components/modals/confirm-action/confirm-action.component';
+import { AccountsComponent } from './components/accounts/accounts.component';
+import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 
 @NgModule({
     declarations: [
@@ -41,7 +43,10 @@ import { ConfirmActionComponent } from './components/modals/confirm-action/confi
         SidebarComponent,
         HomeComponent,
         ChangeLanguageComponent,
-        ConfirmActionComponent
+        ConfirmActionComponent,
+        HomeComponent,
+        AccountsComponent,
+        ForcePasswordChangeOverrideComponent
     ],
     imports: [
         BrowserModule,
@@ -56,7 +61,9 @@ import { ConfirmActionComponent } from './components/modals/confirm-action/confi
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient]
             }
-        })
+        }),
+        BrowserAnimationsModule,
+        FormsModule
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

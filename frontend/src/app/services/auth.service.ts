@@ -4,7 +4,7 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, EMPTY, map, of, tap } from 'rxjs';
 import { LoginResponse } from '../model/login-response';
 import jwtDecode from 'jwt-decode';
-import { AccessLevel } from '../model/access-level';
+import { AccessType } from '../model/access-type';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RefreshSessionComponent } from '../components/modals/refresh-session/refresh-session.component';
 import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
@@ -17,7 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);
-    private currentGroup = new BehaviorSubject<AccessLevel>(AccessLevel.NONE);
+    private currentGroup = new BehaviorSubject<AccessType>(AccessType.NONE);
 
     constructor(
         private http: HttpClient,
@@ -41,12 +41,12 @@ export class AuthService {
                 }
                 const group = localStorage.getItem('currentGroup');
                 if (
-                    group == AccessLevel.ADMIN ||
-                    group == AccessLevel.MANAGER ||
-                    group == AccessLevel.OWNER
+                    group == AccessType.ADMIN ||
+                    group == AccessType.MANAGER ||
+                    group == AccessType.OWNER
                 ) {
                     this.authenticated.next(true);
-                    this.currentGroup.next(group as AccessLevel);
+                    this.currentGroup.next(group as AccessType);
                     this.scheduleRefreshSessionPopUp();
                 } else {
                     window.location.href = '/login';
@@ -111,7 +111,7 @@ export class AuthService {
 
     loginSuccessfulHandler(
         userData: LoginResponse,
-        group: AccessLevel,
+        group: AccessType,
         redirectToDashboard: boolean
     ) {
         this.saveUserData(userData);
@@ -190,7 +190,7 @@ export class AuthService {
         this.setRefreshToken(userData.refreshToken);
     }
 
-    getGroups(): AccessLevel[] {
+    getGroups(): AccessType[] {
         const token = localStorage.getItem('jwt');
         if (token === null) {
             return [];
@@ -199,7 +199,7 @@ export class AuthService {
         return tokenInfo.groups;
     }
 
-    getGroupsFromJwt(jwt: string | undefined): AccessLevel[] {
+    getGroupsFromJwt(jwt: string | undefined): AccessType[] {
         if (jwt) {
             const tokenInfo = this.getDecodedJwtToken(jwt);
             return tokenInfo.groups;
@@ -243,19 +243,15 @@ export class AuthService {
         return this.authenticated.value;
     }
 
-    hasAccessLevel(accessLevel: AccessLevel) {
-        return this.getGroups().filter((al) => al == accessLevel).length > 0;
-    }
-
     setAuthenticated(value: boolean) {
         this.authenticated.next(value);
     }
 
-    getCurrentGroup(): AccessLevel {
+    getCurrentGroup(): AccessType {
         return this.currentGroup.value;
     }
 
-    setCurrentGroup(group: AccessLevel) {
+    setCurrentGroup(group: AccessType) {
         this.currentGroup.next(group);
         localStorage.setItem('currentGroup', group);
     }
@@ -265,9 +261,34 @@ export class AuthService {
     }
 
     logout() {
+        this.http
+            .delete(
+                `${environment.apiUrl}/logout?token=${this.getRefreshToken()}`
+            )
+            .pipe(
+                tap(() => {
+                    this.handleLogout();
+                }),
+                catchError(() => {
+                    this.handleLogout();
+                    return EMPTY;
+                })
+            )
+            .subscribe();
+    }
+
+    private handleLogout() {
         this.clearUserData();
         this.setAuthenticated(false);
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login']).then(() => {
+            this.toastService.showSuccess(
+                this.translate.instant('toast.auth.logout-success')
+            );
+            const browser_lang = this.translate.getBrowserLang();
+            if (browser_lang != null) {
+                this.translate.use(browser_lang);
+            }
+        });
     }
 
     isJwtValid(jwt: string): boolean {
@@ -276,5 +297,17 @@ export class AuthService {
             return decodedJwtToken.exp * 1000 > Date.now();
         }
         return false;
+    }
+
+    isOwner() {
+        return this.getCurrentGroup() === AccessType.OWNER;
+    }
+
+    isManager() {
+        return this.getCurrentGroup() === AccessType.MANAGER;
+    }
+
+    isAdmin() {
+        return this.getCurrentGroup() === AccessType.ADMIN;
     }
 }

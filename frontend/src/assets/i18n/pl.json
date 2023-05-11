@@ -6,8 +6,8 @@
       "strength": "Hasło jest zbyt słabe"
     },
     "repeat-password": {
-      "required": "Powtórzone hasło jest wymagane",
-      "match": "Powtórzone hasło nie jest takie samo jak hasło."
+      "required": "Potwórzenie hasła jest wymagane",
+      "match": "Powtórzone hasło nie jest takie samo jak hasło"
     },
     "login": {
       "required": "Login jest wymagany"
@@ -32,10 +32,14 @@
       "go-back-to": "Strony logowania"
     },
     "forgot-password-confirm": {
-      "title": "Zresetuj swoje hasło.",
+      "title": "Wprowadź nowe hasło.",
       "action": "Zresetuj hasło",
       "go-to": "Przejdź do",
       "go-to-where": "Strony logowania"
+    },
+    "force-password-override": {
+      "action": "Ustaw nowe hasło",
+      "content": "Ustaw nowe hasło aby odblokować swoje konto."
     },
     "fields": {
       "login": "Login*",
@@ -44,41 +48,86 @@
       "repeat-password": "Powtórz hasło*"
     }
   },
+  "component": {
+    "accounts": {
+      "display": {
+        "all": "Wszyscy",
+        "owners": "Właściciele",
+        "managers": "Zarządcy",
+        "admins": "Adminstratorzy",
+        "active": "Aktywni",
+        "inactive": "Nieaktywni",
+        "approval": "Oczekujący na potwierdzenie",
+        "two-items": "2 elementy na stronę",
+        "three-items": "3 elementy na stronę",
+        "four-items": "4 elementy na stronę"
+      },
+      "titles": {
+        "login": "Login",
+        "first-name": "Imię",
+        "last-name": "Nazwisko",
+        "active": "Status"
+      },
+      "loading": "Ładowanie kont..."
+    }
+  },
   "modal": {
     "access-level": "Wybierz poziom dostępu",
     "refresh-session": {
       "info": "Twoja sesja wkrótce wygaśnie. Czy chcesz pozostać zalogowany?",
       "stay": "Zostań",
       "cancel": "Anuluj"
+    },
+    "confirm-action": {
+      "force-password-message": "Czy napewno chcesz zmienić hasło konta?",
+      "force-password-danger": "Ta czynność zablokuje wybrane konto.",
+      "action": "Potwierdzam"
     }
   },
   "access-levels": {
     "OWNER": "Właściciel",
-    "MANAGER": "Menadżer",
-    "ADMIN": "Admin"
+    "MANAGER": "Zarządca",
+    "ADMIN": "Administrator"
   },
   "nav": {
-    "dashboard": "Panel główny"
+    "dashboard": "Panel główny",
+    "accounts": "Konta",
+    "logout": "Wyloguj się"
   },
   "toast": {
     "auth": {
       "expired-session": "Twoja sesja wygasła",
-      "unsuccessful-login": "Logowanie nie powiodło się"
+      "unsuccessful-login": "Logowanie nie powiodło się",
+      "logout-success": "Pomyślnie się wylogowałeś."
     },
     "account": {
       "reset-password-message": "Wiadomość do zresetowania hasła została wysłana",
       "reset-password-change": "Hasło zostało zmienione. Możesz się teraz zalogować",
       "language-fail": "Błąd zmiany hasła",
       "reset-password-message-fail": "Błąd wysyłania wiadomości",
-      "reset-password-fail": "Bład podczas zmiany hasła"
+      "reset-password-fail": "Bład podczas zmiany hasła",
+      "force-password-change-message": "Hasło zostało zmienione, a wybrane konto zostało zablokowane",
+      "force-password-change-override-message": "Hasło zostało zmienione, a twoje konto zostało odblokowane"
     }
   },
-  "response": {
-    "message": {
-      "token_not_found": "Link został już wykorzystany",
-      "expired_token": "Link wygasł",
-      "inactive_account": "Konto zostało zablokowane",
-      "rollback.limit.exceeded": "Wygasł limit czasu żądania"
+  "password-change": {
+    "response": {
+      "message": {
+        "token_not_found": "Link został już wykorzystany",
+        "expired_token": "Link wygasł",
+        "inactive_account": "Konto zostało zablokowane",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania"
+      }
+    }
+  },
+  "force-password-change": {
+    "response": {
+      "message": {
+        "inactive_account": "Wybrane konto jest zablokowane",
+        "unverified_account": "Wybrane konto jest niezweryfikowane",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "illegal_self_action": "Nie można wykonać akcji na własnym koncie"
+      }
     }
   }
 }

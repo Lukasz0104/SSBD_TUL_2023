@@ -18,10 +18,13 @@ export class ChangeLanguageComponent {
         private authService: AuthService,
         private toastService: ToastService
     ) {
-        if (this.authService.isAuthenticated()) {
+        if (
+            this.authService.isAuthenticated() &&
+            this.translate.currentLang != null
+        ) {
             this.language = this.translate.currentLang.toUpperCase();
         } else {
-            this.language = this.translate.getDefaultLang();
+            this.language = this.translate.getDefaultLang().toUpperCase();
         }
     }
 

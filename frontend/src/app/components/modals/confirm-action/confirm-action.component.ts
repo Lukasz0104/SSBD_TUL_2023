@@ -6,9 +6,13 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     templateUrl: './confirm-action.component.html'
 })
 export class ConfirmActionComponent {
-    @Input() public message: string | undefined;
+    @Input() public message: string;
+    @Input() public danger: string;
 
-    constructor(public activeModal: NgbActiveModal) {}
+    constructor(public activeModal: NgbActiveModal) {
+        this.message = '';
+        this.danger = '';
+    }
 
     onClick() {
         this.activeModal.close(true);

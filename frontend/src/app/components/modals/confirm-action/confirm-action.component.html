@@ -2,7 +2,8 @@
     <h6
         class="modal-title"
         id="modal-basic-title">
-        Action, is permament and cannot be undone.
+        {{ message | translate }}
+        <span class="text-danger">{{ danger | translate }}</span>
     </h6>
     <button
         (click)="activeModal.dismiss('Cross click')"
@@ -14,7 +15,7 @@
         <div
             (click)="onClick()"
             class="btn btn-danger">
-            Confirm
+            {{ 'modal.confirm-action.action' | translate }}
         </div>
     </div>
 </div>

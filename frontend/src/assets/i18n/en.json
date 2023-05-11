@@ -32,10 +32,14 @@
       "go-back-to": "Login page"
     },
     "forgot-password-confirm": {
-      "title": "Reset your password.",
+      "title": "Set your new password.",
       "action": "Reset password",
       "go-to": "Go to",
       "go-to-where": "Login page"
+    },
+    "force-password-override": {
+      "action": "Set new password",
+      "content": "Set new password to unlock your account."
     },
     "fields": {
       "login": "Login*",
@@ -44,41 +48,86 @@
       "repeat-password": "Reapeat password*"
     }
   },
+  "component": {
+    "accounts": {
+      "display": {
+        "all": "All",
+        "owners": "Owners",
+        "managers": "Managers",
+        "admins": "Administrators",
+        "active": "Active",
+        "inactive": "Inactive",
+        "approval": "Need approval",
+        "two-items": "2 items per page",
+        "three-items": "3 items per page",
+        "four-items": "4 items per page"
+      },
+      "titles": {
+        "login": "Login",
+        "first-name": "First name",
+        "last-name": "Last name",
+        "active": "Active"
+      },
+      "loading": "Loading accounts..."
+    }
+  },
   "modal": {
     "access-level": "Choose access level",
     "refresh-session": {
       "info": "Your session will expire soon. Do you want to stay logged in?",
       "stay": "Stay",
       "cancel": "Cancel"
+    },
+    "confirm-action": {
+      "force-password-message": "Do you want to change chosen account's password?",
+      "force-password-danger": "This action will block this account.",
+      "action": "Confirm"
     }
   },
   "access-levels": {
     "OWNER": "Owner",
     "MANAGER": "Manager",
-    "ADMIN": "Admin"
+    "ADMIN": "Administrator"
   },
   "nav": {
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "logout": "Log out"
   },
   "toast": {
     "auth": {
       "expired-session": "Your session has expired",
-      "unsuccessful-login": "Login unsuccessful"
+      "unsuccessful-login": "Login unsuccessful",
+      "logout-success": "You have successfully logged out."
     },
     "account": {
       "reset-password-message": "Reset password message has been sent",
       "reset-password-change": "Password has been changed. You may log in now.",
       "language-fail": "Language change failure",
       "reset-password-message-fail": "Error while sending the message",
-      "reset-password-fail": "Error while changing the password"
+      "reset-password-fail": "Error while changing the password",
+      "force-password-change-message": "Password has been changed, and chosen account has been blocked",
+      "force-password-change-override-message": "Password has been changed, and your account has been unlocked"
     }
   },
-  "response": {
-    "message": {
-      "token_not_found": "Link has been used",
-      "expired_token": "Link has expired",
-      "inactive_account": "Account has been blocked",
-      "rollback.limit.exceeded": "Request timed out"
+  "password-change": {
+    "response": {
+      "message": {
+        "token_not_found": "Link has been used",
+        "expired_token": "Link has expired",
+        "inactive_account": "Account has been blocked",
+        "rollback.limit.exceeded": "Request timed out"
+      }
+    }
+  },
+  "force-password-change": {
+    "response": {
+      "message": {
+        "inactive_account": "Chosen account is blocked",
+        "unverified_account": "Chosen account is unverified",
+        "rollback.limit.exceeded": "Request timed out",
+        "illegal_self_action": "Cannot execute action on your own account"
+      }
     }
   }
 }

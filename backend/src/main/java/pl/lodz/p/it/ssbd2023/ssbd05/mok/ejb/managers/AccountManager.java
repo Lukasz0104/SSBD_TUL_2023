@@ -273,8 +273,18 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    public List<Account> getUnapprovedOwnerAccounts() {
+        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.OWNER);
+    }
+
+    @Override
     public List<Account> getManagerAccounts(boolean active) {
         return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active);
+    }
+
+    @Override
+    public List<Account> getUnapprovedManagerAccounts() {
+        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.MANAGER);
     }
 
     @Override
@@ -467,7 +477,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Token passwordChangeToken = new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         tokenFacade.create(passwordChangeToken);
-        String link = properties.getFrontendUrl() + "/" + passwordChangeToken.getToken();
+        String link = properties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
         emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), link);
     }

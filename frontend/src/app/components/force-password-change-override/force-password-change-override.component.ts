@@ -4,10 +4,10 @@ import { AccountService } from '../../services/account.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-    selector: 'app-reset-password-confirm',
-    templateUrl: './reset-password-confirm.component.html'
+    selector: 'app-force-password-change-override',
+    templateUrl: './force-password-change-override.component.html'
 })
-export class ResetPasswordConfirmComponent {
+export class ForcePasswordChangeOverrideComponent {
     regexp = new RegExp(
         '^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[\\-!_$@?()\\[\\]#%])[A-Za-z0-9\\-!_$@?()\\[\\]#%]{8,}$'
     );
@@ -65,7 +65,7 @@ export class ResetPasswordConfirmComponent {
                 password: this.resetPasswordForm.getRawValue().password,
                 token: this.token
             };
-            this.accountService.resetPasswordConfirm(resetPasswordDTO);
+            this.accountService.overrideForcePasswordChange(resetPasswordDTO);
         }
     }
 }

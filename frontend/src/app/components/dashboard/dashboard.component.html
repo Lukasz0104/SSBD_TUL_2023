@@ -15,14 +15,18 @@
                             let i = index
                         ">
                         <li
-                            routerLink="{{ breadcrumb[1] }}"
+                            routerLink="/{{ breadcrumb[1] }}"
                             class="nav-item pe-0 nav-link breadcrumb-item">
                             <span
                                 [ngClass]="{
                                     'fw-bold': i === getBreadCrumbs().length - 1
                                 }"
-                                class="hover"
-                                >{{ breadcrumb[0] | titlecase }}</span
+                                class="cursor-pointer"
+                                >{{
+                                    'nav.' + breadcrumb[0]
+                                        | translate
+                                        | titlecase
+                                }}</span
                             >
                         </li>
                     </ng-container>
@@ -31,7 +35,12 @@
         </div>
         <div class="card m-3 mt-0">
             <div
-                class="container-fluid h-100 d-flex overflow-auto p-3 overflow-x-hidden w-100">
+                class="container-fluid h-100 overflow-auto p-3 overflow-x-hidden">
+                <button
+                    class="btn btn-danger"
+                    (click)="forceChange('ikaminski')">
+                    Change password
+                </button>
                 <router-outlet></router-outlet>
             </div>
         </div>
