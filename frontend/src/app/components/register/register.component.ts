@@ -9,6 +9,7 @@ import { ResponseMessage } from '../../common/response-message.enum';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
 import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
+import { strongPasswordValidator } from '../../validators/strong-password.validator';
 
 @Component({
     selector: 'app-register',
@@ -26,10 +27,10 @@ export class RegisterComponent {
 
     protected personalDetailsForm = this.fb.group({
         firstName: this.fb.control('', {
-            validators: [Validators.required]
+            validators: [Validators.required, Validators.maxLength(100)]
         }),
         lastName: this.fb.control('', {
-            validators: [Validators.required]
+            validators: [Validators.required, Validators.maxLength(100)]
         }),
         language: this.fb.control(this.languages[0], {
             validators: [Validators.required]
@@ -39,13 +40,21 @@ export class RegisterComponent {
     protected authDetailsForm = new FormGroup(
         {
             email: this.fb.control('', {
-                validators: [Validators.required, Validators.email]
+                validators: [
+                    Validators.required,
+                    Validators.email,
+                    Validators.maxLength(320)
+                ]
             }),
             login: this.fb.control('', {
-                validators: [Validators.required]
+                validators: [
+                    Validators.required,
+                    Validators.minLength(3),
+                    Validators.maxLength(100)
+                ]
             }),
             password: this.fb.control('', {
-                validators: [Validators.required]
+                validators: [Validators.required, strongPasswordValidator]
             }),
             repeatPassword: this.fb.control('', {
                 validators: [Validators.required]
@@ -57,10 +66,22 @@ export class RegisterComponent {
     protected ownerOrManagerForm = new FormGroup({
         address: this.fb.group({
             postalCode: this.fb.control('', {
-                validators: [Validators.required]
+                validators: [
+                    Validators.required,
+                    Validators.minLength(6),
+                    Validators.maxLength(6)
+                ]
             }),
-            city: this.fb.control('', { validators: [Validators.required] }),
-            street: this.fb.control('', { validators: [Validators.required] }),
+            city: this.fb.control('', {
+                validators: [
+                    Validators.required,
+                    Validators.minLength(2),
+                    Validators.maxLength(85)
+                ]
+            }),
+            street: this.fb.control('', {
+                validators: [Validators.required, Validators.maxLength(85)]
+            }),
             buildingNumber: this.fb.control(0, {
                 validators: [Validators.min(1)]
             })

@@ -1,7 +1,7 @@
 <div class="container h-100">
     <div class="row justify-content-center align-items-center h-100">
         <div class="col-12 col-md-8 col-lg-6">
-            <div class="card border bg-light rounded-5 shadow-lg p-3">
+            <div class="card border bg-light rounded-5 shadow-lg p-3 p-sm-5">
                 <h2 class="fw-bold mb-4">Register to eBok</h2>
                 <p>
                     <ngb-progressbar
@@ -37,6 +37,16 @@
                                     class="mb-0">
                                     First name is required.
                                 </p>
+                                <p
+                                    *ngIf="
+                                        firstNameControl.errors[
+                                            'maxlength'
+                                        ] as maxlen
+                                    "
+                                    class="mb-0">
+                                    First name must be shorter than
+                                    {{ maxlen['requiredLength'] }} characters.
+                                </p>
                             </div>
                         </div>
                         <div class="mb-2 has-validation">
@@ -63,6 +73,16 @@
                                     *ngIf="lastNameControl.errors['required']"
                                     class="mb-0">
                                     Last name is required.
+                                </p>
+                                <p
+                                    *ngIf="
+                                        lastNameControl.errors[
+                                            'maxlength'
+                                        ] as maxlen
+                                    "
+                                    class="mb-0">
+                                    Last name must be shorter than
+                                    {{ maxlen['requiredLength'] }} characters.
                                 </p>
                             </div>
                         </div>
@@ -113,17 +133,23 @@
                                     'is-valid': emailControl.valid
                                 }" />
                             <div
-                                *ngIf="emailControl.errors"
+                                *ngIf="emailControl.errors as emailErrors"
                                 class="invalid-feedback">
                                 <p
-                                    *ngIf="emailControl.errors['required']"
+                                    *ngIf="emailErrors['required']"
                                     class="mb-0">
                                     Email address is required.
                                 </p>
                                 <p
-                                    *ngIf="emailControl.errors['email']"
+                                    *ngIf="emailErrors['email']"
                                     class="mb-0">
                                     Email address must be valid.
+                                </p>
+                                <p
+                                    *ngIf="emailErrors['maxlength'] as maxlen"
+                                    class="mb-0">
+                                    Email must be shorter than
+                                    {{ maxlen['requiredLength'] }} characters.
                                 </p>
                             </div>
                         </div>
@@ -139,19 +165,42 @@
                                 id="loginInput"
                                 formControlName="login"
                                 placeholder="Login"
-                                required=""
+                                required
                                 [ngClass]="{
                                     'is-invalid': loginControl.invalid,
                                     'is-valid': loginControl.valid
                                 }" />
                             <div
-                                *ngIf="loginControl.errors"
+                                *ngIf="loginControl.errors as loginErrors"
                                 class="invalid-feedback">
                                 <p
-                                    *ngIf="loginControl.errors['required']"
+                                    *ngIf="
+                                        loginErrors['required'];
+                                        else loginNotEmpty
+                                    "
                                     class="mb-0">
                                     Login is required.
                                 </p>
+                                <ng-template #loginNotEmpty>
+                                    <p
+                                        *ngIf="
+                                            loginErrors['minlength'] as minlen
+                                        "
+                                        class="mb-0">
+                                        Login is must be at least
+                                        {{ minlen['requiredLength'] }}
+                                        characters.
+                                    </p>
+                                    <p
+                                        *ngIf="
+                                            loginErrors['maxlength'] as maxlen
+                                        "
+                                        class="mb-0">
+                                        Login must be shorter than
+                                        {{ maxlen['requiredLength'] }}
+                                        characters.
+                                    </p>
+                                </ng-template>
                             </div>
                         </div>
                         <div class="mb-2 has-validation">
@@ -174,15 +223,25 @@
                             <div
                                 *ngIf="passwordInvalid"
                                 class="invalid-feedback">
-                                <p
-                                    *ngIf="passwordControl.errors?.['required']; else mismatch"
-                                    class="mb-0">
-                                    Password is required.
-                                </p>
-                                <ng-template #mismatch>
-                                    <p class="mb-0">
-                                        Password and repeat password must match.
+                                <ng-container
+                                    *ngIf="passwordControl.errors?.['required']; else pwdNotEmpty">
+                                    <p class="mb-0">Password is required.</p>
+                                </ng-container>
+                                <ng-template #pwdNotEmpty>
+                                    <p
+                                        *ngIf="passwordControl.errors?.['weakPassword']; else mismatch"
+                                        class="mb-0">
+                                        Password must be at least 8 characters
+                                        long and must contain a lower case
+                                        letter, upper case letter, digit and a
+                                        symbol.
                                     </p>
+                                    <ng-template #mismatch>
+                                        <p class="mb-0">
+                                            Password and repeat password must
+                                            match.
+                                        </p>
+                                    </ng-template>
                                 </ng-template>
                             </div>
                         </div>
@@ -269,15 +328,22 @@
                                         'is-valid': postalCodeControl.valid
                                     }" />
                                 <div
-                                    *ngIf="postalCodeControl.errors"
+                                    *ngIf="postalCodeControl.errors as pcErrors"
                                     class="invalid-feedback">
                                     <p
                                         *ngIf="
-                                            postalCodeControl.errors['required']
+                                            pcErrors['required'];
+                                            else pcNotEmpty
                                         "
                                         class="mb-0">
                                         Postal code is required.
                                     </p>
+                                    <ng-template #pcNotEmpty>
+                                        <p class="mb-0">
+                                            Postal code must be 6 characters
+                                            long.
+                                        </p>
+                                    </ng-template>
                                 </div>
                             </div>
                             <div class="mb-2 has-validation">
@@ -298,13 +364,40 @@
                                         'is-valid': cityControl.valid
                                     }" />
                                 <div
-                                    *ngIf="cityControl.errors"
+                                    *ngIf="cityControl.errors as cityErrors"
                                     class="invalid-feedback">
                                     <p
-                                        *ngIf="cityControl.errors['required']"
+                                        *ngIf="
+                                            cityErrors['required'];
+                                            else cityNotEmpty
+                                        "
                                         class="mb-0">
                                         City is required.
                                     </p>
+                                    <ng-template #cityNotEmpty>
+                                        <p
+                                            *ngIf="
+                                                cityErrors[
+                                                    'minlength'
+                                                ] as minlen
+                                            "
+                                            class="mb-0">
+                                            City must be at least
+                                            {{ minlen['requiredLength'] }}
+                                            characters.
+                                        </p>
+                                        <p
+                                            *ngIf="
+                                                cityErrors[
+                                                    'maxlength'
+                                                ] as maxlen
+                                            "
+                                            class="mb-0">
+                                            City must be at most
+                                            {{ maxlen['requiredLength'] }}
+                                            characters.
+                                        </p>
+                                    </ng-template>
                                 </div>
                             </div>
                             <div class="mb-2 has-validation">
@@ -325,12 +418,21 @@
                                         'is-valid': streetControl.valid
                                     }" />
                                 <div
-                                    *ngIf="streetControl.errors"
+                                    *ngIf="streetControl.errors as streetErrors"
                                     class="invalid-feedback">
                                     <p
-                                        *ngIf="streetControl.errors['required']"
+                                        *ngIf="streetErrors['required']"
                                         class="mb-0">
                                         Street is required.
+                                    </p>
+                                    <p
+                                        *ngIf="
+                                            streetErrors['maxlength'] as maxlen
+                                        "
+                                        class="mb-0">
+                                        Street must be at most
+                                        {{ maxlen['requiredLength'] }}
+                                        characters.
                                     </p>
                                 </div>
                             </div>
@@ -353,28 +455,20 @@
                                         'is-valid': buildingNumberControl.valid
                                     }" />
                                 <div
-                                    *ngIf="buildingNumberControl.errors"
+                                    *ngIf="
+                                        buildingNumberControl.errors as bnErrors
+                                    "
                                     class="invalid-feedback">
                                     <p
-                                        *ngIf="
-                                            buildingNumberControl.errors[
-                                                'required'
-                                            ]
-                                        "
+                                        *ngIf="bnErrors['required']"
                                         class="mb-0">
                                         Building number is required.
                                     </p>
                                     <p
-                                        *ngIf="
-                                            buildingNumberControl.errors['min']
-                                        "
+                                        *ngIf="bnErrors['min']"
                                         class="mb-0">
                                         Building number must be greater than
-                                        {{
-                                            buildingNumberControl.errors['min'][
-                                                'min'
-                                            ] - 1
-                                        }}.
+                                        {{ bnErrors['min']['min'] - 1 }}.
                                     </p>
                                 </div>
                             </div>
