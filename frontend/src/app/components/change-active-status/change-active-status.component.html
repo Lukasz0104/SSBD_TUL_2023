@@ -1,15 +1,11 @@
 <div>
     <div class="d-flex justify-content-around">
-        <div *ngIf="status === true; then trueBlock; else falseBlock"></div>
-        <ng-template #trueBlock>
-            <i
-                (click)="onClick()"
-                class="bi bi-unlock-fill"></i>
-        </ng-template>
-        <ng-template #falseBlock>
-            <i
-                (click)="onClick()"
-                class="bi bi-lock-fill"></i>
-        </ng-template>
+        <i
+            (click)="onClick()"
+            [ngClass]="{
+                'bi-lock-fill': !status,
+                'bi-unlock-fill': status
+            }"
+            class="bi"></i>
     </div>
 </div>

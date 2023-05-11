@@ -48,7 +48,6 @@ export class ConfirmEmailComponent implements OnInit {
                 .subscribe((result: boolean) => {
                     this.loading = false;
                     if (result) {
-                        this.toastService.showSuccess('email.change.success');
                         this.router.navigate(['/dashboard']);
                     }
                 });

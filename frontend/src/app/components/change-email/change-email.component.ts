@@ -9,8 +9,6 @@ export class ChangeEmailComponent {
     constructor(private emailService: AccountService) {}
 
     onClick() {
-        this.emailService.changeEmail().subscribe(() => {
-            return;
-        });
+        this.emailService.changeEmail().subscribe();
     }
 }

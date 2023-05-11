@@ -12,7 +12,6 @@ export class ChangeActiveStatusComponent implements OnInit {
     loading = false;
     @Input() id: number | undefined;
     @Input() status: boolean | undefined;
-    @Input() login: string | undefined;
     @Output() statusChangedEvent = new EventEmitter<null>();
     private currentAccessLevel: AccessType | undefined;
 
@@ -29,14 +28,6 @@ export class ChangeActiveStatusComponent implements OnInit {
     onClick() {
         const id = this.id;
         const status = !this.status; //Notice the exclamation mark!
-        if (
-            this.login === undefined ||
-            this.login == this.authService.getLogin() //only happens when admin wants to block his own account
-        ) {
-            this.toastService.showDanger('illegal.self.action');
-            //not checking error message because it returns 403 and messes up whole page
-            return;
-        }
         if (id === undefined || status === undefined) {
             this.toastService.showDanger('something.went.wrong');
         } else {

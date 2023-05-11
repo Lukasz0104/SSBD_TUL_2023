@@ -18,12 +18,13 @@ import { ActiveStatusDto } from '../model/active-status-dto';
 })
 export class AccountService {
     ifMatch = '';
+    private accountsUrl = `${environment.apiUrl}/accounts`;
 
     constructor(private http: HttpClient, private toastService: ToastService) {}
 
     getOwnProfile() {
         return this.http
-            .get<OwnAccount>(`${environment.apiUrl}/accounts/me`, {
+            .get<OwnAccount>(this.accountsUrl + `/me`, {
                 observe: 'response'
             })
             .pipe(
@@ -36,7 +37,7 @@ export class AccountService {
 
     getProfile(id: number) {
         return this.http
-            .get<Account>(`${environment.apiUrl}/accounts/${id}`, {
+            .get<Account>(this.accountsUrl + `/${id}`, {
                 observe: 'response'
             })
             .pipe(
@@ -49,7 +50,7 @@ export class AccountService {
 
     editOwnProfile(dto: EditPersonalData) {
         return this.http
-            .put<OwnAccount>(`${environment.apiUrl}/accounts/me`, dto, {
+            .put<OwnAccount>(this.accountsUrl + `/me`, dto, {
                 headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
                 observe: 'response'
             })
@@ -95,35 +96,33 @@ export class AccountService {
     getUnapprovedAccountsByType(type: AccessType) {
         if (type == AccessType.OWNER) {
             return this.http.get<Account[]>(
-                `${environment.apiUrl}/accounts/owners/unapproved`
+                this.accountsUrl + `/owners/unapproved`
             );
         } else if (type == AccessType.MANAGER) {
             return this.http.get<Account[]>(
-                `${environment.apiUrl}/accounts/managers/unapproved`
+                this.accountsUrl + `/managers/unapproved`
             );
         }
         return of([]);
     }
 
     changeEmail() {
-        return this.http
-            .post(`${environment.apiUrl}/accounts/me/change-email`, null)
-            .pipe(
-                map(() => {
-                    this.toastService.showSuccess('mail.sent.success'); //fixme
-                    return true;
-                }),
-                catchError((err: HttpErrorResponse) => {
-                    this.toastService.showDanger(err.error.message);
-                    return of(false);
-                })
-            );
+        return this.http.post(this.accountsUrl + `/me/change-email`, null).pipe(
+            map(() => {
+                this.toastService.showSuccess('mail.sent.success'); //fixme
+                return true;
+            }),
+            catchError((err: HttpErrorResponse) => {
+                this.toastService.showDanger(err.error.message);
+                return of(false);
+            })
+        );
     }
 
     confirmEmail(email: string, token: string) {
         return this.http
             .put<ChangeEmailForm>(
-                `${environment.apiUrl}/accounts/me/confirm-email/${token}`,
+                this.accountsUrl + `/me/confirm-email/${token}`,
                 { email }
             )
             .pipe(
@@ -141,7 +140,7 @@ export class AccountService {
     changeActiveStatusAsManager(id: number, active: boolean) {
         return this.http
             .put<ActiveStatusDto>(
-                `${environment.apiUrl}/accounts/manager/change-active-status`,
+                this.accountsUrl + `/manager/change-active-status`,
                 {
                     id,
                     active
@@ -162,7 +161,7 @@ export class AccountService {
     changeActiveStatusAsAdmin(id: number, active: boolean) {
         return this.http
             .put<ActiveStatusDto>(
-                `${environment.apiUrl}/accounts/admin/change-active-status`,
+                this.accountsUrl + `/admin/change-active-status`,
                 {
                     id,
                     active

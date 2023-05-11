@@ -143,18 +143,11 @@
                     <td>{{ account.login }}</td>
                     <td>{{ account.firstName }}</td>
                     <td>{{ account.lastName }}</td>
-                    <td *ngIf="account.active">
+                    <td>
                         <app-change-active-status
                             (statusChangedEvent)="reload()"
+                            *ngIf="account.login !== authService.getLogin()"
                             [id]="account.id"
-                            [login]="account.login"
-                            [status]="account.active" />
-                    </td>
-                    <td *ngIf="!account.active">
-                        <app-change-active-status
-                            (statusChangedEvent)="reload()"
-                            [id]="account.id"
-                            [login]="account.login"
                             [status]="account.active" />
                     </td>
                     <td *ngIf="authService.isAdmin()">
