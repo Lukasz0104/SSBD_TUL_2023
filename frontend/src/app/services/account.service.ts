@@ -33,4 +33,19 @@ export class AccountService {
                 catchError((e: HttpErrorResponse) => of(e.error.message))
             );
     }
+
+    confirmRegistration(token: string): Observable<ResponseMessage | null> {
+        return this.http
+            .post<RegisterResponse | null>(
+                `${this.URL}/confirm-registration`,
+                null,
+                {
+                    params: { token }
+                }
+            )
+            .pipe(
+                map((res) => res?.message ?? null),
+                catchError((e: HttpErrorResponse) => of(e.error.message))
+            );
+    }
 }

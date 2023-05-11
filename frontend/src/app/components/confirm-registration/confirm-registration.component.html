@@ -1,0 +1,36 @@
+<div class="container h-100">
+    <div class="row justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card border bg-light rounded-5 shadow-lg p-3 p-sm-5">
+                <ng-container *ngIf="!loading; else loadingBlock">
+                    <ng-container *ngIf="success; else fail">
+                        <h2 class="fw-bold mb-4">Registration confirmed</h2>
+                        <p class="text-center">
+                            Now your data needs to be verified. After successful
+                            verification you will be notified on the provided
+                            email address.
+                        </p>
+                    </ng-container>
+                    <ng-template #fail>
+                        <h2 class="fw-bold mb-4">
+                            Failed to confirm registration
+                        </h2>
+                        <p class="text-center">
+                            {{ response }}
+                        </p>
+                    </ng-template>
+                </ng-container>
+                <ng-template #loadingBlock>
+                    <h2 class="fw-bold mb-4">Confirming your registration</h2>
+                    <p class="text-center">
+                        <span
+                            class="spinner-border spinner-border-sm"
+                            role="status">
+                        </span>
+                        Loading...
+                    </p>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>

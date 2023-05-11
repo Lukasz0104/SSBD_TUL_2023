@@ -17,6 +17,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HomeComponent } from './components/home/home.component';
 import { RegisterComponent } from './components/register/register.component';
+import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 
 @NgModule({
     declarations: [
@@ -30,7 +31,8 @@ import { RegisterComponent } from './components/register/register.component';
         RefreshSessionComponent,
         NavbarComponent,
         SidebarComponent,
-        HomeComponent
+        HomeComponent,
+        ConfirmRegistrationComponent
     ],
     imports: [
         BrowserModule,
