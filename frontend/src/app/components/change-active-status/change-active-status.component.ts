@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
-import { AccessLevel } from '../../model/access-level';
+import { AccessType } from '../../model/access-type';
 
 @Component({
     selector: 'app-change-active-status',
@@ -10,23 +10,17 @@ import { AccessLevel } from '../../model/access-level';
 })
 export class ChangeActiveStatusComponent implements OnInit {
     loading = false;
-    private currentAccessLevel: AccessLevel | undefined;
-    private id: number; //todo get status from user account
+    @Input() id: number | undefined;
+    @Input() status: boolean | undefined;
+    @Input() login: string | undefined;
+    @Output() statusChangedEvent = new EventEmitter<null>();
+    private currentAccessLevel: AccessType | undefined;
 
     constructor(
         private statusService: AccountService,
         private toastService: ToastService,
         private authService: AuthService
-    ) {
-        this.id = -3; //fixme
-        this._status = true; //fixme
-    }
-
-    private _status: boolean; //todo get status from user account
-
-    get status(): boolean {
-        return <boolean>this._status;
-    }
+    ) {}
 
     ngOnInit(): void {
         this.currentAccessLevel = this.authService.getCurrentGroup();
@@ -34,33 +28,40 @@ export class ChangeActiveStatusComponent implements OnInit {
 
     onClick() {
         const id = this.id;
-        const status = this._status;
-        this.loading = true;
-
-        if (this.currentAccessLevel == AccessLevel.ADMIN) {
-            this.statusService
-                .changeActiveStatusAsAdmin(id, status)
-                .subscribe((HttpResult: boolean) => {
-                    this.loading = false;
-                    if (!HttpResult) {
-                        this.toastService.showDanger('status.changed.failure');
-                    } else {
-                        this.toastService.showSuccess('status.changed.success');
-                    }
-                });
-        } else if (this.currentAccessLevel == AccessLevel.MANAGER) {
-            this.statusService
-                .changeActiveStatusAsManager(id, status)
-                .subscribe((HttpResult: boolean) => {
-                    this.loading = false;
-                    if (!HttpResult) {
-                        this.toastService.showDanger('status.changed.failure');
-                    } else {
-                        this.toastService.showSuccess('status.changed.success');
-                    }
-                });
+        const status = !this.status; //Notice the exclamation mark!
+        if (
+            this.login === undefined ||
+            this.login == this.authService.getLogin() //only happens when admin wants to block his own account
+        ) {
+            this.toastService.showDanger('illegal.self.action');
+            //not checking error message because it returns 403 and messes up whole page
+            return;
+        }
+        if (id === undefined || status === undefined) {
+            this.toastService.showDanger('something.went.wrong');
         } else {
-            this.toastService.showDanger('status.changed.failure');
+            this.loading = true;
+            if (this.currentAccessLevel == AccessType.ADMIN) {
+                this.statusService
+                    .changeActiveStatusAsAdmin(id, status)
+                    .subscribe((result: boolean) => {
+                        this.loading = false;
+                        if (result) {
+                            this.statusChangedEvent.emit(); //Emit to refresh accounts list
+                        }
+                    });
+            } else if (this.currentAccessLevel == AccessType.MANAGER) {
+                this.statusService
+                    .changeActiveStatusAsManager(id, status)
+                    .subscribe((result: boolean) => {
+                        this.loading = false;
+                        if (result) {
+                            this.statusChangedEvent.emit(); //Emit to refresh accounts list
+                        }
+                    });
+            } else {
+                this.toastService.showDanger('something.went.wrong'); // ... ?
+            }
         }
     }
 }

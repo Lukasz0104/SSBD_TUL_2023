@@ -1,19 +1,15 @@
 <div>
-    <div class="p-4 d-flex justify-content-around">
+    <div class="d-flex justify-content-around">
         <div *ngIf="status === true; then trueBlock; else falseBlock"></div>
         <ng-template #trueBlock>
-            <button
+            <i
                 (click)="onClick()"
-                class="btn btn-primary">
-                Block account
-            </button>
+                class="bi bi-unlock-fill"></i>
         </ng-template>
         <ng-template #falseBlock>
-            <button
+            <i
                 (click)="onClick()"
-                class="btn btn-primary">
-                Unblock account
-            </button>
+                class="bi bi-lock-fill"></i>
         </ng-template>
     </div>
 </div>

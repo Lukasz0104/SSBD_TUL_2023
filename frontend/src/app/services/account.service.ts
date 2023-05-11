@@ -10,6 +10,8 @@ import { catchError, map, of, tap } from 'rxjs';
 import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
 import { AccessType } from '../model/access-type';
+import { ChangeEmailForm } from '../model/email-form';
+import { ActiveStatusDto } from '../model/active-status-dto';
 
 @Injectable({
     providedIn: 'root'
@@ -101,77 +103,80 @@ export class AccountService {
             );
         }
         return of([]);
-        import { HttpClient } from '@angular/common/http';
-        import { environment } from '../../environments/environment';
-        import { ChangeEmailForm } from '../model/email-form';
-        import { catchError, map, of } from 'rxjs';
-        import { ActiveStatusDto } from '../model/active-status-dto';
+    }
 
-        @Injectable({ providedIn: 'root' })
-        export class AccountService {
-            constructor(private http: HttpClient) {}
+    changeEmail() {
+        return this.http
+            .post(`${environment.apiUrl}/accounts/me/change-email`, null)
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('mail.sent.success'); //fixme
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    return of(false);
+                })
+            );
+    }
 
-            changeEmail() {
-                return this.http
-                    .post(
-                        `${environment.apiUrl}/accounts/me/change-email`,
-                        null
-                    )
-                    .pipe(
-                        map(() => {
-                            return true;
-                        }),
-                        catchError(() => of(false))
-                    );
-            }
+    confirmEmail(email: string, token: string) {
+        return this.http
+            .put<ChangeEmailForm>(
+                `${environment.apiUrl}/accounts/me/confirm-email/${token}`,
+                { email }
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('email.change.success');
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    return of(false);
+                })
+            );
+    }
 
-            confirmEmail(email: string, token: string) {
-                return this.http
-                    .put<ChangeEmailForm>(
-                        `${environment.apiUrl}/accounts/me/confirm-email/${token}`,
-                        { email }
-                    )
-                    .pipe(
-                        map(() => {
-                            return true;
-                        }),
-                        catchError(() => of(false))
-                    );
-            }
+    changeActiveStatusAsManager(id: number, active: boolean) {
+        return this.http
+            .put<ActiveStatusDto>(
+                `${environment.apiUrl}/accounts/manager/change-active-status`,
+                {
+                    id,
+                    active
+                }
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('status.change.success'); //todo
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    return of(false);
+                })
+            );
+    }
 
-            changeActiveStatusAsManager(id: number, active: boolean) {
-                return this.http
-                    .put<ActiveStatusDto>(
-                        `${environment.apiUrl}/accounts/manager/change-active-status`,
-                        {
-                            id,
-                            active
-                        }
-                    )
-                    .pipe(
-                        map(() => {
-                            return true;
-                        }),
-                        catchError(() => of(false))
-                    );
-            }
-
-            changeActiveStatusAsAdmin(id: number, active: boolean) {
-                return this.http
-                    .put<ActiveStatusDto>(
-                        `${environment.apiUrl}/accounts/admin/change-active-status`,
-                        {
-                            id,
-                            active
-                        }
-                    )
-                    .pipe(
-                        map(() => {
-                            return true;
-                        }),
-                        catchError(() => of(false))
-                    );
-            }
-        }
+    changeActiveStatusAsAdmin(id: number, active: boolean) {
+        return this.http
+            .put<ActiveStatusDto>(
+                `${environment.apiUrl}/accounts/admin/change-active-status`,
+                {
+                    id,
+                    active
+                }
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('status.change.success'); //todo
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    return of(false);
+                })
+            );
     }
 }

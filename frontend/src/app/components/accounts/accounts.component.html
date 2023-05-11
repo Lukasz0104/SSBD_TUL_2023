@@ -144,15 +144,23 @@
                     <td>{{ account.firstName }}</td>
                     <td>{{ account.lastName }}</td>
                     <td *ngIf="account.active">
-                        <i class="bi bi-unlock-fill"></i>
+                        <app-change-active-status
+                            (statusChangedEvent)="reload()"
+                            [id]="account.id"
+                            [login]="account.login"
+                            [status]="account.active" />
                     </td>
                     <td *ngIf="!account.active">
-                        <i class="bi bi-lock-fill"></i>
+                        <app-change-active-status
+                            (statusChangedEvent)="reload()"
+                            [id]="account.id"
+                            [login]="account.login"
+                            [status]="account.active" />
                     </td>
                     <td *ngIf="authService.isAdmin()">
                         <button
-                            [routerLink]="['account']"
                             [queryParams]="{ id: account.id }"
+                            [routerLink]="['account']"
                             class="btn btn-outline-primary">
                             Details
                         </button>

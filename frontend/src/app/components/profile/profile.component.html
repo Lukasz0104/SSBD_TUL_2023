@@ -2,19 +2,19 @@
     *ngIf="ownAccount$ | async as ownAccount; else loadingAccountData">
     <div ngbAccordion>
         <div
-            ngbAccordionItem="personal"
-            [collapsed]="false">
+            [collapsed]="false"
+            ngbAccordionItem="personal">
             <h2 ngbAccordionHeader>
                 <button
-                    ngbAccordionButton
-                    class="fs-5">
+                    class="fs-5"
+                    ngbAccordionButton>
                     Personal data
                 </button>
             </h2>
             <div ngbAccordionCollapse>
                 <div
-                    ngbAccordionBody
-                    class="d-flex flex-column flex-md-row justify-content-start align-items-center mb-3 mb-md-0">
+                    class="d-flex flex-column flex-md-row justify-content-start align-items-center mb-3 mb-md-0"
+                    ngbAccordionBody>
                     <ng-template>
                         <div class="px-5 mb-4 mb-md-2">
                             <div>
@@ -23,11 +23,15 @@
                                     style="font-size: 6rem"></i>
                             </div>
                             <button
-                                class="fs-6 w-100 btn btn-outline-primary"
-                                (click)="edit()">
+                                (click)="edit()"
+                                class="fs-6 w-100 btn btn-outline-primary">
                                 Edit
                             </button>
+                            <div>
+                                <app-change-email></app-change-email>
+                            </div>
                         </div>
+
                         <div
                             class="justify-content-center px-3 px-md-5 row fs-6">
                             <div class="col-md">
@@ -50,19 +54,19 @@
             </div>
         </div>
         <div
-            ngbAccordionItem="accessLevel"
-            [collapsed]="false">
+            [collapsed]="false"
+            ngbAccordionItem="accessLevel">
             <h2 ngbAccordionHeader>
                 <button
-                    ngbAccordionButton
-                    class="fs-5">
+                    class="fs-5"
+                    ngbAccordionButton>
                     Access level data
                 </button>
             </h2>
             <div ngbAccordionCollapse>
                 <div
-                    ngbAccordionBody
-                    class="d-flex justify-content-start align-items-center">
+                    class="d-flex justify-content-start align-items-center"
+                    ngbAccordionBody>
                     <ng-template>
                         <div
                             class="row px-3 px-md-5 justify-content-center w-100">
