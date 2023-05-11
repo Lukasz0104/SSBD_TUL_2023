@@ -1,0 +1,529 @@
+<div class="container h-100">
+    <div class="row justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card border bg-light rounded-5 shadow-lg p-3 p-sm-5">
+                <h2 class="fw-bold mb-4">Register to eBok</h2>
+                <p>
+                    <ngb-progressbar
+                        type="success"
+                        [value]="progressPercentage"></ngb-progressbar>
+                </p>
+                <ng-container [ngSwitch]="forms[formIndex]">
+                    <form
+                        *ngSwitchCase="personalDetailsForm"
+                        [formGroup]="personalDetailsForm">
+                        <div class="mb-2 has-validation">
+                            <label
+                                for="firstNameInput"
+                                class="form-label mb-0">
+                                First name
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="firstNameInput"
+                                formControlName="firstName"
+                                placeholder="First name"
+                                required
+                                [ngClass]="{
+                                    'is-invalid': firstNameControl.invalid,
+                                    'is-valid': firstNameControl.valid
+                                }" />
+                            <div
+                                *ngIf="firstNameControl.errors"
+                                class="invalid-feedback">
+                                <p
+                                    *ngIf="firstNameControl.errors['required']"
+                                    class="mb-0">
+                                    First name is required.
+                                </p>
+                                <p
+                                    *ngIf="
+                                        firstNameControl.errors[
+                                            'maxlength'
+                                        ] as maxlen
+                                    "
+                                    class="mb-0">
+                                    First name must be shorter than
+                                    {{ maxlen['requiredLength'] }} characters.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mb-2 has-validation">
+                            <label
+                                for="lastNameInput"
+                                class="form-label mb-0">
+                                Last name
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="lastNameInput"
+                                formControlName="lastName"
+                                required
+                                placeholder="Last name"
+                                [ngClass]="{
+                                    'is-invalid': lastNameControl.invalid,
+                                    'is-valid': lastNameControl.valid
+                                }" />
+                            <div
+                                *ngIf="lastNameControl.errors"
+                                class="invalid-feedback">
+                                <p
+                                    *ngIf="lastNameControl.errors['required']"
+                                    class="mb-0">
+                                    Last name is required.
+                                </p>
+                                <p
+                                    *ngIf="
+                                        lastNameControl.errors[
+                                            'maxlength'
+                                        ] as maxlen
+                                    "
+                                    class="mb-0">
+                                    Last name must be shorter than
+                                    {{ maxlen['requiredLength'] }} characters.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mb-2 row row-cols-1">
+                            <div class="input-group col mb-2">
+                                <label
+                                    class="input-group-text"
+                                    for="languageInput">
+                                    Language
+                                </label>
+                                <select
+                                    class="form-select"
+                                    formControlName="language"
+                                    id="languageInput">
+                                    <option
+                                        *ngFor="let lang of languages"
+                                        [ngValue]="lang">
+                                        {{ lang }}
+                                    </option>
+                                </select>
+                                <button
+                                    [disabled]="personalDetailsForm.invalid"
+                                    class="btn btn-secondary"
+                                    (click)="formIndex = formIndex + 1">
+                                    Continue
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <form
+                        *ngSwitchCase="authDetailsForm"
+                        [formGroup]="authDetailsForm">
+                        <div class="mb-2 has-validation">
+                            <label
+                                for="emailInput"
+                                class="form-label mb-0">
+                                Email
+                            </label>
+                            <input
+                                id="emailInput"
+                                type="email"
+                                placeholder="Email address"
+                                formControlName="email"
+                                required
+                                class="form-control"
+                                [ngClass]="{
+                                    'is-invalid': emailControl.invalid,
+                                    'is-valid': emailControl.valid
+                                }" />
+                            <div
+                                *ngIf="emailControl.errors as emailErrors"
+                                class="invalid-feedback">
+                                <p
+                                    *ngIf="emailErrors['required']"
+                                    class="mb-0">
+                                    Email address is required.
+                                </p>
+                                <p
+                                    *ngIf="emailErrors['email']"
+                                    class="mb-0">
+                                    Email address must be valid.
+                                </p>
+                                <p
+                                    *ngIf="emailErrors['maxlength'] as maxlen"
+                                    class="mb-0">
+                                    Email must be shorter than
+                                    {{ maxlen['requiredLength'] }} characters.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mb-2 has-validation">
+                            <label
+                                for="loginInput"
+                                class="form-label mb-0">
+                                Login
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="loginInput"
+                                formControlName="login"
+                                placeholder="Login"
+                                required
+                                [ngClass]="{
+                                    'is-invalid': loginControl.invalid,
+                                    'is-valid': loginControl.valid
+                                }" />
+                            <div
+                                *ngIf="loginControl.errors as loginErrors"
+                                class="invalid-feedback">
+                                <p
+                                    *ngIf="
+                                        loginErrors['required'];
+                                        else loginNotEmpty
+                                    "
+                                    class="mb-0">
+                                    Login is required.
+                                </p>
+                                <ng-template #loginNotEmpty>
+                                    <p
+                                        *ngIf="
+                                            loginErrors['minlength'] as minlen
+                                        "
+                                        class="mb-0">
+                                        Login is must be at least
+                                        {{ minlen['requiredLength'] }}
+                                        characters.
+                                    </p>
+                                    <p
+                                        *ngIf="
+                                            loginErrors['maxlength'] as maxlen
+                                        "
+                                        class="mb-0">
+                                        Login must be shorter than
+                                        {{ maxlen['requiredLength'] }}
+                                        characters.
+                                    </p>
+                                </ng-template>
+                            </div>
+                        </div>
+                        <div class="mb-2 has-validation">
+                            <label
+                                for="passwordInput"
+                                class="form-label mb-0">
+                                Password
+                            </label>
+                            <input
+                                type="password"
+                                id="passwordInput"
+                                required
+                                formControlName="password"
+                                class="form-control"
+                                placeholder="Password"
+                                [ngClass]="{
+                                    'is-invalid': passwordInvalid,
+                                    'is-valid': !passwordInvalid
+                                }" />
+                            <div
+                                *ngIf="passwordInvalid"
+                                class="invalid-feedback">
+                                <ng-container
+                                    *ngIf="passwordControl.errors?.['required']; else pwdNotEmpty">
+                                    <p class="mb-0">Password is required.</p>
+                                </ng-container>
+                                <ng-template #pwdNotEmpty>
+                                    <p
+                                        *ngIf="passwordControl.errors?.['weakPassword']; else mismatch"
+                                        class="mb-0">
+                                        Password must be at least 8 characters
+                                        long and must contain a lower case
+                                        letter, upper case letter, digit and a
+                                        symbol.
+                                    </p>
+                                    <ng-template #mismatch>
+                                        <p class="mb-0">
+                                            Password and repeat password must
+                                            match.
+                                        </p>
+                                    </ng-template>
+                                </ng-template>
+                            </div>
+                        </div>
+                        <div class="mb-2 has-validation">
+                            <label
+                                for="repeatPasswordInput"
+                                class="form-label mb-0">
+                                Repeat password
+                            </label>
+                            <input
+                                type="password"
+                                id="repeatPasswordInput"
+                                required
+                                class="form-control"
+                                formControlName="repeatPassword"
+                                placeholder="Repeat password"
+                                [ngClass]="{
+                                    'is-invalid': repeatPasswordInvalid,
+                                    'is-valid': !repeatPasswordInvalid
+                                }" />
+                            <div
+                                *ngIf="repeatPasswordInvalid"
+                                class="invalid-feedback">
+                                <p
+                                    *ngIf="
+                                        repeatPasswordControl.errors?.['required']; else mismatch
+                                    "
+                                    class="mb-0">
+                                    Repeat password is required.
+                                </p>
+                                <ng-template #mismatch>
+                                    <p class="mb-0">
+                                        Password and repeat password must match.
+                                    </p>
+                                </ng-template>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="container">
+                                <div class="row gy-2">
+                                    <button
+                                        class="btn btn-secondary col col-12 col-sm-2"
+                                        (click)="formIndex = formIndex - 1">
+                                        Back
+                                    </button>
+                                    <button
+                                        (click)="continueToOwnerForm()"
+                                        [disabled]="authDetailsForm.invalid"
+                                        type="button"
+                                        class="btn btn-primary col col-12 col-sm-5">
+                                        Register as owner
+                                    </button>
+                                    <button
+                                        (click)="continueToManagerForm()"
+                                        [disabled]="authDetailsForm.invalid"
+                                        type="button"
+                                        class="btn btn-warning col col-12 col-sm-5">
+                                        Register as manager
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <form
+                        *ngSwitchCase="ownerOrManagerForm"
+                        [formGroup]="ownerOrManagerForm"
+                        (ngSubmit)="register()">
+                        <ng-container formGroupName="address">
+                            <div class="mb-2 has-validation">
+                                <label
+                                    for="postalCodeInput"
+                                    class="form-label mb-0">
+                                    Postal code
+                                </label>
+                                <input
+                                    id="postalCodeInput"
+                                    type="text"
+                                    placeholder="Postal code"
+                                    formControlName="postalCode"
+                                    required
+                                    class="form-control"
+                                    [ngClass]="{
+                                        'is-invalid': postalCodeControl.invalid,
+                                        'is-valid': postalCodeControl.valid
+                                    }" />
+                                <div
+                                    *ngIf="postalCodeControl.errors as pcErrors"
+                                    class="invalid-feedback">
+                                    <p
+                                        *ngIf="
+                                            pcErrors['required'];
+                                            else pcNotEmpty
+                                        "
+                                        class="mb-0">
+                                        Postal code is required.
+                                    </p>
+                                    <ng-template #pcNotEmpty>
+                                        <p class="mb-0">
+                                            Postal code must be 6 characters
+                                            long.
+                                        </p>
+                                    </ng-template>
+                                </div>
+                            </div>
+                            <div class="mb-2 has-validation">
+                                <label
+                                    for="cityInput"
+                                    class="form-label mb-0">
+                                    City
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="cityInput"
+                                    formControlName="city"
+                                    placeholder="City"
+                                    required
+                                    [ngClass]="{
+                                        'is-invalid': cityControl.invalid,
+                                        'is-valid': cityControl.valid
+                                    }" />
+                                <div
+                                    *ngIf="cityControl.errors as cityErrors"
+                                    class="invalid-feedback">
+                                    <p
+                                        *ngIf="
+                                            cityErrors['required'];
+                                            else cityNotEmpty
+                                        "
+                                        class="mb-0">
+                                        City is required.
+                                    </p>
+                                    <ng-template #cityNotEmpty>
+                                        <p
+                                            *ngIf="
+                                                cityErrors[
+                                                    'minlength'
+                                                ] as minlen
+                                            "
+                                            class="mb-0">
+                                            City must be at least
+                                            {{ minlen['requiredLength'] }}
+                                            characters.
+                                        </p>
+                                        <p
+                                            *ngIf="
+                                                cityErrors[
+                                                    'maxlength'
+                                                ] as maxlen
+                                            "
+                                            class="mb-0">
+                                            City must be at most
+                                            {{ maxlen['requiredLength'] }}
+                                            characters.
+                                        </p>
+                                    </ng-template>
+                                </div>
+                            </div>
+                            <div class="mb-2 has-validation">
+                                <label
+                                    for="streetInput"
+                                    class="form-label mb-0">
+                                    Street
+                                </label>
+                                <input
+                                    type="text"
+                                    id="streetInput"
+                                    required
+                                    formControlName="street"
+                                    class="form-control"
+                                    placeholder="Street"
+                                    [ngClass]="{
+                                        'is-invalid': streetControl.invalid,
+                                        'is-valid': streetControl.valid
+                                    }" />
+                                <div
+                                    *ngIf="streetControl.errors as streetErrors"
+                                    class="invalid-feedback">
+                                    <p
+                                        *ngIf="streetErrors['required']"
+                                        class="mb-0">
+                                        Street is required.
+                                    </p>
+                                    <p
+                                        *ngIf="
+                                            streetErrors['maxlength'] as maxlen
+                                        "
+                                        class="mb-0">
+                                        Street must be at most
+                                        {{ maxlen['requiredLength'] }}
+                                        characters.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mb-2 has-validation">
+                                <label
+                                    for="buildingNumberInput"
+                                    class="form-label mb-0">
+                                    Building number
+                                </label>
+                                <input
+                                    type="number"
+                                    id="buildingNumberInput"
+                                    required
+                                    class="form-control"
+                                    formControlName="buildingNumber"
+                                    placeholder="Buidling number"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            buildingNumberControl.invalid,
+                                        'is-valid': buildingNumberControl.valid
+                                    }" />
+                                <div
+                                    *ngIf="
+                                        buildingNumberControl.errors as bnErrors
+                                    "
+                                    class="invalid-feedback">
+                                    <p
+                                        *ngIf="bnErrors['required']"
+                                        class="mb-0">
+                                        Building number is required.
+                                    </p>
+                                    <p
+                                        *ngIf="bnErrors['min']"
+                                        class="mb-0">
+                                        Building number must be greater than
+                                        {{ bnErrors['min']['min'] - 1 }}.
+                                    </p>
+                                </div>
+                            </div>
+                        </ng-container>
+                        <div
+                            class="mb-2 has-validation"
+                            *ngIf="licenseNumberControl.enabled">
+                            <label
+                                for="licenseNumberInput"
+                                class="form-label mb-0">
+                                License number
+                            </label>
+                            <input
+                                type="text"
+                                id="licenseNumberInput"
+                                required
+                                class="form-control"
+                                formControlName="licenseNumber"
+                                placeholder="License number"
+                                [ngClass]="{
+                                    'is-invalid': licenseNumberControl.invalid,
+                                    'is-valid': licenseNumberControl.valid
+                                }" />
+                            <div
+                                *ngIf="licenseNumberControl.errors"
+                                class="invalid-feedback">
+                                <p
+                                    *ngIf="
+                                        licenseNumberControl.errors['required']
+                                    "
+                                    class="mb-0">
+                                    License number is required.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="container">
+                                <div class="row gy-2">
+                                    <button
+                                        class="btn btn-secondary col col-12 col-sm-2"
+                                        (click)="formIndex = formIndex - 1">
+                                        Back
+                                    </button>
+                                    <button
+                                        [disabled]="!allFormsValid"
+                                        type="submit"
+                                        class="btn btn-primary ms-auto col col-12 col-sm-5">
+                                        Register
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>

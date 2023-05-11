@@ -6,16 +6,24 @@ import {
     HttpHeaders
 } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { catchError, EMPTY, map, of, tap } from 'rxjs';
-import { ToastService } from './toast.service';
+import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { Account, EditPersonalData, OwnAccount } from '../model/account';
+import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
 import { AccessType } from '../model/access-type';
+import {
+    RegisterManagerDto,
+    RegisterOwnerDto
+} from '../model/registration.dto';
+
+type RegisterResponse = { message: ResponseMessage };
 
 @Injectable({
     providedIn: 'root'
 })
 export class AccountService {
+    private readonly URL = `${environment.apiUrl}/accounts`;
+
     ifMatch = '';
 
     constructor(
@@ -151,6 +159,37 @@ export class AccountService {
                 })
             )
             .subscribe();
+    }
+
+    register(
+        dto: RegisterOwnerDto | RegisterManagerDto
+    ): Observable<ResponseMessage | null> {
+        const isManagerDto = 'licenseNumber' in dto && !!dto.licenseNumber;
+
+        return this.http
+            .post<RegisterResponse | null>(
+                `${this.URL}/register/${isManagerDto ? 'manager' : 'owner'}`,
+                dto
+            )
+            .pipe(
+                map((res) => res?.message ?? null),
+                catchError((e: HttpErrorResponse) => of(e.error.message))
+            );
+    }
+
+    confirmRegistration(token: string): Observable<ResponseMessage | null> {
+        return this.http
+            .post<RegisterResponse | null>(
+                `${this.URL}/confirm-registration`,
+                null,
+                {
+                    params: { token }
+                }
+            )
+            .pipe(
+                map((res) => res?.message ?? null),
+                catchError((e: HttpErrorResponse) => of(e.error.message))
+            );
     }
 
     getOwnProfile() {

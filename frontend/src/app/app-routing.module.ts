@@ -1,17 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { canActivateLoginOrRegister } from './guards/guest.guard';
+import { HomeComponent } from './components/home/home.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
 import { canActivateAuthenticated } from './guards/authentication.guard';
+import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
-import { HomeComponent } from './components/home/home.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AccountComponent } from './components/account/account.component';
 import { canActivateAdmin } from './guards/admin.guard';
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { canActivateManagerAdmin } from './guards/manager-admin.guard';
+import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 
 const routes: Routes = [
@@ -29,6 +31,16 @@ const routes: Routes = [
                     title: 'Sign in'
                 },
                 canActivate: [canActivateLoginOrRegister]
+            },
+            {
+                path: 'register',
+                title: 'Register',
+                component: RegisterComponent,
+                canActivate: [canActivateLoginOrRegister]
+            },
+            {
+                path: 'confirm-account',
+                component: ConfirmRegistrationComponent // TODO add guard to check if token is present
             }
         ]
     },

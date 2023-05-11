@@ -30,6 +30,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ConfirmActionComponent } from './components/modals/confirm-action/confirm-action.component';
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
+import { RegisterComponent } from './components/register/register.component';
+import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 
 @NgModule({
     declarations: [
@@ -39,21 +41,20 @@ import { ForcePasswordChangeOverrideComponent } from './components/force-passwor
         ChooseAccessLevelComponent,
         ToastSectionComponent,
         RefreshSessionComponent,
+        RegisterComponent,
         ResetPasswordComponent,
         ResetPasswordConfirmComponent,
-        RefreshSessionComponent,
         NavbarComponent,
         SidebarComponent,
-        HomeComponent,
         ChangeLanguageComponent,
         ConfirmActionComponent,
-        HomeComponent,
-        AccountsComponent,
         ForcePasswordChangeOverrideComponent,
         AccountsComponent,
         ProfileComponent,
         AccountComponent,
-        EditPersonalDataComponent
+        EditPersonalDataComponent,
+        HomeComponent,
+        ConfirmRegistrationComponent
     ],
     imports: [
         BrowserModule,

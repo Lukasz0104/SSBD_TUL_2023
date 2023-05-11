@@ -101,7 +101,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = token.getAccount();
         account.setVerified(true);
 
-        accountFacade.edit(account); // TODO Catch and handle DatabaseException
+        accountFacade.edit(account);
         tokenFacade.remove(token);
     }
 
