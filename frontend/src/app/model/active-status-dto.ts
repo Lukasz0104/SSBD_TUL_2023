@@ -1,4 +1,4 @@
 export interface ActiveStatusDto {
     id: number;
-    status: boolean;
+    active: boolean;
 }

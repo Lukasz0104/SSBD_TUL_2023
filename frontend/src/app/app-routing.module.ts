@@ -28,7 +28,8 @@ const routes: Routes = [
                 component: ConfirmEmailComponent,
                 data: {
                     title: 'Change email'
-                }
+                },
+                canActivate: [canActivateAuthenticated]
             }
         ]
     },

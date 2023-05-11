@@ -1,7 +1,6 @@
 <div>
     <div class="p-4 d-flex justify-content-around">
         <div *ngIf="status === true; then trueBlock; else falseBlock"></div>
-        <!--//FIXME NIE DZIAŁA-->
         <ng-template #trueBlock>
             <button
                 (click)="onClick()"

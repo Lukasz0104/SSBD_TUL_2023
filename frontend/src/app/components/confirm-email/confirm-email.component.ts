@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ChangeEmailService } from '../../services/change-email.service';
+import { AccountService } from '../../services/account.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
@@ -16,7 +16,7 @@ export class ConfirmEmailComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private emailService: ChangeEmailService,
+        private emailService: AccountService,
         private toastService: ToastService,
         private router: Router
     ) {}

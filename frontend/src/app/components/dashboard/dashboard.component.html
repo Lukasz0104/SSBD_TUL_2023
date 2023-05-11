@@ -7,16 +7,16 @@
                 class="justify-content-start navbar navbar-expand"
                 id="navbarNav">
                 <ul
-                    style="--bs-breadcrumb-divider: '>'"
-                    class="navbar-nav breadcrumb mb-0">
+                    class="navbar-nav breadcrumb mb-0"
+                    style="--bs-breadcrumb-divider: '>'">
                     <ng-container
                         *ngFor="
                             let breadcrumb of getBreadCrumbs();
                             let i = index
                         ">
                         <li
-                            routerLink="{{ breadcrumb[1] }}"
-                            class="nav-item pe-0 nav-link breadcrumb-item">
+                            class="nav-item pe-0 nav-link breadcrumb-item"
+                            routerLink="{{ breadcrumb[1] }}">
                             <span
                                 [ngClass]="{
                                     'fw-bold': i === getBreadCrumbs().length - 1
@@ -29,6 +29,7 @@
                 </ul>
             </div>
         </div>
+        <app-change-active-status></app-change-active-status>
         <div class="card m-3 mt-0">
             <div
                 class="container-fluid h-100 d-flex overflow-auto p-3 overflow-x-hidden w-100">
