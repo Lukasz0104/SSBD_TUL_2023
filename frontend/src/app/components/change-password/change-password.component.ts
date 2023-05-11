@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-change-password',
@@ -12,9 +13,8 @@ export class ChangePasswordComponent {
     showPassword = false;
     showRepeatPassword = false;
     showOldPassword = false;
-    regexp = new RegExp(
-        '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$'
-    );
+    regexp = environment.passwordRegex;
+
     validators = [
         Validators.required,
         Validators.minLength(8),

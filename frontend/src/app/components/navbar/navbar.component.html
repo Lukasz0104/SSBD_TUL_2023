@@ -23,6 +23,12 @@
                 ngbDropdownMenu
                 class="dropdown-menu-end">
                 <button
+                    (click)="changeAccessLevel()"
+                    *ngIf="authService.getGroups().length > 1"
+                    ngbDropdownItem>
+                    Change access level
+                </button>
+                <button
                     (click)="logout()"
                     ngbDropdownItem>
                     Log out

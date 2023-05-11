@@ -8,8 +8,11 @@ import {
 import { Account, EditPersonalData, OwnAccount } from '../model/account';
 import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
-import { AccessType } from '../model/access-type';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { AccessType, ChangeAccessLevelDto } from '../model/access-type';
+import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
+import { AuthService } from './auth.service';
+import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable({
     providedIn: 'root'
@@ -17,7 +20,12 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 export class AccountService {
     ifMatch = '';
 
-    constructor(private http: HttpClient, private toastService: ToastService) {}
+    constructor(
+        private http: HttpClient,
+        private toastService: ToastService,
+        private authService: AuthService,
+        private modalService: NgbModal
+    ) {}
 
     getOwnProfile() {
         return this.http
@@ -118,5 +126,45 @@ export class AccountService {
                     return of(false);
                 })
             );
+    }
+
+    changeAccessLevel(): void {
+        const groups: AccessType[] = this.authService
+            .getGroups()
+            .filter((x) => x !== this.authService.getCurrentGroup());
+        if (groups.length < 1) {
+            return;
+        }
+        const modalRef: NgbModalRef = this.modalService.open(
+            ChooseAccessLevelComponent,
+            { centered: true }
+        );
+
+        modalRef.componentInstance.groups = groups;
+        modalRef.result
+            .then((grp: AccessType): void => {
+                this.http
+                    .put<ChangeAccessLevelDto>(
+                        `${environment.apiUrl}/accounts/me/change-access-level`,
+                        { accessType: grp }
+                    )
+                    .pipe(
+                        map((res: ChangeAccessLevelDto): void => {
+                            this.authService.setCurrentGroup(res.accessType);
+                            this.toastService.showSuccess(
+                                'toast.switch-access-level-success'
+                            );
+                        }),
+                        catchError(() => {
+                            this.toastService.showDanger(
+                                'toast.switch-access-level-fail'
+                            );
+                            this.authService.logout();
+                            return EMPTY;
+                        })
+                    )
+                    .subscribe();
+            })
+            .catch(() => false);
     }
 }
