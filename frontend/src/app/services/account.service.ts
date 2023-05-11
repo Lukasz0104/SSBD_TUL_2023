@@ -78,10 +78,33 @@ export class AccountService {
     }
 
     editPersonalDataAsAdmin(dto: EditPersonalData) {
-        if (dto.login == 'pduda') {
-            return of(true);
-        }
-        return of(false);
+        return this.http
+            .put<Account>(
+                `${environment.apiUrl}/accounts/admin/edit-other`,
+                dto,
+                {
+                    headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
+                    observe: 'response'
+                }
+            )
+            .pipe(
+                map((): boolean => {
+                    this.toastService.showSuccess(
+                        'toast.edit-account-as-admin-success'
+                    );
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    switch (err.error.message) {
+                        case ResponseMessage.OPTIMISTIC_LOCK:
+                            return of(true);
+                        case ResponseMessage.SIGNATURE_MISMATCH:
+                            return of(true);
+                    }
+                    return of(false);
+                })
+            );
     }
 
     getAccountsByTypeAndActive(type: AccessType, active: boolean) {

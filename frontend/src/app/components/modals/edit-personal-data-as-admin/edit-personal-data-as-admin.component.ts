@@ -147,7 +147,6 @@ export class EditPersonalDataAsAdminComponent {
                         break;
                 }
             }
-            console.log(this.newAccount);
 
             this.accountService
                 .editPersonalDataAsAdmin(this.newAccount)

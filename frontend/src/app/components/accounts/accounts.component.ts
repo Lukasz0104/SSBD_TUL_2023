@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../../services/account.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
 import { Account } from '../../model/account';
 import { AccessType } from '../../model/access-type';
 import { AuthService } from '../../services/auth.service';
@@ -88,8 +88,10 @@ export class AccountsComponent implements OnInit {
             }
         );
         modalRef.componentInstance.setAccount(account);
-        modalRef.result.then((res): void => {
-            account = res;
-        });
+        modalRef.result
+            .then((res): void => {
+                account = res;
+            })
+            .catch(() => EMPTY);
     }
 }
