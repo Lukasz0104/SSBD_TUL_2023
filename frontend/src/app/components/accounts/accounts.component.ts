@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Account } from '../../model/account';
 import { AccessType } from '../../model/access-type';
 import { AuthService } from '../../services/auth.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-accounts',
@@ -19,7 +21,8 @@ export class AccountsComponent implements OnInit {
 
     constructor(
         private accountService: AccountService,
-        protected authService: AuthService
+        protected authService: AuthService,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit() {
@@ -73,5 +76,20 @@ export class AccountsComponent implements OnInit {
 
     reload() {
         this.getAccounts();
+    }
+
+    forceChange(login: string) {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        modalRef.componentInstance.message =
+            'modal.confirm-action.force-password-message';
+        modalRef.componentInstance.danger =
+            'modal.confirm-action.force-password-danger';
+        modalRef.result.then((result: boolean) => {
+            if (result) {
+                this.accountService.forcePasswordChange(login);
+            }
+        });
     }
 }

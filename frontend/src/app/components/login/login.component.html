@@ -13,12 +13,16 @@
                             (submit)="onSubmit()"
                             [formGroup]="loginForm"
                             class="mb-3 md-4">
-                            <h2 class="fw-bold mb-4">Login to eBok</h2>
+                            <h2 class="fw-bold mb-4">
+                                {{ 'form.login.title' | translate }}
+                            </h2>
                             <div class="mb-3">
                                 <label
                                     class="form-label"
                                     for="login"
-                                    >Login*</label
+                                    >{{
+                                        'form.fields.login' | translate
+                                    }}</label
                                 >
                                 <input
                                     [ngClass]="{
@@ -40,7 +44,9 @@
                                         login && login.touched && login.invalid
                                     "
                                     class="validation-message"
-                                    >Login is required</span
+                                    >{{
+                                        'validation.login.required' | translate
+                                    }}</span
                                 >
                             </div>
                             <div class="mb-3">
@@ -48,7 +54,9 @@
                                     class="form-label"
                                     for="password"
                                     i18n
-                                    >Password*</label
+                                    >{{
+                                        'form.fields.password' | translate
+                                    }}</label
                                 >
                                 <input
                                     [ngClass]="{
@@ -73,7 +81,10 @@
                                         password.invalid
                                     "
                                     class="validation-message"
-                                    >Password is required</span
+                                    >{{
+                                        'validation.password.required'
+                                            | translate
+                                    }}</span
                                 >
                             </div>
                             <p
@@ -81,8 +92,10 @@
                                 i18n>
                                 <a
                                     class="text-primary"
-                                    href="#"
-                                    >Forgot password?</a
+                                    routerLink="/reset-password"
+                                    >{{
+                                        'form.forgot-password.title' | translate
+                                    }}</a
                                 >
                             </p>
                             <div
@@ -99,7 +112,7 @@
                                         </span>
                                     </ng-container>
                                     <ng-template #loginButton
-                                        >Login
+                                        >{{ 'form.login.action' | translate }}
                                     </ng-template>
                                 </button>
                             </div>
@@ -108,12 +121,12 @@
                             <p
                                 class="mb-0 text-center"
                                 i18n>
-                                Don't have an account?
+                                {{ 'form.login.no-account-info' | translate }}
                                 <a
                                     class="text-primary fw-bold"
                                     routerLink="/register"
-                                    >Sign Up</a
-                                >
+                                    >{{ 'form.login.sign-up' | translate }}
+                                </a>
                             </p>
                         </div>
                     </div>

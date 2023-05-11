@@ -1,0 +1,26 @@
+<div class="modal-header">
+    <h6
+        class="modal-title"
+        id="modal-basic-title">
+        {{ message | translate }}
+        <span class="text-danger">{{ danger | translate }}</span>
+    </h6>
+    <button
+        (click)="activeModal.dismiss('Cross click')"
+        class="btn-close"
+        type="button"></button>
+</div>
+<div class="row">
+    <div class="px-4 d-flex justify-content-between modal-footer">
+        <div
+            (click)="activeModal.close(false)"
+            class="btn btn-outline-secondary">
+            {{ 'component.account.cancel' | translate }}
+        </div>
+        <button
+            (click)="onClick()"
+            class="btn btn-danger">
+            {{ 'modal.confirm-action.action' | translate }}
+        </button>
+    </div>
+</div>
