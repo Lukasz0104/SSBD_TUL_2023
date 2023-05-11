@@ -15,14 +15,20 @@
                             let i = index
                         ">
                         <li
-                            routerLink="/{{ breadcrumb[1] }}"
+                            [routerLink]="
+                                i !== getBreadCrumbs().length - 1
+                                    ? ['/' + breadcrumb.link]
+                                    : null
+                            "
                             class="nav-item pe-0 nav-link breadcrumb-item">
                             <span
                                 [ngClass]="{
-                                    'fw-bold': i === getBreadCrumbs().length - 1
+                                    'fw-bold':
+                                        i === getBreadCrumbs().length - 1,
+                                    'cursor-pointer':
+                                        i !== getBreadCrumbs().length - 1
                                 }"
-                                class="cursor-pointer"
-                                >{{ breadcrumb[0] | titlecase }}</span
+                                >{{ breadcrumb.name | titlecase }}</span
                             >
                         </li>
                     </ng-container>

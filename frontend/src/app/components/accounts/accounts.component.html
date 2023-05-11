@@ -124,6 +124,11 @@
                     <th scope="col">First name</th>
                     <th scope="col">Last name</th>
                     <th scope="col">Active</th>
+                    <th
+                        *ngIf="authService.isAdmin()"
+                        scope="col">
+                        Details
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -143,6 +148,14 @@
                     </td>
                     <td *ngIf="!account.active">
                         <i class="bi bi-lock-fill"></i>
+                    </td>
+                    <td *ngIf="authService.isAdmin()">
+                        <button
+                            [routerLink]="['account']"
+                            [queryParams]="{ id: account.id }"
+                            class="btn btn-outline-primary">
+                            Details
+                        </button>
                     </td>
                 </tr>
             </tbody>

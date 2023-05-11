@@ -5,6 +5,9 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
 import { HomeComponent } from './components/home/home.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { AccountComponent } from './components/account/account.component';
+import { canActivateAdmin } from './guards/admin.guard';
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { canActivateManagerAdmin } from './guards/manager-admin.guard';
 
@@ -34,6 +37,22 @@ const routes: Routes = [
         },
         canActivate: [canActivateAuthenticated],
         children: [
+            {
+                path: 'profile',
+                component: ProfileComponent,
+                data: {
+                    title: 'My profile'
+                },
+                canActivate: [canActivateAuthenticated]
+            },
+            {
+                path: 'accounts/account',
+                component: AccountComponent,
+                data: {
+                    title: 'Account'
+                },
+                canActivate: [canActivateAdmin]
+            },
             {
                 path: 'accounts',
                 component: AccountsComponent,

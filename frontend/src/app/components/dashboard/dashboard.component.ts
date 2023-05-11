@@ -11,16 +11,18 @@ export class DashboardComponent {
     getBreadCrumbs() {
         const url = this.router.url.split('/');
         url.shift();
-        const breadcrumbs: string[][] = [];
-        url[url.length - 1] = this.removeParams(url[url.length - 1]);
+        const breadcrumbs: Breadcrumb[] = [];
 
         for (let i = 0; i < url.length; i++) {
             let link = url[i];
-            const name = url[i];
-            if (i > 0) {
-                link = breadcrumbs[i - 1][1] + '/' + link;
+            let name = url[i];
+            if (i === url.length - 1) {
+                name = this.removeParams(name);
             }
-            breadcrumbs.push([name, link]);
+            if (i > 0) {
+                link = breadcrumbs[i - 1].link + '/' + link;
+            }
+            breadcrumbs.push(new Breadcrumb(link, name));
         }
         return breadcrumbs;
     }
@@ -28,5 +30,15 @@ export class DashboardComponent {
     private removeParams(path: string) {
         const urlDelimitators = new RegExp(/[?,;&:#$+=]/);
         return path.slice(0).split(urlDelimitators)[0];
+    }
+}
+
+class Breadcrumb {
+    link: string;
+    name: string;
+
+    constructor(link: string, name: string) {
+        this.link = link;
+        this.name = name;
     }
 }
