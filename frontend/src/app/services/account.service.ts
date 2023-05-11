@@ -77,6 +77,13 @@ export class AccountService {
             );
     }
 
+    editPersonalDataAsAdmin(dto: EditPersonalData) {
+        if (dto.login == 'pduda') {
+            return of(true);
+        }
+        return of(false);
+    }
+
     getAccountsByTypeAndActive(type: AccessType, active: boolean) {
         let url;
         switch (type) {

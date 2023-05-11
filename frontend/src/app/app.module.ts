@@ -21,6 +21,7 @@ import { AccountComponent } from './components/account/account.component';
 import { EditPersonalDataComponent } from './components/modals/edit-personal-data/edit-personal-data.component';
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
+import { EditPersonalDataAsAdminComponent } from './components/modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 
 @NgModule({
     declarations: [
@@ -37,7 +38,8 @@ import { ChangePasswordComponent } from './components/change-password/change-pas
         ProfileComponent,
         AccountComponent,
         EditPersonalDataComponent,
-        ChangePasswordComponent
+        ChangePasswordComponent,
+        EditPersonalDataAsAdminComponent
     ],
     imports: [
         BrowserModule,

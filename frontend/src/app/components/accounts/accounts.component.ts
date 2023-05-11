@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Account } from '../../model/account';
 import { AccessType } from '../../model/access-type';
 import { AuthService } from '../../services/auth.service';
+import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-accounts',
@@ -19,7 +21,8 @@ export class AccountsComponent implements OnInit {
 
     constructor(
         private accountService: AccountService,
-        protected authService: AuthService
+        protected authService: AuthService,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit() {
@@ -73,5 +76,20 @@ export class AccountsComponent implements OnInit {
 
     reload() {
         this.getAccounts();
+    }
+
+    editPersonalDataAsAdmin(account: Account): void {
+        const modalRef: NgbModalRef = this.modalService.open(
+            EditPersonalDataAsAdminComponent,
+            {
+                centered: true,
+                size: 'xl',
+                scrollable: true
+            }
+        );
+        modalRef.componentInstance.setAccount(account);
+        modalRef.result.then((res): void => {
+            account = res;
+        });
     }
 }
