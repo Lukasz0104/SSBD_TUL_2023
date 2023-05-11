@@ -19,14 +19,14 @@
                             <div>
                                 <i
                                     class="bi bi-person"
-                                    style="font-size: 8rem"></i>
+                                    style="font-size: 6rem"></i>
                             </div>
-                            <button class="fs-5 w-100 btn btn-outline-primary">
+                            <button class="fs-6 w-100 btn btn-outline-primary">
                                 Edit
                             </button>
                         </div>
                         <div
-                            class="justify-content-center px-3 px-md-5 row fs-5">
+                            class="justify-content-center px-3 px-md-5 row fs-6">
                             <div class="col-md">
                                 <p><strong>First name</strong></p>
                                 <p>{{ account.firstName }}</p>
@@ -61,7 +61,7 @@
             <div ngbAccordionCollapse>
                 <div
                     ngbAccordionBody
-                    class="d-flex justify-content-start align-items-center fs-5"
+                    class="d-flex justify-content-start align-items-center fs-6"
                     *ngIf="account.activityTracker as activityTracker">
                     <ng-template>
                         <div
@@ -150,7 +150,7 @@
                                     *ngFor="
                                         let accessLevel of account.accessLevels
                                     "
-                                    class="fs-5 col-md p-3">
+                                    class="fs-6 col-md p-3">
                                     <p><strong>Level</strong></p>
                                     <p>{{ accessLevel.level }}</p>
                                     <span
