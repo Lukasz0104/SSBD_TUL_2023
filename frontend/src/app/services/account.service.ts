@@ -24,7 +24,7 @@ export class AccountService {
 
     getOwnProfile() {
         return this.http
-            .get<OwnAccount>(this.accountsUrl + `/me`, {
+            .get<OwnAccount>(`${this.accountsUrl}/me`, {
                 observe: 'response'
             })
             .pipe(
@@ -37,7 +37,7 @@ export class AccountService {
 
     getProfile(id: number) {
         return this.http
-            .get<Account>(this.accountsUrl + `/${id}`, {
+            .get<Account>(`${this.accountsUrl}/${id}`, {
                 observe: 'response'
             })
             .pipe(
@@ -50,7 +50,7 @@ export class AccountService {
 
     editOwnProfile(dto: EditPersonalData) {
         return this.http
-            .put<OwnAccount>(this.accountsUrl + `/me`, dto, {
+            .put<OwnAccount>(`${this.accountsUrl}/me`, dto, {
                 headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
                 observe: 'response'
             })
@@ -96,18 +96,18 @@ export class AccountService {
     getUnapprovedAccountsByType(type: AccessType) {
         if (type == AccessType.OWNER) {
             return this.http.get<Account[]>(
-                this.accountsUrl + `/owners/unapproved`
+                `${this.accountsUrl}/owners/unapproved`
             );
         } else if (type == AccessType.MANAGER) {
             return this.http.get<Account[]>(
-                this.accountsUrl + `/managers/unapproved`
+                `${this.accountsUrl}/managers/unapproved`
             );
         }
         return of([]);
     }
 
     changeEmail() {
-        return this.http.post(this.accountsUrl + `/me/change-email`, null).pipe(
+        return this.http.post(`${this.accountsUrl}/me/change-email`, null).pipe(
             map(() => {
                 this.toastService.showSuccess('mail.sent.success'); //fixme
                 return true;
@@ -122,7 +122,7 @@ export class AccountService {
     confirmEmail(email: string, token: string) {
         return this.http
             .put<ChangeEmailForm>(
-                this.accountsUrl + `/me/confirm-email/${token}`,
+                `${this.accountsUrl}/me/confirm-email/${token}`,
                 { email }
             )
             .pipe(
@@ -140,7 +140,7 @@ export class AccountService {
     changeActiveStatusAsManager(id: number, active: boolean) {
         return this.http
             .put<ActiveStatusDto>(
-                this.accountsUrl + `/manager/change-active-status`,
+                `${this.accountsUrl}/manager/change-active-status`,
                 {
                     id,
                     active
@@ -161,7 +161,7 @@ export class AccountService {
     changeActiveStatusAsAdmin(id: number, active: boolean) {
         return this.http
             .put<ActiveStatusDto>(
-                this.accountsUrl + `/admin/change-active-status`,
+                `${this.accountsUrl}/admin/change-active-status`,
                 {
                     id,
                     active
