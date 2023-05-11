@@ -1,12 +1,33 @@
 <nav
-    class="d-flex justify-content-end fs-3 navbar navbar-expand shadow w-100"
+    class="d-flex justify-content-end fs-3 navbar navbar-expand shadow-sm w-100"
     [ngClass]="{
-        'bg-warning': authService.getCurrentGroup() === 'MANAGER',
-        'bg-danger': authService.getCurrentGroup() === 'ADMIN',
-        'bg-success': authService.getCurrentGroup() === 'OWNER'
+        'bg-warning': authService.isManager(),
+        'bg-danger': authService.isAdmin(),
+        'bg-success': authService.isOwner()
     }">
-    <div class="text-white px-3">
-        {{ authService.getLogin() }}
-        <i class="bi bi-person"></i>
+    <div class="me-3">
+        <div
+            ngbDropdown
+            class="d-inline-block">
+            <button
+                type="button"
+                class="btn px-3"
+                id="dropdownBasic1"
+                ngbDropdownToggle>
+                <span class="h5">
+                    <i class="bi bi-person"></i>
+                    {{ authService.getLogin() }}
+                </span>
+            </button>
+            <div
+                ngbDropdownMenu
+                class="dropdown-menu-end">
+                <button
+                    (click)="logout()"
+                    ngbDropdownItem>
+                    Log out
+                </button>
+            </div>
+        </div>
     </div>
 </nav>

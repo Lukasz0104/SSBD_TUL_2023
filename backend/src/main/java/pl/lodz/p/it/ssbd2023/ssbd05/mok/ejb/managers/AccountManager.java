@@ -272,8 +272,18 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    public List<Account> getUnapprovedOwnerAccounts() {
+        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.OWNER);
+    }
+
+    @Override
     public List<Account> getManagerAccounts(boolean active) {
         return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active);
+    }
+
+    @Override
+    public List<Account> getUnapprovedManagerAccounts() {
+        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.MANAGER);
     }
 
     @Override

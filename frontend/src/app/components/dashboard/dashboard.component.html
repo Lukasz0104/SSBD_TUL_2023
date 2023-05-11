@@ -15,14 +15,20 @@
                             let i = index
                         ">
                         <li
-                            routerLink="{{ breadcrumb[1] }}"
+                            [routerLink]="
+                                i !== getBreadCrumbs().length - 1
+                                    ? ['/' + breadcrumb.link]
+                                    : null
+                            "
                             class="nav-item pe-0 nav-link breadcrumb-item">
                             <span
                                 [ngClass]="{
-                                    'fw-bold': i === getBreadCrumbs().length - 1
+                                    'fw-bold':
+                                        i === getBreadCrumbs().length - 1,
+                                    'cursor-pointer':
+                                        i !== getBreadCrumbs().length - 1
                                 }"
-                                class="hover"
-                                >{{ breadcrumb[0] | titlecase }}</span
+                                >{{ breadcrumb.name | titlecase }}</span
                             >
                         </li>
                     </ng-container>
@@ -31,7 +37,7 @@
         </div>
         <div class="card m-3 mt-0">
             <div
-                class="container-fluid h-100 d-flex overflow-auto p-3 overflow-x-hidden w-100">
+                class="container-fluid h-100 overflow-auto p-3 overflow-x-hidden">
                 <router-outlet></router-outlet>
             </div>
         </div>

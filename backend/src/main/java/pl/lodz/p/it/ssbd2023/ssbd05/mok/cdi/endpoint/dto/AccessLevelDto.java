@@ -21,4 +21,10 @@ public abstract class AccessLevelDto {
 
     @NotNull
     private Long version;
+
+    @NotNull
+    private boolean verified;
+
+    @NotNull
+    private boolean active;
 }
