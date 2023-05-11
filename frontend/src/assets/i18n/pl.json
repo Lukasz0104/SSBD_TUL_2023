@@ -2,11 +2,11 @@
   "validation": {
     "password": {
       "required": "Hasło jest wymagane",
-      "length": "Hasło musi mieć conajmniej 8 znaków",
+      "length": "Hasło musi mieć co najmniej 8 znaków",
       "strength": "Hasło jest zbyt słabe"
     },
     "repeat-password": {
-      "required": "Potwórzenie hasła jest wymagane",
+      "required": "Powtórzenie hasła jest wymagane",
       "match": "Powtórzone hasło nie jest takie samo jak hasło"
     },
     "login": {
@@ -17,12 +17,12 @@
     },
     "first-name": {
       "required": "Imię jest wymagane.",
-      "min-length": "Imię musi składać się z conajmniej 1 znaku.",
+      "min-length": "Imię musi składać się z co najmniej 1 znaku.",
       "max-length": "Imię może składać się z maksymalnie 100 znaków."
     },
     "last-name": {
       "required": "Nazwisko jest wymagane.",
-      "min-length": "Nazwisko musi składać się z conajmniej 1 znaku.",
+      "min-length": "Nazwisko musi składać się z co najmniej 1 znaku.",
       "max-length": "Nazwisko może składać się z maksymalnie 100 znaków."
     },
     "street": {
@@ -39,7 +39,7 @@
     },
     "city": {
       "required": "Miasto jest wymagane.",
-      "min-length": "Miasto musi składać się z conajmniej 2 znaków.",
+      "min-length": "Miasto musi składać się z co najmniej 2 znaków.",
       "max-length": "Miasto może składać się z maksymalnie 85 znaków."
     },
     "license-number": {
@@ -180,7 +180,7 @@
         "expired_token": "Link wygasł",
         "inactive_account": "Konto zostało zablokowane",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
-        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momętu wysłania formularza, spróbuj ponownie"
+        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie"
       }
     }
   },
@@ -191,7 +191,7 @@
         "unverified_account": "Wybrane konto jest niezweryfikowane",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "illegal_self_action": "Nie można wykonać akcji na własnym koncie",
-        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momętu wysłania formularza, spróbuj ponownie"
+        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie"
       }
     }
   },
@@ -200,7 +200,7 @@
       "message": {
         "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
-        "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momętu wczytania formularza, spróbuj ponownie",
+        "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
         "account_not_found": "Modyfikowane konto nie istnieje"
       }
     }

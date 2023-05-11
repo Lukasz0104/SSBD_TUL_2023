@@ -6,29 +6,36 @@
         'bg-success': authService.isOwner()
     }">
     <app-change-language></app-change-language>
-    <div class="me-3">
+    <div>
         <div
             ngbDropdown
-            class="d-inline-block">
-            <button
-                type="button"
-                class="btn px-3"
+            class="nav-item fs-6"
+            display="dynamic"
+            placement="bottom-end">
+            <a
+                class="nav-link px-3"
                 id="dropdownBasic1"
+                role="button"
                 ngbDropdownToggle>
                 <span class="h5">
                     <i class="bi bi-person"></i>
                     {{ authService.getLogin() }}
                 </span>
-            </button>
+            </a>
             <div
                 ngbDropdownMenu
-                class="dropdown-menu-end">
+                class="dropdown-menu-end bg-dark text-center">
+                <span class="text-white">{{
+                    'access-levels.' + authService.getCurrentGroup() | translate
+                }}</span>
                 <button
+                    class="text-white"
                     routerLink="/dashboard/profile"
                     ngbDropdownItem>
                     {{ 'nav.profile' | translate }}
                 </button>
                 <button
+                    class="text-white"
                     (click)="logout()"
                     ngbDropdownItem>
                     {{ 'nav.logout' | translate }}

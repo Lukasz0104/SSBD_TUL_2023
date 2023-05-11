@@ -10,7 +10,7 @@
       "match": "Repeated password doesn't match password"
     },
     "login": {
-      "required": "Login is reqired"
+      "required": "Login is required"
     },
     "email": {
       "required": "Email is required"
@@ -75,7 +75,7 @@
       "login": "Login*",
       "password": "Password*",
       "email": "Email*",
-      "repeat-password": "Reapeat password*"
+      "repeat-password": "Repeat password*"
     }
   },
   "component": {
@@ -97,7 +97,7 @@
     },
     "account": {
       "language": "Language",
-      "verified": "Veified",
+      "verified": "Verified",
       "personal-data": "Personal data",
       "edit": "Edit",
       "auth-data": "Authentication data",
