@@ -4,6 +4,6 @@
         *ngFor="let toast of getToasts()"
         [autohide]="false"
         [class]="toast.className">
-        {{ toast.body }}
+        {{ toast.body | translate }}
     </ngb-toast>
 </section>

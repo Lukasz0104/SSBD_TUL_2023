@@ -28,7 +28,12 @@
                                     'cursor-pointer':
                                         i !== getBreadCrumbs().length - 1
                                 }"
-                                >{{ breadcrumb.name | titlecase }}</span
+                                class="cursor-pointer"
+                                >{{
+                                    'nav.' + breadcrumb.name
+                                        | translate
+                                        | titlecase
+                                }}</span
                             >
                         </li>
                     </ng-container>

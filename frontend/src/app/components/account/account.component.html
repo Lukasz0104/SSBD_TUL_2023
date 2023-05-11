@@ -7,7 +7,7 @@
                 <button
                     ngbAccordionButton
                     class="fs-5">
-                    Personal data
+                    {{ 'component.account.personal-data' | translate }}
                 </button>
             </h2>
             <div ngbAccordionCollapse>
@@ -22,25 +22,46 @@
                                     style="font-size: 6rem"></i>
                             </div>
                             <button class="fs-6 w-100 btn btn-outline-primary">
-                                Edit
+                                {{ 'component.account.edit' | translate }}
                             </button>
                         </div>
                         <div
                             class="justify-content-center px-3 px-md-5 row fs-6">
                             <div class="col-md">
-                                <p><strong>First name</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.fields.first-name'
+                                            | translate
+                                    }}</strong>
+                                </p>
                                 <p>{{ account.firstName }}</p>
-                                <p><strong>Last name</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.fields.last-name' | translate
+                                    }}</strong>
+                                </p>
                                 <p>{{ account.lastName }}</p>
-                                <p><strong>Login</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.fields.login' | translate
+                                    }}</strong>
+                                </p>
                                 <p>{{ account.login }}</p>
                             </div>
                             <div class="col-md">
                                 <p><strong>E-mail</strong></p>
                                 <p>{{ account.email }}</p>
-                                <p><strong>Language</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.language' | translate
+                                    }}</strong>
+                                </p>
                                 <p>{{ account.language }}</p>
-                                <p><strong>Verified</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.verified' | translate
+                                    }}</strong>
+                                </p>
                                 <p>{{ account.verified }}</p>
                             </div>
                         </div>
@@ -55,7 +76,7 @@
                 <button
                     ngbAccordionButton
                     class="fs-5">
-                    Authentication data
+                    {{ 'component.account.auth-data' | translate }}
                 </button>
             </h2>
             <div ngbAccordionCollapse>
@@ -72,7 +93,10 @@
                                 "
                                 class="col-md">
                                 <p>
-                                    <strong>Last successful login date</strong>
+                                    <strong>{{
+                                        'component.account.last-success-login-date'
+                                            | translate
+                                    }}</strong>
                                 </p>
                                 <p>
                                     {{
@@ -80,7 +104,12 @@
                                             | date : 'dd/MM/yy HH:mm:ss'
                                     }}
                                 </p>
-                                <p><strong>Last successful login IP</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.last-success-login-ip'
+                                            | translate
+                                    }}</strong>
+                                </p>
                                 <p>
                                     {{ activityTracker.lastSuccessfulLoginIp }}
                                 </p>
@@ -92,9 +121,10 @@
                                 "
                                 class="col-md">
                                 <p>
-                                    <strong
-                                        >Last unsuccessful login date</strong
-                                    >
+                                    <strong>{{
+                                        'component.account.last-unsuccessful-login-date'
+                                            | translate
+                                    }}</strong>
                                 </p>
                                 <p>
                                     {{
@@ -103,7 +133,10 @@
                                     }}
                                 </p>
                                 <p>
-                                    <strong>Last unsuccessful login IP</strong>
+                                    <strong>{{
+                                        'component.account.last-unsuccessful-login-ip'
+                                            | translate
+                                    }}</strong>
                                 </p>
                                 <p>
                                     {{
@@ -113,10 +146,10 @@
                             </div>
                             <div class="col-md">
                                 <p>
-                                    <strong
-                                        >Unsuccessful login chain
-                                        counter</strong
-                                    >
+                                    <strong>{{
+                                        'component.account.unsuccessful-login-chain'
+                                            | translate
+                                    }}</strong>
                                 </p>
                                 <p>
                                     {{
@@ -136,7 +169,7 @@
                 <button
                     ngbAccordionButton
                     class="fs-5">
-                    Access levels data
+                    {{ 'component.account.access-levels-data' | translate }}
                 </button>
             </h2>
             <div ngbAccordionCollapse>
@@ -151,12 +184,27 @@
                                         let accessLevel of account.accessLevels
                                     "
                                     class="fs-6 col-md p-3">
-                                    <p><strong>Level</strong></p>
-                                    <p>{{ accessLevel.level }}</p>
+                                    <p>
+                                        <strong>{{
+                                            'component.account.level'
+                                                | translate
+                                        }}</strong>
+                                    </p>
+                                    <p>
+                                        {{
+                                            'access-levels.' + accessLevel.level
+                                                | translate
+                                        }}
+                                    </p>
                                     <span
                                         *ngIf="accessLevel.address as address">
                                         <hr />
-                                        <p><strong>Address</strong></p>
+                                        <p>
+                                            <strong>{{
+                                                'component.fields.address'
+                                                    | translate
+                                            }}</strong>
+                                        </p>
                                         <p>
                                             {{ address.street }}
                                             {{ address.buildingNumber }}
@@ -168,7 +216,12 @@
                                     </span>
                                     <span *ngIf="accessLevel.licenseNumber">
                                         <hr />
-                                        <p><strong>License number</strong></p>
+                                        <p>
+                                            <strong>{{
+                                                'component.account.license-number'
+                                                    | translate
+                                            }}</strong>
+                                        </p>
                                         <p>{{ accessLevel.licenseNumber }}</p>
                                     </span>
                                     <hr
@@ -185,6 +238,6 @@
 <ng-template #loadingAccountData>
     <div class="d-flex flex-column justify-content-center align-items-center">
         <span class="spinner-border"></span>
-        <span class="mt-3">Loading account data...</span>
+        <span class="mt-3">{{ 'component.account.loading' | translate }}</span>
     </div>
 </ng-template>

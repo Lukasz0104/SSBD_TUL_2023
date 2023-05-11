@@ -1,0 +1,208 @@
+{
+  "validation": {
+    "password": {
+      "required": "Password is required",
+      "length": "Password must be at least 8 characters",
+      "strength": "Password is too weak"
+    },
+    "repeat-password": {
+      "required": "Repeated password is required",
+      "match": "Repeated password doesn't match password"
+    },
+    "login": {
+      "required": "Login is required"
+    },
+    "email": {
+      "required": "Email is required"
+    },
+    "first-name": {
+      "required": "First name is required.",
+      "min-length": "First name must be at least 1 character long.",
+      "max-length": "First name must be at most 100 characters long."
+    },
+    "last-name": {
+      "required": "Last name is required.",
+      "min-length": "Last name must be at least 1 character long.",
+      "max-length": "Last name must be at most 100 characters long."
+    },
+    "street": {
+      "required": "Street is required.",
+      "length": "Street must be at most 85 characters long."
+    },
+    "building": {
+      "required": "Building number is required.",
+      "length": "Building number must be greater than 0."
+    },
+    "postal-code": {
+      "required": "Postal code is required.",
+      "length": "Postal code must be 6 characters long."
+    },
+    "city": {
+      "required": "City is required.",
+      "min-length": "City must be at least 2 characters long",
+      "max-length": "City must be at most 85 characters long."
+    },
+    "license-number": {
+      "required": "License number is required."
+    }
+  },
+  "form": {
+    "login": {
+      "title": "Login to eBok",
+      "action": "Login",
+      "no-account-info": "Don't have an account?",
+      "sign-up": "Sign Up"
+    },
+    "forgot-password": {
+      "title": "Forgot password?",
+      "content-before-bold": "In order to reset your password, provide an",
+      "content-after-bold": "associated with your account.",
+      "action": "Send message",
+      "go-back": "Go back to",
+      "go-back-to": "Login page"
+    },
+    "forgot-password-confirm": {
+      "title": "Set your new password.",
+      "action": "Reset password",
+      "go-to": "Go to",
+      "go-to-where": "Login page"
+    },
+    "force-password-override": {
+      "action": "Set new password",
+      "content": "Set new password to unlock your account."
+    },
+    "fields": {
+      "login": "Login*",
+      "password": "Password*",
+      "email": "Email*",
+      "repeat-password": "Repeat password*"
+    }
+  },
+  "component": {
+    "accounts": {
+      "display": {
+        "all": "All",
+        "owners": "Owners",
+        "managers": "Managers",
+        "admins": "Administrators",
+        "active": "Active",
+        "inactive": "Inactive",
+        "approval": "Need approval",
+        "two-items": "2 items per page",
+        "three-items": "3 items per page",
+        "four-items": "4 items per page"
+      },
+      "loading": "Loading accounts...",
+      "password-change": "Change password"
+    },
+    "account": {
+      "language": "Language",
+      "verified": "Verified",
+      "personal-data": "Personal data",
+      "edit": "Edit",
+      "auth-data": "Authentication data",
+      "last-success-login-date": "Last successful login date",
+      "last-success-login-ip": "Last successful login IP",
+      "last-unsuccessful-login-date": "Last unsuccessful login date",
+      "last-unsuccessful-login-ip": "Last unsuccessful login IP",
+      "unsuccessful-login-chain": "Unsuccessful login chain counter",
+      "access-levels-data": "Access levels data",
+      "level": "Level",
+      "license-number": "License number",
+      "loading": "Loading account data ...",
+      "edit-your-account": "Edit your account",
+      "general": "General",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "fields": {
+      "login": "Login",
+      "first-name": "First name",
+      "last-name": "Last name",
+      "active": "Active",
+      "details": "Details",
+      "actions": "Actions",
+      "address": "Address",
+      "street": "Street",
+      "building-number": "Building number",
+      "postal-code": "Postal code",
+      "city": "City"
+    }
+  },
+  "modal": {
+    "access-level": "Choose access level",
+    "refresh-session": {
+      "info": "Your session will expire soon. Do you want to stay logged in?",
+      "stay": "Stay",
+      "cancel": "Cancel"
+    },
+    "confirm-action": {
+      "force-password-message": "Do you want to change chosen account's password?",
+      "force-password-danger": "This action will block this account.",
+      "action": "Confirm"
+    }
+  },
+  "access-levels": {
+    "OWNER": "Owner",
+    "MANAGER": "Manager",
+    "ADMIN": "Administrator"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "logout": "Log out",
+    "account": "Account",
+    "profile": "Profile"
+  },
+  "toast": {
+    "auth": {
+      "expired-session": "Your session has expired",
+      "unsuccessful-login": "Login unsuccessful"
+    },
+    "account": {
+      "reset-password-message": "Reset password message has been sent",
+      "reset-password-change": "Password has been changed. You may log in now.",
+      "language-fail": "Language change failure",
+      "reset-password-message-fail": "Error while sending the message",
+      "reset-password-fail": "Error while changing the password",
+      "force-password-change-message": "Password has been changed, and chosen account has been blocked",
+      "force-password-change-override-message": "Password has been changed, and your account has been unlocked",
+      "edit-own-account-fail": "Error while editing account"
+    },
+    "guard": {
+      "access-denied": "Access denied"
+    }
+  },
+  "password-change": {
+    "response": {
+      "message": {
+        "token_not_found": "Link has been used",
+        "expired_token": "Link has expired",
+        "inactive_account": "Account has been blocked",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again"
+      }
+    }
+  },
+  "force-password-change": {
+    "response": {
+      "message": {
+        "inactive_account": "Chosen account is blocked",
+        "unverified_account": "Chosen account is unverified",
+        "rollback.limit.exceeded": "Request timed out",
+        "illegal_self_action": "Cannot execute action on your own account",
+        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again"
+      }
+    }
+  },
+  "edit-own-profile": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Cannot edit account, violation of unmodifiable data",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot edit account, account data has changed since opening form, try again",
+        "account_not_found": "Modified account does not exist"
+      }
+    }
+  }
+}

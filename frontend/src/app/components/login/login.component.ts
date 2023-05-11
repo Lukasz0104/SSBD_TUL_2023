@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-login',
@@ -25,7 +26,8 @@ export class LoginComponent {
 
     constructor(
         private authService: AuthService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private translate: TranslateService
     ) {}
 
     onSubmit() {
@@ -39,7 +41,9 @@ export class LoginComponent {
                 .subscribe((result: boolean) => {
                     this.loading = false;
                     if (!result) {
-                        this.toastService.showDanger('Login unsuccessful');
+                        this.toastService.showDanger(
+                            'toast.auth.unsuccessful-login'
+                        );
                         this.clearPassword();
                     }
                 });
