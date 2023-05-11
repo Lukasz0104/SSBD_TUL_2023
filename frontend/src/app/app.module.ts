@@ -7,7 +7,7 @@ import {
 } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -19,6 +19,9 @@ import { RefreshSessionComponent } from './components/modals/refresh-session/ref
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HomeComponent } from './components/home/home.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { AccountComponent } from './components/account/account.component';
+import { EditPersonalDataComponent } from './components/modals/edit-personal-data/edit-personal-data.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 import { ChangeLanguageComponent } from './components/change-language/change-language.component';
@@ -46,12 +49,17 @@ import { ForcePasswordChangeOverrideComponent } from './components/force-passwor
         ConfirmActionComponent,
         HomeComponent,
         AccountsComponent,
-        ForcePasswordChangeOverrideComponent
+        ForcePasswordChangeOverrideComponent,
+        AccountsComponent,
+        ProfileComponent,
+        AccountComponent,
+        EditPersonalDataComponent
     ],
     imports: [
         BrowserModule,
         AppRoutingModule,
         NgbModule,
+        NgbAccordionModule,
         HttpClientModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,

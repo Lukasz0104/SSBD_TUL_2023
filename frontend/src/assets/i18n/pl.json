@@ -14,6 +14,36 @@
     },
     "email": {
       "required": "Email jest wymagany"
+    },
+    "first-name": {
+      "required": "Imię jest wymagane.",
+      "min-length": "Imię musi składać się z conajmniej 1 znaku.",
+      "max-length": "Imię może składać się z maksymalnie 100 znaków."
+    },
+    "last-name": {
+      "required": "Nazwisko jest wymagane.",
+      "min-length": "Nazwisko musi składać się z conajmniej 1 znaku.",
+      "max-length": "Nazwisko może składać się z maksymalnie 100 znaków."
+    },
+    "street": {
+      "required": "Ulica jest wymagana.",
+      "length": "Ulica może składać się z maksymalnie 85 znaków."
+    },
+    "building": {
+      "required": "Numer budynku jest wymagany.",
+      "length": "Numer budynku musi być większy niż 0."
+    },
+    "postal-code": {
+      "required": "Kod pocztowy jest wymagany.",
+      "length": "Kod pocztowy musi składać się z 6 znaków."
+    },
+    "city": {
+      "required": "Miasto jest wymagane.",
+      "min-length": "Miasto musi składać się z conajmniej 2 znaków.",
+      "max-length": "Miasto może składać się z maksymalnie 85 znaków."
+    },
+    "license-number": {
+      "required": "Numer licencji jest wymagany."
     }
   },
   "form": {
@@ -62,13 +92,41 @@
         "three-items": "3 elementy na stronę",
         "four-items": "4 elementy na stronę"
       },
-      "titles": {
-        "login": "Login",
-        "first-name": "Imię",
-        "last-name": "Nazwisko",
-        "active": "Status"
-      },
-      "loading": "Ładowanie kont..."
+      "loading": "Ładowanie kont...",
+      "password-change": "Zmień hasło"
+    },
+    "account": {
+      "language": "Język",
+      "verified": "Zweryfikowany",
+      "personal-data": "Dane personalne",
+      "edit": "Edytuj",
+      "auth-data": "Dane o logowaniu",
+      "last-success-login-date": "Data ostatniego udanego logowania",
+      "last-success-login-ip": "Adres IP ostatniego udanego logowania",
+      "last-unsuccessful-login-date": "Data ostatniego nieudanego logowania",
+      "last-unsuccessful-login-ip": "Adres IP ostatniego nieudanego logowania",
+      "unsuccessful-login-chain": "Ilość nieudanych prób logowania z rzędu",
+      "access-levels-data": "Dane o poziomach dostępu",
+      "level": "Poziom dostępu",
+      "license-number": "Numer licencji",
+      "loading": "Ładowanie danych konta ...",
+      "edit-your-account": "Edytuj swoje konto",
+      "general": "Ogólne",
+      "save": "Zapisz",
+      "cancel": "Anuluj"
+    },
+    "fields": {
+      "login": "Login",
+      "first-name": "Imię",
+      "last-name": "Nazwisko",
+      "active": "Status",
+      "details": "Szczegóły",
+      "actions": "Akcje",
+      "address": "Adres",
+      "street": "Ulica",
+      "building-number": "Numer budynku",
+      "postal-code": "Kod pocztowy",
+      "city": "Miasto"
     }
   },
   "modal": {
@@ -92,13 +150,14 @@
   "nav": {
     "dashboard": "Panel główny",
     "accounts": "Konta",
-    "logout": "Wyloguj się"
+    "logout": "Wyloguj się",
+    "account": "Konto",
+    "profile": "Profil"
   },
   "toast": {
     "auth": {
       "expired-session": "Twoja sesja wygasła",
-      "unsuccessful-login": "Logowanie nie powiodło się",
-      "logout-success": "Pomyślnie się wylogowałeś."
+      "unsuccessful-login": "Logowanie nie powiodło się"
     },
     "account": {
       "reset-password-message": "Wiadomość do zresetowania hasła została wysłana",
@@ -107,7 +166,11 @@
       "reset-password-message-fail": "Błąd wysyłania wiadomości",
       "reset-password-fail": "Bład podczas zmiany hasła",
       "force-password-change-message": "Hasło zostało zmienione, a wybrane konto zostało zablokowane",
-      "force-password-change-override-message": "Hasło zostało zmienione, a twoje konto zostało odblokowane"
+      "force-password-change-override-message": "Hasło zostało zmienione, a twoje konto zostało odblokowane",
+      "edit-own-account-fail": "Błąd podczas edycji konta"
+    },
+    "guard": {
+      "access-denied": "Odmowa dostępu"
     }
   },
   "password-change": {
@@ -116,7 +179,8 @@
         "token_not_found": "Link został już wykorzystany",
         "expired_token": "Link wygasł",
         "inactive_account": "Konto zostało zablokowane",
-        "rollback.limit.exceeded": "Wygasł limit czasu żądania"
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momętu wysłania formularza, spróbuj ponownie"
       }
     }
   },
@@ -126,7 +190,18 @@
         "inactive_account": "Wybrane konto jest zablokowane",
         "unverified_account": "Wybrane konto jest niezweryfikowane",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
-        "illegal_self_action": "Nie można wykonać akcji na własnym koncie"
+        "illegal_self_action": "Nie można wykonać akcji na własnym koncie",
+        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momętu wysłania formularza, spróbuj ponownie"
+      }
+    }
+  },
+  "edit-own-profile": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momętu wczytania formularza, spróbuj ponownie",
+        "account_not_found": "Modyfikowane konto nie istnieje"
       }
     }
   }

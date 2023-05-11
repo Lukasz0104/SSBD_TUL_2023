@@ -1,22 +1,27 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {
+    HttpClient,
+    HttpErrorResponse,
+    HttpHeaders
+} from '@angular/common/http';
 import { Router } from '@angular/router';
-import { catchError, EMPTY, map, of } from 'rxjs';
+import { catchError, EMPTY, map, of, tap } from 'rxjs';
 import { ToastService } from './toast.service';
-import { TranslateService } from '@ngx-translate/core';
-import { Account } from '../model/account';
+import { Account, EditPersonalData, OwnAccount } from '../model/account';
+import { ResponseMessage } from '../common/response-message.enum';
 import { AccessType } from '../model/access-type';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AccountService {
+    ifMatch = '';
+
     constructor(
         private http: HttpClient,
         private router: Router,
-        private toastService: ToastService,
-        private translate: TranslateService
+        private toastService: ToastService
     ) {}
 
     resetPassword(email: string) {
@@ -31,9 +36,7 @@ export class AccountService {
                     this.router.navigate(['/login']).then(() => {
                         this.toastService.clearAll();
                         this.toastService.showSuccess(
-                            this.translate.instant(
-                                'toast.account.reset-password-message'
-                            )
+                            'toast.account.reset-password-message'
                         );
                     });
                 }),
@@ -42,16 +45,12 @@ export class AccountService {
                         this.router.navigate(['/login']).then(() => {
                             this.toastService.clearAll();
                             this.toastService.showSuccess(
-                                this.translate.instant(
-                                    'toast.account.reset-password-message'
-                                )
+                                'toast.account.reset-password-message'
                             );
                         });
                     } else {
                         this.toastService.showDanger(
-                            this.translate.instant(
-                                'toast.account.reset-password-message-fail'
-                            )
+                            'toast.account.reset-password-message-fail'
                         );
                     }
                     return of(null);
@@ -84,9 +83,7 @@ export class AccountService {
                     this.router.navigate(['/login']).then(() => {
                         this.toastService.clearAll();
                         this.toastService.showSuccess(
-                            this.translate.instant(
-                                'toast.account.reset-password-change'
-                            )
+                            'toast.account.reset-password-change'
                         );
                     });
                 }),
@@ -113,9 +110,7 @@ export class AccountService {
                 map(() => {
                     this.toastService.clearAll();
                     this.toastService.showSuccess(
-                        this.translate.instant(
-                            'toast.account.force-password-change-message'
-                        )
+                        'toast.account.force-password-change-message'
                     );
                 }),
                 catchError((response: HttpErrorResponse) => {
@@ -124,9 +119,10 @@ export class AccountService {
                         'force-password-change',
                         response
                     );
-                    return of(null);
+                    return EMPTY;
                 })
-            );
+            )
+            .subscribe();
     }
 
     overrideForcePasswordChange(resetPasswordDTO: object) {
@@ -140,9 +136,7 @@ export class AccountService {
                     this.router.navigate(['/login']).then(() => {
                         this.toastService.clearAll();
                         this.toastService.showSuccess(
-                            this.translate.instant(
-                                'force-password-change-override-message'
-                            )
+                            'toast.account.force-password-change-override-message'
                         );
                     });
                 }),
@@ -157,6 +151,60 @@ export class AccountService {
                 })
             )
             .subscribe();
+    }
+
+    getOwnProfile() {
+        return this.http
+            .get<OwnAccount>(`${environment.apiUrl}/accounts/me`, {
+                observe: 'response'
+            })
+            .pipe(
+                map((response) => {
+                    this.ifMatch = response.headers.get('ETag') ?? '';
+                    return response.body;
+                })
+            );
+    }
+
+    getProfile(id: number) {
+        return this.http
+            .get<Account>(`${environment.apiUrl}/accounts/${id}`, {
+                observe: 'response'
+            })
+            .pipe(
+                map((response) => {
+                    this.ifMatch = response.headers.get('ETag') ?? '';
+                    return response.body;
+                })
+            );
+    }
+
+    editOwnProfile(dto: EditPersonalData) {
+        return this.http
+            .put<OwnAccount>(`${environment.apiUrl}/accounts/me`, dto, {
+                headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
+                observe: 'response'
+            })
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess('SUCCESS!');
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError(
+                        'toast.account.edit-own-account-fail',
+                        'edit-own-profile',
+                        err
+                    );
+                    switch (err.error.message) {
+                        case ResponseMessage.OPTIMISTIC_LOCK:
+                            return of(true);
+                        case ResponseMessage.SIGNATURE_MISMATCH:
+                            return of(true);
+                    }
+                    return of(false);
+                })
+            );
     }
 
     getAccountsByTypeAndActive(type: AccessType, active: boolean) {
@@ -199,13 +247,9 @@ export class AccountService {
         response: HttpErrorResponse
     ) {
         if (response.status == 500 || response.error.message == null) {
-            this.toastService.showDanger(
-                this.translate.instant(genericMessageKey)
-            );
+            this.toastService.showDanger(genericMessageKey);
         } else {
-            this.toastService.showDanger(
-                this.translate.instant(method + '.' + response.error.message)
-            );
+            this.toastService.showDanger(method + '.' + response.error.message);
         }
     }
 }

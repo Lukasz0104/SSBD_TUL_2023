@@ -10,7 +10,7 @@ import { ToastService } from '../../services/toast.service';
     styleUrls: ['./change-language.component.css']
 })
 export class ChangeLanguageComponent {
-    language = 'EN';
+    language = '';
 
     constructor(
         private accountService: AccountService,
@@ -18,14 +18,7 @@ export class ChangeLanguageComponent {
         private authService: AuthService,
         private toastService: ToastService
     ) {
-        if (
-            this.authService.isAuthenticated() &&
-            this.translate.currentLang != null
-        ) {
-            this.language = this.translate.currentLang.toUpperCase();
-        } else {
-            this.language = this.translate.getDefaultLang().toUpperCase();
-        }
+        this.language = this.translate.currentLang.toUpperCase();
     }
 
     changeLanguage(language: string) {
@@ -46,6 +39,7 @@ export class ChangeLanguageComponent {
         }
         if (success) {
             this.translate.use(language.toLowerCase());
+            localStorage.setItem('language', language.toLowerCase());
             this.language = language;
         }
     }

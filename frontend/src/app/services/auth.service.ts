@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);
     private currentGroup = new BehaviorSubject<AccessType>(AccessType.NONE);
+    private scheduledRefresh: any;
 
     constructor(
         private http: HttpClient,
@@ -119,6 +120,7 @@ export class AuthService {
         this.setCurrentGroup(group);
         this.scheduleRefreshSessionPopUp();
         this.translate.use(userData.language.toLowerCase());
+        localStorage.setItem('language', userData.language.toLowerCase());
 
         if (redirectToDashboard) {
             this.router.navigate(['/dashboard']).then(() => {
@@ -143,9 +145,7 @@ export class AuthService {
                 }),
                 catchError(() => {
                     this.logout();
-                    this.toastService.showDanger(
-                        this.translate.instant('toast.auth.expired-session')
-                    );
+                    this.toastService.showDanger('toast.auth.expired-session');
                     return EMPTY;
                 })
             )
@@ -155,7 +155,7 @@ export class AuthService {
     scheduleRefreshSessionPopUp() {
         const decodedJwtToken = this.getDecodedJwtToken(this.getJwt());
         const millisBeforeJwtExpires = decodedJwtToken.exp * 1000 - Date.now();
-        setTimeout(() => {
+        this.scheduledRefresh = setTimeout(() => {
             this.modalService
                 .open(RefreshSessionComponent)
                 .result.then((refresh: boolean) => {
@@ -165,9 +165,7 @@ export class AuthService {
                         if (!this.isJwtValid(this.getJwt())) {
                             this.logout();
                             this.toastService.showDanger(
-                                this.translate.instant(
-                                    'toast.auth.expired-session'
-                                )
+                                'toast.auth.expired-session'
                             );
                         }
                     }
@@ -176,7 +174,7 @@ export class AuthService {
                     if (!this.isJwtValid(this.getJwt())) {
                         this.logout();
                         this.toastService.showDanger(
-                            this.translate.instant('toast.auth.expired-session')
+                            'toast.auth.expired-session'
                         );
                     }
                 });
@@ -280,10 +278,8 @@ export class AuthService {
     private handleLogout() {
         this.clearUserData();
         this.setAuthenticated(false);
+        clearTimeout(this.scheduledRefresh);
         this.router.navigate(['/login']).then(() => {
-            this.toastService.showSuccess(
-                this.translate.instant('toast.auth.logout-success')
-            );
             const browser_lang = this.translate.getBrowserLang();
             if (browser_lang != null) {
                 this.translate.use(browser_lang);

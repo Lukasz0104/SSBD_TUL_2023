@@ -67,7 +67,9 @@
     </ul>
     <hr />
     <div class="d-flex justify-content-center">
-        <a class="d-flex align-items-center link-dark text-decoration-none">
+        <a
+            class="d-flex align-items-center link-dark text-decoration-none"
+            routerLink="/dashboard/profile">
             <i class="fs-2 bi bi-person"></i>
             <strong class="px-2 text-center"
                 >{{ authService.getLogin() }} ({{
@@ -120,6 +122,13 @@
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="accounts">
             <i class="bi bi-people fs-2"></i>
+        </button>
+        <button
+            class="nav-link link-dark mx-auto p-2 m-2"
+            routerLinkActive="active link-light"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/profile">
+            <i class="bi bi-person fs-2"></i>
         </button>
     </span>
 </div>

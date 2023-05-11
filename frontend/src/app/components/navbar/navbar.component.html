@@ -24,6 +24,11 @@
                 ngbDropdownMenu
                 class="dropdown-menu-end">
                 <button
+                    routerLink="/dashboard/profile"
+                    ngbDropdownItem>
+                    {{ 'nav.profile' | translate }}
+                </button>
+                <button
                     (click)="logout()"
                     ngbDropdownItem>
                     {{ 'nav.logout' | translate }}

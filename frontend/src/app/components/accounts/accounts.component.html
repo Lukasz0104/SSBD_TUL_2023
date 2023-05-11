@@ -121,16 +121,24 @@
             <thead>
                 <tr class="bg-light">
                     <th scope="col">
-                        {{ 'component.accounts.titles.login' | translate }}
+                        {{ 'component.fields.login' | translate }}
                     </th>
                     <th scope="col">
-                        {{ 'component.accounts.titles.first-name' | translate }}
+                        {{ 'component.fields.first-name' | translate }}
                     </th>
                     <th scope="col">
-                        {{ 'component.accounts.titles.last-name' | translate }}
+                        {{ 'component.fields.last-name' | translate }}
                     </th>
                     <th scope="col">
-                        {{ 'component.accounts.titles.active' | translate }}
+                        {{ 'component.fields.active' | translate }}
+                    </th>
+                    <th
+                        *ngIf="authService.isAdmin()"
+                        scope="col">
+                        {{ 'component.fields.details' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.actions' | translate }}
                     </th>
                 </tr>
             </thead>
@@ -151,6 +159,41 @@
                     </td>
                     <td *ngIf="!account.active">
                         <i class="bi bi-lock-fill"></i>
+                    </td>
+                    <td *ngIf="authService.isAdmin()">
+                        <button
+                            [routerLink]="['account']"
+                            [queryParams]="{ id: account.id }"
+                            class="btn btn-outline-primary">
+                            {{ 'component.fields.details' | translate }}
+                        </button>
+                    </td>
+                    <td>
+                        <div
+                            *ngIf="!authService.isOwner()"
+                            ngbDropdown
+                            class="d-inline-block">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                id="dropdownBasic1"
+                                ngbDropdownToggle>
+                                {{ 'component.fields.actions' | translate }}
+                            </button>
+                            <div
+                                *ngIf="authService.isAdmin()"
+                                ngbDropdownMenu
+                                aria-labelledby="dropdownBasic1">
+                                <button
+                                    ngbDropdownItem
+                                    (click)="forceChange(account.login)">
+                                    {{
+                                        'component.accounts.password-change'
+                                            | translate
+                                    }}
+                                </button>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             </tbody>

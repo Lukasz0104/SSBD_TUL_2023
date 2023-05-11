@@ -287,7 +287,7 @@ public class AccountEndpoint {
     public Response changeActiveStatusAsAdmin(@NotNull @Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String adminLogin = securityContext.getUserPrincipal().getName();
-        
+
         int retryTXCounter = properties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
@@ -315,7 +315,20 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response getOwnAccountDetails() throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        OwnAccountDto dto = createOwnAccountDto(accountManager.getAccountDetails(login));
+
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        OwnAccountDto dto;
+        do {
+            dto = createOwnAccountDto(accountManager.getAccountDetails(login));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
         return Response.ok().entity(dto).header("ETag", ifMatch).build();
     }
@@ -324,7 +337,19 @@ public class AccountEndpoint {
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
-        AccountDto dto = createAccountDto(accountManager.getAccountDetails(id));
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        AccountDto dto;
+        do {
+            dto = createAccountDto(accountManager.getAccountDetails(id));
+            rollBackTX = accountManager.isLastTransactionRollback();
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
         return Response.ok().entity(dto).header("ETag", ifMatch).build();
     }

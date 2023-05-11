@@ -42,9 +42,7 @@ export class LoginComponent {
                     this.loading = false;
                     if (!result) {
                         this.toastService.showDanger(
-                            this.translate.instant(
-                                'toast.auth.unsuccessful-login'
-                            )
+                            'toast.auth.unsuccessful-login'
                         );
                         this.clearPassword();
                     }

@@ -46,8 +46,16 @@ export class ResetPasswordConfirmComponent {
         return this.resetPasswordForm.get('password');
     }
 
+    get passwordControl() {
+        return this.resetPasswordForm.controls.password;
+    }
+
     get repeatPassword() {
         return this.resetPasswordForm.get('repeatPassword');
+    }
+
+    get repeatPasswordControl() {
+        return this.resetPasswordForm.controls.repeatPassword;
     }
 
     onSubmit() {

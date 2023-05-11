@@ -20,8 +20,7 @@ export class ForcePasswordChangeOverrideComponent {
         ]),
         repeatPassword: new FormControl('', [
             Validators.required,
-            Validators.minLength(8),
-            Validators.pattern(this.regexp)
+            Validators.minLength(8)
         ])
     });
 
@@ -46,8 +45,16 @@ export class ForcePasswordChangeOverrideComponent {
         return this.resetPasswordForm.get('password');
     }
 
+    get passwordControl() {
+        return this.resetPasswordForm.controls.password;
+    }
+
     get repeatPassword() {
         return this.resetPasswordForm.get('repeatPassword');
+    }
+
+    get repeatPasswordControl() {
+        return this.resetPasswordForm.controls.repeatPassword;
     }
 
     onSubmit() {

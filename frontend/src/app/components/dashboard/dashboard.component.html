@@ -15,15 +15,22 @@
                             let i = index
                         ">
                         <li
-                            routerLink="/{{ breadcrumb[1] }}"
+                            [routerLink]="
+                                i !== getBreadCrumbs().length - 1
+                                    ? ['/' + breadcrumb.link]
+                                    : null
+                            "
                             class="nav-item pe-0 nav-link breadcrumb-item">
                             <span
                                 [ngClass]="{
-                                    'fw-bold': i === getBreadCrumbs().length - 1
+                                    'fw-bold':
+                                        i === getBreadCrumbs().length - 1,
+                                    'cursor-pointer':
+                                        i !== getBreadCrumbs().length - 1
                                 }"
                                 class="cursor-pointer"
                                 >{{
-                                    'nav.' + breadcrumb[0]
+                                    'nav.' + breadcrumb.name
                                         | translate
                                         | titlecase
                                 }}</span
@@ -36,11 +43,6 @@
         <div class="card m-3 mt-0">
             <div
                 class="container-fluid h-100 overflow-auto p-3 overflow-x-hidden">
-                <button
-                    class="btn btn-danger"
-                    (click)="forceChange('ikaminski')">
-                    Change password
-                </button>
                 <router-outlet></router-outlet>
             </div>
         </div>

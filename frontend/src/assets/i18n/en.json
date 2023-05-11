@@ -14,6 +14,36 @@
     },
     "email": {
       "required": "Email is required"
+    },
+    "first-name": {
+      "required": "First name is required.",
+      "min-length": "First name must be at least 1 character long.",
+      "max-length": "First name must be at most 100 characters long."
+    },
+    "last-name": {
+      "required": "Last name is required.",
+      "min-length": "Last name must be at least 1 character long.",
+      "max-length": "Last name must be at most 100 characters long."
+    },
+    "street": {
+      "required": "Street is required.",
+      "length": "Street must be at most 85 characters long."
+    },
+    "building": {
+      "required": "Building number is required.",
+      "length": "Building number must be greater than 0."
+    },
+    "postal-code": {
+      "required": "Postal code is required.",
+      "length": "Postal code must be 6 characters long."
+    },
+    "city": {
+      "required": "City is required.",
+      "min-length": "City must be at least 2 characters long",
+      "max-length": "City must be at most 85 characters long."
+    },
+    "license-number": {
+      "required": "License number is required."
     }
   },
   "form": {
@@ -62,13 +92,41 @@
         "three-items": "3 items per page",
         "four-items": "4 items per page"
       },
-      "titles": {
-        "login": "Login",
-        "first-name": "First name",
-        "last-name": "Last name",
-        "active": "Active"
-      },
-      "loading": "Loading accounts..."
+      "loading": "Loading accounts...",
+      "password-change": "Change password"
+    },
+    "account": {
+      "language": "Language",
+      "verified": "Veified",
+      "personal-data": "Personal data",
+      "edit": "Edit",
+      "auth-data": "Authentication data",
+      "last-success-login-date": "Last successful login date",
+      "last-success-login-ip": "Last successful login IP",
+      "last-unsuccessful-login-date": "Last unsuccessful login date",
+      "last-unsuccessful-login-ip": "Last unsuccessful login IP",
+      "unsuccessful-login-chain": "Unsuccessful login chain counter",
+      "access-levels-data": "Access levels data",
+      "level": "Level",
+      "license-number": "License number",
+      "loading": "Loading account data ...",
+      "edit-your-account": "Edit your account",
+      "general": "General",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "fields": {
+      "login": "Login",
+      "first-name": "First name",
+      "last-name": "Last name",
+      "active": "Active",
+      "details": "Details",
+      "actions": "Actions",
+      "address": "Address",
+      "street": "Street",
+      "building-number": "Building number",
+      "postal-code": "Postal code",
+      "city": "City"
     }
   },
   "modal": {
@@ -92,13 +150,14 @@
   "nav": {
     "dashboard": "Dashboard",
     "accounts": "Accounts",
-    "logout": "Log out"
+    "logout": "Log out",
+    "account": "Account",
+    "profile": "Profile"
   },
   "toast": {
     "auth": {
       "expired-session": "Your session has expired",
-      "unsuccessful-login": "Login unsuccessful",
-      "logout-success": "You have successfully logged out."
+      "unsuccessful-login": "Login unsuccessful"
     },
     "account": {
       "reset-password-message": "Reset password message has been sent",
@@ -107,7 +166,11 @@
       "reset-password-message-fail": "Error while sending the message",
       "reset-password-fail": "Error while changing the password",
       "force-password-change-message": "Password has been changed, and chosen account has been blocked",
-      "force-password-change-override-message": "Password has been changed, and your account has been unlocked"
+      "force-password-change-override-message": "Password has been changed, and your account has been unlocked",
+      "edit-own-account-fail": "Error while editing account"
+    },
+    "guard": {
+      "access-denied": "Access denied"
     }
   },
   "password-change": {
@@ -116,7 +179,8 @@
         "token_not_found": "Link has been used",
         "expired_token": "Link has expired",
         "inactive_account": "Account has been blocked",
-        "rollback.limit.exceeded": "Request timed out"
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again"
       }
     }
   },
@@ -126,7 +190,18 @@
         "inactive_account": "Chosen account is blocked",
         "unverified_account": "Chosen account is unverified",
         "rollback.limit.exceeded": "Request timed out",
-        "illegal_self_action": "Cannot execute action on your own account"
+        "illegal_self_action": "Cannot execute action on your own account",
+        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again"
+      }
+    }
+  },
+  "edit-own-profile": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Cannot edit account, violation of unmodifiable data",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot edit account, account data has changed since opening form, try again",
+        "account_not_found": "Modified account does not exist"
       }
     }
   }
