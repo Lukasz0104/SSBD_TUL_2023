@@ -4,12 +4,15 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { canActivateLoginOrRegister } from './guards/guest.guard';
 import { canActivateAuthenticated } from './guards/authentication.guard';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 import { HomeComponent } from './components/home/home.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AccountComponent } from './components/account/account.component';
 import { canActivateAdmin } from './guards/admin.guard';
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { canActivateManagerAdmin } from './guards/manager-admin.guard';
+import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 
 const routes: Routes = [
     {
@@ -62,6 +65,30 @@ const routes: Routes = [
                 canActivate: [canActivateManagerAdmin]
             }
         ]
+    },
+    {
+        path: 'reset-password',
+        component: ResetPasswordComponent,
+        data: {
+            title: 'Reset password'
+        },
+        canActivate: [canActivateLoginOrRegister]
+    },
+    {
+        path: 'reset-password-confirm/:token',
+        component: ResetPasswordConfirmComponent,
+        data: {
+            title: 'Confirm password reset'
+        },
+        canActivate: [canActivateLoginOrRegister]
+    },
+    {
+        path: 'force-password-override/:token',
+        component: ForcePasswordChangeOverrideComponent,
+        data: {
+            title: 'Override password change'
+        },
+        canActivate: [canActivateLoginOrRegister]
     }
 ];
 

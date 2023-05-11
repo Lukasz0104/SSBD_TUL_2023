@@ -1,11 +1,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import {
+    HTTP_INTERCEPTORS,
+    HttpClient,
+    HttpClientModule
+} from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
@@ -19,7 +22,14 @@ import { HomeComponent } from './components/home/home.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AccountComponent } from './components/account/account.component';
 import { EditPersonalDataComponent } from './components/modals/edit-personal-data/edit-personal-data.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
+import { ChangeLanguageComponent } from './components/change-language/change-language.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { ConfirmActionComponent } from './components/modals/confirm-action/confirm-action.component';
 import { AccountsComponent } from './components/accounts/accounts.component';
+import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 
 @NgModule({
     declarations: [
@@ -29,9 +39,17 @@ import { AccountsComponent } from './components/accounts/accounts.component';
         ChooseAccessLevelComponent,
         ToastSectionComponent,
         RefreshSessionComponent,
+        ResetPasswordComponent,
+        ResetPasswordConfirmComponent,
+        RefreshSessionComponent,
         NavbarComponent,
         SidebarComponent,
         HomeComponent,
+        ChangeLanguageComponent,
+        ConfirmActionComponent,
+        HomeComponent,
+        AccountsComponent,
+        ForcePasswordChangeOverrideComponent,
         AccountsComponent,
         ProfileComponent,
         AccountComponent,
@@ -45,6 +63,14 @@ import { AccountsComponent } from './components/accounts/accounts.component';
         HttpClientModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
+        BrowserAnimationsModule,
         FormsModule
     ],
     providers: [
@@ -53,3 +79,7 @@ import { AccountsComponent } from './components/accounts/accounts.component';
     bootstrap: [AppComponent]
 })
 export class AppModule {}
+
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+    return new TranslateHttpLoader(http);
+}

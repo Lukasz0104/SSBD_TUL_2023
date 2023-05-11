@@ -191,7 +191,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getFullName(),
-            properties.getFrontendUrl() + "/" + resetPasswordToken.getToken(), account.getLanguage().toString());
+            properties.getFrontendUrl() + "/reset-password-confirm/" + resetPasswordToken.getToken(),
+            account.getLanguage().toString());
     }
 
     @Override
@@ -476,7 +477,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Token passwordChangeToken = new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         tokenFacade.create(passwordChangeToken);
-        String link = properties.getFrontendUrl() + "/" + passwordChangeToken.getToken();
+        String link = properties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
         emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), link);
     }

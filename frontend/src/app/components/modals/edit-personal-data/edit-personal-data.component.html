@@ -4,7 +4,7 @@
         <h2
             class="modal-title"
             id="modal-basic-title">
-            Edit your account
+            {{ 'component.account.edit-your-account' | translate }}
         </h2>
     </div>
     <div class="modal-body px-4 py-2">
@@ -12,13 +12,19 @@
             <div class="row">
                 <div class="col-md">
                     <form [formGroup]="editPersonalDataForm">
-                        <h2>General</h2>
-                        <p><strong>Personal data</strong></p>
+                        <h2>{{ 'component.account.general' | translate }}</h2>
+                        <p>
+                            <strong>{{
+                                'component.account.personal-data' | translate
+                            }}</strong>
+                        </p>
                         <div class="mb-2 has-validation">
                             <label
                                 class="form-label"
                                 for="firstName"
-                                >First name</label
+                                >{{
+                                    'component.fields.first-name' | translate
+                                }}</label
                             >
                             <input
                                 class="form-control"
@@ -35,19 +41,26 @@
                                 <p
                                     *ngIf="firstNameControl.errors['required']"
                                     class="mb-0">
-                                    First name is required.
+                                    {{
+                                        'validation.first-name.required'
+                                            | translate
+                                    }}
                                 </p>
                                 <p
                                     *ngIf="firstNameControl.errors['minlength']"
                                     class="mb-0">
-                                    First name must be at least 1 character
-                                    long.
+                                    {{
+                                        'validation.first-name.min-length'
+                                            | translate
+                                    }}
                                 </p>
                                 <p
                                     *ngIf="firstNameControl.errors['maxlength']"
                                     class="mb-0">
-                                    First name must be at most 100 character
-                                    long.
+                                    {{
+                                        'validation.first-name.max-length'
+                                            | translate
+                                    }}
                                 </p>
                             </div>
                         </div>
@@ -55,7 +68,9 @@
                             <label
                                 class="form-label"
                                 for="lastName"
-                                >Last name</label
+                                >{{
+                                    'component.fields.last-name' | translate
+                                }}</label
                             >
                             <input
                                 class="form-control"
@@ -72,18 +87,26 @@
                                 <p
                                     *ngIf="lastNameControl.errors['required']"
                                     class="mb-0">
-                                    Last name is required.
+                                    {{
+                                        'validation.last-name.required'
+                                            | translate
+                                    }}
                                 </p>
                                 <p
                                     *ngIf="lastNameControl.errors['minlength']"
                                     class="mb-0">
-                                    Last name must be at least 1 character long.
+                                    {{
+                                        'validation.last-name.min-length'
+                                            | translate
+                                    }}
                                 </p>
                                 <p
                                     *ngIf="lastNameControl.errors['maxlength']"
                                     class="mb-0">
-                                    Last name must be at most 100 character
-                                    long.
+                                    {{
+                                        'validation.last-name.max-length'
+                                            | translate
+                                    }}
                                 </p>
                             </div>
                         </div>
@@ -95,15 +118,28 @@
                         class="col-md"
                         *ngIf="accessLevel.level === AccessType.OWNER">
                         <hr class="d-md-none border-top border-5 border-dark" />
-                        <h2>{{ accessLevel.level | titlecase }}</h2>
+                        <h2>
+                            {{
+                                'access-levels.' + accessLevel.level
+                                    | translate
+                                    | titlecase
+                            }}
+                        </h2>
                         <form [formGroup]="editOwnerDataForm">
                             <div *ngIf="accessLevel.address as address">
-                                <p><strong>Address</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.fields.address' | translate
+                                    }}</strong>
+                                </p>
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
                                         for="street"
-                                        >Street</label
+                                        >{{
+                                            'component.fields.street'
+                                                | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -124,7 +160,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Street is required.
+                                            {{
+                                                'validation.street.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -133,8 +172,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Street must be at most 85 character
-                                            long.
+                                            {{
+                                                'validation.street.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -142,7 +183,10 @@
                                     <label
                                         class="form-label"
                                         for="buildingNumber"
-                                        >Building number</label
+                                        >{{
+                                            'component.fields.building-number'
+                                                | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -163,7 +207,10 @@
                                                     .errors['required']
                                             "
                                             class="mb-0">
-                                            Building number is required.
+                                            {{
+                                                'validation.building.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -171,8 +218,10 @@
                                                     .errors['min']
                                             "
                                             class="mb-0">
-                                            Building number must be greater than
-                                            0.
+                                            {{
+                                                'validation.building.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -180,7 +229,10 @@
                                     <label
                                         class="form-label"
                                         for="postalCode"
-                                        >Postal code</label
+                                        >{{
+                                            'component.fields.postal-code'
+                                                | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -202,7 +254,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Postal code is required.
+                                            {{
+                                                'validation.postal-code.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -214,8 +269,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Postal code must be 6 character
-                                            long.
+                                            {{
+                                                'validation.postal-code.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -223,7 +280,9 @@
                                     <label
                                         class="form-label"
                                         for="city"
-                                        >City</label
+                                        >{{
+                                            'component.fields.city' | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -244,7 +303,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            City is required.
+                                            {{
+                                                'validation.city.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -253,8 +315,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            City must be at least 2 character
-                                            long.
+                                            {{
+                                                'validation.city.min-length'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -263,8 +327,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            City must be at most 85 character
-                                            long.
+                                            {{
+                                                'validation.city.max-length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -278,13 +344,20 @@
                         <h2>{{ accessLevel.level | titlecase }}</h2>
                         <form [formGroup]="editManagerDataForm">
                             <div *ngIf="accessLevel.address as address">
-                                <p><strong>Address</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.fields.address' | translate
+                                    }}</strong>
+                                </p>
 
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
                                         for="street"
-                                        >Street</label
+                                        >{{
+                                            'component.fields.street'
+                                                | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -307,7 +380,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Street is required.
+                                            {{
+                                                'validation.street.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -316,8 +392,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Street must be at most 85 character
-                                            long.
+                                            {{
+                                                'validation.street.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -325,7 +403,10 @@
                                     <label
                                         class="form-label"
                                         for="buildingNumber"
-                                        >Building number</label
+                                        >{{
+                                            'component.fields.building-number'
+                                                | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -349,7 +430,10 @@
                                                     .errors['required']
                                             "
                                             class="mb-0">
-                                            Building number is required.
+                                            {{
+                                                'validation.building.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -357,8 +441,10 @@
                                                     .errors['min']
                                             "
                                             class="mb-0">
-                                            Building number must be greater than
-                                            0.
+                                            {{
+                                                'validation.building.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -366,7 +452,10 @@
                                     <label
                                         class="form-label"
                                         for="postalCode"
-                                        >Postal code</label
+                                        >{{
+                                            'component.fields.postal-code'
+                                                | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -389,7 +478,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Postal code is required.
+                                            {{
+                                                'validation.postal-code.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -401,8 +493,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            Postal code must be 6 character
-                                            long.
+                                            {{
+                                                'validation.postal-code.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -410,7 +504,9 @@
                                     <label
                                         class="form-label"
                                         for="city"
-                                        >City</label
+                                        >{{
+                                            'component.fields.city' | translate
+                                        }}</label
                                     >
                                     <input
                                         class="form-control"
@@ -432,7 +528,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            City is required.
+                                            {{
+                                                'validation.city.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -441,8 +540,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            City must be at least 2 character
-                                            long.
+                                            {{
+                                                'validation.city.min-length'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -451,8 +552,10 @@
                                                 ]
                                             "
                                             class="mb-0">
-                                            City must be at most 85 character
-                                            long.
+                                            {{
+                                                'validation.city.max-length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -462,7 +565,10 @@
                                     <label
                                         class="form-label"
                                         for="licenseNumber"
-                                        ><strong>License number</strong></label
+                                        ><strong>{{
+                                            'component.account.license-number'
+                                                | translate
+                                        }}</strong></label
                                     >
                                     <input
                                         class="form-control"
@@ -486,7 +592,10 @@
                                                     .errors['required']
                                             "
                                             class="mb-0">
-                                            License number is required.
+                                            {{
+                                                'validation.license-number.required'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -501,19 +610,19 @@
         <div
             (click)="activeModal.close(false)"
             class="btn btn-outline-secondary">
-            Cancel
+            {{ 'component.account.cancel' | translate }}
         </div>
         <button
             [disabled]="!areAllValid()"
             (click)="onSubmit()"
             class="btn btn-success">
-            Save
+            {{ 'component.account.save' | translate }}
         </button>
     </div>
 </ng-container>
 <ng-template #loadingAccountData>
     <div class="d-flex flex-column justify-content-center align-items-center">
         <span class="spinner-border"></span>
-        <span class="mt-3">Loading account data...</span>
+        <span class="mt-3">{{ 'component.account.loading' | translate }}</span>
     </div>
 </ng-template>

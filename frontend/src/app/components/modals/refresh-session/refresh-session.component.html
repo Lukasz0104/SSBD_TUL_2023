@@ -2,7 +2,7 @@
     <h6
         class="modal-title"
         id="modal-basic-title">
-        Your session will expire soon. Do you want to stay logged in?
+        {{ 'modal.refresh-session.info' | translate }}
     </h6>
     <button
         (click)="activeModal.dismiss('Cross click')"
@@ -14,12 +14,12 @@
         <div
             (click)="onClick(true)"
             class="btn btn-primary">
-            Stay
+            {{ 'modal.refresh-session.stay' | translate }}
         </div>
         <div
             (click)="onClick(false)"
             class="btn btn-outline-secondary">
-            Cancel
+            {{ 'modal.refresh-session.cancel' | translate }}
         </div>
     </div>
 </div>

@@ -10,6 +10,7 @@ import { RefreshSessionComponent } from '../components/modals/refresh-session/re
 import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
 import { Router } from '@angular/router';
 import { ToastService } from './toast.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
     providedIn: 'root'
@@ -23,7 +24,8 @@ export class AuthService {
         private http: HttpClient,
         private modalService: NgbModal,
         private router: Router,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private translate: TranslateService
     ) {
         this.handleLocalStorageContent();
         this.addLocalStorageListener();
@@ -117,6 +119,8 @@ export class AuthService {
         this.setAuthenticated(true);
         this.setCurrentGroup(group);
         this.scheduleRefreshSessionPopUp();
+        this.translate.use(userData.language.toLowerCase());
+        localStorage.setItem('language', userData.language.toLowerCase());
 
         if (redirectToDashboard) {
             this.router.navigate(['/dashboard']).then(() => {
@@ -141,7 +145,7 @@ export class AuthService {
                 }),
                 catchError(() => {
                     this.logout();
-                    this.toastService.showDanger('Your session has expired.');
+                    this.toastService.showDanger('toast.auth.expired-session');
                     return EMPTY;
                 })
             )
@@ -161,7 +165,7 @@ export class AuthService {
                         if (!this.isJwtValid(this.getJwt())) {
                             this.logout();
                             this.toastService.showDanger(
-                                'Your session has expired.'
+                                'toast.auth.expired-session'
                             );
                         }
                     }
@@ -170,7 +174,7 @@ export class AuthService {
                     if (!this.isJwtValid(this.getJwt())) {
                         this.logout();
                         this.toastService.showDanger(
-                            'Your session has expired.'
+                            'toast.auth.expired-session'
                         );
                     }
                 });
@@ -275,7 +279,12 @@ export class AuthService {
         this.clearUserData();
         this.setAuthenticated(false);
         clearTimeout(this.scheduledRefresh);
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login']).then(() => {
+            const browser_lang = this.translate.getBrowserLang();
+            if (browser_lang != null) {
+                this.translate.use(browser_lang);
+            }
+        });
     }
 
     isJwtValid(jwt: string): boolean {

@@ -10,7 +10,7 @@ export const canActivateManagerAdmin: CanActivateFn = () => {
 
     if (!authService.isManager() && !authService.isAdmin()) {
         router.navigate(['/dashboard']).then(() => {
-            toastService.showDanger('Access denied');
+            toastService.showDanger('toast.guard.access-denied');
         });
         return false;
     }

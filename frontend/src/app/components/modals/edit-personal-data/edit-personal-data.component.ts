@@ -141,7 +141,6 @@ export class EditPersonalDataComponent {
                         break;
                 }
             }
-            console.log(this.ownAccount);
 
             this.accountService
                 .editOwnProfile(this.ownAccount)

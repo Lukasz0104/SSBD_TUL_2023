@@ -15,7 +15,7 @@
             ]"
             class="btn"
             type="button">
-            All
+            {{ 'component.accounts.display.all' | translate }}
         </button>
         <button
             (click)="changeAccessTypeOption('OWNER')"
@@ -29,7 +29,7 @@
             ]"
             class="btn"
             type="button">
-            Owners
+            {{ 'component.accounts.display.owners' | translate }}
         </button>
         <button
             (click)="changeAccessTypeOption('MANAGER')"
@@ -43,7 +43,7 @@
             ]"
             class="btn"
             type="button">
-            Managers
+            {{ 'component.accounts.display.managers' | translate }}
         </button>
         <button
             (click)="changeAccessTypeOption('ADMIN')"
@@ -57,7 +57,7 @@
             ]"
             class="btn"
             type="button">
-            Admins
+            {{ 'component.accounts.display.admins' | translate }}
         </button>
     </div>
 </ng-container>
@@ -75,7 +75,7 @@
             ]"
             class="btn"
             type="button">
-            Active
+            {{ 'component.accounts.display.active' | translate }}
         </button>
         <button
             (click)="changeStatusOption(2)"
@@ -86,7 +86,7 @@
             ]"
             class="btn"
             type="button">
-            Inactive
+            {{ 'component.accounts.display.inactive' | translate }}
         </button>
         <button
             (click)="changeStatusOption(3)"
@@ -105,7 +105,7 @@
             ]"
             class="btn"
             type="button">
-            Need approval
+            {{ 'component.accounts.display.approval' | translate }}
         </button>
         <span
             (click)="reload()"
@@ -120,14 +120,25 @@
         <table class="table text-center table-hover">
             <thead>
                 <tr class="bg-light">
-                    <th scope="col">Login</th>
-                    <th scope="col">First name</th>
-                    <th scope="col">Last name</th>
-                    <th scope="col">Active</th>
+                    <th scope="col">
+                        {{ 'component.fields.login' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.first-name' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.last-name' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.active' | translate }}
+                    </th>
                     <th
                         *ngIf="authService.isAdmin()"
                         scope="col">
-                        Details
+                        {{ 'component.fields.details' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.actions' | translate }}
                     </th>
                 </tr>
             </thead>
@@ -154,8 +165,35 @@
                             [routerLink]="['account']"
                             [queryParams]="{ id: account.id }"
                             class="btn btn-outline-primary">
-                            Details
+                            {{ 'component.fields.details' | translate }}
                         </button>
+                    </td>
+                    <td>
+                        <div
+                            *ngIf="!authService.isOwner()"
+                            ngbDropdown
+                            class="d-inline-block">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                id="dropdownBasic1"
+                                ngbDropdownToggle>
+                                {{ 'component.fields.actions' | translate }}
+                            </button>
+                            <div
+                                *ngIf="authService.isAdmin()"
+                                ngbDropdownMenu
+                                aria-labelledby="dropdownBasic1">
+                                <button
+                                    ngbDropdownItem
+                                    (click)="forceChange(account.login)">
+                                    {{
+                                        'component.accounts.password-change'
+                                            | translate
+                                    }}
+                                </button>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -173,9 +211,19 @@
                 <select
                     [(ngModel)]="pageSize"
                     class="form-select w-auto">
-                    <option [ngValue]="2">2 items per page</option>
-                    <option [ngValue]="3">3 items per page</option>
-                    <option [ngValue]="4">4 items per page</option>
+                    <option [ngValue]="2">
+                        {{ 'component.accounts.display.two-items' | translate }}
+                    </option>
+                    <option [ngValue]="3">
+                        {{
+                            'component.accounts.display.three-items' | translate
+                        }}
+                    </option>
+                    <option [ngValue]="4">
+                        {{
+                            'component.accounts.display.four-items' | translate
+                        }}
+                    </option>
                 </select>
             </div>
         </div>
@@ -185,6 +233,6 @@
 <ng-template #loadingAccounts>
     <div class="d-flex flex-column justify-content-center align-items-center">
         <span class="spinner-border"></span>
-        <span class="mt-3">Loading accounts..</span>
+        <span class="mt-3">{{ 'component.accounts.loading' | translate }}</span>
     </div>
 </ng-template>
