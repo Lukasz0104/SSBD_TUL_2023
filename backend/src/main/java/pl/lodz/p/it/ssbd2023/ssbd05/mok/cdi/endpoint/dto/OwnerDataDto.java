@@ -16,8 +16,8 @@ public class OwnerDataDto extends AccessLevelDto {
     @Valid
     private AddressDto address;
 
-    public OwnerDataDto(Long id, Long version, AddressDto address) {
-        super(id, version);
+    public OwnerDataDto(Long id, Long version, AddressDto address, boolean verified, boolean active) {
+        super(id, version, verified, active);
         this.address = address;
     }
 }

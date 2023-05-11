@@ -51,6 +51,10 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     List<Account> getAdminAccounts(boolean active);
 
+    List<Account> getUnapprovedOwnerAccounts();
+
+    List<Account> getUnapprovedManagerAccounts();
+
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 
     void deleteExpiredTokens(LocalDateTime now) throws AppBaseException;
