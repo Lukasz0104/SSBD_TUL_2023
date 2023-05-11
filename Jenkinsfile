@@ -6,11 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Clean') { 
-            steps {
-                sh "rm -rfd *"
-            }
-        }
         stage('Build') {
             steps {
                 sh "ls -la ${env.WORKSPACE}"
