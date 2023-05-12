@@ -3,7 +3,7 @@ pipeline {
     environment { 
         backend = "${env.WORKSPACE}/backend"
         frontend = "${env.WORKSPACE}/frontend"
-        PATH = "/opt/java/payara6/bin/asadmin:${env.PATH}"
+        PATH = "/opt/java/payara6/bin:${env.PATH}"
     }
     tools {
         jdk "OpenJDK17"
@@ -15,6 +15,7 @@ pipeline {
                 sh "cd  ${backend} && mvn clean install"
                 sh "cd ${frontend} && npm install && npm run build"
                 sh "ls -la ${backend}/target ${frontend}/dist"
+                sh "echo $PATH"
             }
         }
         stage('Deploy') {
