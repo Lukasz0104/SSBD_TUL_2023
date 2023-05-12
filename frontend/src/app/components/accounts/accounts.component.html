@@ -155,11 +155,12 @@
                     <td>{{ account.firstName }}</td>
                     <td>{{ account.lastName }}</td>
                     <td>
-                        <app-change-active-status
-                            (statusChangedEvent)="reload()"
-                            *ngIf="account.login !== authService.getLogin()"
-                            [id]="account.id"
-                            [status]="account.active" />
+                        <i
+                            [ngClass]="{
+                                'bi-lock-fill': !account.active,
+                                'bi-unlock-fill': account.active
+                            }"
+                            class="bi"></i>
                     </td>
                     <td *ngIf="authService.isAdmin()">
                         <button
@@ -172,26 +173,36 @@
                     <td>
                         <div
                             *ngIf="!authService.isOwner()"
-                            ngbDropdown
-                            class="d-inline-block">
+                            class="d-inline-block"
+                            ngbDropdown>
                             <button
-                                type="button"
                                 class="btn btn-outline-primary"
                                 id="dropdownBasic1"
-                                ngbDropdownToggle>
+                                ngbDropdownToggle
+                                type="button">
                                 {{ 'component.fields.actions' | translate }}
                             </button>
                             <div
                                 *ngIf="authService.isAdmin()"
-                                ngbDropdownMenu
-                                aria-labelledby="dropdownBasic1">
+                                aria-labelledby="dropdownBasic1"
+                                ngbDropdownMenu>
                                 <button
-                                    ngbDropdownItem
-                                    (click)="forceChange(account.login)">
+                                    (click)="forceChange(account.login)"
+                                    ngbDropdownItem>
                                     {{
                                         'component.accounts.password-change'
                                             | translate
                                     }}
+                                </button>
+                                <button
+                                    *ngIf="
+                                        account.login !== authService.getLogin()
+                                    "
+                                    ngbDropdownItem>
+                                    <app-change-active-status
+                                        (statusChangedEvent)="reload()"
+                                        [id]="account.id"
+                                        [status]="account.active" />
                                 </button>
                             </div>
                         </div>

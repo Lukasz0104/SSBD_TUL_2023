@@ -93,7 +93,9 @@
         "four-items": "4 items per page"
       },
       "loading": "Loading accounts...",
-      "password-change": "Change password"
+      "password-change": "Change password",
+      "activate" : "Unlock",
+      "deactivate" : "Lock"
     },
     "account": {
       "language": "Language",
@@ -201,7 +203,8 @@
         "signature_mismatch": "Cannot edit account, violation of unmodifiable data",
         "rollback.limit.exceeded": "Request timed out",
         "optimistic_lock": "Cannot edit account, account data has changed since opening form, try again",
-        "account_not_found": "Modified account does not exist"
+        "account_not_found": "Modified account does not exist",
+        "license-number-already-taken": "Chosen license is in use"
       }
     }
   }
