@@ -32,6 +32,9 @@ import { AccountsComponent } from './components/accounts/accounts.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 import { RegisterComponent } from './components/register/register.component';
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
+import { ChangeEmailComponent } from './components/change-email/change-email.component';
+import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
+import { ChangeActiveStatusComponent } from './components/change-active-status/change-active-status.component';
 
 @NgModule({
     declarations: [
@@ -52,6 +55,9 @@ import { ConfirmRegistrationComponent } from './components/confirm-registration/
         AccountsComponent,
         ProfileComponent,
         AccountComponent,
+        ChangeEmailComponent,
+        ConfirmEmailComponent,
+        ChangeActiveStatusComponent,
         EditPersonalDataComponent,
         HomeComponent,
         ConfirmRegistrationComponent

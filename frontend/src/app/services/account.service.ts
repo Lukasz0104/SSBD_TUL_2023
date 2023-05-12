@@ -11,6 +11,8 @@ import { Account, EditPersonalData, OwnAccount } from '../model/account';
 import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
 import { AccessType } from '../model/access-type';
+import { ChangeEmailForm } from '../model/email-form';
+import { ActiveStatusDto } from '../model/active-status-dto';
 import {
     RegisterManagerDto,
     RegisterOwnerDto
@@ -22,9 +24,8 @@ type RegisterResponse = { message: ResponseMessage };
     providedIn: 'root'
 })
 export class AccountService {
-    private readonly URL = `${environment.apiUrl}/accounts`;
-
     ifMatch = '';
+    private readonly accountsUrl = `${environment.apiUrl}/accounts`;
 
     constructor(
         private http: HttpClient,
@@ -35,8 +36,7 @@ export class AccountService {
     resetPassword(email: string) {
         return this.http
             .post(
-                `${environment.apiUrl}/accounts/reset-password-message?email=` +
-                    email,
+                `${this.accountsUrl}/reset-password-message?email=` + email,
                 {}
             )
             .pipe(
@@ -68,10 +68,7 @@ export class AccountService {
 
     changeLanguage(language: string) {
         return this.http
-            .put(
-                `${environment.apiUrl}/accounts/me/change-language/` + language,
-                {}
-            )
+            .put(`${this.accountsUrl}/me/change-language/` + language, {})
             .pipe(
                 map(() => {
                     return true;
@@ -82,10 +79,7 @@ export class AccountService {
 
     resetPasswordConfirm(resetPasswordDTO: object) {
         return this.http
-            .post(
-                `${environment.apiUrl}/accounts/reset-password`,
-                resetPasswordDTO
-            )
+            .post(`${this.accountsUrl}/reset-password`, resetPasswordDTO)
             .pipe(
                 map(() => {
                     this.router.navigate(['/login']).then(() => {
@@ -110,10 +104,7 @@ export class AccountService {
 
     forcePasswordChange(login: string) {
         return this.http
-            .put(
-                `${environment.apiUrl}/accounts/force-password-change/` + login,
-                {}
-            )
+            .put(`${this.accountsUrl}/force-password-change/` + login, {})
             .pipe(
                 map(() => {
                     this.toastService.clearAll();
@@ -136,7 +127,7 @@ export class AccountService {
     overrideForcePasswordChange(resetPasswordDTO: object) {
         return this.http
             .put(
-                `${environment.apiUrl}/accounts/override-forced-password`,
+                `${this.accountsUrl}/override-forced-password`,
                 resetPasswordDTO
             )
             .pipe(
@@ -168,7 +159,9 @@ export class AccountService {
 
         return this.http
             .post<RegisterResponse | null>(
-                `${this.URL}/register/${isManagerDto ? 'manager' : 'owner'}`,
+                `${this.accountsUrl}/register/${
+                    isManagerDto ? 'manager' : 'owner'
+                }`,
                 dto
             )
             .pipe(
@@ -180,7 +173,7 @@ export class AccountService {
     confirmRegistration(token: string): Observable<ResponseMessage | null> {
         return this.http
             .post<RegisterResponse | null>(
-                `${this.URL}/confirm-registration`,
+                `${this.accountsUrl}/confirm-registration`,
                 null,
                 {
                     params: { token }
@@ -194,7 +187,7 @@ export class AccountService {
 
     getOwnProfile() {
         return this.http
-            .get<OwnAccount>(`${environment.apiUrl}/accounts/me`, {
+            .get<OwnAccount>(`${this.accountsUrl}/me`, {
                 observe: 'response'
             })
             .pipe(
@@ -207,7 +200,7 @@ export class AccountService {
 
     getProfile(id: number) {
         return this.http
-            .get<Account>(`${environment.apiUrl}/accounts/${id}`, {
+            .get<Account>(`${this.accountsUrl}/${id}`, {
                 observe: 'response'
             })
             .pipe(
@@ -220,7 +213,7 @@ export class AccountService {
 
     editOwnProfile(dto: EditPersonalData) {
         return this.http
-            .put<OwnAccount>(`${environment.apiUrl}/accounts/me`, dto, {
+            .put<OwnAccount>(`${this.accountsUrl}/me`, dto, {
                 headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
                 observe: 'response'
             })
@@ -270,11 +263,11 @@ export class AccountService {
     getUnapprovedAccountsByType(type: AccessType) {
         if (type == AccessType.OWNER) {
             return this.http.get<Account[]>(
-                `${environment.apiUrl}/accounts/owners/unapproved`
+                `${this.accountsUrl}/owners/unapproved`
             );
         } else if (type == AccessType.MANAGER) {
             return this.http.get<Account[]>(
-                `${environment.apiUrl}/accounts/managers/unapproved`
+                `${this.accountsUrl}//managers/unapproved`
             );
         }
         return of([]);
@@ -290,5 +283,78 @@ export class AccountService {
         } else {
             this.toastService.showDanger(method + '.' + response.error.message);
         }
+    }
+
+    changeEmail() {
+        return this.http.post(`${this.accountsUrl}/me/change-email`, null).pipe(
+            map(() => {
+                this.toastService.showSuccess('mail.sent.success'); //fixme
+                return true;
+            }),
+            catchError((err: HttpErrorResponse) => {
+                this.toastService.showDanger(err.error.message);
+                return of(false);
+            })
+        );
+    }
+
+    confirmEmail(email: string, token: string) {
+        return this.http
+            .put<ChangeEmailForm>(
+                `${this.accountsUrl}/me/confirm-email/${token}`,
+                { email }
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('email.change.success');
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    return of(false);
+                })
+            );
+    }
+
+    changeActiveStatusAsManager(id: number, active: boolean) {
+        return this.http
+            .put<ActiveStatusDto>(
+                `${this.accountsUrl}/manager/change-active-status`,
+                {
+                    id,
+                    active
+                }
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('status.change.success'); //todo
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    return of(false);
+                })
+            );
+    }
+
+    changeActiveStatusAsAdmin(id: number, active: boolean) {
+        return this.http
+            .put<ActiveStatusDto>(
+                `${this.accountsUrl}/admin/change-active-status`,
+                {
+                    id,
+                    active
+                }
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('status.change.success'); //todo
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    return of(false);
+                })
+            );
     }
 }

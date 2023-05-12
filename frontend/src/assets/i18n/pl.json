@@ -93,7 +93,9 @@
         "four-items": "4 elementy na stronę"
       },
       "loading": "Ładowanie kont...",
-      "password-change": "Zmień hasło"
+      "password-change": "Zmień hasło",
+      "activate" : "Odblokuj",
+      "deactivate" : "Zablokuj"
     },
     "account": {
       "language": "Język",
@@ -201,7 +203,8 @@
         "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
-        "account_not_found": "Modyfikowane konto nie istnieje"
+        "account_not_found": "Modyfikowane konto nie istnieje",
+        "license-number-already-taken": "Wybrany numer licencji jest w użytku"
       }
     }
   }

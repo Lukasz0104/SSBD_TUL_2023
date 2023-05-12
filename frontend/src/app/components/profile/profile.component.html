@@ -13,11 +13,11 @@
             </h2>
             <div ngbAccordionCollapse>
                 <div
-                    ngbAccordionBody
-                    class="d-flex flex-column flex-md-row justify-content-start align-items-center mb-3 mb-md-0">
+                    class="d-flex flex-column flex-md-row justify-content-start align-items-center mb-3 mb-md-0"
+                    ngbAccordionBody>
                     <ng-template>
                         <div class="px-5 mb-4 mb-md-2">
-                            <div>
+                            <div class="text-center">
                                 <i
                                     class="bi bi-person"
                                     style="font-size: 6rem"></i>
@@ -27,6 +27,9 @@
                                 (click)="edit()">
                                 {{ 'component.account.edit' | translate }}
                             </button>
+                            <div>
+                                <app-change-email></app-change-email>
+                            </div>
                         </div>
                         <div
                             class="justify-content-center px-3 px-md-5 row fs-6">

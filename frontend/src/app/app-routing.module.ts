@@ -13,6 +13,7 @@ import { AccountComponent } from './components/account/account.component';
 import { canActivateAdmin } from './guards/admin.guard';
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { canActivateManagerAdmin } from './guards/manager-admin.guard';
+import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 
@@ -31,6 +32,14 @@ const routes: Routes = [
                     title: 'Sign in'
                 },
                 canActivate: [canActivateLoginOrRegister]
+            },
+            {
+                path: 'confirm-email/:id',
+                component: ConfirmEmailComponent,
+                data: {
+                    title: 'Change email'
+                },
+                canActivate: [canActivateAuthenticated]
             },
             {
                 path: 'register',
