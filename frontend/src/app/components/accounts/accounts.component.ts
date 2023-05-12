@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { AccountService } from '../../services/account.service';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Account } from '../../model/account';
-import { AccessType } from '../../model/access-type';
-import { AuthService } from '../../services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { AccessType } from '../../model/access-type';
+import { Account } from '../../model/account';
+import { AccountService } from '../../services/account.service';
+import { AuthService } from '../../services/auth.service';
 import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
 
 @Component({
@@ -12,6 +12,7 @@ import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.
     templateUrl: './accounts.component.html'
 })
 export class AccountsComponent implements OnInit {
+    protected readonly accessTypeEnum = AccessType;
     accounts$: Observable<Account[]> | undefined;
     page = 1;
     pageSize = 3;
@@ -91,5 +92,66 @@ export class AccountsComponent implements OnInit {
                 this.accountService.forcePasswordChange(login);
             }
         });
+    }
+
+    protected hasAccessLevel(account: Account, level: AccessType) {
+        return (
+            account.accessLevels.filter((al) => al.level === level && al.active)
+                .length === 1
+        );
+    }
+
+    protected showGrantAdminDropdownItem(account: Account): boolean {
+        const chosen = this.chosenAccessType.getValue();
+        return (
+            this.authService.getCurrentGroup() === AccessType.ADMIN &&
+            chosen === AccessType.ALL &&
+            !this.hasAccessLevel(account, AccessType.ADMIN)
+        );
+    }
+
+    protected showGrantManagerDropdownItem(account: Account): boolean {
+        const chosen = this.chosenAccessType.getValue();
+        return (
+            this.authService.getCurrentGroup() === AccessType.ADMIN &&
+            chosen === AccessType.ALL &&
+            !this.hasAccessLevel(account, AccessType.MANAGER)
+        );
+    }
+
+    protected showGrantOwnerDropdownItem(account: Account): boolean {
+        const chosen = this.chosenAccessType.getValue();
+        return (
+            this.authService.getCurrentGroup() === AccessType.MANAGER &&
+            chosen === AccessType.ALL &&
+            !this.hasAccessLevel(account, AccessType.OWNER)
+        );
+    }
+
+    protected showRevokeAdminDropdownItem(account: Account): boolean {
+        const chosen = this.chosenAccessType.getValue();
+        return (
+            this.authService.getCurrentGroup() === AccessType.ADMIN &&
+            (chosen === AccessType.ALL || chosen === AccessType.ADMIN) &&
+            this.hasAccessLevel(account, AccessType.ADMIN)
+        );
+    }
+
+    protected showRevokeManagerDropdownItem(account: Account): boolean {
+        const chosen = this.chosenAccessType.getValue();
+        return (
+            this.authService.getCurrentGroup() === AccessType.ADMIN &&
+            (chosen === AccessType.ALL || chosen === AccessType.MANAGER) &&
+            this.hasAccessLevel(account, AccessType.MANAGER)
+        );
+    }
+
+    protected showRevokeOwnerDropdownItem(account: Account): boolean {
+        const chosen = this.chosenAccessType.getValue();
+        return (
+            this.authService.getCurrentGroup() === AccessType.MANAGER &&
+            (chosen === AccessType.ALL || chosen === AccessType.OWNER) &&
+            this.hasAccessLevel(account, AccessType.OWNER)
+        );
     }
 }

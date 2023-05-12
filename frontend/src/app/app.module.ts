@@ -35,6 +35,7 @@ import { ConfirmRegistrationComponent } from './components/confirm-registration/
 import { ChangeEmailComponent } from './components/change-email/change-email.component';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { ChangeActiveStatusComponent } from './components/change-active-status/change-active-status.component';
+import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
 
 @NgModule({
     declarations: [
@@ -60,7 +61,8 @@ import { ChangeActiveStatusComponent } from './components/change-active-status/c
         ChangeActiveStatusComponent,
         EditPersonalDataComponent,
         HomeComponent,
-        ConfirmRegistrationComponent
+        ConfirmRegistrationComponent,
+        GrantAccessLevelComponent
     ],
     imports: [
         BrowserModule,

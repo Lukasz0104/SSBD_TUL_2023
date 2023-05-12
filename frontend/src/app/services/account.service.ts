@@ -267,7 +267,7 @@ export class AccountService {
             );
         } else if (type == AccessType.MANAGER) {
             return this.http.get<Account[]>(
-                `${this.accountsUrl}//managers/unapproved`
+                `${this.accountsUrl}/managers/unapproved`
             );
         }
         return of([]);
