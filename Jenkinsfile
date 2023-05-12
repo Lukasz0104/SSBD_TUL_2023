@@ -14,12 +14,11 @@ pipeline {
             steps {
                 sh "cd  ${backend} && mvn clean install"
                 sh "cd ${frontend} && npm install && npm run build"
-                sh "ls -la ${backend}/target ${frontend}/dist"
             }
         }
         stage('Deploy') {
             steps {
-                sh "asadmin -u admin -w /var/lib/jenkins/.gfclient/pass redeploy --name eBok ${backend}/target/eBok.war"
+                sh "asadmin -u admin -W /var/lib/jenkins/.gfclient/pass redeploy --name eBok ${backend}/target/eBok.war"
                 sh "sudo rm -rdf /var/www/*"
                 sh "cp -vr ${frontend}/dist/frontend/* /var/www/"
             }
