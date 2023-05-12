@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Route, RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
@@ -124,8 +124,21 @@ const routes: Routes = [
     }
 ];
 
+const addProperty = (routes: Route): Route => {
+    routes.runGuardsAndResolvers = 'always';
+    if (routes.children)
+        routes.children = routes.children.map((r) => addProperty(r));
+
+    return routes;
+};
+
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
+    imports: [
+        RouterModule.forRoot(
+            routes.map((r) => addProperty(r)),
+            { onSameUrlNavigation: 'reload' }
+        )
+    ],
     exports: [RouterModule]
 })
 export class AppRoutingModule {}

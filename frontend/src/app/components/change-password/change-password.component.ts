@@ -24,13 +24,11 @@ export class ChangePasswordComponent {
             ]),
             password: new FormControl('', [
                 Validators.required,
-                strongPasswordValidator,
-                Validators.minLength(8)
+                strongPasswordValidator
             ]),
             repeatPassword: new FormControl('', [
                 Validators.required,
-                strongPasswordValidator,
-                Validators.minLength(8)
+                strongPasswordValidator
             ])
         },
         { validators: [repeatPasswordValidator, diffPasswordValidator] }
@@ -109,7 +107,6 @@ export class ChangePasswordComponent {
         if (this.repeatPasswordControl.errors?.['required']) return 1;
         else if (this.samePassword) return 2;
         else if (this.passwordMismatch) return 3;
-        else if (this.repeatPasswordControl.errors?.['minlength']) return 4;
         return -1;
     }
 
@@ -117,8 +114,7 @@ export class ChangePasswordComponent {
         if (this.passwordControl.errors?.['required']) return 1;
         else if (this.samePassword) return 2;
         else if (this.passwordMismatch) return 3;
-        else if (this.repeatPasswordControl.errors?.['minlength']) return 4;
-        else if (this.repeatPasswordControl.errors?.['weakPassword']) return 5;
+        else if (this.repeatPasswordControl.errors?.['weakPassword']) return 4;
         return -1;
     }
 }

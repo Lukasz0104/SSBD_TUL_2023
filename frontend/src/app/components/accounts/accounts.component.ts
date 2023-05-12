@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AccountService } from '../../services/account.service';
 import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
 import { Account } from '../../model/account';
@@ -13,6 +13,7 @@ import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.
     templateUrl: './accounts.component.html'
 })
 export class AccountsComponent implements OnInit {
+    @Output() editAccountEvent = new EventEmitter<null>();
     accounts$: Observable<Account[]> | undefined;
     page = 1;
     pageSize = 3;

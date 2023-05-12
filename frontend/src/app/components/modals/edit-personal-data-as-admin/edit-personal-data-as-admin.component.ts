@@ -125,6 +125,8 @@ export class EditPersonalDataAsAdminComponent {
         if (this.newAccount != null) {
             this.newAccount.firstName = this.firstName;
             this.newAccount.lastName = this.lastName;
+            this.newAccount.email = this.email;
+            this.newAccount.language = this.language;
             for (const level of this.newAccount.accessLevels) {
                 switch (level.level) {
                     case AccessType.OWNER:

@@ -432,6 +432,7 @@ export class AccountService {
                             this.toastService.showSuccess(
                                 'toast.switch-access-level-success'
                             );
+                            this.router.navigate([this.router.url]);
                         }),
                         catchError(() => {
                             this.toastService.showDanger(

@@ -24,6 +24,8 @@ import { environment } from '../../../environments/environment';
     ]
 })
 export class RegisterComponent {
+    protected languages = environment.languages;
+
     protected personalDetailsForm = this.fb.group({
         firstName: this.fb.control('', {
             validators: [Validators.required, Validators.maxLength(100)]
@@ -249,5 +251,4 @@ export class RegisterComponent {
         return this.authDetailsForm.errors?.['passwordMismatch'];
     }
     //#endregion
-    protected readonly environment = environment;
 }
