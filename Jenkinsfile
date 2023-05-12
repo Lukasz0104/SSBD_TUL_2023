@@ -20,7 +20,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh "asadmin redeploy --name eBok ${backend}/target/eBok.war"
+                sh "asadmin -u admin -w /var/lib/jenkins/.gfclient/pass redeploy --name eBok ${backend}/target/eBok.war"
                 sh "rm -rdf /var/www/*"
                 sh "cp -vr ${frontend}/dist/frontend/* /var/www/"
             }
