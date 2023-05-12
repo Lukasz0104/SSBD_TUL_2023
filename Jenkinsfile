@@ -4,9 +4,6 @@ pipeline {
         backend = "${env.WORKSPACE}/backend"
         frontend = "${env.WORKSPACE}/frontend"
     }
-    tools {
-        jdk 'OpenJDK17'
-    }
 
     stages {
         stage('Build') {
