@@ -3,6 +3,7 @@ pipeline {
     environment { 
         backend = "${env.WORKSPACE}/backend"
         frontend = "${env.WORKSPACE}/frontend"
+        PATH = "/opt/java/payara6/bin/asadmin:${env.PATH}"
     }
     tools {
         jdk "OpenJDK17"
