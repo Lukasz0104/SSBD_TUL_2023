@@ -2,7 +2,9 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
-import { environment } from '../../../environments/environment';
+import { strongPasswordValidator } from '../../validators/strong-password.validator';
+import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
+import { diffPasswordValidator } from '../../validators/new-password.validator';
 
 @Component({
     selector: 'app-change-password',
@@ -13,19 +15,26 @@ export class ChangePasswordComponent {
     showPassword = false;
     showRepeatPassword = false;
     showOldPassword = false;
-    regexp = environment.passwordRegex;
 
-    validators = [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(this.regexp)
-    ];
-
-    changePasswdForm: FormGroup = new FormGroup({
-        oldPassword: new FormControl('', Validators.required),
-        password: new FormControl('', this.validators),
-        repeatPassword: new FormControl('', this.validators)
-    });
+    changePasswdForm = new FormGroup(
+        {
+            oldPassword: new FormControl('', [
+                Validators.required,
+                Validators.minLength(8)
+            ]),
+            password: new FormControl('', [
+                Validators.required,
+                strongPasswordValidator,
+                Validators.minLength(8)
+            ]),
+            repeatPassword: new FormControl('', [
+                Validators.required,
+                strongPasswordValidator,
+                Validators.minLength(8)
+            ])
+        },
+        { validators: [repeatPasswordValidator, diffPasswordValidator] }
+    );
 
     constructor(
         private accountService: AccountService,
@@ -48,16 +57,8 @@ export class ChangePasswordComponent {
         this.loading = true;
         const password: string =
             this.changePasswdForm.getRawValue().password ?? '';
-        const repeatPassword: string =
-            this.changePasswdForm.getRawValue().repeatPassword ?? '';
         const oldPassword: string =
             this.changePasswdForm.getRawValue().oldPassword ?? '';
-
-        if (password !== repeatPassword) {
-            return;
-        } else if (password === oldPassword) {
-            return;
-        }
 
         if (this.changePasswdForm.valid) {
             const dto: object = {
@@ -74,5 +75,50 @@ export class ChangePasswordComponent {
             });
             this.loading = false;
         }
+    }
+
+    get passwordControl() {
+        return this.changePasswdForm.controls.password;
+    }
+
+    get passwordInvalid() {
+        return this.passwordControl.invalid || this.samePassword;
+    }
+
+    get oldPasswordControl() {
+        return this.changePasswdForm.controls.oldPassword;
+    }
+
+    get repeatPasswordControl() {
+        return this.changePasswdForm.controls.repeatPassword;
+    }
+
+    protected get repeatPasswordInvalid() {
+        return this.errorRepeatPassword() !== -1;
+    }
+
+    protected get passwordMismatch() {
+        return this.changePasswdForm.errors?.['passwordMismatch'];
+    }
+
+    protected get samePassword() {
+        return this.changePasswdForm.errors?.['samePassword'];
+    }
+
+    public errorRepeatPassword(): number {
+        if (this.repeatPasswordControl.errors?.['required']) return 1;
+        else if (this.samePassword) return 2;
+        else if (this.passwordMismatch) return 3;
+        else if (this.repeatPasswordControl.errors?.['minlength']) return 4;
+        return -1;
+    }
+
+    public errorPassword(): number {
+        if (this.passwordControl.errors?.['required']) return 1;
+        else if (this.samePassword) return 2;
+        else if (this.passwordMismatch) return 3;
+        else if (this.repeatPasswordControl.errors?.['minlength']) return 4;
+        else if (this.repeatPasswordControl.errors?.['weakPassword']) return 5;
+        return -1;
     }
 }

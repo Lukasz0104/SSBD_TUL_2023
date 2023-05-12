@@ -5,6 +5,7 @@ import { AccountService } from '../../../services/account.service';
 import { AccessType } from '../../../model/access-type';
 import { Account } from '../../../model/account';
 import { map, Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-edit-personal-data-as-admin',
@@ -348,4 +349,5 @@ export class EditPersonalDataAsAdminComponent {
     //endregion
 
     protected readonly AccessType = AccessType;
+    protected readonly environment = environment;
 }

@@ -1,0 +1,32 @@
+<div class="my-2">
+    <div
+        class="nav-item fs-6"
+        ngbDropdown
+        display="dynamic"
+        placement="bottom-end">
+        <a
+            class="nav-link"
+            tabindex="0"
+            ngbDropdownToggle
+            id="navbarDropdown3"
+            role="button">
+            <b>{{ language }}</b>
+        </a>
+        <div
+            ngbDropdownMenu
+            class="dropdown-menu bg-dark">
+            <a
+                ngbDropdownItem
+                (click)="changeLanguage('PL')"
+                ><i class="flag-icon flag-icon-pl rounded-1"></i
+                ><span class="text-white"> Polski</span></a
+            >
+            <a
+                ngbDropdownItem
+                (click)="changeLanguage('EN')"
+                ><i class="flag-icon flag-icon-gb rounded-1"></i
+                ><span class="text-white"> English</span></a
+            >
+        </div>
+    </div>
+</div>

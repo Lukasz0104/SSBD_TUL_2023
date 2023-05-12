@@ -6,6 +6,7 @@ import { AccessType } from '../../model/access-type';
 import { AuthService } from '../../services/auth.service';
 import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-accounts',
@@ -76,6 +77,21 @@ export class AccountsComponent implements OnInit {
 
     reload() {
         this.getAccounts();
+    }
+
+    forceChange(login: string) {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        modalRef.componentInstance.message =
+            'modal.confirm-action.force-password-message';
+        modalRef.componentInstance.danger =
+            'modal.confirm-action.force-password-danger';
+        modalRef.result.then((result: boolean) => {
+            if (result) {
+                this.accountService.forcePasswordChange(login);
+            }
+        });
     }
 
     editPersonalDataAsAdmin(account: Account): void {
