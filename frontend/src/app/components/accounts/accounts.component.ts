@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { AccessType } from '../../model/access-type';
-import { Account } from '../../model/account';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
 import { AccountService } from '../../services/account.service';
+import { Account } from '../../model/account';
+import { AccessType } from '../../model/access-type';
 import { AuthService } from '../../services/auth.service';
+import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
 
 @Component({
@@ -13,6 +14,7 @@ import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.
 })
 export class AccountsComponent implements OnInit {
     protected readonly accessTypeEnum = AccessType;
+    @Output() editAccountEvent = new EventEmitter<null>();
     accounts$: Observable<Account[]> | undefined;
     page = 1;
     pageSize = 3;
@@ -92,6 +94,23 @@ export class AccountsComponent implements OnInit {
                 this.accountService.forcePasswordChange(login);
             }
         });
+    }
+
+    editPersonalDataAsAdmin(account: Account): void {
+        const modalRef: NgbModalRef = this.modalService.open(
+            EditPersonalDataAsAdminComponent,
+            {
+                centered: true,
+                size: 'xl',
+                scrollable: true
+            }
+        );
+        modalRef.componentInstance.setAccount(account);
+        modalRef.result
+            .then((res): void => {
+                account = res;
+            })
+            .catch(() => EMPTY);
     }
 
     protected hasAccessLevel(account: Account, level: AccessType) {

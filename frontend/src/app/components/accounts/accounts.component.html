@@ -205,12 +205,24 @@
                                     *ngIf="
                                         account.login !== authService.getLogin()
                                     "
+                                    ngbDropdownItem
+                                    (click)="editPersonalDataAsAdmin(account)">
+                                    {{
+                                        'component.accounts.edit-account'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="
+                                        account.login !== authService.getLogin()
+                                    "
                                     ngbDropdownItem>
                                     <app-change-active-status
                                         *ngIf="authService.isAdmin()"
                                         (statusChangedEvent)="reload()"
                                         [id]="account.id"
-                                        [status]="account.active" />
+                                        [status]="account.active">
+                                    </app-change-active-status>
                                 </button>
                                 <button
                                     *ngIf="showGrantAdminDropdownItem(account)"

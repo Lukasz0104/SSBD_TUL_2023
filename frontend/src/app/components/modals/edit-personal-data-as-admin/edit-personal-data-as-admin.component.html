@@ -1,11 +1,11 @@
-<ng-container
-    *ngIf="ownAccount$ | async as ownAccount; else loadingAccountData">
+<ng-container *ngIf="account$; else loadingAccountData">
     <div class="modal-header">
-        <h2
+        <h6
             class="modal-title"
             id="modal-basic-title">
-            {{ 'component.account.edit-your-account' | translate }}
-        </h2>
+            {{ 'component.accounts.edit-account' | translate }}:
+            {{ newAccount?.firstName }} {{ newAccount?.lastName }}
+        </h6>
     </div>
     <div class="modal-body px-4 py-2">
         <div>
@@ -21,11 +21,9 @@
                         <div class="mb-2 has-validation">
                             <label
                                 class="form-label"
-                                for="firstName"
-                                >{{
-                                    'component.fields.first-name' | translate
-                                }}</label
-                            >
+                                for="firstName">
+                                {{ 'component.fields.first-name' | translate }}
+                            </label>
                             <input
                                 class="form-control"
                                 formControlName="firstName"
@@ -67,11 +65,9 @@
                         <div class="mb-2 has-validation">
                             <label
                                 class="form-label"
-                                for="lastName"
-                                >{{
-                                    'component.fields.last-name' | translate
-                                }}</label
-                            >
+                                for="lastName">
+                                {{ 'component.fields.last-name' | translate }}
+                            </label>
                             <input
                                 class="form-control"
                                 formControlName="lastName"
@@ -110,10 +106,57 @@
                                 </p>
                             </div>
                         </div>
+                        <div class="mb-2 has-validation">
+                            <label
+                                class="form-label"
+                                for="language">
+                                Language
+                            </label>
+                            <select
+                                class="form-select"
+                                formControlName="language"
+                                id="language">
+                                <option
+                                    *ngFor="let lang of environment.languages"
+                                    [ngValue]="lang">
+                                    {{ lang }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-2 has-validation">
+                            <label
+                                class="form-label"
+                                for="email">
+                                Email address
+                            </label>
+                            <input
+                                class="form-control"
+                                formControlName="email"
+                                id="email"
+                                type="text"
+                                [ngClass]="{
+                                    'is-invalid': emailControl.invalid,
+                                    'is-valid': emailControl.valid
+                                }" />
+                            <div
+                                *ngIf="emailControl.errors"
+                                class="invalid-feedback">
+                                <p
+                                    *ngIf="emailControl.errors['required']"
+                                    class="mb-0">
+                                    Email is required.
+                                </p>
+                                <p
+                                    *ngIf="emailControl.errors['email']"
+                                    class="mb-0">
+                                    Invalid email address
+                                </p>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <ng-container
-                    *ngFor="let accessLevel of ownAccount.accessLevels">
+                    *ngFor="let accessLevel of newAccount?.accessLevels">
                     <div
                         class="col-md"
                         *ngIf="accessLevel.level === AccessType.OWNER">
@@ -135,12 +178,12 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="street"
-                                        >{{
+                                        for="street">
+                                        {{
                                             'component.fields.street'
                                                 | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="street"
@@ -182,28 +225,30 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="buildingNumber"
-                                        >{{
+                                        for="buildingNumber">
+                                        {{
                                             'component.fields.building-number'
                                                 | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="buildingNumber"
                                         type="text"
                                         [ngClass]="{
                                             'is-invalid':
-                                                ownerBuldingNumberControl.invalid,
+                                                ownerBuildingNumberControl.invalid,
                                             'is-valid':
-                                                ownerBuldingNumberControl.valid
+                                                ownerBuildingNumberControl.valid
                                         }" />
                                     <div
-                                        *ngIf="ownerBuldingNumberControl.errors"
+                                        *ngIf="
+                                            ownerBuildingNumberControl.errors
+                                        "
                                         class="invalid-feedback">
                                         <p
                                             *ngIf="
-                                                ownerBuldingNumberControl
+                                                ownerBuildingNumberControl
                                                     .errors['required']
                                             "
                                             class="mb-0">
@@ -214,7 +259,7 @@
                                         </p>
                                         <p
                                             *ngIf="
-                                                ownerBuldingNumberControl
+                                                ownerBuildingNumberControl
                                                     .errors['min']
                                             "
                                             class="mb-0">
@@ -228,12 +273,12 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="postalCode"
-                                        >{{
+                                        for="postalCode">
+                                        {{
                                             'component.fields.postal-code'
                                                 | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="postalCode"
@@ -279,11 +324,11 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="city"
-                                        >{{
+                                        for="city">
+                                        {{
                                             'component.fields.city' | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="city"
@@ -350,21 +395,17 @@
                         </h2>
                         <form [formGroup]="editManagerDataForm">
                             <div *ngIf="accessLevel.address as address">
-                                <p>
-                                    <strong>{{
-                                        'component.fields.address' | translate
-                                    }}</strong>
-                                </p>
+                                <p><strong>Address</strong></p>
 
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="street"
-                                        >{{
-                                            'component.fields.street'
+                                        for="street">
+                                        {{
+                                            'component.fields.address'
                                                 | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="street"
@@ -408,12 +449,12 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="buildingNumber"
-                                        >{{
+                                        for="buildingNumber">
+                                        {{
                                             'component.fields.building-number'
                                                 | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="buildingNumber"
@@ -421,18 +462,18 @@
                                         type="text"
                                         [ngClass]="{
                                             'is-invalid':
-                                                managerBuldingNumberControl.invalid,
+                                                managerBuildingNumberControl.invalid,
                                             'is-valid':
-                                                managerBuldingNumberControl.valid
+                                                managerBuildingNumberControl.valid
                                         }" />
                                     <div
                                         *ngIf="
-                                            managerBuldingNumberControl.errors
+                                            managerBuildingNumberControl.errors
                                         "
                                         class="invalid-feedback">
                                         <p
                                             *ngIf="
-                                                managerBuldingNumberControl
+                                                managerBuildingNumberControl
                                                     .errors['required']
                                             "
                                             class="mb-0">
@@ -443,7 +484,7 @@
                                         </p>
                                         <p
                                             *ngIf="
-                                                managerBuldingNumberControl
+                                                managerBuildingNumberControl
                                                     .errors['min']
                                             "
                                             class="mb-0">
@@ -457,12 +498,12 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="postalCode"
-                                        >{{
+                                        for="postalCode">
+                                        {{
                                             'component.fields.postal-code'
                                                 | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="postalCode"
@@ -509,11 +550,11 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="city"
-                                        >{{
+                                        for="city">
+                                        {{
                                             'component.fields.city' | translate
-                                        }}</label
-                                    >
+                                        }}
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="city"
@@ -570,12 +611,14 @@
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
-                                        for="licenseNumber"
-                                        ><strong>{{
-                                            'component.account.license-number'
-                                                | translate
-                                        }}</strong></label
-                                    >
+                                        for="licenseNumber">
+                                        <strong>
+                                            {{
+                                                'component.account.license-number'
+                                                    | translate
+                                            }}
+                                        </strong>
+                                    </label>
                                     <input
                                         class="form-control"
                                         formControlName="licenseNumber"

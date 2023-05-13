@@ -95,7 +95,8 @@
       "loading": "Loading accounts...",
       "password-change": "Change password",
       "activate" : "Unlock",
-      "deactivate" : "Lock"
+      "deactivate" : "Lock",
+      "edit-account": "Edit account"
     },
     "account": {
       "language": "Language",
@@ -154,7 +155,8 @@
     "accounts": "Accounts",
     "logout": "Log out",
     "account": "Account",
-    "profile": "Profile"
+    "profile": "Profile",
+    "change-access-level": "Change access level"
   },
   "toast": {
     "auth": {

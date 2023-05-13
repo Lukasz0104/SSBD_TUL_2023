@@ -1,4 +1,5 @@
 export const environment = {
     production: false,
-    apiUrl: 'http://localhost:8080/eBok'
+    apiUrl: 'http://localhost:8080/eBok',
+    languages: ['EN', 'PL']
 };
