@@ -439,4 +439,121 @@ public class IntegrationTests {
             assertEquals(1, numberOfSuccessfulAttempts.get());
         }
     }
+
+    //Wyloguj się
+    @Nested
+    class MOK8 {
+
+        @Test
+        void shouldLogoutWithValidRefreshTokenAndInvalidateIt() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+
+            String refreshToken = given()
+                .contentType(ContentType.JSON)
+                .body(loginDto)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("jwt", Matchers.any(String.class),
+                    "refreshToken", Matchers.any(String.class),
+                    "language", Matchers.any(String.class))
+                .extract()
+                .jsonPath()
+                .getString("refreshToken");
+
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=" + refreshToken)
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            RefreshJwtDto refreshJwtDto = new RefreshJwtDto("pduda", refreshToken);
+            given().body(refreshJwtDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/refresh")
+                .then()
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
+        }
+
+        @Test
+        void shouldLogoutWithNonExistentRefreshToken() {
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=" + UUID.randomUUID())
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenRefreshTokenIsNotUUID() {
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=definetelyNotUUID")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenJwtIsNotAttached() {
+            given()
+                .when()
+                .delete("/logout?token=" + UUID.randomUUID())
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC204ForAllConcurrentRequests() throws BrokenBarrierException, InterruptedException {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+
+            String refreshToken = given()
+                .contentType(ContentType.JSON)
+                .body(loginDto)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("jwt", Matchers.any(String.class),
+                    "refreshToken", Matchers.any(String.class),
+                    "language", Matchers.any(String.class))
+                .extract()
+                .jsonPath()
+                .getString("refreshToken");
+
+            int threadNumber = 5;
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+            List<Thread> threads = new ArrayList<>(threadNumber);
+            AtomicInteger numberFinished = new AtomicInteger();
+            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+            for (int i = 0; i < threadNumber; i++) {
+                threads.add(new Thread(() -> {
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    int statusCode = given().spec(ownerSpec)
+                        .when()
+                        .delete("/logout?token=" + refreshToken).getStatusCode();
+
+                    if (statusCode == 204) {
+                        numberOfSuccessfulAttempts.getAndIncrement();
+                    }
+                    numberFinished.getAndIncrement();
+                }));
+            }
+            threads.forEach(Thread::start);
+            cyclicBarrier.await();
+            while (numberFinished.get() != threadNumber) {
+            }
+
+            assertEquals(numberFinished.get(), numberOfSuccessfulAttempts.get());
+        }
+    }
 }
