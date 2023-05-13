@@ -226,6 +226,12 @@
                                 </button>
                                 <button
                                     *ngIf="showGrantAdminDropdownItem(account)"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.ADMIN
+                                        )
+                                    "
                                     ngbDropdownItem
                                     class="text-danger">
                                     Nadaj poziom dostępu Administrator
@@ -234,12 +240,24 @@
                                     *ngIf="
                                         showGrantManagerDropdownItem(account)
                                     "
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.MANAGER
+                                        )
+                                    "
                                     ngbDropdownItem
                                     class="text-danger">
                                     Nadaj poziom dostępu Zarządca
                                 </button>
                                 <button
                                     *ngIf="showGrantOwnerDropdownItem(account)"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.OWNER
+                                        )
+                                    "
                                     ngbDropdownItem
                                     class="text-danger">
                                     Nadaj poziom dostępu Właściciel
@@ -314,7 +332,3 @@
         <span class="mt-3">{{ 'component.accounts.loading' | translate }}</span>
     </div>
 </ng-template>
-
-<p>chosenOption: {{ chosenOption.getValue() }}</p>
-
-<p>chosenAccessType: {{ chosenAccessType.getValue() }}</p>

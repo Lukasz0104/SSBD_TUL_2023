@@ -7,6 +7,7 @@ import { AccessType } from '../../model/access-type';
 import { AuthService } from '../../services/auth.service';
 import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
+import { GrantAccessLevelComponent } from '../modals/grant-access-level/grant-access-level.component';
 
 @Component({
     selector: 'app-accounts',
@@ -111,6 +112,15 @@ export class AccountsComponent implements OnInit {
                 account = res;
             })
             .catch(() => EMPTY);
+    }
+
+    openGrantAccessLevelModal(account: Account, level: AccessType) {
+        const modal = this.modalService.open(GrantAccessLevelComponent);
+        const instance = modal.componentInstance as GrantAccessLevelComponent;
+        instance.accessType = level;
+        instance.id = account.id;
+
+        modal.closed.subscribe(() => this.reload());
     }
 
     protected hasAccessLevel(account: Account, level: AccessType) {
