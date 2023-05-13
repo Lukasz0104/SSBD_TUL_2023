@@ -1,12 +1,14 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
-import { AccountService } from '../../services/account.service';
-import { Account } from '../../model/account';
+import { BehaviorSubject, EMPTY, Observable, filter, switchMap } from 'rxjs';
 import { AccessType } from '../../model/access-type';
+import { Account } from '../../model/account';
+import { AccessLevelService } from '../../services/access-level.service';
+import { AccountService } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
-import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { ToastService } from '../../services/toast.service';
 import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
+import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { GrantAccessLevelComponent } from '../modals/grant-access-level/grant-access-level.component';
 
 @Component({
@@ -15,7 +17,7 @@ import { GrantAccessLevelComponent } from '../modals/grant-access-level/grant-ac
 })
 export class AccountsComponent implements OnInit {
     protected readonly accessTypeEnum = AccessType;
-    @Output() editAccountEvent = new EventEmitter<null>();
+
     accounts$: Observable<Account[]> | undefined;
     page = 1;
     pageSize = 3;
@@ -26,7 +28,9 @@ export class AccountsComponent implements OnInit {
     constructor(
         private accountService: AccountService,
         protected authService: AuthService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private accessLevelService: AccessLevelService,
+        private toastService: ToastService
     ) {}
 
     ngOnInit() {
@@ -114,13 +118,50 @@ export class AccountsComponent implements OnInit {
             .catch(() => EMPTY);
     }
 
-    openGrantAccessLevelModal(account: Account, level: AccessType) {
+    openGrantAccessLevelModal(
+        account: Account,
+        level: AccessType,
+        grantNewAccessLevelMode = true
+    ) {
         const modal = this.modalService.open(GrantAccessLevelComponent);
         const instance = modal.componentInstance as GrantAccessLevelComponent;
+
         instance.accessType = level;
         instance.id = account.id;
+        instance.grantNewAccessLevelMode = grantNewAccessLevelMode;
+        instance.accessLevel = account.accessLevels.filter(
+            (l) => l.level === level
+        )[0];
 
         modal.closed.subscribe(() => this.reload());
+    }
+
+    openRevokeAccessLevelModal(account: Account, level: AccessType) {
+        const modal = this.modalService.open(ConfirmActionComponent);
+        const instance = modal.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'Czy na pewno chcesz usunąć poziom dostępu';
+        instance.danger = `access-levels.${level}`;
+
+        modal.closed
+            .pipe(
+                filter((flag) => flag),
+                switchMap(() =>
+                    this.accessLevelService.reject(account.id, level)
+                )
+            )
+            .subscribe((res) => {
+                console.log(res);
+                if (res) {
+                    this.toastService.showSuccess(
+                        'Operacja wykonana pomyślnie'
+                    );
+                } else {
+                    this.toastService.showDanger('Coś poszło nie tak...');
+                }
+                this.reload();
+            });
+        // TODO translate
     }
 
     protected hasAccessLevel(account: Account, level: AccessType) {

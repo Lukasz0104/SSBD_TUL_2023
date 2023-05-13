@@ -383,7 +383,7 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.showDanger(err.error.message);
+                    this.toastService.showDanger(err.error.message); // TODO add translation for response.message.bad-access-level
                     return of(false);
                 })
             );

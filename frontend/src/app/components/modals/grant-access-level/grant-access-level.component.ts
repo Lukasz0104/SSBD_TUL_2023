@@ -14,11 +14,28 @@ export class GrantAccessLevelComponent {
     protected readonly AccessTypeEnum = AccessType;
     private _accessType!: AccessType;
 
+    /**
+     * Specifies whether the modal is used to add new access level or to verfiy existing one.
+     */
+    @Input()
+    grantNewAccessLevelMode = true;
+
     @Input()
     id!: number;
 
+    private _accessLevel: AccessLevel | null = null;
+
     @Input()
-    accessLevel: AccessLevel | null = null;
+    set accessLevel(value: AccessLevel | undefined) {
+        if (value) {
+            this._accessLevel = value;
+
+            this.ownerOrManagerForm.patchValue({
+                address: value.address,
+                licenseNumber: value.licenseNumber
+            });
+        }
+    }
 
     @Input()
     set accessType(value) {
@@ -102,9 +119,22 @@ export class GrantAccessLevelComponent {
                     this.toastService.showSuccess(
                         'Pomyślnie nadano poziom dostępu'
                     ); // TODO translate
-                    this.activeModal.close(true);
+                    this.activeModal.close();
                 } else {
                     this.toastService.showDanger(message); // TODO translate
+                }
+            });
+    }
+
+    reject() {
+        this.accessLevelService
+            .reject(this.id, this.accessType)
+            .subscribe((success) => {
+                if (success) {
+                    this.toastService.showSuccess(
+                        'Operacja zakończona pomyślnie'
+                    );
+                    this.activeModal.close();
                 }
             });
     }

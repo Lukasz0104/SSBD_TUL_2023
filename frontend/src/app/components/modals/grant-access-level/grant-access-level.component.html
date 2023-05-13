@@ -2,8 +2,11 @@
     <h3
         class="modal-title"
         id="modal-basic-title">
-        Nadaj poziom dostępu
-        {{ 'access-levels.' + accessType | translate }}
+        <ng-container *ngIf="grantNewAccessLevelMode; else verifyBlock">
+            Nadaj poziom dostępu
+            {{ 'access-levels.' + accessType | translate }}
+        </ng-container>
+        <ng-template #verifyBlock>Zweryfikuj</ng-template>
     </h3>
 </div>
 
@@ -182,6 +185,10 @@
                 </p>
             </div>
         </div>
+        <!-- hidden button to allow submiting with enter -->
+        <button
+            class="d-none"
+            type="submit"></button>
     </form>
 </div>
 
@@ -192,11 +199,20 @@
         {{ 'component.account.cancel' | translate }}
     </button>
     <button
+        *ngIf="!grantNewAccessLevelMode"
+        class="btn btn-danger"
+        (click)="reject()">
+        Odrzuć
+    </button>
+    <button
         [disabled]="
             accessType !== AccessTypeEnum.ADMIN && ownerOrManagerForm.invalid
         "
         (click)="grant()"
         class="btn btn-success">
-        Nadaj poziom dostępu
+        <ng-container *ngIf="grantNewAccessLevelMode; else verifyBlock">
+            Nadaj poziom dostępu
+        </ng-container>
+        <ng-template #verifyBlock> Zatwierdź </ng-template>
     </button>
 </div>

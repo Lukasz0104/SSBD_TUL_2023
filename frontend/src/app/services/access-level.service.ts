@@ -29,17 +29,31 @@ export class AccessLevelService {
         type: AccessType,
         level: GrantAccessLevel
     ): Observable<null | ResponseMessage> {
-        const path =
-            type === AccessType.ADMIN
-                ? 'administrator'
-                : type === AccessType.MANAGER
-                ? 'manager'
-                : 'owner';
-        const url = `${this.BASE_URL}/${id}/access-levels/${path}`;
+        return this.http
+            .put<MessageResponse | null>(this.buildUrl(id, type), level)
+            .pipe(
+                map((res) => res?.message ?? null),
+                catchError((e: HttpErrorResponse) => of(e.error.message))
+            );
+    }
 
-        return this.http.put<MessageResponse | null>(url, level).pipe(
-            map((res) => res?.message ?? null),
-            catchError((e: HttpErrorResponse) => of(e.error.message))
+    reject(id: number, type: AccessType) {
+        return this.http.delete(this.buildUrl(id, type)).pipe(
+            map(() => true),
+            catchError(() => of(false))
         );
+    }
+
+    private buildUrl(id: number, type: AccessType) {
+        switch (type) {
+            case AccessType.ADMIN:
+                return `${this.BASE_URL}/${id}/access-levels/administrator`;
+            case AccessType.MANAGER:
+                return `${this.BASE_URL}/${id}/access-levels/manager`;
+            case AccessType.OWNER:
+                return `${this.BASE_URL}/${id}/access-levels/owner`;
+            default:
+                return '';
+        }
     }
 }

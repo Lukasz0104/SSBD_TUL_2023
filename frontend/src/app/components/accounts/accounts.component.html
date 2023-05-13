@@ -218,7 +218,6 @@
                                     "
                                     ngbDropdownItem>
                                     <app-change-active-status
-                                        *ngIf="authService.isAdmin()"
                                         (statusChangedEvent)="reload()"
                                         [id]="account.id"
                                         [status]="account.active">
@@ -264,6 +263,12 @@
                                 </button>
                                 <button
                                     *ngIf="showRevokeAdminDropdownItem(account)"
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.ADMIN
+                                        )
+                                    "
                                     ngbDropdownItem
                                     class="text-danger">
                                     Odbierz poziom dostępu Administrator
@@ -272,18 +277,37 @@
                                     *ngIf="
                                         showRevokeManagerDropdownItem(account)
                                     "
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.MANAGER
+                                        )
+                                    "
                                     ngbDropdownItem
                                     class="text-danger">
                                     Odbierz poziom dostępu Zarządca
                                 </button>
                                 <button
                                     *ngIf="showRevokeOwnerDropdownItem(account)"
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.OWNER
+                                        )
+                                    "
                                     ngbDropdownItem
                                     class="text-danger">
                                     Odbierz poziom dostępu Właściciel
                                 </button>
                                 <button
                                     *ngIf="chosenOption.getValue() === 3"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            chosenAccessType.getValue(),
+                                            false
+                                        )
+                                    "
                                     ngbDropdownItem
                                     class="text-danger">
                                     Zweryfikuj
