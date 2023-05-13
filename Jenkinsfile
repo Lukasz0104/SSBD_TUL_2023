@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh "cd  ${backend} && mvn clean install"
-                sh "cd ${frontend} && npm install && ng build --configuration=production"
+                sh "cd ${frontend} && npm install && npm run build --configuration=production"
             }
         }
         stage('Deploy') {
