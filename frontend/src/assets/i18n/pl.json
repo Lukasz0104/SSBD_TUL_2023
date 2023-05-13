@@ -95,7 +95,8 @@
       "loading": "Ładowanie kont...",
       "password-change": "Zmień hasło",
       "activate" : "Odblokuj",
-      "deactivate" : "Zablokuj"
+      "deactivate" : "Zablokuj",
+      "edit-account": "Edytuj konto"
     },
     "account": {
       "language": "Język",
@@ -154,7 +155,8 @@
     "accounts": "Konta",
     "logout": "Wyloguj się",
     "account": "Konto",
-    "profile": "Profil"
+    "profile": "Profil",
+    "change-access-level": "Zmień poziom dostępu"
   },
   "toast": {
     "auth": {

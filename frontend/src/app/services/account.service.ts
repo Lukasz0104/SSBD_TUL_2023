@@ -10,7 +10,10 @@ import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { Account, EditPersonalData, OwnAccount } from '../model/account';
 import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
-import { AccessType } from '../model/access-type';
+import { AccessType, ChangeAccessLevelDto } from '../model/access-type';
+import { AuthService } from './auth.service';
+import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ChangeEmailForm } from '../model/email-form';
 import { ActiveStatusDto } from '../model/active-status-dto';
 import {
@@ -30,7 +33,9 @@ export class AccountService {
     constructor(
         private http: HttpClient,
         private router: Router,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private authService: AuthService,
+        private modalService: NgbModal
     ) {}
 
     resetPassword(email: string) {
@@ -239,6 +244,32 @@ export class AccountService {
             );
     }
 
+    editPersonalDataAsAdmin(dto: EditPersonalData) {
+        return this.http
+            .put<Account>(`${this.accountsUrl}/admin/edit-other`, dto, {
+                headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
+                observe: 'response'
+            })
+            .pipe(
+                map((): boolean => {
+                    this.toastService.showSuccess(
+                        'toast.edit-account-as-admin-success'
+                    );
+                    return true;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.showDanger(err.error.message);
+                    switch (err.error.message) {
+                        case ResponseMessage.OPTIMISTIC_LOCK:
+                            return of(true);
+                        case ResponseMessage.SIGNATURE_MISMATCH:
+                            return of(true);
+                    }
+                    return of(false);
+                })
+            );
+    }
+
     getAccountsByTypeAndActive(type: AccessType, active: boolean) {
         let url;
         switch (type) {
@@ -356,5 +387,63 @@ export class AccountService {
                     return of(false);
                 })
             );
+    }
+
+    changePassword(dto: object): Observable<boolean> {
+        return this.http
+            .put(`${this.accountsUrl}/me/change-password`, dto)
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess(
+                        'toast.change-password-success'
+                    );
+                    return true;
+                }),
+                catchError((res: HttpErrorResponse) => {
+                    this.toastService.showDanger(`toast.${res.error.message}`);
+                    return of(false);
+                })
+            );
+    }
+
+    changeAccessLevel(): void {
+        const groups: AccessType[] = this.authService
+            .getGroups()
+            .filter((x) => x !== this.authService.getCurrentGroup());
+        if (groups.length < 1) {
+            return;
+        }
+        const modalRef: NgbModalRef = this.modalService.open(
+            ChooseAccessLevelComponent,
+            { centered: true }
+        );
+
+        modalRef.componentInstance.groups = groups;
+        modalRef.result
+            .then((grp: AccessType): void => {
+                this.http
+                    .put<ChangeAccessLevelDto>(
+                        `${this.accountsUrl}/me/change-access-level`,
+                        { accessType: grp }
+                    )
+                    .pipe(
+                        map((res: ChangeAccessLevelDto): void => {
+                            this.authService.setCurrentGroup(res.accessType);
+                            this.toastService.showSuccess(
+                                'toast.switch-access-level-success'
+                            );
+                            this.router.navigate([this.router.url]);
+                        }),
+                        catchError(() => {
+                            this.toastService.showDanger(
+                                'toast.switch-access-level-fail'
+                            );
+                            this.authService.logout();
+                            return EMPTY;
+                        })
+                    )
+                    .subscribe();
+            })
+            .catch(() => false);
     }
 }

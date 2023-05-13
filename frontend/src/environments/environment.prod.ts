@@ -1,4 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://team-5.proj-sum.it.p.lodz.pl/api'
+    apiUrl: 'https://team-5.proj-sum.it.p.lodz.pl/api',
+    languages: ['EN', 'PL']
 };

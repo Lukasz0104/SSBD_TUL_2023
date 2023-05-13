@@ -138,6 +138,26 @@
                 </div>
             </div>
         </div>
+        <div
+            ngbAccordionItem="changePassword"
+            [collapsed]="false">
+            <h2 ngbAccordionHeader>
+                <button
+                    ngbAccordionButton
+                    class="fs-5">
+                    Change password
+                </button>
+            </h2>
+            <div ngbAccordionCollapse>
+                <div
+                    ngbAccordionBody
+                    class="d-flex justify-content-center align-items-center">
+                    <ng-template>
+                        <app-change-password />
+                    </ng-template>
+                </div>
+            </div>
+        </div>
     </div>
 </ng-container>
 <ng-template #loadingAccountData>

@@ -5,3 +5,7 @@ export enum AccessType {
     NONE = '',
     ALL = 'ALL'
 }
+
+export interface ChangeAccessLevelDto {
+    accessType: AccessType;
+}

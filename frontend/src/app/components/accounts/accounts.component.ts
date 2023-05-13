@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AccountService } from '../../services/account.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
 import { Account } from '../../model/account';
 import { AccessType } from '../../model/access-type';
 import { AuthService } from '../../services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
 
 @Component({
@@ -12,6 +13,7 @@ import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.
     templateUrl: './accounts.component.html'
 })
 export class AccountsComponent implements OnInit {
+    @Output() editAccountEvent = new EventEmitter<null>();
     accounts$: Observable<Account[]> | undefined;
     page = 1;
     pageSize = 3;
@@ -91,5 +93,22 @@ export class AccountsComponent implements OnInit {
                 this.accountService.forcePasswordChange(login);
             }
         });
+    }
+
+    editPersonalDataAsAdmin(account: Account): void {
+        const modalRef: NgbModalRef = this.modalService.open(
+            EditPersonalDataAsAdminComponent,
+            {
+                centered: true,
+                size: 'xl',
+                scrollable: true
+            }
+        );
+        modalRef.componentInstance.setAccount(account);
+        modalRef.result
+            .then((res): void => {
+                account = res;
+            })
+            .catch(() => EMPTY);
     }
 }

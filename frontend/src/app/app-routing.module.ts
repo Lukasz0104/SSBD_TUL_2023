@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Route, RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
@@ -16,6 +16,7 @@ import { canActivateManagerAdmin } from './guards/manager-admin.guard';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
 
 const routes: Routes = [
     {
@@ -67,7 +68,17 @@ const routes: Routes = [
                 data: {
                     title: 'My profile'
                 },
-                canActivate: [canActivateAuthenticated]
+                canActivate: [canActivateAuthenticated],
+                children: [
+                    {
+                        path: 'change-password',
+                        component: ChangePasswordComponent,
+                        data: {
+                            title: 'Change password'
+                        },
+                        canActivate: [canActivateAuthenticated]
+                    }
+                ]
             },
             {
                 path: 'accounts/account',
@@ -113,8 +124,21 @@ const routes: Routes = [
     }
 ];
 
+const addProperty = (routes: Route): Route => {
+    routes.runGuardsAndResolvers = 'always';
+    if (routes.children)
+        routes.children = routes.children.map((r) => addProperty(r));
+
+    return routes;
+};
+
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
+    imports: [
+        RouterModule.forRoot(
+            routes.map((r) => addProperty(r)),
+            { onSameUrlNavigation: 'reload' }
+        )
+    ],
     exports: [RouterModule]
 })
 export class AppRoutingModule {}

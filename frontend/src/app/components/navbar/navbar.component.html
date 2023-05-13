@@ -36,6 +36,13 @@
                 </button>
                 <button
                     class="text-white"
+                    (click)="changeAccessLevel()"
+                    *ngIf="authService.getGroups().length > 1"
+                    ngbDropdownItem>
+                    {{ 'nav.change-access-level' | translate }}
+                </button>
+                <button
+                    class="text-white"
                     (click)="logout()"
                     ngbDropdownItem>
                     {{ 'nav.logout' | translate }}
