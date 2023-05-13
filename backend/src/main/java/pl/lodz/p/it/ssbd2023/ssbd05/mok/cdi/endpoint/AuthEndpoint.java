@@ -69,43 +69,31 @@ public class AuthEndpoint {
 
         int txLimit = properties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
-        if (credentialValidationResult.getStatus() != CredentialValidationResult.Status.VALID) {
-            do {
-                try {
-                    authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
-                    rollbackTX = authManager.isLastTransactionRollback();
-                } catch (AppOptimisticLockException aole) {
-                    rollbackTX = true;
-                    if (txLimit < 2) {
-                        throw aole;
-                    }
-                }
-            } while (rollbackTX && --txLimit > 0);
-
-            if (rollbackTX && txLimit == 0) {
-                throw new AppRollbackLimitExceededException();
-            }
-            throw new AuthenticationException();
-
-        } else {
-            JwtRefreshTokenDto jwtRefreshTokenDto = null;
-            do {
-                try {
+        JwtRefreshTokenDto jwtRefreshTokenDto = null;
+        do {
+            try {
+                if (credentialValidationResult.getStatus() == CredentialValidationResult.Status.VALID) {
                     jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
-                    rollbackTX = authManager.isLastTransactionRollback();
-                } catch (AppOptimisticLockException aole) {
-                    rollbackTX = true;
-                    if (txLimit < 2) {
-                        throw aole;
-                    }
+                } else {
+                    authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
                 }
-            } while (rollbackTX && --txLimit > 0);
-
-            if (rollbackTX && txLimit == 0) {
-                throw new AppRollbackLimitExceededException();
+                rollbackTX = authManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
             }
-            return Response.ok(jwtRefreshTokenDto).build();
+        } while (rollbackTX && --txLimit > 0);
+
+        if (rollbackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
         }
+
+        if (credentialValidationResult.getStatus() != CredentialValidationResult.Status.VALID) {
+            throw new AuthenticationException();
+        }
+        return Response.ok(jwtRefreshTokenDto).build();
     }
 
     @POST
