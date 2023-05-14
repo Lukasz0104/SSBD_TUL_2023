@@ -30,6 +30,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshTokenDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.IpUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 
@@ -67,7 +68,7 @@ public class AuthEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @PermitAll
     public Response login(@NotNull @Valid LoginDto dto) throws AppBaseException {
-        String ip = httpServletRequest.getHeader("X-Real-IP");
+        String ip = IpUtils.getIpAddress(httpServletRequest);
 
         CredentialValidationResult credentialValidationResult =
             identityStoreHandler.validate(new UsernamePasswordCredential(dto.getLogin(), dto.getPassword()));
@@ -110,7 +111,7 @@ public class AuthEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @PermitAll
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
-        String ip = httpServletRequest.getHeader("X-Real-IP");
+        String ip = IpUtils.getIpAddress(httpServletRequest);
         UUID token = UUID.fromString(dto.getRefreshToken());
 
         int txLimit = properties.getTransactionRepeatLimit();
@@ -142,7 +143,7 @@ public class AuthEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response logout(@ValidUUID @QueryParam("token") String token)
         throws AppBaseException {
-        String ip = httpServletRequest.getHeader("X-Real-IP");
+        String ip = IpUtils.getIpAddress(httpServletRequest);
         String login = securityContext.getUserPrincipal().getName();
 
         int txLimit = properties.getTransactionRepeatLimit();
