@@ -76,6 +76,10 @@
       "password": "Password*",
       "email": "Email*",
       "repeat-password": "Repeat password*"
+    },
+    "register": {
+      "sign-in": "Sign in",
+      "account-info": "Already have an account?"
     }
   },
   "component": {

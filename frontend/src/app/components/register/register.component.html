@@ -11,7 +11,8 @@
                 <ng-container [ngSwitch]="forms[formIndex]">
                     <form
                         *ngSwitchCase="personalDetailsForm"
-                        [formGroup]="personalDetailsForm">
+                        [formGroup]="personalDetailsForm"
+                        class="mb-3">
                         <div class="mb-2 has-validation">
                             <label
                                 for="firstNameInput"
@@ -114,7 +115,8 @@
                     </form>
                     <form
                         *ngSwitchCase="authDetailsForm"
-                        [formGroup]="authDetailsForm">
+                        [formGroup]="authDetailsForm"
+                        class="mb-3">
                         <div class="mb-2 has-validation">
                             <label
                                 for="emailInput"
@@ -308,7 +310,8 @@
                     <form
                         *ngSwitchCase="ownerOrManagerForm"
                         [formGroup]="ownerOrManagerForm"
-                        (ngSubmit)="register()">
+                        (ngSubmit)="register()"
+                        class="mb-3">
                         <ng-container formGroupName="address">
                             <div class="mb-2 has-validation">
                                 <label
@@ -523,6 +526,18 @@
                         </div>
                     </form>
                 </ng-container>
+                <div>
+                    <p
+                        class="mb-0 text-center"
+                        i18n>
+                        {{ 'form.register.account-info' | translate }}
+                        <a
+                            class="text-primary fw-bold"
+                            routerLink="/login">
+                            {{ 'form.register.sign-in' | translate }}
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>

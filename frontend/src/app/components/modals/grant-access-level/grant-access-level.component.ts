@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { AccessLevel } from '../../../model/account';
 import { AccessType } from '../../../model/access-type';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormGroup, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { AccessLevelService } from '../../../services/access-level.service';
 import { ToastService } from '../../../services/toast.service';
+import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
+import { filter } from 'rxjs';
 
 @Component({
     selector: 'app-grant-access-level',
@@ -63,7 +65,8 @@ export class GrantAccessLevelComponent {
         protected activeModal: NgbActiveModal,
         private fb: NonNullableFormBuilder,
         private accessLevelService: AccessLevelService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private modalService: NgbModal
     ) {}
 
     protected ownerOrManagerForm = new FormGroup({
@@ -98,32 +101,38 @@ export class GrantAccessLevelComponent {
     });
 
     grant() {
-        // TODO confirm action
-        let dto = undefined;
+        const confirmModal = this.modalService.open(ConfirmActionComponent);
+        confirmModal.componentInstance.message =
+            'Potwierdź nadanie poziomu dostępu'; // TODO translate
+        confirmModal.componentInstance.danger = `access-levels.${this.accessType}`;
 
-        switch (this._accessType) {
-            case AccessType.MANAGER:
-                dto = this.ownerOrManagerForm.getRawValue();
-                break;
-            case AccessType.OWNER:
-                dto = {
-                    address: this.ownerOrManagerForm.getRawValue().address
-                };
-                break;
-        }
+        confirmModal.closed.pipe(filter((res) => res)).subscribe(() => {
+            let dto = undefined;
 
-        this.accessLevelService
-            .grantAccessLevel(this.id, this._accessType, dto)
-            .subscribe((message) => {
-                if (!message) {
-                    this.toastService.showSuccess(
-                        'Pomyślnie nadano poziom dostępu'
-                    ); // TODO translate
-                    this.activeModal.close();
-                } else {
-                    this.toastService.showDanger(message); // TODO translate
-                }
-            });
+            switch (this._accessType) {
+                case AccessType.MANAGER:
+                    dto = this.ownerOrManagerForm.getRawValue();
+                    break;
+                case AccessType.OWNER:
+                    dto = {
+                        address: this.ownerOrManagerForm.getRawValue().address
+                    };
+                    break;
+            }
+
+            this.accessLevelService
+                .grantAccessLevel(this.id, this._accessType, dto)
+                .subscribe((message) => {
+                    if (!message) {
+                        this.toastService.showSuccess(
+                            'Pomyślnie nadano poziom dostępu'
+                        ); // TODO translate
+                        this.activeModal.close();
+                    } else {
+                        this.toastService.showDanger(message); // TODO translate
+                    }
+                });
+        });
     }
 
     reject() {
