@@ -93,10 +93,10 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
                 Token blockedAccountToken = new Token(account, TokenType.BLOCKED_ACCOUNT_TOKEN);
                 tokenFacade.create(blockedAccountToken);
 
-                accountFacade.edit(account);
                 emailService.notifyBlockedAccIncorrectLoginLimit(
                     account.getEmail(), account.getFullName(), account.getLanguage().toString());
             }
+            accountFacade.edit(account);
         }
     }
 

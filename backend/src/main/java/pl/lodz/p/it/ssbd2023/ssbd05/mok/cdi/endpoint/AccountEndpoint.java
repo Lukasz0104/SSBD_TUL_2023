@@ -409,7 +409,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
