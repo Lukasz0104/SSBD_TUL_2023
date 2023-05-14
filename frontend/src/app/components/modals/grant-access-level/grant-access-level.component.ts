@@ -92,7 +92,7 @@ export class GrantAccessLevelComponent {
                 validators: [Validators.required, Validators.maxLength(85)]
             }),
             buildingNumber: this.fb.control(0, {
-                validators: [Validators.min(1)]
+                validators: [Validators.required, Validators.min(1)]
             })
         }),
         licenseNumber: this.fb.control(this.accessLevel?.licenseNumber ?? '', {

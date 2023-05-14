@@ -18,6 +18,7 @@ import { ConfirmRegistrationComponent } from './components/confirm-registration/
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { canActivateGuestWithRedirect } from './guards/redirecting-guest.guard';
 
 const routes: Routes = [
     {
@@ -32,7 +33,8 @@ const routes: Routes = [
                 component: LandingPageComponent,
                 data: {
                     title: 'eBok'
-                }
+                },
+                canActivate: [canActivateGuestWithRedirect]
             },
             {
                 path: 'login',
@@ -58,7 +60,7 @@ const routes: Routes = [
             },
             {
                 path: 'confirm-account',
-                component: ConfirmRegistrationComponent // TODO add guard to check if token is present
+                component: ConfirmRegistrationComponent
             }
         ]
     },

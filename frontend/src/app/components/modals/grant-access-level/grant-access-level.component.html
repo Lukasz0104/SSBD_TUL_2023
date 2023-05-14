@@ -27,6 +27,7 @@
                     id="zipcodeInput"
                     formControlName="postalCode"
                     type="text"
+                    required
                     class="form-control"
                     placeholder="Postal code"
                     [ngClass]="{
@@ -59,6 +60,7 @@
                     formControlName="city"
                     placeholder="City"
                     type="text"
+                    required
                     class="form-control"
                     [ngClass]="{
                         'is-invalid': cityControl.invalid,
@@ -100,6 +102,7 @@
                     id="streetInput"
                     formControlName="street"
                     type="text"
+                    required
                     class="form-control"
                     placeholder="Street"
                     [ngClass]="{
@@ -133,7 +136,8 @@
                     id="buildingNumberInput"
                     formControlName="buildingNumber"
                     type="number"
-                    min="0"
+                    min="1"
+                    required
                     class="form-control"
                     placeholder="Buidling number"
                     [ngClass]="{
@@ -169,6 +173,7 @@
                 id="licenseNumberInput"
                 formControlName="licenseNumber"
                 type="text"
+                required
                 class="form-control"
                 placeholder="License number"
                 [ngClass]="{
