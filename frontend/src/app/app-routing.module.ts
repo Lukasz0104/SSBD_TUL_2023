@@ -17,6 +17,7 @@ import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 
 const routes: Routes = [
     {
@@ -26,6 +27,13 @@ const routes: Routes = [
             title: 'Home'
         },
         children: [
+            {
+                path: '',
+                component: LandingPageComponent,
+                data: {
+                    title: 'eBok'
+                }
+            },
             {
                 path: 'login',
                 component: LoginComponent,

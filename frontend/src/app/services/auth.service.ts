@@ -255,7 +255,11 @@ export class AuthService {
     }
 
     clearUserData() {
-        localStorage.clear();
+        localStorage.removeItem('login');
+        localStorage.removeItem('jwt');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('currentGroup');
+        localStorage.removeItem('language');
     }
 
     logout() {

@@ -1,9 +1,13 @@
 <section class="toast-container">
     <ngb-toast
-        (click)="removeToast(toast)"
         *ngFor="let toast of getToasts()"
         [autohide]="false"
         [class]="toast.className">
-        {{ toast.body | translate }}
+        <div class="d-flex align-items-center justify-content-between fs-6">
+            {{ toast.body | translate }}
+            <i
+                class="bi bi-x-circle fs-5 cursor-pointer"
+                (click)="removeToast(toast)"></i>
+        </div>
     </ngb-toast>
 </section>

@@ -118,7 +118,9 @@
 </div>
 
 <ng-container *ngIf="accounts$ | async as accounts; else loadingAccounts">
-    <div class="table-responsive border rounded">
+    <div
+        class="d-flex flex-column justify-content-between table-responsive border rounded"
+        style="min-height: 300px">
         <table class="table text-center table-hover">
             <thead>
                 <tr class="bg-light">

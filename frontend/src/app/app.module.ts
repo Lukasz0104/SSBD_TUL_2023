@@ -38,6 +38,8 @@ import { ChangeActiveStatusComponent } from './components/change-active-status/c
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { EditPersonalDataAsAdminComponent } from './components/modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { TruncatePipe } from './pipes/truncate.pipe';
 
 @NgModule({
     declarations: [
@@ -66,7 +68,9 @@ import { GrantAccessLevelComponent } from './components/modals/grant-access-leve
         EditPersonalDataComponent,
         HomeComponent,
         ConfirmRegistrationComponent,
-        GrantAccessLevelComponent
+        GrantAccessLevelComponent,
+        LandingPageComponent,
+        TruncatePipe
     ],
     imports: [
         BrowserModule,
