@@ -1,5 +1,7 @@
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -383,7 +386,8 @@ public class IntegrationTests {
                 .post("/refresh")
                 .then()
                 .assertThat()
-                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.AUTHENTICATION_EXCEPTION));
         }
 
         @Test
@@ -475,7 +479,8 @@ public class IntegrationTests {
                 .when()
                 .post("/refresh")
                 .then()
-                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.AUTHENTICATION_EXCEPTION));
         }
 
         @Test
@@ -491,7 +496,7 @@ public class IntegrationTests {
         void shouldReturnSC400WhenRefreshTokenIsNotUUID() {
             given().spec(ownerSpec)
                 .when()
-                .delete("/logout?token=definetelyNotUUID")
+                .delete("/logout?token=definitelyNotUUID")
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
         }
@@ -554,6 +559,218 @@ public class IntegrationTests {
             }
 
             assertEquals(numberFinished.get(), numberOfSuccessfulAttempts.get());
+        }
+    }
+
+    //Wyświetl listę kont
+    @Nested
+    class MOK15 {
+
+        @Test
+        void shouldGetAllAccountsAsAdmin() {
+            List<AccountDto> accounts =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAccountsAsManager() {
+            List<AccountDto> accounts =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAdminsAsAdmin() {
+            List<AccountDto> admins =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/admins")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(admins);
+        }
+
+        @Test
+        void shouldGetAllManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsAdmin() {
+            List<AccountDto> owners =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts/owners/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllAccountsAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsAdmin() {
+            given().spec(adminSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountsAsGuest() {
+            given()
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsGuest() {
+            given()
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
     }
 }

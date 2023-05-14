@@ -102,7 +102,6 @@ insert into public.access_level (id, level, version, account_id, active, verifie
 insert into public.access_level (id, level, version, account_id, active, verified) values (-5, 'MANAGER', 0, -4, TRUE, TRUE);
 
 insert into public.access_level (id, level, version, account_id, active, verified) values (-6, 'MANAGER', 0, -5, TRUE, TRUE);
-insert into public.access_level (id, level, version, account_id, active, verified) values (-8, 'ADMIN', 0, -5, TRUE, TRUE);
 
 insert into public.access_level (id, level, version, account_id, active, verified) values (-7, 'ADMIN', 0, -6, TRUE, TRUE);
 
@@ -144,7 +143,6 @@ insert into public.manager_data (id, license_number, building_number, city, post
 
 -- Admin Data
 insert into public.admin_data (id) values (-7);
-insert into public.admin_data (id) values (-8);
 insert into public.admin_data (id) values (-9);
 insert into public.admin_data (id) values (-16);
 
