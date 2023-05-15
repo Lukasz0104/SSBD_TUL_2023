@@ -205,7 +205,9 @@
                                 </button>
                                 <button
                                     *ngIf="
-                                        account.login !== authService.getLogin()
+                                        account.login !==
+                                            authService.getLogin() &&
+                                        authService.isAdmin()
                                     "
                                     ngbDropdownItem
                                     (click)="editPersonalDataAsAdmin(account)">

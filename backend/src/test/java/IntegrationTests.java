@@ -13,15 +13,12 @@ import jakarta.ws.rs.core.Response;
 import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
@@ -32,11 +29,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -76,7 +71,7 @@ public class IntegrationTests {
     }
 
     static void generateManagerSpec() {
-        LoginDto loginDto = new LoginDto("mkrol", "P@ssw0rd");
+        LoginDto loginDto = new LoginDto("pduda", "P@ssw0rd");
 
         String managerJWT = RestAssured.given().body(loginDto)
             .contentType(ContentType.JSON)
@@ -980,6 +975,7 @@ public class IntegrationTests {
         void shouldGetUnapprovedOwnersAsManager() {
             List<AccountDto> owners =
                 given().spec(managerSpec)
+                    .contentType(ContentType.JSON)
                     .when()
                     .get("/accounts/owners/unapproved")
                     .getBody().as(ArrayList.class);
