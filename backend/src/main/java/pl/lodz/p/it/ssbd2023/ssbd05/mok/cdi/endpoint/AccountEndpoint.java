@@ -58,7 +58,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
 import java.util.List;
-import java.util.UUID;
 
 @RequestScoped
 @Path("/accounts")
@@ -134,7 +133,7 @@ public class AccountEndpoint {
         boolean rollbackTX = false;
         do {
             try {
-                accountManager.confirmRegistration(UUID.fromString(token));
+                accountManager.confirmRegistration(token);
                 rollbackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollbackTX = true;
@@ -171,7 +170,7 @@ public class AccountEndpoint {
         do {
             try {
                 accountManager.resetPassword(resetPasswordDto.getPassword(),
-                    UUID.fromString(resetPasswordDto.getToken()));
+                    resetPasswordDto.getToken());
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollBackTX = true;
@@ -234,7 +233,7 @@ public class AccountEndpoint {
         boolean rollbackTX = false;
         do {
             try {
-                accountManager.confirmEmail(dto.getEmail(), UUID.fromString(token),
+                accountManager.confirmEmail(dto.getEmail(), token,
                     securityContext.getUserPrincipal().getName());
                 rollbackTX = accountManager.isLastTransactionRollback();
 
@@ -545,7 +544,7 @@ public class AccountEndpoint {
         do {
             try {
                 accountManager.overrideForcedPassword(resetPasswordDto.getPassword(),
-                    UUID.fromString(resetPasswordDto.getToken()));
+                    resetPasswordDto.getToken());
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollBackTX = true;

@@ -45,7 +45,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Stateful
@@ -92,7 +91,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void confirmRegistration(UUID confirmToken)
+    public void confirmRegistration(String confirmToken)
         throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
@@ -121,7 +120,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void confirmEmail(String email, UUID confirmToken, String login)
+    public void confirmEmail(String email, String confirmToken, String login)
         throws AppBaseException {
 
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
@@ -196,7 +195,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void resetPassword(String password, UUID token) throws AppBaseException {
+    public void resetPassword(String password, String token) throws AppBaseException {
         Token resetPasswordToken = tokenFacade.findByTokenAndTokenType(token, TokenType.PASSWORD_RESET_TOKEN)
             .orElseThrow(TokenNotFoundException::new);
         resetPasswordToken.validateSelf();
@@ -492,7 +491,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void overrideForcedPassword(String password, UUID token) throws AppBaseException {
+    public void overrideForcedPassword(String password, String token) throws AppBaseException {
         Token overridePasswordChangeToken =
             tokenFacade.findByTokenAndTokenType(token, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN)
                 .orElseThrow(TokenNotFoundException::new);

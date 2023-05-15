@@ -11,6 +11,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.AuthManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
@@ -24,8 +25,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwtUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Stateful
@@ -62,9 +65,14 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AuthenticationException::new);
 
+        if (account.isTwoFactorAuth() && !confirmed) {
+            this.sendCodeToUser(login);
+            return null;
+        }
+
         account.registerSuccessfulLogin(ip);
 
-        Token refreshToken = new Token(UUID.randomUUID(), account, TokenType.REFRESH_TOKEN);
+        Token refreshToken = new Token(UUID.randomUUID().toString(), account, TokenType.REFRESH_TOKEN);
 
         tokenFacade.create(refreshToken);
         accountFacade.edit(account);
@@ -106,7 +114,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     }
 
     @Override
-    public JwtRefreshTokenDto refreshJwt(UUID token, String login) throws AppBaseException {
+    public JwtRefreshTokenDto refreshJwt(String token, String login) throws AppBaseException {
         Token refreshToken = tokenFacade.findByToken(token)
             .orElseThrow(AuthenticationException::new);
 
@@ -117,7 +125,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
             throw new AuthenticationException();
         }
         String jwt = jwtUtils.generateJWT(account);
-        Token newRefreshToken = new Token(UUID.randomUUID(), account, TokenType.REFRESH_TOKEN);
+        Token newRefreshToken = new Token(UUID.randomUUID().toString(), account, TokenType.REFRESH_TOKEN);
 
         tokenFacade.remove(refreshToken);
         tokenFacade.create(newRefreshToken);
@@ -127,7 +135,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
 
     public void logout(String token, String login) throws AppBaseException {
         Optional<Token> optionalToken =
-            tokenFacade.findByTokenAndTokenType(UUID.fromString(token), TokenType.REFRESH_TOKEN);
+            tokenFacade.findByTokenAndTokenType(token, TokenType.REFRESH_TOKEN);
 
         if (optionalToken.isPresent()) {
             Token refreshToken = optionalToken.get();
@@ -142,24 +150,35 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
 
     @Override
     public void confirmLogin(String login, String code) throws AppBaseException {
-        // Account account = accountFacade.findByLogin(login).orElseThrow(AuthenticationException::new);
-        // if (!account.isAbleToAuthenticate()) {
-        //     throw new AuthenticationException();
-        // }
-        //
-        // List<Token> twoFactorTokens = tokenFacade.findByTokenTypeAndAccountId(
-        //     TokenType.TWO_FACTOR_AUTH_TOKEN, account.getId());
-        // Token twoFactorToken = null;
-        // for (Token tft : twoFactorTokens) {
-        //     if (hashGenerator.verify(code.toCharArray(), tft.getToken())) {
-        //         tft.validateSelf();
-        //         twoFactorToken = tft;
-        //         break;
-        //     }
-        // }
-        // if (twoFactorToken == null) {
-        //     throw new TokenNotFoundException();
-        // }
-        // tokenFacade.remove(twoFactorToken);
+        Account account = accountFacade.findByLogin(login).orElseThrow(AuthenticationException::new);
+        if (!account.isAbleToAuthenticate()) {
+            throw new AuthenticationException();
+        }
+
+        List<Token> twoFactorTokens = tokenFacade.findByTokenTypeAndAccountId(
+            TokenType.TWO_FACTOR_AUTH_TOKEN, account.getId());
+        Token twoFactorToken = null;
+        for (Token tft : twoFactorTokens) {
+            if (hashGenerator.verify(code.toCharArray(), tft.getToken())) {
+                tft.validateSelf();
+                twoFactorToken = tft;
+                break;
+            }
+        }
+        if (twoFactorToken == null) {
+            throw new TokenNotFoundException();
+        }
+        tokenFacade.remove(twoFactorToken);
+    }
+
+    private void sendCodeToUser(String login) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AuthenticationException::new);
+        Random random = new Random();
+        int code = 10000000 + random.nextInt(90000000);
+        emailService.twoFactorAuthEmail(account.getEmail(), account.getFullName(), account.getLanguage().toString(),
+            Integer.toString(code));
+        tokenFacade.create(
+            new Token(hashGenerator.generate(Integer.toString(code).toCharArray()), account,
+                TokenType.TWO_FACTOR_AUTH_TOKEN));
     }
 }

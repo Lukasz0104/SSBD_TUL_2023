@@ -36,7 +36,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 
 import java.time.Instant;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,6 +80,9 @@ public class AuthEndpoint {
             try {
                 if (credentialValidationResult.getStatus() == CredentialValidationResult.Status.VALID) {
                     jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip, false);
+                    if (jwtRefreshTokenDto == null) {
+                        return Response.accepted().build();
+                    }
                 } else {
                     authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
                 }
@@ -113,14 +115,13 @@ public class AuthEndpoint {
     @PermitAll
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
         String ip = IpUtils.getIpAddress(httpServletRequest);
-        UUID token = UUID.fromString(dto.getRefreshToken());
 
         int txLimit = properties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         JwtRefreshTokenDto jwtRefreshTokenDto = null;
         do {
             try {
-                jwtRefreshTokenDto = authManager.refreshJwt(token, dto.getLogin());
+                jwtRefreshTokenDto = authManager.refreshJwt(dto.getRefreshToken(), dto.getLogin());
                 rollbackTX = authManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollbackTX = true;
@@ -180,8 +181,9 @@ public class AuthEndpoint {
         boolean rollbackTX = false;
         do {
             try {
-                String ip = httpServletRequest.getRemoteAddr();
+                String ip = IpUtils.getIpAddress(httpServletRequest);
                 jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip, true);
+                rollbackTX = authManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollbackTX = true;
                 if (txLimit < 2) {

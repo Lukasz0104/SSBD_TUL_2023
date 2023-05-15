@@ -334,4 +334,15 @@ public class EmailService {
             I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
         );
     }
+
+    public void twoFactorAuthEmail(String receiver, String name, String language, String code) {
+        this.sendMessageWithoutLink(receiver, name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_MESSAGE, language)
+                .replace("$CODE", code),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
 }
