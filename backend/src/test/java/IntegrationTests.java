@@ -1345,5 +1345,41 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
         }
+
+        @Test
+        void shouldReturnSC204OnlyForOneConcurrentAdminOperation() throws BrokenBarrierException, InterruptedException {
+            int threadNumber = 4;
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+            List<Thread> threads = new ArrayList<>();
+            AtomicInteger numberFinished = new AtomicInteger();
+            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+            for (int i = 0; i < threadNumber; i++) {
+                threads.add(new Thread(() -> {
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    int statusCode = given()
+                        .spec(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put("/accounts/force-password-change/jkubiak")
+                        .getStatusCode();
+
+                    if (statusCode == 204) {
+                        numberOfSuccessfulAttempts.getAndIncrement();
+                    }
+                    numberFinished.getAndIncrement();
+                }));
+            }
+            threads.forEach(Thread::start);
+            cyclicBarrier.await();
+            while (numberFinished.get() != threadNumber) {
+            }
+            assertEquals(1, numberOfSuccessfulAttempts.get());
+        }
     }
 }
