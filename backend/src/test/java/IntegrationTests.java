@@ -9,6 +9,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
 import org.hamcrest.Matchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -29,6 +30,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
@@ -67,7 +70,7 @@ public class IntegrationTests {
     }
 
     static void generateManagerSpec() {
-        LoginDto loginDto = new LoginDto("dchmielewski", "P@ssw0rd");
+        LoginDto loginDto = new LoginDto("mkrol", "P@ssw0rd");
 
         String managerJWT = RestAssured.given().body(loginDto)
             .contentType(ContentType.JSON)
@@ -866,6 +869,8 @@ public class IntegrationTests {
                 .when()
                 .get("/accounts/-15");
             AccountDto acc = resp.as(AccountDto.class);
+            acc.setFirstName("newFirstName");
+            acc.setLastName("newLastName");
             EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
 
@@ -877,69 +882,359 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.OK.getStatusCode())
                 .body("login", Matchers.equalTo(acc.getLogin()))
-                .body("firstName", Matchers.equalTo(acc.getFirstName()))
-                .body("lastName", Matchers.equalTo(acc.getLastName()));
+                .body("firstName", Matchers.equalTo("newFirstName"))
+                .body("lastName", Matchers.equalTo("newLastName"));
 
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertEquals(acc2, acc);
         }
 
         @Test
         public void shouldChangeUserEmailAndLanguage() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setEmail("newFirstName@gmail.com");
+            acc.setLanguage("EN");
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .body("login", Matchers.equalTo(acc.getLogin()))
+                .body("email", Matchers.equalTo("newFirstName@gmail.com"))
+                .body("language", Matchers.equalTo("EN"));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertEquals(acc2, acc);
         }
 
         @Test
         public void shouldChangeUserOwnerData() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            OwnerDataDto accessLevelDto = (OwnerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
+            acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .body("login", Matchers.equalTo(acc.getLogin()))
+                .body("accessLevels[0].address.buildingNumber", Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
+                .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
+                .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
+                .body("accessLevels[0].address.postalCode", Matchers.equalTo(accessLevelDto.getAddress().postalCode()));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertEquals(acc2, acc);
         }
 
         @Test
         public void shouldChangeUserManagerData() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16");
+            AccountDto acc = resp.as(AccountDto.class);
+            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
+            accessLevelDto.setLicenseNumber("98765432");
+            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .body("login", Matchers.equalTo(acc.getLogin()))
+                .body("accessLevels[0].address.buildingNumber", Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
+                .body("accessLevels[0].licenseNumber", Matchers.equalTo(accessLevelDto.getLicenseNumber()))
+                .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
+                .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
+                .body("accessLevels[0].address.postalCode", Matchers.equalTo(accessLevelDto.getAddress().postalCode()));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16").as(AccountDto.class);
+            Assertions.assertEquals(acc2, acc);
         }
 
         @Test
         public void shouldReturnSC400WhenInvalidEmailAddress() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setEmail("newFirstNamegmail.com");
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertNotEquals(acc2, acc);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @Test
         public void shouldReturnSC400WhenInvalidFirstNameAndLastName() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setFirstName("");
+            acc.setLastName("");
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
-        }
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
 
-        @Test
-        public void shouldReturnSC400WhenInvalidLanguage() {
-
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertNotEquals(acc2, acc);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @Test
         public void shouldReturnSC400WhenLanguageNotFound() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+            JSONObject obj = new JSONObject(dto);
+            obj.put("language", "ES");
 
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(obj)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @Test
         public void shouldReturnSC400WhenInvalidSignatureLogin() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setLogin("newLogin1");
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertNotEquals(acc2.getLogin(), acc.getLogin());
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @Test
         public void shouldReturnSC400WhenInvalidSignatureVersion() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setVersion(acc.getVersion() + 1);
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion() - 1);
 
         }
 
         @Test
         public void shouldReturnSC400WhenInvalidSignatureAccessLevelId() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16");
+            AccountDto acc = resp.as(AccountDto.class);
+            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setId(accessLevelDto.getId() + 1);
+            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @Test
         public void shouldReturnSC400WhenInvalidSignatureAccessLevelVersion() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16");
+            AccountDto acc = resp.as(AccountDto.class);
+            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setVersion(accessLevelDto.getVersion() + 1);
+            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            Assertions.assertNotEquals(acc2.getAccessLevels().stream().findFirst().get().getVersion(),
+                acc.getAccessLevels().stream().findFirst().get().getVersion());
         }
 
         @Test
         public void shouldReturnSC403WhenSelfEdit() {
+            AccountDto me = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").as(AccountDto.class);
 
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/" + me.getId());
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setLastName("Nowakowski1");
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.ILLEGAL_SELF_ACTION));
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/" + me.getId()).as(AccountDto.class);
+            Assertions.assertNotEquals(acc2, acc);
+        }
+
+        @Test
+        public void shouldReturnSC403WhenManagerAccount() {
+
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setEmail("nowy@gmail.local");
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(managerSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertNotEquals(acc2, acc);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenOwnerAccount() {
+
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setEmail("nowy@gmail.local");
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(ownerSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertNotEquals(acc2, acc);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
     }
 
