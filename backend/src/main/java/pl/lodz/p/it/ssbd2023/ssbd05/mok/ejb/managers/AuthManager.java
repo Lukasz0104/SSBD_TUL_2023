@@ -20,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwtUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
@@ -51,9 +52,13 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     @Inject
     private Properties properties;
 
+    @Inject
+    private HashGenerator hashGenerator;
+
 
     @Override
-    public JwtRefreshTokenDto registerSuccessfulLogin(String login, String ip) throws AppBaseException {
+    public JwtRefreshTokenDto registerSuccessfulLogin(String login, String ip, boolean confirmed)
+        throws AppBaseException {
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AuthenticationException::new);
 
@@ -133,5 +138,28 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
             }
             tokenFacade.remove(refreshToken);
         }
+    }
+
+    @Override
+    public void confirmLogin(String login, String code) throws AppBaseException {
+        // Account account = accountFacade.findByLogin(login).orElseThrow(AuthenticationException::new);
+        // if (!account.isAbleToAuthenticate()) {
+        //     throw new AuthenticationException();
+        // }
+        //
+        // List<Token> twoFactorTokens = tokenFacade.findByTokenTypeAndAccountId(
+        //     TokenType.TWO_FACTOR_AUTH_TOKEN, account.getId());
+        // Token twoFactorToken = null;
+        // for (Token tft : twoFactorTokens) {
+        //     if (hashGenerator.verify(code.toCharArray(), tft.getToken())) {
+        //         tft.validateSelf();
+        //         twoFactorToken = tft;
+        //         break;
+        //     }
+        // }
+        // if (twoFactorToken == null) {
+        //     throw new TokenNotFoundException();
+        // }
+        // tokenFacade.remove(twoFactorToken);
     }
 }

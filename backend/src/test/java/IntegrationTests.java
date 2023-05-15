@@ -88,7 +88,7 @@ public class IntegrationTests {
     }
 
 
-    //Zaloguj się
+    // Zaloguj się
     @Nested
     class MOK1 {
         @Test
@@ -539,7 +539,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC400WhenWrongRequestParameters() {
 
-            //Empty email
+            // Empty email
             given()
                 .queryParam("email", "")
                 .when()
@@ -548,7 +548,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Provided value is not an email
+            // Provided value is not an email
             given()
                 .queryParam("email", "email")
                 .when()
@@ -557,7 +557,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //No parameter provided
+            // No parameter provided
             given()
                 .when()
                 .post("accounts/reset-password-message")
@@ -583,7 +583,7 @@ public class IntegrationTests {
 
         @Test
         void shouldReturnSC400WhenWrongParametersDuringPasswordResetConfirm() {
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
@@ -596,7 +596,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not_uuid");
             given()
@@ -608,7 +608,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -620,7 +620,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty token
+            // Empty token
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
             given()
@@ -1103,7 +1103,7 @@ public class IntegrationTests {
         @Test
         void shouldForcefullyChangeOtherAccountsPasswordByAdmin() {
 
-            //User can log in with P@ssw0rd
+            // User can log in with P@ssw0rd
 
             JSONObject credentials = new JSONObject();
             credentials.put("login", "jkubiak");
@@ -1128,7 +1128,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //Change user password by admin
+            // Change user password by admin
             given()
                 .spec(adminSpec)
                 .contentType(ContentType.JSON)
@@ -1137,7 +1137,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //User's account has become inactive
+            // User's account has become inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1148,7 +1148,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(false))
                 .body("verified", Matchers.equalTo(true));
 
-            //Activate user in order to change if password has changed
+            // Activate user in order to change if password has changed
             ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
             dto.setId(-26L);
             dto.setActive(true);
@@ -1161,7 +1161,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if user is active
+            // Check if user is active
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1172,7 +1172,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //User cannot log in with the same credentials, password has changed
+            // User cannot log in with the same credentials, password has changed
             given()
                 .contentType(ContentType.JSON)
                 .body(credentials.toString())
@@ -1185,7 +1185,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenUserCurrentlyDoesntHaveActiveAdminAccessLevel() {
 
-            //Logged in as manager
+            // Logged in as manager
             given()
                 .spec(managerSpec)
                 .contentType(ContentType.JSON)
@@ -1194,7 +1194,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Logged in as owner
+            // Logged in as owner
             given()
                 .spec(ownerSpec)
                 .contentType(ContentType.JSON)
@@ -1203,7 +1203,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Unauthorized user
+            // Unauthorized user
             given()
                 .contentType(ContentType.JSON)
                 .when()
@@ -1227,7 +1227,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingInactiveAccountsPassword() {
 
-            //Check if account is inactive
+            // Check if account is inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1250,7 +1250,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingUnverifiedAccountsPassword() {
 
-            //Check if account is unverified
+            // Check if account is unverified
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1300,7 +1300,7 @@ public class IntegrationTests {
         void shouldReturnSC400WhenForcePasswordChangeAndWrongParameters() {
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
 
-            //Empty token
+            // Empty token
 
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
@@ -1312,7 +1312,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -1323,7 +1323,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Password should contain at least one number and one special character
+            // Password should contain at least one number and one special character
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -1334,7 +1334,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid uuid
+            // Invalid uuid
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not-uuid");
             given()

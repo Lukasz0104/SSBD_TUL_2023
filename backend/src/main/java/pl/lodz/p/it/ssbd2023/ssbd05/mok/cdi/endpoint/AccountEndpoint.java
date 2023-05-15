@@ -623,4 +623,29 @@ public class AccountEndpoint {
 
         return Response.ok().entity(accountDto).build();
     }
+
+    @PUT
+    @Path("/me/change_two_factor_auth_status")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response changeTwoFactorAuthStatus(@DefaultValue("true") @QueryParam("status") Boolean status)
+        throws AppBaseException {
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                accountManager.changeTwoFactorAuthStatus(securityContext.getUserPrincipal().getName(), status);
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.noContent().build();
+    }
 }

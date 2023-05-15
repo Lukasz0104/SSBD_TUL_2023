@@ -68,4 +68,6 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     Account editPersonalData(Account account, String login) throws AppBaseException;
 
     void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException;
+
+    void changeTwoFactorAuthStatus(String login, Boolean status) throws AppBaseException;
 }

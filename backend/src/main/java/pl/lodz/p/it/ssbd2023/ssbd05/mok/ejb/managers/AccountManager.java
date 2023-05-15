@@ -531,4 +531,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             );
         }
     }
+
+    @Override
+    public void changeTwoFactorAuthStatus(String login, Boolean status)
+        throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        account.setTwoFactorAuth(status);
+        accountFacade.edit(account);
+    }
 }

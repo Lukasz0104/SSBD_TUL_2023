@@ -26,6 +26,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ConfirmLoginDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshTokenDto;
@@ -79,7 +80,7 @@ public class AuthEndpoint {
         do {
             try {
                 if (credentialValidationResult.getStatus() == CredentialValidationResult.Status.VALID) {
-                    jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
+                    jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip, false);
                 } else {
                     authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
                 }
@@ -167,5 +168,31 @@ public class AuthEndpoint {
         LOGGER.log(Level.INFO, "User={0} has ended his session at {1} from address {2}.",
             new Object[] {login, Instant.now(), ip});
         return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/confirm-login")
+    @PermitAll
+    public Response confirmLogin(@NotNull @Valid ConfirmLoginDTO dto) throws AppBaseException {
+        authManager.confirmLogin(dto.getLogin(), dto.getCode());
+        JwtRefreshTokenDto jwtRefreshTokenDto = null;
+        int txLimit = properties.getTransactionRepeatLimit();
+        boolean rollbackTX = false;
+        do {
+            try {
+                String ip = httpServletRequest.getRemoteAddr();
+                jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip, true);
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --txLimit > 0);
+
+        if (rollbackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(jwtRefreshTokenDto).build();
     }
 }
