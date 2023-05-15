@@ -43,11 +43,8 @@ export class JwtInterceptor implements HttpInterceptor {
                         err.status === 403 &&
                         this.authService.isJwtValid(this.authService.getJwt())
                     ) {
-                        this.router
-                            .navigate(['/dashboard'])
-                            .then(() =>
-                                this.toastService.showDanger('Access denied')
-                            );
+                        this.router.navigate(['/dashboard']);
+                        // this.toastService.showDanger('Access denied')
                     }
                     throw err;
                 })

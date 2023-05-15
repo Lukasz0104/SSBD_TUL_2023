@@ -102,6 +102,7 @@ public class I18n {
     public static final String OVERRIDE_FORCED_PASSWORD_DATABASE_EXCEPTION =
         "response.message.override_forced_password_database_exception";
     public static final String ACCESS_MANAGEMENT_SELF = "response.message.access-management-self";
+    public static final String BAD_ACCESS_LEVEL = "response.message.bad-access-level";
 
     public static final String SIGNATURE_MISMATCH = "response.message.signature_mismatch";
 
@@ -113,7 +114,7 @@ public class I18n {
     public static final String INTERNAL = "response.message.internal";
     public static final String NOT_FOUND = "response.message.not_found";
     public static final String UNAUTHORIZED = "response.message.unauthorized";
-    
+
     public static final String INVALID_UUID = "response.message.invalid.uuid";
 
     public static String getMessage(String key, String language) {

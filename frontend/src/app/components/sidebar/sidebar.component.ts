@@ -14,6 +14,7 @@ export class SidebarComponent {
             this.hidden = JSON.parse(temp) === true;
         } else {
             this.hidden = false;
+            localStorage.setItem('sidebar', String(this.hidden));
         }
     }
 
