@@ -45,6 +45,9 @@ import {
     RecaptchaSettings
 } from 'ng-recaptcha';
 import { environment } from '../environments/environment';
+import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { TruncatePipe } from './pipes/truncate.pipe';
 
 @NgModule({
     declarations: [
@@ -65,7 +68,6 @@ import { environment } from '../environments/environment';
         AccountsComponent,
         ProfileComponent,
         AccountComponent,
-        EditPersonalDataComponent,
         ChangePasswordComponent,
         EditPersonalDataAsAdminComponent,
         ChangeEmailComponent,
@@ -73,6 +75,10 @@ import { environment } from '../environments/environment';
         ChangeActiveStatusComponent,
         EditPersonalDataComponent,
         HomeComponent,
+        ConfirmRegistrationComponent,
+        GrantAccessLevelComponent,
+        LandingPageComponent,
+        TruncatePipe,
         ConfirmRegistrationComponent,
         RecaptchaComponent
     ],

@@ -11,19 +11,19 @@ export class ToastService {
     toasts: ToastInfo[] = [];
 
     showDanger(body: string) {
-        this.toasts.push({ body, className: 'bg-danger text-light' });
+        this.toasts.push({ body, className: 'text-bg-danger' });
     }
 
     showSuccess(body: string) {
-        this.toasts.push({ body, className: 'bg-success text-light' });
+        this.toasts.push({ body, className: 'text-bg-success' });
     }
 
     showWarning(body: string) {
-        this.toasts.push({ body, className: 'bg-warning' });
+        this.toasts.push({ body, className: 'text-bg-warning' });
     }
 
     showInfo(body: string) {
-        this.toasts.push({ body, className: 'bg-info' });
+        this.toasts.push({ body, className: 'text-bg-info' });
     }
 
     remove(toast: ToastInfo) {

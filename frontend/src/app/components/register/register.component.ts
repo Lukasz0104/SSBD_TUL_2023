@@ -86,7 +86,7 @@ export class RegisterComponent {
                 validators: [Validators.required, Validators.maxLength(85)]
             }),
             buildingNumber: this.fb.control(0, {
-                validators: [Validators.min(1)]
+                validators: [Validators.required, Validators.min(1)]
             })
         }),
         licenseNumber: this.fb.control('', {
@@ -128,6 +128,9 @@ export class RegisterComponent {
                 case ResponseMessage.LOGIN_ALREADY_TAKEN:
                     this.toast.showDanger('Login is already taken.');
                     break;
+                case ResponseMessage.INVALID_CAPTCHA_CODE:
+                    this.toast.showDanger('Captcha code is invalid.');
+                    break;
                 case null:
                     this.toast.showSuccess('Registration successful.');
                     this.forms.forEach((f) => f.reset());
@@ -135,6 +138,10 @@ export class RegisterComponent {
                     break;
             }
         });
+    }
+
+    onCaptchaResolved(captcha: string) {
+        this.captchaCode = captcha;
     }
 
     protected continueToOwnerForm() {
@@ -259,7 +266,4 @@ export class RegisterComponent {
     }
 
     //#endregion
-    onCaptchaResolved(captcha: string) {
-        this.captchaCode = captcha;
-    }
 }

@@ -1,4 +1,4 @@
-import { Address } from './address.model';
+import { Address } from './account';
 
 export interface RegisterAccountDto {
     email: string;
