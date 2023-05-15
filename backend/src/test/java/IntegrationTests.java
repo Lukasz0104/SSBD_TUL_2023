@@ -1,4 +1,5 @@
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,9 +13,14 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -771,6 +777,158 @@ public class IntegrationTests {
                 .get("/accounts/managers/unapproved")
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    //Wyświetl dane konta użytkownika
+    @Nested
+    class MOK4 {
+        private static RequestSpecification testSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("kgraczyk", "P@ssw0rd");
+
+            String managerJWT = RestAssured.given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + managerJWT)
+                .build();
+        }
+
+        @Test
+        void shouldPassGettingOwnAccountDetails() {
+            io.restassured.response.Response response = given().spec(testSpec)
+                .when()
+                .get("/accounts/me")
+                .thenReturn();
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+
+            String etag = response.getHeader("ETag");
+            assertNotNull(etag);
+            assertTrue(etag.length() > 0);
+
+            OwnAccountDto dto = response.getBody().as(OwnAccountDto.class);
+            assertNotNull(dto);
+            assertEquals("kgraczyk", dto.getLogin());
+            assertEquals("kgraczyk@gmail.local", dto.getEmail());
+            assertEquals("PL", dto.getLanguage());
+            assertEquals("Kamil", dto.getFirstName());
+            assertEquals("Graczyk", dto.getLastName());
+            assertEquals(-27, dto.getId());
+            assertEquals(1, dto.getAccessLevels().size());
+            for (AccessLevelDto level : dto.getAccessLevels()) {
+                if (level instanceof OwnerDataDto ownerData) {
+                    assertTrue(ownerData.isActive());
+                    assertTrue(ownerData.isVerified());
+
+                    AddressDto addressDto = ownerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                } else if (level instanceof ManagerDataDto managerData) {
+                    assertEquals("9566541", managerData.getLicenseNumber());
+                    assertTrue(managerData.isActive());
+                    assertTrue(managerData.isVerified());
+
+                    AddressDto addressDto = managerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                }
+            }
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnAccountDetailsWithoutJwt() {
+            when()
+                .get("/accounts/me")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldPassGettingAccountDetails() {
+            io.restassured.response.Response response = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-27")
+                .thenReturn();
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+
+            String etag = response.getHeader("ETag");
+            assertNotNull(etag);
+            assertTrue(etag.length() > 0);
+
+            AccountDto dto = response.getBody().as(AccountDto.class);
+            assertNotNull(dto);
+            assertEquals("kgraczyk", dto.getLogin());
+            assertEquals("kgraczyk@gmail.local", dto.getEmail());
+            assertEquals("PL", dto.getLanguage());
+            assertEquals("Kamil", dto.getFirstName());
+            assertEquals("Graczyk", dto.getLastName());
+            assertEquals(-27, dto.getId());
+            assertEquals(1, dto.getAccessLevels().size());
+
+            assertTrue(dto.isActive());
+            assertTrue(dto.isVerified());
+            for (AccessLevelDto level : dto.getAccessLevels()) {
+                if (level instanceof OwnerDataDto ownerData) {
+                    assertTrue(ownerData.isActive());
+                    assertTrue(ownerData.isVerified());
+
+                    AddressDto addressDto = ownerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                } else if (level instanceof ManagerDataDto managerData) {
+                    assertEquals("9566541", managerData.getLicenseNumber());
+                    assertTrue(managerData.isActive());
+                    assertTrue(managerData.isVerified());
+
+                    AddressDto addressDto = managerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                }
+            }
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountDetailsAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/-1")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountDetailsAsOwnerWithStatusCode403() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/-1")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC404WhenGettingNonExistentAccountDetails() {
+            given().spec(adminSpec)
+                .when()
+                .get("/accounts/-2137")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
         }
     }
 }
