@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
+import io.restassured.http.Header;
 import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
@@ -12,15 +13,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManager;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -715,7 +720,7 @@ public class IntegrationTests {
         }
     }
 
-    @Nested
+    @Nested // zmiana poziomu dostępu
     class MOK10 {
 
         private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
@@ -838,6 +843,104 @@ public class IntegrationTests {
         }
 
 
+    }
+
+    @Nested // edycje dowolnego niewłasnego konta przez administratora
+    class MOK17 {
+
+        private EditAnotherPersonalDataDto makeEditPersonalDataDto(AccountDto acc) {
+            EditAnotherPersonalDataDto dto = new EditAnotherPersonalDataDto();
+            dto.setAccessLevels(acc.getAccessLevels());
+            dto.setLastName(acc.getLastName());
+            dto.setFirstName(acc.getFirstName());
+            dto.setLogin(acc.getLogin());
+            dto.setVersion(acc.getVersion());
+            dto.setEmail(acc.getEmail());
+            dto.setLanguage(Language.valueOf(acc.getLanguage()));
+            return dto;
+        }
+
+        @Test
+        public void shouldChangeUserFirstNameAndLastName() {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .body("login", Matchers.equalTo(acc.getLogin()))
+                .body("firstName", Matchers.equalTo(acc.getFirstName()))
+                .body("lastName", Matchers.equalTo(acc.getLastName()));
+
+        }
+
+        @Test
+        public void shouldChangeUserEmailAndLanguage() {
+
+        }
+
+        @Test
+        public void shouldChangeUserOwnerData() {
+
+        }
+
+        @Test
+        public void shouldChangeUserManagerData() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidEmailAddress() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidFirstNameAndLastName() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidLanguage() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenLanguageNotFound() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidSignatureLogin() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidSignatureVersion() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidSignatureAccessLevelId() {
+
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidSignatureAccessLevelVersion() {
+
+        }
+
+        @Test
+        public void shouldReturnSC403WhenSelfEdit() {
+
+        }
     }
 
 }

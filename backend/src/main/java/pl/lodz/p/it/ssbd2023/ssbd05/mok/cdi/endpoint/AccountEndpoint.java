@@ -608,10 +608,10 @@ public class AccountEndpoint {
         }
 
         Account account = createAccountFromEditDto(dto);
-        AccountDto accountDto = null;
+        AccountDto accountDto;
 
         int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
+        boolean rollBackTX;
         do {
             accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
             rollBackTX = accountManager.isLastTransactionRollback();
@@ -621,6 +621,6 @@ public class AccountEndpoint {
             throw new AppRollbackLimitExceededException();
         }
 
-        return Response.ok().entity(accountDto).build();
+        return Response.ok(accountDto).build();
     }
 }
