@@ -313,6 +313,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         List<Token> expiredTokens = tokenFacade
             .findByNotTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
         for (Token token : expiredTokens) {
+            if (token.getTokenType() == TokenType.BLOCKED_ACCOUNT_TOKEN) {
+                Account account = token.getAccount();
+                if (!account.isActive()) {
+                    account.setActive(true);
+                    accountFacade.edit(account);
+                    emailService.changeActiveStatusEmail(account.getEmail(), account.getFullName(),
+                        account.getLanguage().toString(), true);
+                }
+            }
             tokenFacade.remove(token);
         }
     }
@@ -506,11 +515,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Optional<AccessLevel> accessLevel = account.getAccessLevels()
             .stream()
-            .filter(al -> al.isValidAccessLevel(accessType))
+            .filter(al -> al.getLevel() == accessType)
             .findFirst();
 
         if (accessLevel.isPresent()) {
             accessLevel.get().setActive(false);
+            accessLevel.get().setVerified(true);
             accountFacade.edit(account);
 
             emailService.notifyAboutRevokedAccessLevel(

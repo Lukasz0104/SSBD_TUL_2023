@@ -1,4 +1,4 @@
-<ng-container *ngIf="authService.getCurrentGroup() === 'ADMIN'">
+<ng-container *ngIf="authService.isAdmin() || authService.isManager()">
     <div
         aria-label="Choose access type"
         class="btn-group mb-3 d-flex"
@@ -32,6 +32,7 @@
             {{ 'component.accounts.display.owners' | translate }}
         </button>
         <button
+            *ngIf="authService.isAdmin()"
             (click)="changeAccessTypeOption('MANAGER')"
             [ngClass]="[
                 chosenAccessType.getValue() === 'MANAGER'
@@ -46,6 +47,7 @@
             {{ 'component.accounts.display.managers' | translate }}
         </button>
         <button
+            *ngIf="authService.isAdmin()"
             (click)="changeAccessTypeOption('ADMIN')"
             [ngClass]="[
                 chosenAccessType.getValue() === 'ADMIN'
@@ -116,7 +118,9 @@
 </div>
 
 <ng-container *ngIf="accounts$ | async as accounts; else loadingAccounts">
-    <div class="table-responsive border rounded">
+    <div
+        class="d-flex flex-column justify-content-between table-responsive border rounded"
+        style="min-height: 300px">
         <table class="table text-center table-hover">
             <thead>
                 <tr class="bg-light">
@@ -172,9 +176,13 @@
                     </td>
                     <td>
                         <div
-                            *ngIf="!authService.isOwner()"
+                            *ngIf="
+                                !authService.isOwner() &&
+                                account.login !== authService.getLogin()
+                            "
                             class="d-inline-block"
-                            ngbDropdown>
+                            ngbDropdown
+                            container="body">
                             <button
                                 class="btn btn-outline-primary"
                                 id="dropdownBasic1"
@@ -183,10 +191,11 @@
                                 {{ 'component.fields.actions' | translate }}
                             </button>
                             <div
-                                *ngIf="authService.isAdmin()"
+                                *ngIf="!authService.isOwner()"
                                 aria-labelledby="dropdownBasic1"
                                 ngbDropdownMenu>
                                 <button
+                                    *ngIf="authService.isAdmin()"
                                     (click)="forceChange(account.login)"
                                     ngbDropdownItem>
                                     {{
@@ -215,6 +224,88 @@
                                         [id]="account.id"
                                         [status]="account.active">
                                     </app-change-active-status>
+                                </button>
+                                <button
+                                    *ngIf="showGrantAdminDropdownItem(account)"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.ADMIN
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    Nadaj poziom dostępu Administrator
+                                </button>
+                                <button
+                                    *ngIf="
+                                        showGrantManagerDropdownItem(account)
+                                    "
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.MANAGER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    Nadaj poziom dostępu Zarządca
+                                </button>
+                                <button
+                                    *ngIf="showGrantOwnerDropdownItem(account)"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.OWNER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    Nadaj poziom dostępu Właściciel
+                                </button>
+                                <button
+                                    *ngIf="showRevokeAdminDropdownItem(account)"
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.ADMIN
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    Odbierz poziom dostępu Administrator
+                                </button>
+                                <button
+                                    *ngIf="
+                                        showRevokeManagerDropdownItem(account)
+                                    "
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.MANAGER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    Odbierz poziom dostępu Zarządca
+                                </button>
+                                <button
+                                    *ngIf="showRevokeOwnerDropdownItem(account)"
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.OWNER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    Odbierz poziom dostępu Właściciel
+                                </button>
+                                <button
+                                    *ngIf="chosenOption.getValue() === 3"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            chosenAccessType.getValue(),
+                                            false
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    Zweryfikuj
                                 </button>
                             </div>
                         </div>

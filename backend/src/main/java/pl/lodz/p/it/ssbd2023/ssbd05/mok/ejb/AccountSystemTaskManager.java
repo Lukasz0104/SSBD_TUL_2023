@@ -40,7 +40,7 @@ public class AccountSystemTaskManager {
         }
     }
 
-    @Schedule(hour = "5")
+    @Schedule(hour = "*", minute = "15")
     private void deleteExpiredTokens() {
         try {
             LocalDateTime now = LocalDateTime.now();
