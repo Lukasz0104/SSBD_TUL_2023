@@ -121,6 +121,7 @@ insert into public.access_level (id, level, version, account_id, active, verifie
 insert into public.access_level (id, level, version, account_id, active, verified) values (-16, 'ADMIN', 0, -13, FALSE, TRUE);
 
 insert into public.access_level (id, level, version, account_id, active, verified) values (-17, 'OWNER', 0, -14, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-18, 'OWNER', 0, -01, TRUE, FALSE);
 
 
 

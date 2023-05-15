@@ -194,7 +194,7 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
         int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
+        boolean rollBackTX;
         do {
             try {
                 String login = securityContext.getUserPrincipal().getName();
@@ -362,7 +362,7 @@ public class AccountEndpoint {
 
         accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
 
-        return Response.ok().entity(new AccessTypeDto(accessType)).build();
+        return Response.ok(new AccessTypeDto(accessType)).build();
     }
 
     @PUT

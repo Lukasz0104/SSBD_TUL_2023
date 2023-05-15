@@ -4,14 +4,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -29,6 +38,7 @@ public class IntegrationTests {
 
     @BeforeAll
     static void setup() {
+
         RestAssured.baseURI = "http://localhost:8080/eBok";
 
         generateOwnerSpec();
@@ -439,4 +449,395 @@ public class IntegrationTests {
             assertEquals(1, numberOfSuccessfulAttempts.get());
         }
     }
+
+    @Nested // zmiana hasła
+    class MOK5 {
+
+        @Test
+        void shouldChangePasswordWhenProvidedValidNewPasswordAndValidOldPassword() throws AppBaseException {
+
+            String oldPass = "P@ssw0rd";
+            String newPass = "Haslo123@rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals((Integer)account.get("version"), (Integer)oldAccount.get("version") + 1);
+
+            given().spec(adminSpec).when()
+                .body(new ChangePasswordDto(newPass, oldPass))
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC401WhenProvidedWrongOldPassword() {
+            String oldPass = "P@ssw0rd7";
+            String newPass = "Haslo123@rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedInvalidOldPassword() {
+            String oldPass = "";
+            String newPass = "Haslo123@rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordLength() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@Sl0";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordNumber() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@Slopasswd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordSpecialCharacter() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h4Slopa55wo";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordLowerCase() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "H@S7OPASSWD";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordUpperCase() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@slo1passwd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedIdenticalPasswords() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "P@ssw0rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedEmptyOldPasswords() {
+            String oldPass = "";
+            String newPass = "P@ssw0rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC403WhenNoAccountIsLoggedIn() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@P4ssw0rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+        }
+    }
+
+    @Nested
+    class MOK10 {
+
+        private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
+            .addHeader("Authorization", "Bearer "
+                +  RestAssured.given().body( new LoginDto("pduda", "P@ssw0rd"))
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt"))
+            .build();
+
+        private RequestSpecification makeSpec(String login) {
+            return new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer "
+                    +  RestAssured.given().body( new LoginDto(login, "P@ssw0rd"))
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/login")
+                    .jsonPath()
+                    .get("jwt"))
+                .build();
+        }
+
+        @Test
+        public void shouldChangeAccessLevelWhenValidAccessTypeProvidedAndAccessLevelActiveAndVerified() {
+
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .body("accessType", Matchers.equalTo("OWNER"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidAccessLevelProvided1() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("adad");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidAccessLevelProvided2() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMINISTRATOR");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC400WhenBlankAccessLevelProvided() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());}
+
+        @Test
+        public void shouldReturnSC403WhenAccountNotHaveProvidedAccessLevel() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenAccountHasInactiveProvidedAccessLevel() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
+
+            given().spec(makeSpec("bkowalewski")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenAccountHasUnverifiedProvidedAccessLevel() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+
+            given().spec(makeSpec("nkowalska")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenNoAccountIsLoggedIn() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+
+            given().when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+
+    }
+
 }

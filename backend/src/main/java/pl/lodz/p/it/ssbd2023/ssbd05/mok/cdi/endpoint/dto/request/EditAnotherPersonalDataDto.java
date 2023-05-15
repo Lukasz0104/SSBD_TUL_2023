@@ -28,5 +28,6 @@ public class EditAnotherPersonalDataDto extends AccountSignableDto {
     private String lastName;
 
     @NotNull
+    @Size(min = 2, max = 2)
     private Language language;
 }
