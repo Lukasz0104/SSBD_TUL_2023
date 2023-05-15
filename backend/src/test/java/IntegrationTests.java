@@ -1366,7 +1366,7 @@ public class IntegrationTests {
                         .spec(adminSpec)
                         .contentType(ContentType.JSON)
                         .when()
-                        .put("/accounts/force-password-change/jkubiak")
+                        .put("/accounts/force-password-change/wlokietek")
                         .getStatusCode();
 
                     if (statusCode == 204) {
