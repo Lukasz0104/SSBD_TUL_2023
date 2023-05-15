@@ -72,4 +72,8 @@ public class Properties {
     @Inject
     @ConfigProperty(name = "account.confirmationTime", defaultValue = "86400000")
     private long accountConfirmationTime;
+
+    @Inject
+    @ConfigProperty(name = "security.recaptcha.secret")
+    private String recaptchaSecret;
 }

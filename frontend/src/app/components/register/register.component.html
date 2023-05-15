@@ -504,6 +504,10 @@
                                 </p>
                             </div>
                         </div>
+                        <app-recaptcha
+                            (captchaResolved)="
+                                onCaptchaResolved($event)
+                            "></app-recaptcha>
                         <div class="mb-2">
                             <div class="container">
                                 <div class="row gy-2">

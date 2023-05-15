@@ -37,6 +37,14 @@ import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.
 import { ChangeActiveStatusComponent } from './components/change-active-status/change-active-status.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { EditPersonalDataAsAdminComponent } from './components/modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { RecaptchaComponent } from './components/recaptcha/recaptcha.component';
+import {
+    RECAPTCHA_SETTINGS,
+    RecaptchaFormsModule,
+    RecaptchaModule,
+    RecaptchaSettings
+} from 'ng-recaptcha';
+import { environment } from '../environments/environment';
 
 @NgModule({
     declarations: [
@@ -65,7 +73,8 @@ import { EditPersonalDataAsAdminComponent } from './components/modals/edit-perso
         ChangeActiveStatusComponent,
         EditPersonalDataComponent,
         HomeComponent,
-        ConfirmRegistrationComponent
+        ConfirmRegistrationComponent,
+        RecaptchaComponent
     ],
     imports: [
         BrowserModule,
@@ -83,10 +92,18 @@ import { EditPersonalDataAsAdminComponent } from './components/modals/edit-perso
             }
         }),
         BrowserAnimationsModule,
-        FormsModule
+        FormsModule,
+        RecaptchaFormsModule,
+        RecaptchaModule
     ],
     providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+        {
+            provide: RECAPTCHA_SETTINGS,
+            useValue: {
+                siteKey: environment.recaptchaKey
+            } as RecaptchaSettings
+        }
     ],
     bootstrap: [AppComponent]
 })
