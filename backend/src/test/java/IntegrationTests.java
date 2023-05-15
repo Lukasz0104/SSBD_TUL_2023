@@ -1111,12 +1111,12 @@ public class IntegrationTests {
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
                 .when()
-                .get("/accounts/%s".formatted(-2))
+                .get("/accounts/%s".formatted(-9))
                 .then().extract()
                 .jsonPath()
                 .getString("active"));
 
-            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -2, !active);
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -9, !active);
 
             given()
                 .contentType(ContentType.JSON)
@@ -1131,10 +1131,24 @@ public class IntegrationTests {
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
                 .when()
-                .get("/accounts/%s".formatted(-2))
+                .get("/accounts/%s".formatted(-9))
                 .then()
                 .assertThat()
                 .body("active", Matchers.not(Matchers.equalTo(active)));
+
+            //Clean up
+
+            ChangeActiveStatusDto dtoRevert = new ChangeActiveStatusDto((long) -9, active);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dtoRevert)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
         }
 
         @Test
@@ -1153,7 +1167,7 @@ public class IntegrationTests {
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
                 .when()
-                .get("/accounts/%s".formatted(-2))
+                .get("/accounts/%s".formatted(-9))
                 .then().extract()
                 .jsonPath()
                 .getString("active"));
@@ -1168,8 +1182,8 @@ public class IntegrationTests {
                 .getString("active"));
 
             ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -1, !active1); //ADMIN
-            ChangeActiveStatusDto dto2 = new ChangeActiveStatusDto((long) -2, !active2); //OWNER
-            ChangeActiveStatusDto dto3 = new ChangeActiveStatusDto((long) -4, !active3); //MANAGER
+            ChangeActiveStatusDto dto2 = new ChangeActiveStatusDto((long) -9, !active2); //OWNER
+            ChangeActiveStatusDto dto3 = new ChangeActiveStatusDto((long) -10, !active3); //MANAGER
 
             given()
                 .contentType(ContentType.JSON)
@@ -1213,7 +1227,7 @@ public class IntegrationTests {
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
                 .when()
-                .get("/accounts/%s".formatted(-2))
+                .get("/accounts/%s".formatted(-9))
                 .then()
                 .assertThat()
                 .body("active", Matchers.not(Matchers.equalTo(active2)));
@@ -1222,10 +1236,45 @@ public class IntegrationTests {
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
                 .when()
-                .get("/accounts/%s".formatted(-4))
+                .get("/accounts/%s".formatted(-10))
                 .then()
                 .assertThat()
                 .body("active", Matchers.not(Matchers.equalTo(active3)));
+
+            // ---------------------------------------------------------------
+
+            //Clean up
+
+            ChangeActiveStatusDto dtoRevert1 = new ChangeActiveStatusDto((long) -1, active1);
+            ChangeActiveStatusDto dtoRevert2 = new ChangeActiveStatusDto((long) -9, active2);
+            ChangeActiveStatusDto dtoRevert3 = new ChangeActiveStatusDto((long) -10, active3);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dtoRevert1)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dtoRevert2)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dtoRevert3)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
         }
 
         @Test
@@ -1312,131 +1361,6 @@ public class IntegrationTests {
                 .getString("active"));
 
             assertEquals(active, active2);
-        }
-
-        @Test
-        void shouldChangeActiveStatusAsManagerOnAnyAccountsWithNotActiveAccessLevel() {
-            given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-7))
-                .then()
-                .assertThat()
-                .body("accessLevels[0].active", Matchers.equalTo(false));
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-8))
-                .then()
-                .assertThat()
-                .body("accessLevels[0].active", Matchers.equalTo(false));
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-13))
-                .then()
-                .assertThat()
-                .body("accessLevels[0].active", Matchers.equalTo(false));
-
-            // ------------------------------------------------------------------------
-
-            boolean active1 = Boolean.parseBoolean(given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-7))
-                .then().extract()
-                .jsonPath()
-                .getString("active"));
-
-            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -7, !active1);
-
-            boolean active2 = Boolean.parseBoolean(given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-8))
-                .then().extract()
-                .jsonPath()
-                .getString("active"));
-
-            ChangeActiveStatusDto dto2 = new ChangeActiveStatusDto((long) -8, !active2);
-
-            boolean active3 = Boolean.parseBoolean(given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-13))
-                .then().extract()
-                .jsonPath()
-                .getString("active"));
-
-            ChangeActiveStatusDto dto3 = new ChangeActiveStatusDto((long) -13, !active3);
-            // -------------------------------------------------------------------------
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(managerSpec)
-                .body(dto1)
-                .when()
-                .put("/accounts/manager/change-active-status")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(managerSpec)
-                .body(dto2)
-                .when()
-                .put("/accounts/manager/change-active-status")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(managerSpec)
-                .body(dto3)
-                .when()
-                .put("/accounts/manager/change-active-status")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            //-------------------------------------------------------------------------------
-            boolean active11 = Boolean.parseBoolean(given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-7))
-                .then().extract()
-                .jsonPath()
-                .getString("active"));
-
-            boolean active22 = Boolean.parseBoolean(given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-8))
-                .then().extract()
-                .jsonPath()
-                .getString("active"));
-
-            boolean active33 = Boolean.parseBoolean(given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .get("/accounts/%s".formatted(-13))
-                .then().extract()
-                .jsonPath()
-                .getString("active"));
-
-            assertNotEquals(active1, active11);
-            assertNotEquals(active2, active22);
-            assertNotEquals(active3, active33);
         }
 
         @Test
@@ -1566,6 +1490,41 @@ public class IntegrationTests {
             assertNotEquals(active1, active11);
             assertNotEquals(active2, active22);
             assertNotEquals(active3, active33);
+
+            // ---------------------------------------------------------------
+
+            //Clean up
+
+            ChangeActiveStatusDto dtoRevert1 = new ChangeActiveStatusDto((long) -7, active1);
+            ChangeActiveStatusDto dtoRevert2 = new ChangeActiveStatusDto((long) -8, active2);
+            ChangeActiveStatusDto dtoRevert3 = new ChangeActiveStatusDto((long) -15, active3);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dtoRevert1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dtoRevert2)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dtoRevert3)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
         }
 
         @Test
@@ -1695,6 +1654,42 @@ public class IntegrationTests {
             assertNotEquals(active1, active11);
             assertNotEquals(active2, active22);
             assertNotEquals(active3, active33);
+
+
+            // ---------------------------------------------------------------
+
+            //Clean up
+
+            ChangeActiveStatusDto dtoRevert1 = new ChangeActiveStatusDto((long) -7, active1);
+            ChangeActiveStatusDto dtoRevert2 = new ChangeActiveStatusDto((long) -8, active2);
+            ChangeActiveStatusDto dtoRevert3 = new ChangeActiveStatusDto((long) -15, active3);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dtoRevert1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dtoRevert2)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dtoRevert3)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
         }
     }
 }
