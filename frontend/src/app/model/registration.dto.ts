@@ -7,6 +7,7 @@ export interface RegisterAccountDto {
     firstName: string;
     lastName: string;
     language: string;
+    captchaCode: string;
 }
 
 export interface RegisterOwnerDto extends RegisterAccountDto {
