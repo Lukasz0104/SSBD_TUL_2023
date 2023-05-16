@@ -17,10 +17,10 @@ import java.util.Date;
 public class JwtUtils {
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     private Key getSigningKey() {
-        byte[] keyBytes = properties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = appProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -28,9 +28,9 @@ public class JwtUtils {
 
         return Jwts.builder()
             .setSubject(account.getLogin())
-            .setIssuer(properties.getIssuer())
+            .setIssuer(appProperties.getIssuer())
             .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + properties.getJwtExpirationTime()))
+            .setExpiration(new Date(System.currentTimeMillis() + appProperties.getJwtExpirationTime()))
             .claim("groups", account.getAccessLevels()
                 .stream()
                 .filter(AccessLevel::isActive)

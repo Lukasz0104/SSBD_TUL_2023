@@ -31,8 +31,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshTokenDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.IpUtils;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 
 import java.time.Instant;
@@ -60,7 +60,7 @@ public class AuthEndpoint {
     private SecurityContext securityContext;
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     @POST
     @Path("login")
@@ -73,7 +73,7 @@ public class AuthEndpoint {
         CredentialValidationResult credentialValidationResult =
             identityStoreHandler.validate(new UsernamePasswordCredential(dto.getLogin(), dto.getPassword()));
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         JwtRefreshTokenDto jwtRefreshTokenDto = null;
         do {
@@ -116,7 +116,7 @@ public class AuthEndpoint {
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
         String ip = IpUtils.getIpAddress(httpServletRequest);
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         JwtRefreshTokenDto jwtRefreshTokenDto = null;
         do {
@@ -148,7 +148,7 @@ public class AuthEndpoint {
         String ip = IpUtils.getIpAddress(httpServletRequest);
         String login = securityContext.getUserPrincipal().getName();
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {

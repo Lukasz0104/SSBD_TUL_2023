@@ -7,7 +7,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 @Getter
-public class Properties {
+public class AppProperties {
 
     @Inject
     @ConfigProperty(name = "security.jwt.secret")
@@ -66,10 +66,18 @@ public class Properties {
     private String backendUrl;
 
     @Inject
+    @ConfigProperty(name = "captcha-verify.url")
+    private String captchaVerifyUrl;
+
+    @Inject
     @ConfigProperty(name = "transaction.repeat.limit", defaultValue = "3")
     private int transactionRepeatLimit;
 
     @Inject
     @ConfigProperty(name = "account.confirmationTime", defaultValue = "86400000")
     private long accountConfirmationTime;
+
+    @Inject
+    @ConfigProperty(name = "security.recaptcha.secret")
+    private String recaptchaSecret;
 }
