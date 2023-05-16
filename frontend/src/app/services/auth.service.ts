@@ -124,10 +124,11 @@ export class AuthService {
 
     private handleTwoFactorAuthentication(login: string) {
         const modalRef = this.modalService.open(TwoFactorAuthComponent, {
+            backdrop: 'static',
             centered: true
         });
         modalRef.componentInstance.login = login;
-        modalRef.result.catch((result: boolean) => {
+        modalRef.result.then((result) => {
             if (!result) {
                 this.toastService.showDanger('toast.auth.unsuccessful-login');
             }

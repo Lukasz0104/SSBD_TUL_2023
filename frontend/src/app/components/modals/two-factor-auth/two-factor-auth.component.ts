@@ -9,6 +9,7 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class TwoFactorAuthComponent {
     @Input() public login: string | undefined;
+    loading = false;
 
     constructor(
         public activeModal: NgbActiveModal,
@@ -16,11 +17,13 @@ export class TwoFactorAuthComponent {
     ) {}
 
     onCodeCompleted(code: string) {
+        this.loading = true;
         if (this.login != null) {
             this.authService
                 .twoFactorAuthentication(this.login, code)
-                .subscribe((result) => {
-                    this.activeModal.close(result);
+                .subscribe(() => {
+                    this.activeModal.close(true);
+                    this.loading = false;
                 });
         }
     }

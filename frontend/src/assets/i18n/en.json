@@ -53,7 +53,8 @@
       "no-account-info": "Don't have an account?",
       "sign-up": "Sign Up",
       "code-enter": "Enter code",
-      "code-message": "Code has been send to your email"
+      "code-message": "Code has been send to your email",
+      "code-loading": "Verifying code..."
     },
     "forgot-password": {
       "title": "Forgot password?",

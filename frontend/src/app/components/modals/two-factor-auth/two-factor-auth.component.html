@@ -1,22 +1,37 @@
-<div class="m-2">
-    <div class="text-center">
-        <h6
-            class="modal-title fs-4"
-            id="modal-basic-title">
-            <b>{{ 'form.login.code-enter' | translate }}</b>
-        </h6>
+<ng-container *ngIf="loading; else code">
+    <div
+        class="d-flex flex-column justify-content-center align-items-center m-4">
+        <span class="spinner-border"></span>
+        <span class="mt-3">{{ 'form.login.code-loading' | translate }}</span>
     </div>
-    <div class="text-center">
-        {{ 'form.login.code-message' | translate }}
+</ng-container>
+<ng-template #code>
+    <div class="m-2">
+        <div class="modal-header">
+            <h6
+                class="modal-title"
+                id="modal-basic-title">
+                <b>{{ 'form.login.code-enter' | translate }}</b>
+            </h6>
+            <button
+                *ngIf="!loading"
+                type="button"
+                class="btn-close"
+                aria-label="Close"
+                (click)="activeModal.close(false)"></button>
+        </div>
+        <div class="text-center">
+            {{ 'form.login.code-message' | translate }}
+        </div>
     </div>
-</div>
-<div>
-    <div class="p-4 d-flex justify-content-around">
-        <code-input
-            [isCodeHidden]="false"
-            [isNonDigitsCode]="false"
-            [codeLength]="8"
-            (codeCompleted)="onCodeCompleted($event)">
-        </code-input>
+    <div>
+        <div class="p-4 d-flex justify-content-around">
+            <code-input
+                [isCodeHidden]="false"
+                [isNonDigitsCode]="false"
+                [codeLength]="8"
+                (codeCompleted)="onCodeCompleted($event)">
+            </code-input>
+        </div>
     </div>
-</div>
+</ng-template>
