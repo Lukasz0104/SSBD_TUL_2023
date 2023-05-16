@@ -233,7 +233,7 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail() throws AppBaseException {
 
-        int retryTXCounter = properties.getTransactionRepeatLimit();
+        int retryTXCounter = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {
