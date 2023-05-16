@@ -1,6 +1,7 @@
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,24 +22,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -47,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IntegrationTests {
@@ -1660,6 +1659,24 @@ public class IntegrationTests {
             }
 
             @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithoutBody() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                String etag = response.getHeader("ETag");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
             void shouldReturnSC409WhenSettingExistingLicenseNumber() {
                 io.restassured.response.Response response = given().spec(testSpec)
                     .when()
@@ -2022,6 +2039,312 @@ public class IntegrationTests {
 
         @Nested
         class ConcurrentTests {
+            @Test
+            void shouldReturnSC200ForOneRequestWhenEditingPersonalData()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.setFirstName("Concurrent" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put(ownProfileURL)
+                            .getStatusCode();
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response editedResponse = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto editedDto = editedResponse.body().as(OwnAccountDto.class);
+                assertNotEquals(response.body().jsonPath().getString("firstName"), editedDto.getFirstName());
+                assertEquals(dto.getFirstName(), editedDto.getFirstName());
+                assertEquals(dto.getVersion() + 1, editedDto.getVersion());
+            }
+
+            @Test
+            void shouldReturnSC200ForOneRequestWhenEditingOwnerData()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                AddressDto addressDto = new AddressDto(
+                    "91-151",
+                    "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
+                    "Belwederska3",
+                    12);
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto ownerData) {
+                        ownerData.setAddress(addressDto);
+                    }
+                }
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put(ownProfileURL)
+                            .getStatusCode();
+
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response editedResponse = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+
+                OwnAccountDto editedDto = editedResponse.body().as(OwnAccountDto.class);
+                OwnerDataDto editedOwnerDataDto = editedResponse.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                AddressDto editedAddressDto = editedOwnerDataDto.getAddress();
+
+                assertNotEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getAddress(),
+                    editedAddressDto
+                );
+                assertEquals(addressDto, editedAddressDto);
+                assertEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() + 1,
+                    editedOwnerDataDto.getVersion());
+            }
+
+            @Test
+            void shouldReturnSC200ForOneRequestWhenEditingManagerData()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                AddressDto addressDto = new AddressDto(
+                    "91-151",
+                    "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
+                    "Belwederska4",
+                    12);
+                String newLicenseNumber = String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber(newLicenseNumber);
+                        managerData.setAddress(addressDto);
+                    }
+                }
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put(ownProfileURL)
+                            .getStatusCode();
+
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response editedResponse = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+
+                OwnAccountDto editedDto = editedResponse.body().as(OwnAccountDto.class);
+                ManagerDataDto editedManagerDataDto = editedResponse.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                AddressDto editedAddressDto = editedManagerDataDto.getAddress();
+
+                assertNotEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class).getAddress(),
+                    editedAddressDto
+                );
+                assertEquals(addressDto, editedAddressDto);
+                assertNotEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class).getLicenseNumber(),
+                    editedManagerDataDto.getLicenseNumber()
+                );
+                assertEquals(newLicenseNumber, editedManagerDataDto.getLicenseNumber());
+
+                assertEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class).getVersion() + 1,
+                    editedManagerDataDto.getVersion());
+            }
+
+            @Test
+            void shouldReturnSC200ForAtMostTwoRequestsAndAtLeastOneRequestWhenEditingDifferentParts()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                AddressDto addressDto = new AddressDto(
+                    "91-151",
+                    "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
+                    "Belwederska4",
+                    12);
+
+                ManagerDataDto managerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                OwnerDataDto ownerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+
+                dto.getAccessLevels().clear();
+                ownerDataDto.setAddress(addressDto);
+                dto.getAccessLevels().add(ownerDataDto);
+                dto.getAccessLevels().add(managerDataDto);
+
+                io.restassured.response.Response response2 = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto2 = response2.body().as(OwnAccountDto.class);
+
+                managerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                ownerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                dto2.getAccessLevels().clear();
+
+                String newLicenseNumber = String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+
+                managerDataDto.setAddress(addressDto);
+                managerDataDto.setLicenseNumber(newLicenseNumber);
+                dto2.getAccessLevels().add(ownerDataDto);
+                dto2.getAccessLevels().add(managerDataDto);
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    OwnAccountDto payload = (i % 2 == 0) ? dto : dto2;
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(payload)
+                            .put(ownProfileURL)
+                            .then()
+                            .extract().statusCode();
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                int test = numberOfSuccessfulAttempts.get();
+                assertTrue(1 <= test && test <= 2);
+            }
         }
 
 
@@ -2337,7 +2660,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals((Integer)account.get("version"), (Integer)oldAccount.get("version") + 1);
+            Assertions.assertEquals((Integer) account.get("version"), (Integer) oldAccount.get("version") + 1);
 
             given().spec(adminSpec).when()
                 .body(new ChangePasswordDto(newPass, oldPass))
@@ -2367,7 +2690,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2390,7 +2713,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2413,7 +2736,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2436,7 +2759,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2459,7 +2782,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2482,7 +2805,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2505,7 +2828,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2528,7 +2851,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2551,7 +2874,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
 
         @Test
@@ -2574,7 +2897,7 @@ public class IntegrationTests {
             JsonPath account = given().spec(adminSpec)
                 .when()
                 .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer)oldAccount.get("version"));
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
         }
     }
 
@@ -2583,7 +2906,7 @@ public class IntegrationTests {
 
         private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
             .addHeader("Authorization", "Bearer "
-                +  RestAssured.given().body( new LoginDto("pduda", "P@ssw0rd"))
+                + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
                 .contentType(ContentType.JSON)
                 .when()
                 .post("/login")
@@ -2594,7 +2917,7 @@ public class IntegrationTests {
         private RequestSpecification makeSpec(String login) {
             return new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer "
-                    +  RestAssured.given().body( new LoginDto(login, "P@ssw0rd"))
+                    + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
                     .contentType(ContentType.JSON)
                     .when()
                     .post("/login")
@@ -2650,7 +2973,8 @@ public class IntegrationTests {
                 .contentType(ContentType.JSON)
                 .put("/accounts/me/change-access-level")
                 .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());}
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
 
         @Test
         public void shouldReturnSC403WhenAccountNotHaveProvidedAccessLevel() {
@@ -2793,7 +3117,8 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.OK.getStatusCode())
                 .body("login", Matchers.equalTo(acc.getLogin()))
-                .body("accessLevels[0].address.buildingNumber", Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
+                .body("accessLevels[0].address.buildingNumber",
+                    Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
                 .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
                 .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
                 .body("accessLevels[0].address.postalCode", Matchers.equalTo(accessLevelDto.getAddress().postalCode()));
@@ -2824,7 +3149,8 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.OK.getStatusCode())
                 .body("login", Matchers.equalTo(acc.getLogin()))
-                .body("accessLevels[0].address.buildingNumber", Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
+                .body("accessLevels[0].address.buildingNumber",
+                    Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
                 .body("accessLevels[0].licenseNumber", Matchers.equalTo(accessLevelDto.getLicenseNumber()))
                 .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
                 .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
@@ -2857,12 +3183,13 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        @ValueSource(strings = {"",
+            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
         public void shouldReturnSC400WhenInvalidFirstName(String name) {
             io.restassured.response.Response resp = given().spec(adminSpec)
                 .when()
@@ -2882,12 +3209,13 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        @ValueSource(strings = {"",
+            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
         public void shouldReturnSC400WhenInvalidLastName(String name) {
             io.restassured.response.Response resp = given().spec(adminSpec)
                 .when()
@@ -2907,7 +3235,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -2958,7 +3286,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2.getLogin(), acc.getLogin());
+            assertNotEquals(acc2.getLogin(), acc.getLogin());
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -3014,7 +3342,8 @@ public class IntegrationTests {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"", "1", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        @ValueSource(strings = {"", "1",
+            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
         public void shouldReturnSC400WhenInvalidAccessLevelCity(String str) {
             io.restassured.response.Response resp = given().spec(adminSpec)
                 .when()
@@ -3040,7 +3369,8 @@ public class IntegrationTests {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        @ValueSource(strings = {
+            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
         public void shouldReturnSC400WhenInvalidAccessLevelStreet(String str) {
             io.restassured.response.Response resp = given().spec(adminSpec)
                 .when()
@@ -3141,7 +3471,7 @@ public class IntegrationTests {
                 .when()
                 .get("/accounts/-16").as(AccountDto.class);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-            Assertions.assertNotEquals(acc2.getAccessLevels().stream().findFirst().get().getVersion(),
+            assertNotEquals(acc2.getAccessLevels().stream().findFirst().get().getVersion(),
                 acc.getAccessLevels().stream().findFirst().get().getVersion());
         }
 
@@ -3170,7 +3500,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/" + me.getId()).as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
         }
 
         @Test
@@ -3194,7 +3524,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -3219,7 +3549,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
     }
