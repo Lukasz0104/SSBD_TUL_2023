@@ -1,4 +1,6 @@
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,8 +12,15 @@ import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
@@ -85,7 +94,7 @@ public class IntegrationTests {
     }
 
 
-    //Zaloguj się
+    // Zaloguj się
     @Nested
     class MOK1 {
         @Test
@@ -444,7 +453,7 @@ public class IntegrationTests {
         }
     }
 
-    //Wyloguj się
+    // Wyloguj się
     @Nested
     class MOK8 {
 
@@ -562,7 +571,7 @@ public class IntegrationTests {
         }
     }
 
-    //Wyświetl listę kont
+    // Wyświetl listę kont
     @Nested
     class MOK15 {
 
@@ -771,6 +780,499 @@ public class IntegrationTests {
                 .get("/accounts/managers/unapproved")
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    @Nested
+    class MOK12 {
+        private static final String ACCOUNT_URL = "/accounts/%d";
+
+        @Nested
+        class GrantAdminAccessLevelTest {
+            private static final String GRANT_URL = "/accounts/%d/access-levels/administrator";
+
+            @Nested
+            class GrantAdminAccessLevelPositiveTest {
+                @Test
+                void shouldGrantAccessLevelWhenDoesNotAlreadyExistsWithStatusCode204Test() {
+                    final int id = -18;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it.level=='ADMIN'}", nullValue());
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsUnverifiedWithStatusCode204Test() {
+                    final int id = -19;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(false),
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsInactiveWithStatusCode204Test() {
+                    final int id = -20;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsActiveWithStatusCode204Test() {
+                    final int id = -21;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true));
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+            }
+
+            @Nested
+            class GrantAdminAccessLevelForbiddenTest {
+                @Test
+                void shouldFailToGrantAdminAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantAdminAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantAdminAccessLevelAsGuestWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantAdminAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(adminSpec)
+                    .when()
+                    .put(GRANT_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GrantManagerAccessLevelTest {
+            private static final String GRANT_URL = "/accounts/%d/access-levels/manager";
+            private static AddressDto addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+            private static AddManagerAccessLevelDto dto;
+
+            @Nested
+            class GrantManagerAccessLevelPositiveTest {
+
+                @BeforeAll
+                static void setup() {
+                    addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+                }
+
+                @BeforeEach
+                void createDto() {
+                    dto = new AddManagerAccessLevelDto(generateRandomString(), addressDto);
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenDoesNotAlreadyExistsWithStatusCode204Test() {
+                    final int id = -18;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it.level=='MANAGER'}", nullValue());
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsUnverifiedWithStatusCode204Test() {
+                    final int id = -19;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(false),
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsInactiveWithStatusCode204Test() {
+                    final int id = -20;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .body(dto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsActiveWithStatusCode204Test() {
+                    final int id = -21;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true));
+
+                    given(adminSpec)
+                        .body(dto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                }
+            }
+
+            @Nested
+            class GrantManagerAccessLevelForbiddenTest {
+                @Test
+                void shouldFailToGrantManagerAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantManagerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantManagerAccessLevelAsGuestWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantManagerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                dto = new AddManagerAccessLevelDto(generateRandomString(), addressDto);
+                given(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .put(GRANT_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Nested
+            class GrantManagerAccessLevelValidationTest {
+                private static AddressDto invalidAddressDto;
+
+                @Test
+                void shouldFailToGrantManagerAccessLevelWithoutPayloadWithStatusCode400Test() {
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "  "})
+                void shouldFailToGrantManagerAccessLevelWithLicenseNumberConstraintViolationWithStatusCode400Test(
+                    String licenseNumber) {
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(licenseNumber, addressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullSource
+                @ValueSource(ints = {-1, 0})
+                void shouldFailToGrantManagerAccessLevelWithBuildingNumberConstraintViolationWithStatusCode400Test(
+                    Integer buildingNo) {
+                    addressDto = new AddressDto("12-321", "Łódź", "Wólczańska", buildingNo);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {
+                    " ", "  ", "a",
+                    "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongCityNameExceedingLimit"})
+                void shouldFailToGrantManagerAccessLevelWithCityConstraintViolationWithStatusCode400Test(String city) {
+                    addressDto = new AddressDto("12-321", city, "Wólczańska", 123);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {
+                    " ", "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongStreetNameExceedingLimit"})
+                void shouldFailToGrantManagerAccessLevelWithStreetConstraintViolationWithStatusCode400Test(
+                    String street) {
+                    addressDto = new AddressDto("12-321", "Łódź", street, 123);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "      ", "12345", "1234567"})
+                void shouldFailToGrantManagerAccessLevelWithZipCodeConstraintViolationWithStatusCode400Test(
+                    String zipCode) {
+                    addressDto = new AddressDto(zipCode, "Łódź", "Politechniki", 1);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantManagerAccessLevelWithAlreadyTakenLicenseNumberWithStatusCode409Test() {
+                given(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(new AddManagerAccessLevelDto("11111111", addressDto))
+                    .when()
+                    .put(GRANT_URL.formatted(-18))
+                    .then()
+                    .statusCode(409)
+                    .contentType(ContentType.JSON)
+                    .body("message", is(I18n.LICENSE_NUMBER_ALREADY_TAKEN));
+            }
+
+            // TODO add tests for race conditions
+
+            private static String generateRandomString() {
+                return UUID.randomUUID().toString().replace("-", "");
+            }
+        }
+
+        @Nested
+        class GrantOwnerAccessLevelTest {
+            @Nested
+            class GrantOwnerAccessLevelPositiveTest {
+
+            }
+
+            @Nested
+            class GrantOwnerAccessLevelForbiddenTest {
+
+            }
         }
     }
 }
