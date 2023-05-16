@@ -14,12 +14,20 @@ import java.net.http.HttpResponse;
 public class RecaptchaService {
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     public boolean verifyCode(String code) {
+
+        String url = new StringBuilder()
+            .append(appProperties.getCaptchaVerifyUrl())
+            .append("?secret=")
+            .append(appProperties.getRecaptchaSecret())
+            .append("&response=")
+            .append(code)
+            .toString();
+
         HttpRequest httpRequest = HttpRequest.newBuilder()
-            .uri(URI.create(String.format("https://www.google.com/recaptcha/api/siteverify?secret=%1$s&response=%2$s",
-                properties.getRecaptchaSecret(), code)))
+            .uri(URI.create(url))
             .POST(HttpRequest.BodyPublishers.noBody())
             .build();
 

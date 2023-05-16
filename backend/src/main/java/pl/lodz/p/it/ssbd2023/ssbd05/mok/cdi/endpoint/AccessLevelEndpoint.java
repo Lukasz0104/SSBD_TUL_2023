@@ -23,7 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockExcepti
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 
 @RequestScoped
 @Path("/accounts/{id}/access-levels")
@@ -33,7 +33,7 @@ public class AccessLevelEndpoint {
     private AccountManagerLocal accountManager;
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     @Context
     private SecurityContext securityContext;
@@ -42,7 +42,7 @@ public class AccessLevelEndpoint {
     @RolesAllowed({"ADMIN"})
     @Path("/administrator")
     public Response grantAdminAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
 
         do {
@@ -70,7 +70,7 @@ public class AccessLevelEndpoint {
     public Response grantManagerAccessLevel(@NotNull @PathParam("id") Long id,
                                             @NotNull @Valid AddManagerAccessLevelDto dto)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
 
         do {
@@ -92,7 +92,7 @@ public class AccessLevelEndpoint {
     @Path("/owner")
     public Response grantOwnerAccessLevel(@NotNull @PathParam("id") Long id, @NotNull @Valid AddOwnerAccessLevelDto dto)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
 
         do {
@@ -113,7 +113,7 @@ public class AccessLevelEndpoint {
     @RolesAllowed({"ADMIN"})
     @Path("/administrator")
     public Response revokeAdminAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
 
         do {
@@ -139,7 +139,7 @@ public class AccessLevelEndpoint {
     @RolesAllowed({"ADMIN"})
     @Path("/manager")
     public Response revokeManagerAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
 
         do {
@@ -165,7 +165,7 @@ public class AccessLevelEndpoint {
     @RolesAllowed({"MANAGER"})
     @Path("/owner")
     public Response revokeOwnerAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
 
         do {

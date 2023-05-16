@@ -53,8 +53,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessTypeDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.RecaptchaService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
@@ -67,7 +67,7 @@ import java.util.UUID;
 public class AccountEndpoint {
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     @Inject
     private AccountManagerLocal accountManager;
@@ -95,7 +95,7 @@ public class AccountEndpoint {
 
         account.getAccessLevels().add(accessLevel);
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
 
         do {
@@ -125,7 +125,7 @@ public class AccountEndpoint {
 
         account.getAccessLevels().add(accessLevel);
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
 
         do {
@@ -143,7 +143,7 @@ public class AccountEndpoint {
     @POST
     @Path("/confirm-registration")
     public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {
@@ -179,7 +179,7 @@ public class AccountEndpoint {
     @PermitAll
     @Path("/reset-password")
     public Response resetPassword(@NotNull @Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
             try {
@@ -206,7 +206,7 @@ public class AccountEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
             try {
@@ -243,7 +243,7 @@ public class AccountEndpoint {
     public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto, @ValidUUID @PathParam("token") String token)
         throws AppBaseException {
 
-        int retryTXCounter = properties.getTransactionRepeatLimit();
+        int retryTXCounter = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {
@@ -272,7 +272,7 @@ public class AccountEndpoint {
         throws AppBaseException {
         String managerLogin = securityContext.getUserPrincipal().getName();
 
-        int retryTXCounter = properties.getTransactionRepeatLimit();
+        int retryTXCounter = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {
@@ -301,7 +301,7 @@ public class AccountEndpoint {
         throws AppBaseException {
         String adminLogin = securityContext.getUserPrincipal().getName();
 
-        int retryTXCounter = properties.getTransactionRepeatLimit();
+        int retryTXCounter = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {
@@ -329,7 +329,7 @@ public class AccountEndpoint {
     public Response getOwnAccountDetails() throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         OwnAccountDto dto;
@@ -350,7 +350,7 @@ public class AccountEndpoint {
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         AccountDto dto;
@@ -382,7 +382,7 @@ public class AccountEndpoint {
     @Path("/me/change-language/{language}")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
             try {
@@ -407,7 +407,7 @@ public class AccountEndpoint {
     @GET
     @RolesAllowed({"ADMIN", "MANAGER"})
     public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         List<AccountDto> accounts;
@@ -427,7 +427,7 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER"})
     public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         List<AccountDto> accounts;
@@ -446,7 +446,7 @@ public class AccountEndpoint {
     @Path("/owners/unapproved")
     @RolesAllowed({"MANAGER"})
     public Response getUnapprovedOwnerAccounts() throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         List<AccountDto> accounts;
@@ -466,7 +466,7 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN"})
     public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         List<AccountDto> accounts;
@@ -485,7 +485,7 @@ public class AccountEndpoint {
     @Path("/managers/unapproved")
     @RolesAllowed({"ADMIN"})
     public Response getUnapprovedManagerAccounts() throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         List<AccountDto> accounts;
@@ -505,7 +505,7 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN"})
     public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
         List<AccountDto> accounts;
@@ -527,7 +527,7 @@ public class AccountEndpoint {
         if (login.equals(securityContext.getUserPrincipal().getName())) {
             throw new IllegalSelfActionException();
         }
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
             try {
@@ -553,7 +553,7 @@ public class AccountEndpoint {
     @Path("/override-forced-password")
     public Response overrideForcedPassword(@Valid @NotNull ResetPasswordDto resetPasswordDto)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
             try {
@@ -588,7 +588,7 @@ public class AccountEndpoint {
             throw new SignatureMismatchException();
         }
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         OwnAccountDto ownAccountDto = null;
         do {
@@ -623,7 +623,7 @@ public class AccountEndpoint {
         Account account = createAccountFromEditDto(dto);
         AccountDto accountDto = null;
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
             accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
