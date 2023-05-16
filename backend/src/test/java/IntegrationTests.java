@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
@@ -1401,7 +1403,7 @@ public class IntegrationTests {
     class MOK5 {
 
         @Test
-        void shouldChangePasswordWhenProvidedValidNewPasswordAndValidOldPassword() throws AppBaseException {
+        void shouldChangePasswordWhenProvidedValidNewPasswordAndValidOldPassword() {
 
             String oldPass = "P@ssw0rd";
             String newPass = "Haslo123@rd";
@@ -1920,13 +1922,14 @@ public class IntegrationTests {
             Assertions.assertEquals(acc2, acc);
         }
 
-        @Test
-        public void shouldReturnSC400WhenInvalidEmailAddress() {
+        @ParameterizedTest
+        @ValueSource(strings = {"", "imie"})
+        public void shouldReturnSC400WhenInvalidEmailAddress(String email) {
             io.restassured.response.Response resp = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15");
             AccountDto acc = resp.as(AccountDto.class);
-            acc.setEmail("newFirstNamegmail.com");
+            acc.setEmail(email);
             EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
             given().spec(adminSpec).when()
@@ -1944,14 +1947,14 @@ public class IntegrationTests {
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
-        @Test
-        public void shouldReturnSC400WhenInvalidFirstNameAndLastName() {
+        @ParameterizedTest
+        @ValueSource(strings = {"", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        public void shouldReturnSC400WhenInvalidFirstName(String name) {
             io.restassured.response.Response resp = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15");
             AccountDto acc = resp.as(AccountDto.class);
-            acc.setFirstName("");
-            acc.setLastName("");
+            acc.setLastName(name);
             EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
             given().spec(adminSpec).when()
@@ -1969,15 +1972,41 @@ public class IntegrationTests {
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
-        @Test
-        public void shouldReturnSC400WhenLanguageNotFound() {
+        @ParameterizedTest
+        @ValueSource(strings = {"", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        public void shouldReturnSC400WhenInvalidLastName(String name) {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15");
+            AccountDto acc = resp.as(AccountDto.class);
+            acc.setLastName(name);
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-15").as(AccountDto.class);
+            Assertions.assertNotEquals(acc2, acc);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"", "ES", "ESD"})
+        public void shouldReturnSC400WhenLanguageNotFound(String lang) {
             io.restassured.response.Response resp = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15");
             AccountDto acc = resp.as(AccountDto.class);
             EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
             JSONObject obj = new JSONObject(dto);
-            obj.put("language", "ES");
+            obj.put("language", lang);
 
 
             given().spec(adminSpec).when()
@@ -2042,6 +2071,110 @@ public class IntegrationTests {
                 .get("/accounts/-15").as(AccountDto.class);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion() - 1);
 
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"", "999", "1234567", "12"})
+        public void shouldReturnSC400WhenInvalidAccessLevelPostalCode(String postalCode) {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16");
+            AccountDto acc = resp.as(AccountDto.class);
+            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setAddress(new AddressDto(postalCode, "Wrocław", "Warszawska", 99));
+            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"", "1", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        public void shouldReturnSC400WhenInvalidAccessLevelCity(String str) {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16");
+            AccountDto acc = resp.as(AccountDto.class);
+            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setAddress(new AddressDto("90-987", str, "Warszawska", 99));
+            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+        public void shouldReturnSC400WhenInvalidAccessLevelStreet(String str) {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16");
+            AccountDto acc = resp.as(AccountDto.class);
+            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", str, 99));
+            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {-99, 0})
+        public void shouldReturnSC400WhenInvalidAccessLevelBuildingNumber(int l) {
+            io.restassured.response.Response resp = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16");
+            AccountDto acc = resp.as(AccountDto.class);
+            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+            accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", "Zielona", l));
+            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+            given().spec(adminSpec).when()
+                .header(new Header("If-Match", resp.getHeader("ETag")))
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/admin/edit-other")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            AccountDto acc2 = given().spec(adminSpec)
+                .when()
+                .get("/accounts/-16").as(AccountDto.class);
+            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
         @Test
