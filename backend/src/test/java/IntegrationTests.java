@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
@@ -549,7 +550,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC400WhenWrongRequestParameters() {
 
-            //Empty email
+            // Empty email
             given()
                 .queryParam("email", "")
                 .when()
@@ -558,7 +559,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Provided value is not an email
+            // Provided value is not an email
             given()
                 .queryParam("email", "email")
                 .when()
@@ -567,7 +568,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //No parameter provided
+            // No parameter provided
             given()
                 .when()
                 .post("accounts/reset-password-message")
@@ -593,7 +594,7 @@ public class IntegrationTests {
 
         @Test
         void shouldReturnSC400WhenWrongParametersDuringPasswordResetConfirm() {
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
@@ -606,7 +607,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not_uuid");
             given()
@@ -618,7 +619,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -630,7 +631,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty token
+            // Empty token
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
             given()
@@ -1590,15 +1591,278 @@ public class IntegrationTests {
 
         @Nested
         class GrantOwnerAccessLevelTest {
+            private static final String GRANT_URL = "/accounts/%d/access-levels/owner";
+            private static AddressDto addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+            private static AddOwnerAccessLevelDto ownerDto;
+
             @Nested
             class GrantOwnerAccessLevelPositiveTest {
+                @BeforeAll
+                static void setup() {
+                    addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+                    ownerDto = new AddOwnerAccessLevelDto(addressDto);
+                }
 
+                @Test
+                void shouldGrantAccessLevelWhenDoesNotAlreadyExistsWithStatusCode204Test() {
+                    final int id = -18;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it.level=='OWNER'}", nullValue());
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsUnverifiedWithStatusCode204Test() {
+                    final int id = -19;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(false),
+                            "accessLevels.find{it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsInactiveWithStatusCode204Test() {
+                    final int id = -20;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .body(ownerDto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsActiveWithStatusCode204Test() {
+                    final int id = -21;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true));
+
+                    given(managerSpec)
+                        .body(ownerDto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                }
             }
 
             @Nested
             class GrantOwnerAccessLevelForbiddenTest {
+                private final int id = -18;
 
+                @BeforeAll
+                static void setup() {
+                    addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+                    ownerDto = new AddOwnerAccessLevelDto(addressDto);
+                }
+
+                @Test
+                void shouldFailToAddOwnerAccessLevelAsAdminWithStatusCode403Test() {
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToAddOwnerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToAddOwnerAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
             }
+
+            @Test
+            void shouldFailToGrantOwnerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(new AddOwnerAccessLevelDto(addressDto))
+                    .when()
+                    .put(GRANT_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404);
+            }
+
+            @Nested
+            class GrantOwnerAccessLevelConstraintViolationTest {
+                private static final int id = -18;
+                private static AddressDto invalidAddressDto;
+
+                @Test
+                void shouldFailToGrantOwnerAccessLevelWithoutPayloadTest() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullSource
+                @ValueSource(ints = {0, -1})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidBuildingNumberWithStatusCode400Test(Integer bn) {
+                    invalidAddressDto = new AddressDto("12-345", "Warszawa", "Wyścigowa", bn);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "  ", "A",
+                    "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongCityNameExceedingLimit"})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidCityWithStatusCode400Test(String city) {
+                    invalidAddressDto = new AddressDto("12-345", city, "Wyścigowa", 5428);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "  ",
+                    "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongStreetNameExceedingLimit"})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidStreetWithStatusCode400Test(String street) {
+                    invalidAddressDto = new AddressDto("12-345", "Poznań", street, 5428);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "      ", "12345", "1234567"})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidZipCodeWithStatusCode400Test(String zipCode) {
+                    invalidAddressDto = new AddressDto(zipCode, "Poznań", "Prosta", 5428);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+            }
+
+            // TODO race condition tests
         }
     }
 
@@ -1607,7 +1871,7 @@ public class IntegrationTests {
         @Test
         void shouldForcefullyChangeOtherAccountsPasswordByAdmin() {
 
-            //User can log in with P@ssw0rd
+            // User can log in with P@ssw0rd
 
             JSONObject credentials = new JSONObject();
             credentials.put("login", "jkubiak");
@@ -1632,7 +1896,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //Change user password by admin
+            // Change user password by admin
             given()
                 .spec(adminSpec)
                 .contentType(ContentType.JSON)
@@ -1641,7 +1905,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //User's account has become inactive
+            // User's account has become inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1652,7 +1916,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(false))
                 .body("verified", Matchers.equalTo(true));
 
-            //Activate user in order to change if password has changed
+            // Activate user in order to change if password has changed
             ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
             dto.setId(-26L);
             dto.setActive(true);
@@ -1665,7 +1929,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if user is active
+            // Check if user is active
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1676,7 +1940,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //User cannot log in with the same credentials, password has changed
+            // User cannot log in with the same credentials, password has changed
             given()
                 .contentType(ContentType.JSON)
                 .body(credentials.toString())
@@ -1689,7 +1953,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenUserCurrentlyDoesntHaveActiveAdminAccessLevel() {
 
-            //Logged in as manager
+            // Logged in as manager
             given()
                 .spec(managerSpec)
                 .contentType(ContentType.JSON)
@@ -1698,7 +1962,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Logged in as owner
+            // Logged in as owner
             given()
                 .spec(ownerSpec)
                 .contentType(ContentType.JSON)
@@ -1707,7 +1971,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Unauthorized user
+            // Unauthorized user
             given()
                 .contentType(ContentType.JSON)
                 .when()
@@ -1731,7 +1995,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingInactiveAccountsPassword() {
 
-            //Check if account is inactive
+            // Check if account is inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1754,7 +2018,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingUnverifiedAccountsPassword() {
 
-            //Check if account is unverified
+            // Check if account is unverified
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -1804,7 +2068,7 @@ public class IntegrationTests {
         void shouldReturnSC400WhenForcePasswordChangeAndWrongParameters() {
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
 
-            //Empty token
+            // Empty token
 
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
@@ -1816,7 +2080,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -1827,7 +2091,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Password should contain at least one number and one special character
+            // Password should contain at least one number and one special character
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -1838,7 +2102,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid uuid
+            // Invalid uuid
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not-uuid");
             given()
