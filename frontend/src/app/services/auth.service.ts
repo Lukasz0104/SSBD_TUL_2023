@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, EMPTY, map, of, tap } from 'rxjs';
 import { LoginResponse } from '../model/login-response';
@@ -11,6 +11,7 @@ import { ChooseAccessLevelComponent } from '../components/modals/choose-access-l
 import { Router } from '@angular/router';
 import { ToastService } from './toast.service';
 import { TranslateService } from '@ngx-translate/core';
+import { TwoFactorAuthComponent } from '../components/modals/two-factor-auth/two-factor-auth.component';
 
 @Injectable({
     providedIn: 'root'
@@ -75,14 +76,25 @@ export class AuthService {
 
     login(login: string, password: string) {
         return this.http
-            .post<LoginResponse>(`${environment.apiUrl}/login`, {
-                login,
-                password
-            })
+            .post<LoginResponse>(
+                `${environment.apiUrl}/login`,
+                {
+                    login,
+                    password
+                },
+                { observe: 'response' }
+            )
             .pipe(
                 map((response) => {
-                    this.handleMultipleAccessLevels(response);
-                    return true;
+                    if (response.status == 202) {
+                        this.handleTwoFactorAuthentication(login);
+                        return true;
+                    }
+                    if (response.body != null) {
+                        this.handleMultipleAccessLevels(response.body);
+                        return true;
+                    }
+                    return false;
                 }),
                 catchError(() => of(false))
             );
@@ -108,6 +120,47 @@ export class AuthService {
                     this.loginSuccessfulHandler(userData, groups[0], true);
                 });
         }
+    }
+
+    private handleTwoFactorAuthentication(login: string) {
+        const modalRef = this.modalService.open(TwoFactorAuthComponent, {
+            centered: true
+        });
+        modalRef.componentInstance.login = login;
+        modalRef.result.catch((result: boolean) => {
+            if (!result) {
+                this.toastService.showDanger('toast.auth.unsuccessful-login');
+            }
+        });
+    }
+
+    twoFactorAuthentication(login: string, code: string) {
+        return this.http
+            .post<LoginResponse>(`${environment.apiUrl}/confirm-login`, {
+                login,
+                code
+            })
+            .pipe(
+                map((response) => {
+                    this.handleMultipleAccessLevels(response);
+                    return true;
+                }),
+                catchError((response: HttpErrorResponse) => {
+                    if (
+                        response.status == 500 ||
+                        response.error.message == null
+                    ) {
+                        this.toastService.showDanger(
+                            'two-factor-auth.response.message.authentication_exception'
+                        );
+                    } else {
+                        this.toastService.showDanger(
+                            'two-factor-auth.' + response.error.message
+                        );
+                    }
+                    return of(false);
+                })
+            );
     }
 
     loginSuccessfulHandler(

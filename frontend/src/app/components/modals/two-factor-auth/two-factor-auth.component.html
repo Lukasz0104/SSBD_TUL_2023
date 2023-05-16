@@ -1,0 +1,22 @@
+<div class="m-2">
+    <div class="text-center">
+        <h6
+            class="modal-title fs-4"
+            id="modal-basic-title">
+            <b>{{ 'form.login.code-enter' | translate }}</b>
+        </h6>
+    </div>
+    <div class="text-center">
+        {{ 'form.login.code-message' | translate }}
+    </div>
+</div>
+<div>
+    <div class="p-4 d-flex justify-content-around">
+        <code-input
+            [isCodeHidden]="false"
+            [isNonDigitsCode]="false"
+            [codeLength]="8"
+            (codeCompleted)="onCodeCompleted($event)">
+        </code-input>
+    </div>
+</div>

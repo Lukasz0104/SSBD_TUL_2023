@@ -446,4 +446,36 @@ export class AccountService {
             })
             .catch(() => false);
     }
+
+    changeTwoFactorAuthStatus(status: boolean) {
+        this.http
+            .put(
+                `${this.accountsUrl}/me/change_two_factor_auth_status?status=` +
+                    status,
+                {}
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.clearAll();
+                    if (status) {
+                        this.toastService.showSuccess(
+                            'toast.account.two-factor-status-active'
+                        );
+                    } else {
+                        this.toastService.showSuccess(
+                            'toast.account.two-factor-status-inactive'
+                        );
+                    }
+                }),
+                catchError((response: HttpErrorResponse) => {
+                    this.handleError(
+                        'toast.account.two-factor-status-fail',
+                        'change-two-factor-status',
+                        response
+                    );
+                    return EMPTY;
+                })
+            )
+            .subscribe();
+    }
 }

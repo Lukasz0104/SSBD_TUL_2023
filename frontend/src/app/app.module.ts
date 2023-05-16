@@ -40,6 +40,8 @@ import { EditPersonalDataAsAdminComponent } from './components/modals/edit-perso
 import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
+import { TwoFactorAuthComponent } from './components/modals/two-factor-auth/two-factor-auth.component';
+import { CodeInputModule } from 'angular-code-input';
 
 @NgModule({
     declarations: [
@@ -70,7 +72,8 @@ import { TruncatePipe } from './pipes/truncate.pipe';
         ConfirmRegistrationComponent,
         GrantAccessLevelComponent,
         LandingPageComponent,
-        TruncatePipe
+        TruncatePipe,
+        TwoFactorAuthComponent
     ],
     imports: [
         BrowserModule,
@@ -88,7 +91,8 @@ import { TruncatePipe } from './pipes/truncate.pipe';
             }
         }),
         BrowserAnimationsModule,
-        FormsModule
+        FormsModule,
+        CodeInputModule
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

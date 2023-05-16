@@ -63,6 +63,18 @@
                                     }}</strong>
                                 </p>
                                 <p>{{ ownAccount.language }}</p>
+                                <p>
+                                    <strong>Uwierzytelnianie dwuetapowe</strong>
+                                </p>
+                                <div class="form-check form-switch">
+                                    <input
+                                        (click)="changeTwoFactorAuthStatus()"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch"
+                                        id="flexSwitchCheckDefault"
+                                        [checked]="ownAccount.twoFactorAuth" />
+                                </div>
                             </div>
                         </div>
                     </ng-template>
@@ -151,7 +163,7 @@
             <div ngbAccordionCollapse>
                 <div
                     ngbAccordionBody
-                    class="d-flex justify-content-start align-items-center">
+                    class="d-flex justify-content-center align-items-center">
                     <ng-template>
                         <app-change-password />
                     </ng-template>
