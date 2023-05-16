@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.shared;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ public abstract class AccountSignableDto implements SignableDto {
     private Long version;
 
     @NotNull
-    private Set<AccessLevelDto> accessLevels = new HashSet<>();
+    private Set<@Valid  AccessLevelDto> accessLevels = new HashSet<>();
 
     @Override
     public String getSignableFields() {
