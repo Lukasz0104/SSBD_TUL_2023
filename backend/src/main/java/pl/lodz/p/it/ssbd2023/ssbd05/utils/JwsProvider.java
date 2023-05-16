@@ -15,11 +15,11 @@ import java.util.logging.Logger;
 public class JwsProvider {
     private static final Logger LOGGER = Logger.getLogger(PayloadProcessingExceptionMapper.class.getName());
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     public String signPayload(String payload) {
         try {
-            JWSSigner signer = new MACSigner(properties.getJwsSecret());
+            JWSSigner signer = new MACSigner(appProperties.getJwsSecret());
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(payload));
             jwsObject.sign(signer);
             return jwsObject.serialize();
@@ -31,7 +31,7 @@ public class JwsProvider {
 
     public boolean verify(String ifMatch, String payload) {
         try {
-            JWSSigner signer = new MACSigner(properties.getJwsSecret());
+            JWSSigner signer = new MACSigner(appProperties.getJwsSecret());
             JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(payload));
             jwsObject.sign(signer);
             return ifMatch.equals(jwsObject.serialize());

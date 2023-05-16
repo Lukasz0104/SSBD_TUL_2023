@@ -19,9 +19,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshToke
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwtUtils;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     private JwtUtils jwtUtils;
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
 
     @Override
@@ -86,7 +86,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         if (account.isAbleToAuthenticate()) {
             account.registerUnsuccessfulLogin(ip);
             if (account.getActivityTracker().getUnsuccessfulLoginChainCounter()
-                >= properties.getUnsuccessfulLoginChainLimit()) {
+                >= appProperties.getUnsuccessfulLoginChainLimit()) {
                 account.setActive(false);
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
 

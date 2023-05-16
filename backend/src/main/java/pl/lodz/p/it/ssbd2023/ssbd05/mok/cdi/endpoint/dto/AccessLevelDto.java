@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.json.bind.annotation.JsonbSubtype;
 import jakarta.json.bind.annotation.JsonbTypeInfo;
 import jakarta.validation.constraints.NotNull;
@@ -14,6 +16,12 @@ import lombok.NoArgsConstructor;
     @JsonbSubtype(alias = "OWNER", type = OwnerDataDto.class),
     @JsonbSubtype(alias = "MANAGER", type = ManagerDataDto.class),
     @JsonbSubtype(alias = "ADMIN", type = AdminDataDto.class)
+})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "level")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = OwnerDataDto.class, name = "OWNER"),
+    @JsonSubTypes.Type(value = ManagerDataDto.class, name = "MANAGER"),
+    @JsonSubTypes.Type(value = AdminDataDto.class, name = "ADMIN")
 })
 public abstract class AccessLevelDto {
     @NotNull
