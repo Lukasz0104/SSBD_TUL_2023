@@ -1867,6 +1867,515 @@ public class IntegrationTests {
     }
 
     @Nested
+    class MOK13 {
+        private static final String ACCOUNT_URL = "/accounts/%d";
+
+        @Nested
+        class RevokeAdminAccessLevelTest {
+            private static final String REVOKE_URL = "/accounts/%d/access-levels/administrator";
+
+            @Nested
+            class RevokeAdminAccessLevelPositiveTest {
+                @Test
+                void shouldRevokeAdminAccessLevelIfActiveWithStatusCode204Test() {
+                    final int id = -25;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(true));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeAdminAccessLevelIfInactiveWithStatusCode204Test() {
+                    final int id = -24;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeAdminAccessLevelIfUnverifiedWithStatusCode204Test() {
+                    final int id = -23;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='ADMIN'}.verified", is(false),
+                            "accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='ADMIN'}.verified", is(true),
+                            "accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeAdminAccessLevelNotChangeAnythingIfAccessLevelDoesNotExistWithStatusCode204Test() {
+                    final int id = -22;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}", nullValue());
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}", nullValue());
+                }
+            }
+
+            @Nested
+            class RevokeAdminAccessLevelForbiddenTest {
+                private static final int id = -25;
+
+                @Test
+                void shouldFailToRevokeAdminAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeAdminAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeAdminAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToRevokeAdminAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(adminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToRevokeAdminAccessLevelFromOwnAccountWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-6))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+        }
+
+        @Nested
+        class RevokeManagerAccessLevelTest {
+            private static final String REVOKE_URL = "accounts/%d/access-levels/manager";
+
+            @Nested
+            class RevokeManagerAccessLevelPositiveTest {
+                @Test
+                void shouldRevokeManagerAccessLevelIfActiveWithStatusCode204Test() {
+                    final int id = -25;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(true));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeManagerAccessLevelIfInactiveWithStatusCode204Test() {
+                    final int id = -24;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeManagerAccessLevelIfUnverifiedWithStatusCode204Test() {
+                    final int id = -23;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='MANAGER'}.verified", is(false),
+                            "accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeManagerAccessLevelNotChangeAnythingIfAccessLevelDoesNotExistWithStatusCode204Test() {
+                    final int id = -22;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}", nullValue());
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}", nullValue());
+                }
+            }
+
+            @Nested
+            class RevokeManagerAccessLevelForbiddenTest {
+                static final int id = -25;
+
+                @Test
+                void shouldFailToRevokeManagerAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeManagerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeManagerAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToRevokeManagerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(adminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToRevokeManagerAccessLevelFromOwnAccountWithStatusCode403Test() {
+                var jwt = given()
+                    .body(new LoginDto("dchmielewski", "P@ssw0rd"))
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/login")
+                    .jsonPath()
+                    .get("jwt");
+
+                var managerAdminSpec = new RequestSpecBuilder()
+                    .addHeader("Authorization", "Bearer " + jwt)
+                    .build();
+
+                given(managerAdminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-5))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+        }
+
+        @Nested
+        class RevokeOwnerAccessLevelTest {
+            private static final String REVOKE_URL = "accounts/%d/access-levels/owner";
+
+            @Nested
+            class RevokeOwnerAccessLevelPositiveTest {
+                @Test
+                void shouldRevokeOwnerAccessLevelIfActiveWithStatusCode204Test() {
+                    final int id = -25;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(true));
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeOwnerAccessLevelIfInactiveWithStatusCode204Test() {
+                    final int id = -24;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeOwnerAccessLevelIfUnverifiedWithStatusCode204Test() {
+                    final int id = -23;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='OWNER'}.verified", is(false),
+                            "accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeOwnerAccessLevelNotChangeAnythingIfAccessLevelDoesNotExistWithStatusCode204Test() {
+                    final int id = -22;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}", nullValue());
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}", nullValue());
+                }
+            }
+
+            @Nested
+            class RevokeOwnerAccessLevelForbiddenTest {
+                static final int id = -25;
+
+                @Test
+                void shouldFailToRevokeOwnerAccessLevelAsAdminWithStatusCode403Test() {
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeOwnerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeOwnerAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToRevokeOwnerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(managerSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToRevokeOwnerAccessLevelFromOwnAccountWithStatusCode403Test() {
+                given(managerSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-4))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+        }
+    }
+
+    @Nested
     class MOK16 {
         @Test
         void shouldForcefullyChangeOtherAccountsPasswordByAdmin() {
