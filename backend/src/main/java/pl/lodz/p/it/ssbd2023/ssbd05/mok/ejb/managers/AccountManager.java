@@ -33,9 +33,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -69,7 +69,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     private EmailService emailService;
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     @Override
     public void registerAccount(Account account) throws AppBaseException {
@@ -78,11 +78,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         accountFacade.create(account);
 
-        Token token = new Token(account, properties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
+        Token token =
+            new Token(account, appProperties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
 
         tokenFacade.create(token);
 
-        String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+        String actionLink = appProperties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
 
         emailService.sendConfirmRegistrationEmail(
             account.getEmail(),
@@ -114,7 +115,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        String link = properties.getFrontendUrl() + "/confirm-email/" + token.getToken();
+        String link = appProperties.getFrontendUrl() + "/confirm-email/" + token.getToken();
         emailService.changeEmailAddress(
             account.getEmail(), account.getFullName(), link,
             account.getLanguage().toString());
@@ -191,7 +192,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getFullName(),
-            properties.getFrontendUrl() + "/reset-password-confirm/" + resetPasswordToken.getToken(),
+            appProperties.getFrontendUrl() + "/reset-password-confirm/" + resetPasswordToken.getToken(),
             account.getLanguage().toString());
     }
 
@@ -336,9 +337,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 continue;
             }
             long timeLeft = Duration.between(now, token.getExpiresAt()).toMillis();
-            if (timeLeft < (properties.getAccountConfirmationTime() / 2.0)) {
+            if (timeLeft < (appProperties.getAccountConfirmationTime() / 2.0)) {
 
-                String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+                String actionLink = appProperties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
                 account.setReminded(true);
                 emailService.sendConfirmRegistrationReminderEmail(
                     account.getEmail(),
@@ -490,7 +491,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Token passwordChangeToken = new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         tokenFacade.create(passwordChangeToken);
-        String link = properties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
+        String link = appProperties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
         emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), link);
     }

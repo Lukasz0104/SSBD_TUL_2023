@@ -5,6 +5,8 @@ import { ToastService } from '../../services/toast.service';
 import { strongPasswordValidator } from '../../validators/strong-password.validator';
 import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
 import { diffPasswordValidator } from '../../validators/new-password.validator';
+import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-change-password',
@@ -36,7 +38,8 @@ export class ChangePasswordComponent {
 
     constructor(
         private accountService: AccountService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private modalService: NgbModal
     ) {}
 
     get password() {
@@ -63,15 +66,26 @@ export class ChangePasswordComponent {
                 newPassword: password,
                 oldPassword: oldPassword
             };
-            this.accountService.changePassword(dto).subscribe({
-                next: (res: boolean): void => {
-                    if (res) {
-                        this.changePasswdForm.reset();
-                    }
-                },
-                error: (err) => this.toastService.showWarning(err)
+
+            const modal = this.modalService.open(ConfirmActionComponent);
+            const instance = modal.componentInstance as ConfirmActionComponent;
+
+            instance.message = 'Czy na pewno chcesz zmienić swoje hasło?';
+            instance.danger = ``;
+
+            modal.closed.subscribe((res: boolean): void => {
+                if (res) {
+                    this.accountService.changePassword(dto).subscribe({
+                        next: (res: boolean): void => {
+                            if (res) {
+                                this.changePasswdForm.reset();
+                            }
+                        },
+                        error: (err) => this.toastService.showWarning(err)
+                    });
+                }
+                this.loading = false;
             });
-            this.loading = false;
         }
     }
 

@@ -30,5 +30,6 @@ export enum ResponseMessage {
     NOT_FOUND = 'response.message.not_found',
     UNAUTHORIZED = 'response.message.unauthorized',
     INVALID_UUID = 'response.message.invalid.uuid',
-    BAD_ACCESS_LEVEL = 'response.message.bad-access-level'
+    BAD_ACCESS_LEVEL = 'response.message.bad-access-level',
+    INVALID_CAPTCHA_CODE = 'response.message.invalid_captcha'
 }
