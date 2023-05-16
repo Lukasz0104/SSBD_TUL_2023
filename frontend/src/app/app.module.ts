@@ -40,6 +40,7 @@ import { EditPersonalDataAsAdminComponent } from './components/modals/edit-perso
 import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
+import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
 
 @NgModule({
     declarations: [
@@ -70,7 +71,8 @@ import { TruncatePipe } from './pipes/truncate.pipe';
         ConfirmRegistrationComponent,
         GrantAccessLevelComponent,
         LandingPageComponent,
-        TruncatePipe
+        TruncatePipe,
+        ActiveAccessLevelsPipe
     ],
     imports: [
         BrowserModule,

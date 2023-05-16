@@ -113,7 +113,10 @@
                     </form>
                 </div>
                 <ng-container
-                    *ngFor="let accessLevel of ownAccount.accessLevels">
+                    *ngFor="
+                        let accessLevel of ownAccount.accessLevels
+                            | activeAccessLevels
+                    ">
                     <div
                         class="col-md"
                         *ngIf="accessLevel.level === AccessType.OWNER">
@@ -620,7 +623,7 @@
         </div>
         <button
             [disabled]="!areAllValid()"
-            (click)="onSubmit()"
+            (click)="confirm()"
             class="btn btn-success">
             {{ 'component.account.save' | translate }}
         </button>
