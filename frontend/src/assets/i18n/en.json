@@ -159,6 +159,9 @@
     "ADMIN": "Administrator"
   },
   "nav": {
+    "home": "Home",
+    "register": "Register",
+    "login": "Login",
     "dashboard": "Dashboard",
     "accounts": "Accounts",
     "logout": "Log out",

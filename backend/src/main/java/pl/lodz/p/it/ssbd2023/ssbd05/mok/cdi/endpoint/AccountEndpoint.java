@@ -374,7 +374,7 @@ public class AccountEndpoint {
 
         accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
 
-        return Response.ok().entity(new AccessTypeDto(accessType)).build();
+        return Response.ok(new AccessTypeDto(accessType)).build();
     }
 
     @PUT
@@ -620,7 +620,7 @@ public class AccountEndpoint {
         }
 
         Account account = createAccountFromEditDto(dto);
-        AccountDto accountDto = null;
+        AccountDto accountDto;
 
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -633,7 +633,7 @@ public class AccountEndpoint {
             throw new AppRollbackLimitExceededException();
         }
 
-        return Response.ok().entity(accountDto).build();
+        return Response.ok(accountDto).build();
     }
 
     @PUT

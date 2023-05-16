@@ -116,6 +116,7 @@ export class AccountsComponent implements OnInit {
                 account = res;
             })
             .catch(() => EMPTY);
+        this.reload();
     }
 
     openGrantAccessLevelModal(

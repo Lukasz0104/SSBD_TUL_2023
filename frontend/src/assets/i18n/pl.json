@@ -159,6 +159,9 @@
     "ADMIN": "Administrator"
   },
   "nav": {
+    "home": "Strona główna",
+    "register": "Rejestracja",
+    "login": "Logowanie",
     "dashboard": "Panel główny",
     "accounts": "Konta",
     "logout": "Wyloguj się",

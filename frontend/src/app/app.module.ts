@@ -50,6 +50,7 @@ import { LandingPageComponent } from './components/landing-page/landing-page.com
 import { TruncatePipe } from './pipes/truncate.pipe';
 import { TwoFactorAuthComponent } from './components/modals/two-factor-auth/two-factor-auth.component';
 import { CodeInputModule } from 'angular-code-input';
+import { GuestNavbarComponent } from './components/guest-navbar/guest-navbar.component';
 
 @NgModule({
     declarations: [
@@ -83,7 +84,8 @@ import { CodeInputModule } from 'angular-code-input';
         TruncatePipe,
         TwoFactorAuthComponent,
         ConfirmRegistrationComponent,
-        RecaptchaComponent
+        RecaptchaComponent,
+        GuestNavbarComponent
     ],
     imports: [
         BrowserModule,
