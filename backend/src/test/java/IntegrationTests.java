@@ -1914,7 +1914,7 @@ public class IntegrationTests {
         }
 
         @Nested
-        class OptimistickLock {
+        class OptimisticLock {
             @Test
             void shouldReturnSC409WhenEditingOwnAccountDetailsThatChangedInTheMeantime() {
                 io.restassured.response.Response response = given().spec(testSpec)
