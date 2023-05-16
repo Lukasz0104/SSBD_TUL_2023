@@ -185,7 +185,8 @@
       "edit-own-account-fail": "Błąd podczas edycji konta",
       "two-factor-status-active": "Dwuetapowe uwierzytelnianie zostało włączone",
       "two-factor-status-inactive": "Dwuetapowe uwierzytelnianie zostało wyłączone",
-      "two-factor-status-fail": "Błąd podczas zmiany statusu"
+      "two-factor-status-fail": "Błąd podczas zmiany statusu",
+      "edit-own-account": "Edycja profilu zakończyła się sukcesem"
     },
     "guard": {
       "access-denied": "Odmowa dostępu"

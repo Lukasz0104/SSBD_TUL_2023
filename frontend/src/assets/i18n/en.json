@@ -185,7 +185,8 @@
       "edit-own-account-fail": "Error while editing account",
       "two-factor-status-active": "2FA has been activated",
       "two-factor-status-inactive": "2FA has been disabled",
-      "two-factor-status-fail": "Error while changing status"
+      "two-factor-status-fail": "Error while changing status",
+      "edit-own-account": "Account data modification success"
     },
     "guard": {
       "access-denied": "Access denied"

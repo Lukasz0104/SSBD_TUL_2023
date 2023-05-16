@@ -83,7 +83,7 @@ export class AccountService {
     }
 
     resetPasswordConfirm(resetPasswordDTO: object) {
-        return this.http
+        this.http
             .post(`${this.accountsUrl}/reset-password`, resetPasswordDTO)
             .pipe(
                 map(() => {
@@ -123,14 +123,13 @@ export class AccountService {
                         'force-password-change',
                         response
                     );
-                    return EMPTY;
+                    return of(null);
                 })
-            )
-            .subscribe();
+            );
     }
 
     overrideForcePasswordChange(resetPasswordDTO: object) {
-        return this.http
+        this.http
             .put(
                 `${this.accountsUrl}/override-forced-password`,
                 resetPasswordDTO
@@ -224,7 +223,9 @@ export class AccountService {
             })
             .pipe(
                 tap(() => {
-                    this.toastService.showSuccess('SUCCESS!');
+                    this.toastService.showSuccess(
+                        'toast.account.edit-own-account'
+                    );
                 }),
                 map(() => true),
                 catchError((err: HttpErrorResponse) => {
