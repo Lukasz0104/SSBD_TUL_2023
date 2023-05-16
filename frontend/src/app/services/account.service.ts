@@ -298,7 +298,7 @@ export class AccountService {
             );
         } else if (type == AccessType.MANAGER) {
             return this.http.get<Account[]>(
-                `${this.accountsUrl}//managers/unapproved`
+                `${this.accountsUrl}/managers/unapproved`
             );
         }
         return of([]);
@@ -383,7 +383,7 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.showDanger(err.error.message);
+                    this.toastService.showDanger(err.error.message); // TODO add translation for response.message.bad-access-level
                     return of(false);
                 })
             );

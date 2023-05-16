@@ -1,9 +1,9 @@
 <nav
     class="d-flex justify-content-end fs-3 navbar navbar-expand shadow-sm w-100"
     [ngClass]="{
-        'bg-warning': authService.isManager(),
-        'bg-danger': authService.isAdmin(),
-        'bg-success': authService.isOwner()
+        'text-bg-warning': authService.isManager(),
+        'text-bg-danger': authService.isAdmin(),
+        'text-bg-success': authService.isOwner()
     }">
     <app-change-language></app-change-language>
     <div>

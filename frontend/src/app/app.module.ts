@@ -37,6 +37,9 @@ import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.
 import { ChangeActiveStatusComponent } from './components/change-active-status/change-active-status.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { EditPersonalDataAsAdminComponent } from './components/modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { TruncatePipe } from './pipes/truncate.pipe';
 
 @NgModule({
     declarations: [
@@ -57,7 +60,6 @@ import { EditPersonalDataAsAdminComponent } from './components/modals/edit-perso
         AccountsComponent,
         ProfileComponent,
         AccountComponent,
-        EditPersonalDataComponent,
         ChangePasswordComponent,
         EditPersonalDataAsAdminComponent,
         ChangeEmailComponent,
@@ -65,7 +67,10 @@ import { EditPersonalDataAsAdminComponent } from './components/modals/edit-perso
         ChangeActiveStatusComponent,
         EditPersonalDataComponent,
         HomeComponent,
-        ConfirmRegistrationComponent
+        ConfirmRegistrationComponent,
+        GrantAccessLevelComponent,
+        LandingPageComponent,
+        TruncatePipe
     ],
     imports: [
         BrowserModule,

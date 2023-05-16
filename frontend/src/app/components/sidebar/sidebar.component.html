@@ -1,5 +1,5 @@
 <div
-    class="d-flex flex-column flex-shrink-0 vh-100 p-3 bg-light border fixed-top sticky-sm-top"
+    class="d-flex flex-column flex-shrink-0 sidebar p-3 bg-light border fixed-top sticky-sm-top"
     [ngClass]="{ 'd-none': hidden }"
     style="width: 280px">
     <div class="d-flex align-items-center link-dark text-decoration-none">
@@ -72,7 +72,7 @@
             routerLink="/dashboard/profile">
             <i class="fs-2 bi bi-person"></i>
             <strong class="px-2 text-center"
-                >{{ authService.getLogin() }} ({{
+                >{{ authService.getLogin() | truncate : 20 }} ({{
                     'access-levels.' + authService.getCurrentGroup().toString()
                         | translate
                 }})</strong
@@ -85,18 +85,22 @@
 <div
     *ngIf="hidden"
     class="d-flex d-sm-none position-fixed top-0 start-0"
-    style="z-index: 20">
+    style="z-index: 1021">
     <button
-        class="fs-2 btn bg-white border"
+        class="fs-2 btn py-2"
         style="border-radius: 0 0 10px 0"
-        (click)="toggle()">
+        (click)="toggle()"
+        [ngClass]="{
+            'text-black': authService.isManager(),
+            'text-white': !authService.isManager()
+        }">
         <i class="bi bi-chevron-double-right"></i>
     </button>
 </div>
 <!--Hidden sidebar-->
 <div
     *ngIf="hidden"
-    class="d-none d-sm-flex flex-column shadow vh-100">
+    class="d-none d-sm-flex flex-column shadow vh-100 fixed-top sticky-sm-top">
     <button
         class="fs-2 btn"
         (click)="toggle()">

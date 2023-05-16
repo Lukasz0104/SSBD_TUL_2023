@@ -29,5 +29,6 @@ export enum ResponseMessage {
     INTERNAL = 'response.message.internal',
     NOT_FOUND = 'response.message.not_found',
     UNAUTHORIZED = 'response.message.unauthorized',
-    INVALID_UUID = 'response.message.invalid.uuid'
+    INVALID_UUID = 'response.message.invalid.uuid',
+    BAD_ACCESS_LEVEL = 'response.message.bad-access-level'
 }
