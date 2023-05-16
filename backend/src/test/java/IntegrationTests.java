@@ -15,8 +15,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
@@ -38,7 +41,8 @@ public class IntegrationTests {
 
     @BeforeAll
     static void setup() {
-        RestAssured.baseURI = "http://localhost:8080/eBok";
+        RestAssured.baseURI = "https://localhost:8443/api";
+        RestAssured.useRelaxedHTTPSValidation();
 
         generateOwnerSpec();
         generateManagerSpec();
@@ -789,7 +793,7 @@ public class IntegrationTests {
         static void generateTestSpec() {
             LoginDto loginDto = new LoginDto("kgraczyk", "P@ssw0rd");
 
-            String managerJWT = RestAssured.given().body(loginDto)
+            String jwt = RestAssured.given().body(loginDto)
                 .contentType(ContentType.JSON)
                 .when()
                 .post("/login")
@@ -797,7 +801,7 @@ public class IntegrationTests {
                 .get("jwt");
 
             testSpec = new RequestSpecBuilder()
-                .addHeader("Authorization", "Bearer " + managerJWT)
+                .addHeader("Authorization", "Bearer " + jwt)
                 .build();
         }
 
@@ -822,7 +826,7 @@ public class IntegrationTests {
             assertEquals("Kamil", dto.getFirstName());
             assertEquals("Graczyk", dto.getLastName());
             assertEquals(-27, dto.getId());
-            assertEquals(1, dto.getAccessLevels().size());
+            assertEquals(2, dto.getAccessLevels().size());
             for (AccessLevelDto level : dto.getAccessLevels()) {
                 if (level instanceof OwnerDataDto ownerData) {
                     assertTrue(ownerData.isActive());
@@ -848,7 +852,7 @@ public class IntegrationTests {
         }
 
         @Test
-        void shouldReturnSC403WhenGettingOwnAccountDetailsWithoutJwt() {
+        void shouldReturnSC403WhenGettingOwnAccountDetailsAsGuest() {
             when()
                 .get("/accounts/me")
                 .then()
@@ -876,7 +880,7 @@ public class IntegrationTests {
             assertEquals("Kamil", dto.getFirstName());
             assertEquals("Graczyk", dto.getLastName());
             assertEquals(-27, dto.getId());
-            assertEquals(1, dto.getAccessLevels().size());
+            assertEquals(2, dto.getAccessLevels().size());
 
             assertTrue(dto.isActive());
             assertTrue(dto.isVerified());
@@ -931,4 +935,889 @@ public class IntegrationTests {
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode());
         }
     }
+
+    //Zmień dane osobowe
+    @Nested
+    class MOK7 {
+        private static RequestSpecification testSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wodwazny", "P@ssw0rd");
+
+            String jwt = RestAssured.given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassWhenEditingOwnAccountDetails() {
+            io.restassured.response.Response response = given().spec(testSpec)
+                .when()
+                .get("/accounts/me")
+                .thenReturn();
+            OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+            String etag = response.getHeader("ETag");
+
+            dto.setFirstName("Wojroll");
+            dto.setLastName("Brave");
+
+            AddressDto addressDto = new AddressDto(
+                "99-151",
+                "Łęczyca",
+                "Belwederska",
+                12);
+            String licenseNumber = "123456";
+            for (AccessLevelDto level : dto.getAccessLevels()) {
+                if (level instanceof OwnerDataDto ownerData) {
+                    ownerData.setAddress(addressDto);
+                } else if (level instanceof ManagerDataDto managerData) {
+                    managerData.setLicenseNumber(licenseNumber);
+                    managerData.setAddress(addressDto);
+                }
+            }
+
+            given()
+                .header("If-Match", etag)
+                .spec(testSpec)
+                .when()
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/me")
+                .then()
+                .contentType(ContentType.JSON)
+                .statusCode(Response.Status.OK.getStatusCode());
+
+            io.restassured.response.Response edited = given().spec(testSpec)
+                .when()
+                .get("/accounts/me")
+                .thenReturn();
+
+            OwnAccountDto editedDto = edited.as(OwnAccountDto.class);
+            assertEquals(dto.getFirstName(), editedDto.getFirstName());
+            assertEquals(dto.getLastName(), editedDto.getLastName());
+
+            ManagerDataDto editedManagerData = edited.body().jsonPath()
+                .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+            assertEquals(editedManagerData.getAddress(), addressDto);
+            assertEquals(editedManagerData.getLicenseNumber(), licenseNumber);
+
+            OwnerDataDto editedOwnerData = edited.body().jsonPath()
+                .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+
+            assertEquals(editedOwnerData.getAddress(), addressDto);
+        }
+
+        @Test
+        void shouldReturnSC403WhenEditingOwnAccountDetailsAsGuest() {
+            io.restassured.response.Response response = given().spec(testSpec)
+                .when()
+                .get("/accounts/me")
+                .thenReturn();
+            OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+            String etag = response.getHeader("ETag");
+
+            given()
+                .header("If-Match", etag)
+                .when()
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put("/accounts/me")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Nested
+        class InactiveEdit {
+
+            @Test
+            void shouldOmitInactiveManagerAccessLevelWhenEditingOwnAccountDetails() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/accounts/-29/access-levels/manager")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .then().extract().response();
+
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber("654321");
+                        AddressDto addressDto = new AddressDto(
+                            "99-151",
+                            "Łęczyca",
+                            "Belwederska",
+                            12);
+                        managerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                io.restassured.response.Response edited = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+
+                OwnAccountDto verifyDto = edited.as(OwnAccountDto.class);
+
+                String firstName = response.body().jsonPath().getString("firstName");
+                assertEquals(firstName, verifyDto.getFirstName());
+
+                String lastName = response.body().jsonPath().getString("lastName");
+                assertEquals(lastName, verifyDto.getLastName());
+
+                ManagerDataDto managerData = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                ManagerDataDto editedManagerData = edited.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                assertEquals(editedManagerData.getAddress(), managerData.getAddress());
+                assertEquals(editedManagerData.getLicenseNumber(), managerData.getLicenseNumber());
+
+                AddressDto address = managerData.getAddress();
+                String licenseNumber = managerData.getLicenseNumber();
+
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .body(new AddManagerAccessLevelDto(licenseNumber, address))
+                    .contentType(ContentType.JSON)
+                    .put("/accounts/-29/access-levels/manager")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+
+            @Test
+            void shouldOmitInactiveOwnerAccessLevelWhenEditingOwnAccountDetails() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/accounts/-29/access-levels/owner")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .then().extract().response();
+
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto ownerData) {
+                        AddressDto addressDto = new AddressDto(
+                            "99-151",
+                            "Łęczyca",
+                            "Belwederska",
+                            12);
+                        ownerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                io.restassured.response.Response edited = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+
+                OwnAccountDto verifyDto = edited.as(OwnAccountDto.class);
+
+                String firstName = response.body().jsonPath().getString("firstName");
+                assertEquals(firstName, verifyDto.getFirstName());
+
+                String lastName = response.body().jsonPath().getString("lastName");
+                assertEquals(lastName, verifyDto.getLastName());
+
+                OwnerDataDto ownerData = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                OwnerDataDto editedOwnerData = edited.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                assertEquals(editedOwnerData.getAddress(), ownerData.getAddress());
+
+                AddressDto address = ownerData.getAddress();
+
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .body(new AddOwnerAccessLevelDto(address))
+                    .contentType(ContentType.JSON)
+                    .put("/accounts/-29/access-levels/owner")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class SignatureMismatch {
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidETag() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = "eTag";
+
+                given()
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithChangedVersion() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.setVersion(-1L);
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithChangedAccessLevelVersion() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    level.setVersion(-1L);
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithAddedAccessLevel() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.getAccessLevels().add(new AdminDataDto());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithRemovedAccessLevel() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                OwnerDataDto ownerDataDto = null;
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto dataDto) {
+                        ownerDataDto = dataDto;
+                    }
+                }
+                dto.getAccessLevels().remove(ownerDataDto);
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+        }
+
+        @Nested
+        class Constraints {
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithoutIfMatch() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                given()
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC409WhenSettingExistingLicenseNumber() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber("9566541");
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidPersonalData() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                //firstName
+                dto.setFirstName("");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                //lastName
+                dto.setLastName("");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                //accountVersion
+                dto.setVersion(null);
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidLicenseNumber() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                //licenseNumber
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber(null);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Nested
+            class Address {
+
+                @Test
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidPostalCode() {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get("/accounts/me")
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    //postalCode too long
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-1511",
+                                "Łęczyca",
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    //postalCode too short
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-51",
+                                "Łęczyca",
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    //postalCode null
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                null,
+                                "Łęczyca",
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidCity() {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get("/accounts/me")
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    //city too short
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                "Ł",
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    //city too long
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                "ŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczyca",
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    //city null
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                null,
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidBuildingNumber() {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get("/accounts/me")
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    //buildingNumber negative
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                "Łęczyca",
+                                "BelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederska",
+                                -12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    //buildingNumber zero
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                "Łęczyca",
+                                "BelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederska",
+                                0);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    //buildingNumber null
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                "Łęczyca",
+                                "BelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederskaBelwederska",
+                                null);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidAddress() {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get("/accounts/me")
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    //address null
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            managerData.setAddress(null);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put("/accounts/me")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+            }
+
+
+        }
+
+        @Nested
+        class OptimistickLock {
+            @Test
+            void shouldReturnSC409WhenEditingOwnAccountDetailsThatChangedInTheMeantime() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.setFirstName("Changed");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC409WhenEditingOwnAccountDetailsWithOwnerDataChangedInTheMeantime() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto ownerData) {
+                        AddressDto addressDto = new AddressDto(
+                            "91-151",
+                            "Łęczyca3",
+                            "Belwederska3",
+                            12);
+                        ownerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC409WhenEditingOwnAccountDetailsWithManagerDataChangedInTheMeantime() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber("654321");
+                        AddressDto addressDto = new AddressDto(
+                            "91-151",
+                            "Łęczyca4",
+                            "Belwederska4",
+                            12);
+                        managerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class ConcurrentTests {
+        }
+
+
+    }
+
+
 }
