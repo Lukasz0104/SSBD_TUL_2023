@@ -48,6 +48,8 @@ import { environment } from '../environments/environment';
 import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
+import { TwoFactorAuthComponent } from './components/modals/two-factor-auth/two-factor-auth.component';
+import { CodeInputModule } from 'angular-code-input';
 
 @NgModule({
     declarations: [
@@ -79,6 +81,7 @@ import { TruncatePipe } from './pipes/truncate.pipe';
         GrantAccessLevelComponent,
         LandingPageComponent,
         TruncatePipe,
+        TwoFactorAuthComponent,
         ConfirmRegistrationComponent,
         RecaptchaComponent
     ],
@@ -100,7 +103,8 @@ import { TruncatePipe } from './pipes/truncate.pipe';
         BrowserAnimationsModule,
         FormsModule,
         RecaptchaFormsModule,
-        RecaptchaModule
+        RecaptchaModule,
+        CodeInputModule
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

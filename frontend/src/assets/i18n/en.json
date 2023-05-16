@@ -51,7 +51,10 @@
       "title": "Login to eBok",
       "action": "Login",
       "no-account-info": "Don't have an account?",
-      "sign-up": "Sign Up"
+      "sign-up": "Sign Up",
+      "code-enter": "Enter code",
+      "code-message": "Code has been send to your email",
+      "code-loading": "Verifying code..."
     },
     "forgot-password": {
       "title": "Forgot password?",
@@ -98,8 +101,8 @@
       },
       "loading": "Loading accounts...",
       "password-change": "Change password",
-      "activate" : "Unlock",
-      "deactivate" : "Lock",
+      "activate": "Unlock",
+      "deactivate": "Lock",
       "edit-account": "Edit account"
     },
     "account": {
@@ -120,7 +123,8 @@
       "edit-your-account": "Edit your account",
       "general": "General",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "two-factor-auth": "2FA Authentication"
     },
     "fields": {
       "login": "Login",
@@ -175,7 +179,10 @@
       "reset-password-fail": "Error while changing the password",
       "force-password-change-message": "Password has been changed, and chosen account has been blocked",
       "force-password-change-override-message": "Password has been changed, and your account has been unlocked",
-      "edit-own-account-fail": "Error while editing account"
+      "edit-own-account-fail": "Error while editing account",
+      "two-factor-status-active": "2FA has been activated",
+      "two-factor-status-inactive": "2FA has been disabled",
+      "two-factor-status-fail": "Error while changing status"
     },
     "guard": {
       "access-denied": "Access denied"
@@ -211,6 +218,26 @@
         "optimistic_lock": "Cannot edit account, account data has changed since opening form, try again",
         "account_not_found": "Modified account does not exist",
         "license-number-already-taken": "Chosen license is in use"
+      }
+    }
+  },
+  "change-two-factor-status": {
+    "response": {
+      "message": {
+        "account_not_found": "Could not find your account",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not change status, please try again"
+      }
+    }
+  },
+  "two-factor-auth": {
+    "response": {
+      "message": {
+        "authentication_exception": "Login unsuccessful",
+        "token_not_found": "Provided code is wrong",
+        "expired_token": "Code expired, log in again",
+        "rollback.limit.exceeded": "Request timmed out",
+        "optimistic_lock": "Login unsuccessful, please try again"
       }
     }
   }

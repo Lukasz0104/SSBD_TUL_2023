@@ -177,7 +177,7 @@ public class AuthEndpoint {
     public Response confirmLogin(@NotNull @Valid ConfirmLoginDTO dto) throws AppBaseException {
         authManager.confirmLogin(dto.getLogin(), dto.getCode());
         JwtRefreshTokenDto jwtRefreshTokenDto = null;
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {

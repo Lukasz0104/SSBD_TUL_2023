@@ -9,6 +9,7 @@ export interface OwnAccount {
     lastName: string;
     login: string;
     version: number;
+    twoFactorAuth: boolean;
 }
 
 export interface EditPersonalData {

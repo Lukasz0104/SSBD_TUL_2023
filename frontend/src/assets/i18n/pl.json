@@ -51,7 +51,10 @@
       "title": "Zaloguj się do eBok",
       "action": "Zaloguj",
       "no-account-info": "Nie masz jeszcze konta?",
-      "sign-up": "Zarejestruj się"
+      "sign-up": "Zarejestruj się",
+      "code-enter": "Wprowadź kod",
+      "code-message": "Kod został wysłany na adres email",
+      "code-loading": "Weryfikowanie kodu..."
     },
     "forgot-password": {
       "title": "Zapomniałeś hasła?",
@@ -98,8 +101,8 @@
       },
       "loading": "Ładowanie kont...",
       "password-change": "Zmień hasło",
-      "activate" : "Odblokuj",
-      "deactivate" : "Zablokuj",
+      "activate": "Odblokuj",
+      "deactivate": "Zablokuj",
       "edit-account": "Edytuj konto"
     },
     "account": {
@@ -120,7 +123,8 @@
       "edit-your-account": "Edytuj swoje konto",
       "general": "Ogólne",
       "save": "Zapisz",
-      "cancel": "Anuluj"
+      "cancel": "Anuluj",
+      "two-factor-auth": "Uwierztelnianie dwuetapowe"
     },
     "fields": {
       "login": "Login",
@@ -175,7 +179,10 @@
       "reset-password-fail": "Bład podczas zmiany hasła",
       "force-password-change-message": "Hasło zostało zmienione, a wybrane konto zostało zablokowane",
       "force-password-change-override-message": "Hasło zostało zmienione, a twoje konto zostało odblokowane",
-      "edit-own-account-fail": "Błąd podczas edycji konta"
+      "edit-own-account-fail": "Błąd podczas edycji konta",
+      "two-factor-status-active": "Dwuetapowe uwierzytelnianie zostało włączone",
+      "two-factor-status-inactive": "Dwuetapowe uwierzytelnianie zostało wyłączone",
+      "two-factor-status-fail": "Błąd podczas zmiany statusu"
     },
     "guard": {
       "access-denied": "Odmowa dostępu"
@@ -211,6 +218,26 @@
         "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
         "account_not_found": "Modyfikowane konto nie istnieje",
         "license-number-already-taken": "Wybrany numer licencji jest w użytku"
+      }
+    }
+  },
+  "change-two-factor-status": {
+    "response": {
+      "message": {
+        "account_not_found": "Nie znaleziono twojego konta",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można zmienić statusu, spróbuj ponownie"
+      }
+    }
+  },
+  "two-factor-auth": {
+    "response": {
+      "message": {
+        "authentication_exception": "Logowanie nie powiodło się",
+        "token_not_found": "Podano błedny kod",
+        "expired_token": "Kod wygasł, zaloguj się ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Logowanie nie powiodło się, spróbuj ponownie"
       }
     }
   }

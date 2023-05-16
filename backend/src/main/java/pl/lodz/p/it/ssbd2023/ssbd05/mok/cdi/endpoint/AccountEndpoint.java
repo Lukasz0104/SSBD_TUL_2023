@@ -641,7 +641,7 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeTwoFactorAuthStatus(@DefaultValue("true") @QueryParam("status") Boolean status)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
             try {
