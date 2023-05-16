@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
     @JsonbSubtype(alias = "MANAGER", type = ManagerDataDto.class),
     @JsonbSubtype(alias = "ADMIN", type = AdminDataDto.class)
 })
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "level")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "level")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = OwnerDataDto.class, name = "OWNER"),
     @JsonSubTypes.Type(value = ManagerDataDto.class, name = "MANAGER"),

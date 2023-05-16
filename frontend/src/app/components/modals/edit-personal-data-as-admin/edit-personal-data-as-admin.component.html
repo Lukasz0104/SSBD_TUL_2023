@@ -156,7 +156,10 @@
                     </form>
                 </div>
                 <ng-container
-                    *ngFor="let accessLevel of newAccount?.accessLevels">
+                    *ngFor="
+                        let accessLevel of newAccount?.accessLevels
+                            | activeAccessLevels
+                    ">
                     <div
                         class="col-md"
                         *ngIf="accessLevel.level === AccessType.OWNER">

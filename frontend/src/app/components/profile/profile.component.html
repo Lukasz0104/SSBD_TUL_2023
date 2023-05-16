@@ -89,6 +89,7 @@
                             <div
                                 *ngFor="
                                     let accessLevel of ownAccount.accessLevels
+                                        | activeAccessLevels
                                 "
                                 class="fs-6 col-md p-3">
                                 <p>
