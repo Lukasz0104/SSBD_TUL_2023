@@ -159,6 +159,10 @@ public class Account extends AbstractEntity implements Serializable {
     @Basic(optional = false)
     private Language language = Language.PL;
 
+    @NotNull
+    @Column(name = "two_factor_auth", nullable = false)
+    @Basic(optional = false)
+    private boolean twoFactorAuth = false;
 
     @Embedded
     private ActivityTracker activityTracker = new ActivityTracker();

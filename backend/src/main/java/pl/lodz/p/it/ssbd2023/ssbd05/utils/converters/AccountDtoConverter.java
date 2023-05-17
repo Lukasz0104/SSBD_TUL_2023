@@ -109,7 +109,8 @@ public class AccountDtoConverter {
             account.getLogin(),
             account.getFirstName(),
             account.getLastName(),
-            account.getLanguage().toString()
+            account.getLanguage().toString(),
+            account.isTwoFactorAuth()
         );
     }
 
@@ -125,6 +126,7 @@ public class AccountDtoConverter {
             account.getLanguage().toString(),
             account.isVerified(),
             account.isActive(),
+            account.isTwoFactorAuth(),
             createActivityTrackerDto(account.getActivityTracker())
         );
     }

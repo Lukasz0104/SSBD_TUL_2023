@@ -60,7 +60,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
 import java.util.List;
-import java.util.UUID;
 
 @RequestScoped
 @Path("/accounts")
@@ -147,7 +146,7 @@ public class AccountEndpoint {
         boolean rollbackTX = false;
         do {
             try {
-                accountManager.confirmRegistration(UUID.fromString(token));
+                accountManager.confirmRegistration(token);
                 rollbackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollbackTX = true;
@@ -184,7 +183,7 @@ public class AccountEndpoint {
         do {
             try {
                 accountManager.resetPassword(resetPasswordDto.getPassword(),
-                    UUID.fromString(resetPasswordDto.getToken()));
+                    resetPasswordDto.getToken());
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollBackTX = true;
@@ -233,7 +232,24 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail() throws AppBaseException {
 
-        accountManager.changeEmail(securityContext.getUserPrincipal().getName());
+        int retryTXCounter = appProperties.getTransactionRepeatLimit();
+        boolean rollbackTX = false;
+        do {
+            try {
+                accountManager.changeEmail(securityContext.getUserPrincipal().getName());
+                rollbackTX = accountManager.isLastTransactionRollback();
+
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (retryTXCounter < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --retryTXCounter > 0);
+
+        if (rollbackTX && retryTXCounter == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.noContent().build();
     }
 
@@ -247,7 +263,7 @@ public class AccountEndpoint {
         boolean rollbackTX = false;
         do {
             try {
-                accountManager.confirmEmail(dto.getEmail(), UUID.fromString(token),
+                accountManager.confirmEmail(dto.getEmail(), token,
                     securityContext.getUserPrincipal().getName());
                 rollbackTX = accountManager.isLastTransactionRollback();
 
@@ -558,7 +574,7 @@ public class AccountEndpoint {
         do {
             try {
                 accountManager.overrideForcedPassword(resetPasswordDto.getPassword(),
-                    UUID.fromString(resetPasswordDto.getToken()));
+                    resetPasswordDto.getToken());
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollBackTX = true;
@@ -635,5 +651,30 @@ public class AccountEndpoint {
         }
 
         return Response.ok(accountDto).build();
+    }
+
+    @PUT
+    @Path("/me/change_two_factor_auth_status")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response changeTwoFactorAuthStatus(@DefaultValue("true") @QueryParam("status") Boolean status)
+        throws AppBaseException {
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                accountManager.changeTwoFactorAuthStatus(securityContext.getUserPrincipal().getName(), status);
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.noContent().build();
     }
 }

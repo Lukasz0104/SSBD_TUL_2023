@@ -63,6 +63,18 @@
                                     }}</strong>
                                 </p>
                                 <p>{{ ownAccount.language }}</p>
+                                <p>
+                                    <strong>Uwierzytelnianie dwuetapowe</strong>
+                                </p>
+                                <div class="form-check form-switch">
+                                    <input
+                                        (click)="changeTwoFactorAuthStatus()"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch"
+                                        id="flexSwitchCheckDefault"
+                                        [checked]="ownAccount.twoFactorAuth" />
+                                </div>
                             </div>
                         </div>
                     </ng-template>

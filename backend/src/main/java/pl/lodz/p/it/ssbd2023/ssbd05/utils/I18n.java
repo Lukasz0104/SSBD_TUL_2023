@@ -78,6 +78,12 @@ public class I18n {
     public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_ACTION =
         "email.message.force-password-change.action";
 
+    public static final String EMAIL_MESSAGE_TWO_FACTOR_CODE_MESSAGE =
+        "email.message.two-factor-code.message";
+
+    public static final String EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE =
+        "email.message.two-factor-code.title";
+
     public static final String EXPIRED_TOKEN = "response.message.expired_token";
     public static final String INVALID_TOKEN_TYPE = "response.message.invalid_token_type";
     public static final String TOKEN_NOT_FOUND = "response.message.token_not_found";

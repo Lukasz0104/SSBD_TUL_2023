@@ -32,9 +32,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLev
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
@@ -561,7 +563,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC400WhenWrongRequestParameters() {
 
-            //Empty email
+            // Empty email
             given()
                 .queryParam("email", "")
                 .when()
@@ -570,7 +572,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Provided value is not an email
+            // Provided value is not an email
             given()
                 .queryParam("email", "email")
                 .when()
@@ -579,7 +581,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //No parameter provided
+            // No parameter provided
             given()
                 .when()
                 .post("accounts/reset-password-message")
@@ -605,7 +607,7 @@ public class IntegrationTests {
 
         @Test
         void shouldReturnSC400WhenWrongParametersDuringPasswordResetConfirm() {
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
@@ -618,7 +620,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not_uuid");
             given()
@@ -630,7 +632,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -642,7 +644,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty token
+            // Empty token
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
             given()
@@ -656,6 +658,472 @@ public class IntegrationTests {
         }
     }
 
+    //Wyloguj się
+    @Nested
+    class MOK8 {
+
+        @Test
+        void shouldLogoutWithValidRefreshTokenAndInvalidateIt() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+
+            String refreshToken = given()
+                .contentType(ContentType.JSON)
+                .body(loginDto)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("jwt", Matchers.any(String.class),
+                    "refreshToken", Matchers.any(String.class),
+                    "language", Matchers.any(String.class))
+                .extract()
+                .jsonPath()
+                .getString("refreshToken");
+
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=" + refreshToken)
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            RefreshJwtDto refreshJwtDto = new RefreshJwtDto("pduda", refreshToken);
+            given().body(refreshJwtDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/refresh")
+                .then()
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.AUTHENTICATION_EXCEPTION));
+        }
+
+        @Test
+        void shouldLogoutWithNonExistentRefreshToken() {
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=" + UUID.randomUUID())
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenRefreshTokenIsNotUUID() {
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=definitelyNotUUID")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenJwtIsNotAttached() {
+            given()
+                .when()
+                .delete("/logout?token=" + UUID.randomUUID())
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC204ForAllConcurrentRequests() throws BrokenBarrierException, InterruptedException {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+
+            String refreshToken = given()
+                .contentType(ContentType.JSON)
+                .body(loginDto)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("jwt", Matchers.any(String.class),
+                    "refreshToken", Matchers.any(String.class),
+                    "language", Matchers.any(String.class))
+                .extract()
+                .jsonPath()
+                .getString("refreshToken");
+
+            int threadNumber = 5;
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+            List<Thread> threads = new ArrayList<>(threadNumber);
+            AtomicInteger numberFinished = new AtomicInteger();
+            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+            for (int i = 0; i < threadNumber; i++) {
+                threads.add(new Thread(() -> {
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    int statusCode = given().spec(ownerSpec)
+                        .when()
+                        .delete("/logout?token=" + refreshToken).getStatusCode();
+
+                    if (statusCode == 204) {
+                        numberOfSuccessfulAttempts.getAndIncrement();
+                    }
+                    numberFinished.getAndIncrement();
+                }));
+            }
+            threads.forEach(Thread::start);
+            cyclicBarrier.await();
+            while (numberFinished.get() != threadNumber) {
+            }
+
+            assertEquals(numberFinished.get(), numberOfSuccessfulAttempts.get());
+        }
+    }
+
+    @Nested
+    class MOK9 {
+        @Test
+        void shouldChangeLanguageWhenUserAuthenticatedAdmin() {
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change-language/EN")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("EN"));
+
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change-language/PL")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+        }
+
+        @Test
+        void shouldChangeLanguageWhenUserAuthenticatedOwner() {
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+
+            given()
+                .spec(ownerSpec)
+                .put("accounts/me/change-language/En")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("EN"));
+
+            given()
+                .spec(ownerSpec)
+                .put("accounts/me/change-language/Pl")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+        }
+
+        @Test
+        void shouldChangeLanguageWhenUserAuthenticatedManager() {
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+
+            given()
+                .spec(managerSpec)
+                .put("accounts/me/change-language/en")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("EN"));
+
+            given()
+                .spec(managerSpec)
+                .put("accounts/me/change-language/pl")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+        }
+
+        @Test
+        void shouldReturnSC403WhenUserNotAuthenticated() {
+            given()
+                .put("accounts/me/change-language/en")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenLanguageDoesntExist() {
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change-language/ger")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
+
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change-language/1")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
+        }
+    }
+
+    //Wyświetl listę kont
+    @Nested
+    class MOK15 {
+
+        @Test
+        void shouldGetAllAccountsAsAdmin() {
+            List<AccountDto> accounts =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAccountsAsManager() {
+            List<AccountDto> accounts =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAdminsAsAdmin() {
+            List<AccountDto> admins =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/admins")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(admins);
+        }
+
+        @Test
+        void shouldGetAllManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsAdmin() {
+            List<AccountDto> owners =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .get("/accounts/owners/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllAccountsAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsAdmin() {
+            given().spec(adminSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountsAsGuest() {
+            given()
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsGuest() {
+            given()
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
 
     // Wyświetl dane konta użytkownika
     @Nested
@@ -2808,12 +3276,713 @@ public class IntegrationTests {
         }
     }
 
+    //Zmień adres e-mail przypisany do własnego konta
+    @Nested
+    class MOK6 {
+
+        @Test
+        void shouldReturnSC204AfterRequestEmailChangeWhenLoggedIn() {
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterRequestEmailChangeWhenNotLoggedIn() {
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        // ------------------------------------------------------------
+        @Test
+        void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
+            UUID randomUUID = UUID.randomUUID();
+            given()
+                .contentType(ContentType.JSON)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC404AfterConfirmEmailWhenNoToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted("notValidToken"))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithEmptyBody() {
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body("")
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidBody() {
+            UUID randomUUID = UUID.randomUUID();
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("notValidBody");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotFoundToken() {
+            String validEmail = "email@email.com";
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto(validEmail);
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.TOKEN_NOT_FOUND));
+        }
+
+    }
+
+
+    //Zablokuj/odblokuj konto jako manager/admin
+    @Nested
+    class MOK11 {
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusWhenNotLoggedIn() {
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusAsManagerWrongEndpoint() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -1, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusAsAdminWrongEndpoint() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -1, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusOfAdminAsManager() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -34, false);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusOfManagerAsManager() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -33, false);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsManagerEmptyBody() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body("")
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsAdminEmptyBody() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body("")
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsManagerNotValidDTO() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsAdminNotValidDTO() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+
+        @Test
+        void shouldReturnSC404AfterChangeActiveStatusAsAdminUserNotFound() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) Integer.MAX_VALUE, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.ACCOUNT_NOT_FOUND));
+        }
+
+        @Test
+        void shouldReturnSC404AfterChangeActiveStatusAsManagerUserNotFound() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) Integer.MAX_VALUE, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.ACCOUNT_NOT_FOUND));
+        }
+
+        @Test
+        void shouldReturnSC204AndNotChangeActiveStatusWhenTheyAreTheSame() {
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -32, active1);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            assertEquals(active1, active11);
+
+        }
+
+
+        @Test
+        void shouldChangeActiveStatusAsManagerOnOwnerAccount() {
+
+            boolean active = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -32, !active);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active)));
+
+        }
+
+        @Test
+        void shouldChangeActiveStatusAsAdminOnAnyAccount() {
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            boolean active2 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            boolean active3 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-34))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -32, !active1); //OWNER
+            ChangeActiveStatusDto dto2 = new ChangeActiveStatusDto((long) -33, !active2); //MANAGER
+            ChangeActiveStatusDto dto3 = new ChangeActiveStatusDto((long) -34, !active3); //ADMIN
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto2)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto3)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            // -----------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active1)));
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active2)));
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-34))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active3)));
+        }
+
+        @Test
+        void shouldNotChangeActiveStatusAsManagerOnOwnAccount() {
+            boolean active = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            long id = Long.parseLong(given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("id"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto(id, active);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            boolean active2 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            assertEquals(active, active2);
+        }
+
+        @Test
+        void shouldNotChangeActiveStatusAsAdminOnOwnAccount() {
+            boolean active = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            long id = Long.parseLong(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("id"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto(id, active);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            boolean active2 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            assertEquals(active, active2);
+        }
+
+        @Test
+        void shouldChangeActiveStatusAsManagerOnAccountWithNotVerifiedOrActiveManagerAndAdminAccessLevels() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then()
+                .assertThat()
+                .body("accessLevels[0].active", Matchers.equalTo(false))
+                .body("accessLevels[0].verified", Matchers.equalTo(false))
+                .body("accessLevels[1].active", Matchers.equalTo(false))
+                .body("accessLevels[1].verified", Matchers.equalTo(false));
+
+
+            // ------------------------------------------------------------------------
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -35, !active1);
+
+            // -------------------------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+
+            //-------------------------------------------------------------------------------
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+
+            assertNotEquals(active1, active11);
+        }
+
+        @Test
+        void shouldChangeActiveStatusAsAdminOnAccountWithNotVerifiedOrActiveManagerAndAdminAccessLevels() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then()
+                .assertThat()
+                .body("accessLevels[0].active", Matchers.equalTo(false))
+                .body("accessLevels[0].verified", Matchers.equalTo(false))
+                .body("accessLevels[1].active", Matchers.equalTo(false))
+                .body("accessLevels[1].verified", Matchers.equalTo(false));
+
+
+            // ------------------------------------------------------------------------
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -35, !active1);
+
+            // -------------------------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+
+            //-------------------------------------------------------------------------------
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+
+            assertNotEquals(active1, active11);
+        }
+
+        @Test
+        void shouldNotChangeActiveStatusAsManagerOnAccountWithAccessLevelOtherThanOwner() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then()
+                .assertThat()
+                .body("accessLevels[0].active", Matchers.equalTo(true))
+                .body("accessLevels[0].verified", Matchers.equalTo(true))
+                .body("accessLevels[1].active", Matchers.equalTo(true))
+                .body("accessLevels[1].verified", Matchers.equalTo(true));
+
+
+            // ------------------------------------------------------------------------
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -33, !active1);
+
+            // -------------------------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+
+            //-------------------------------------------------------------------------------
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+
+            assertEquals(active1, active11);
+        }
+    }
+
     @Nested
     class MOK16 {
         @Test
         void shouldForcefullyChangeOtherAccountsPasswordByAdmin() {
 
-            //User can log in with P@ssw0rd
+            // User can log in with P@ssw0rd
 
             JSONObject credentials = new JSONObject();
             credentials.put("login", "jkubiak");
@@ -2838,7 +4007,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //Change user password by admin
+            // Change user password by admin
             given()
                 .spec(adminSpec)
                 .contentType(ContentType.JSON)
@@ -2847,7 +4016,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //User's account has become inactive
+            // User's account has become inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -2858,7 +4027,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(false))
                 .body("verified", Matchers.equalTo(true));
 
-            //Activate user in order to change if password has changed
+            // Activate user in order to change if password has changed
             ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
             dto.setId(-26L);
             dto.setActive(true);
@@ -2871,7 +4040,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if user is active
+            // Check if user is active
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -2882,7 +4051,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //User cannot log in with the same credentials, password has changed
+            // User cannot log in with the same credentials, password has changed
             given()
                 .contentType(ContentType.JSON)
                 .body(credentials.toString())
@@ -2895,7 +4064,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenUserCurrentlyDoesntHaveActiveAdminAccessLevel() {
 
-            //Logged in as manager
+            // Logged in as manager
             given()
                 .spec(managerSpec)
                 .contentType(ContentType.JSON)
@@ -2904,7 +4073,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Logged in as owner
+            // Logged in as owner
             given()
                 .spec(ownerSpec)
                 .contentType(ContentType.JSON)
@@ -2913,7 +4082,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Unauthorized user
+            // Unauthorized user
             given()
                 .contentType(ContentType.JSON)
                 .when()
@@ -2937,7 +4106,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingInactiveAccountsPassword() {
 
-            //Check if account is inactive
+            // Check if account is inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -2960,7 +4129,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingUnverifiedAccountsPassword() {
 
-            //Check if account is unverified
+            // Check if account is unverified
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -3010,7 +4179,7 @@ public class IntegrationTests {
         void shouldReturnSC400WhenForcePasswordChangeAndWrongParameters() {
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
 
-            //Empty token
+            // Empty token
 
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
@@ -3022,7 +4191,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -3033,7 +4202,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Password should contain at least one number and one special character
+            // Password should contain at least one number and one special character
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -3044,7 +4213,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid uuid
+            // Invalid uuid
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not-uuid");
             given()
@@ -3760,4 +4929,443 @@ public class IntegrationTests {
         }
     }
 
+    @Nested
+    class TwoFactorAuthentication {
+
+        @Test
+        void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsAdmin() {
+
+            //With parameter
+            //Check if user has two factor auth disabled
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Enable two factor auth
+            given()
+                .queryParam("status", true)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Change back to disabled
+            given()
+                .queryParam("status", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check again if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsManager() {
+
+            //With parameter
+            //Check if user has two factor auth disabled
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Enable two factor auth
+            given()
+                .queryParam("status", true)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Change back to disabled
+            given()
+                .queryParam("status", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check again if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsOwner() {
+
+            //With parameter
+            //Check if user has two factor auth disabled
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Enable two factor auth
+            given()
+                .queryParam("status", true)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Change back to disabled
+            given()
+                .queryParam("status", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsAdminAndParameterIsWrong() {
+            //Without parameter
+            //Change to enabled without providing parameter
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Wrong parameter name
+            given()
+                .queryParam("wrong", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsManagerAndParameterIsWrong() {
+            //Without parameter
+            //Change to enabled without providing parameter
+            given()
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Wrong parameter name
+            given()
+                .queryParam("wrong", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsOwnerAndParameterIsWrong() {
+            //Without parameter
+            //Change to enabled without providing parameter
+            given()
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Wrong parameter name
+            given()
+                .queryParam("wrong", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldDisableTwoFactorAuthWhenStatusParameterPresentButWrongValueAndAuthenticatedByAdmin() {
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Parameter that is not boolean
+            given()
+                .queryParam("status", true)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Disable two factor auth
+            given()
+                .queryParam("status", "wrong")
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldDisableTwoFactorAuthWhenStatusParameterPresentButWrongValueAndAuthenticatedByManager() {
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Parameter that is not boolean
+            given()
+                .queryParam("status", true)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Disable two factor auth
+            given()
+                .queryParam("status", "wrong")
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldDisableTwoFactorAuthWhenStatusParameterPresentButWrongValueAndAuthenticatedByOwner() {
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Parameter that is not boolean
+            given()
+                .queryParam("status", true)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Disable two factor auth
+            given()
+                .queryParam("status", "wrong")
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldReturnSC403WhenUserNotAuthenticated() {
+            given()
+                .queryParam("status", true)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
 }
