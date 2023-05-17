@@ -154,7 +154,7 @@
                             page * pageSize
                         )
                     "
-                    class="cursor-pointer">
+                    class="cursor-pointer align-middle">
                     <td>{{ account.login }}</td>
                     <td>{{ account.firstName }}</td>
                     <td>{{ account.lastName }}</td>
@@ -328,17 +328,18 @@
                 <select
                     [(ngModel)]="pageSize"
                     class="form-select w-auto">
-                    <option [ngValue]="2">
-                        {{ 'component.accounts.display.two-items' | translate }}
-                    </option>
-                    <option [ngValue]="3">
+                    <option [ngValue]="5">
                         {{
-                            'component.accounts.display.three-items' | translate
+                            'component.accounts.display.five-items' | translate
                         }}
                     </option>
-                    <option [ngValue]="4">
+                    <option [ngValue]="10">
+                        {{ 'component.accounts.display.ten-items' | translate }}
+                    </option>
+                    <option [ngValue]="15">
                         {{
-                            'component.accounts.display.four-items' | translate
+                            'component.accounts.display.fifteen-items'
+                                | translate
                         }}
                     </option>
                 </select>

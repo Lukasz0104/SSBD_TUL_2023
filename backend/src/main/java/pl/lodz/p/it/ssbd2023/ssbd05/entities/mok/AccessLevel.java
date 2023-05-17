@@ -25,7 +25,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "access_level", uniqueConstraints = @UniqueConstraint(columnNames = {"level", "account_id"}))
+@Table(
+    name = "access_level",
+    uniqueConstraints = @UniqueConstraint(
+        columnNames = {"level", "account_id"},
+        name = "access_level_account_id_level_unique"))
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING, name = "level")
 @NoArgsConstructor

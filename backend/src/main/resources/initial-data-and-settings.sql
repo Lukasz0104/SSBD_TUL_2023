@@ -76,6 +76,14 @@ insert into public.account (id, active, reminded, email, language, login, passwo
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-15, true, false, 'wplatynowy@gmail.local', 'PL', 'wplatynowy', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-16, true, false, 'azloty@gmail.local', 'PL', 'azloty', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-17, true, false, 'asrebrna@gmail.local', 'PL', 'asrebrna', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-18, true, false, 'jkowalski@gmail.local', 'PL', 'jkowalski', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-19, true, false, 'anowak@gmail.local', 'PL', 'anowak', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-20, true, false, 'dbocian@gmail.local', 'PL', 'dbocian', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-21, true, false, 'tpolak@gmail.local', 'PL', 'tpolak', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-22, true, false, 'randrzejczak@gmail.local', 'PL', 'randrzejczak', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-23, true, false, 'kmalarczyk@gmail.local', 'PL', 'kmalarczyk', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-24, true, false, 'kkuran@gmail.local', 'PL', 'kkuran', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-25, true, false, 'mnowakowska@gmail.local', 'PL', 'mnowakowska', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-26, true, false, 'jkubiak@gmail.local', 'PL', 'jkubiak', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-27, true, false, 'kgraczyk@gmail.local', 'PL', 'kgraczyk', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-28, true, false, 'wlokietek@gmail.local', 'PL', 'wlokietek', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
@@ -86,6 +94,9 @@ insert into public.account (id, active, reminded, email, language, login, passwo
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-33, true, false, 'fmleczko@gmail.local', 'PL', 'fmleczko', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-34, true, false, 'abogucka@gmail.local', 'PL', 'abogucka', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
 insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-35, true, false, 'kbona@gmail.local', 'PL', 'kbona', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-36, true, false, 'bbezpieczny@gmail.local', 'EN', 'bbezpieczny', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, true);
+insert into public.account (id, active, reminded, email, language, login, password, verified, version, last_successful_login, last_successful_login_ip, last_unsuccessful_login, last_unsuccessful_login_ip, unsuccessful_login_chain_counter, two_factor_auth) values (-37, true, false, 'lkwiatkowska@gmail.local', 'PL', 'lkwiatkowska', '$2a$10$47RnVSSBePYgtBVtERuu8.6Z3vVoBq4oriZgy.LAvB0dL2UuVV6RW', true, 0, null, null, null, null, 0, false);
+
 
 -- Account Data
 insert into public.account_data (id, first_name, last_name) values (-1, 'Ignacy', 'Kamiński');
@@ -105,6 +116,14 @@ insert into public.account_data (id, first_name, last_name) values (-14, 'Jaros�
 insert into public.account_data (id, first_name, last_name) values (-15, 'Władysław', 'Platynowy');
 insert into public.account_data (id, first_name, last_name) values (-16, 'Andrzej', 'Złoty');
 insert into public.account_data (id, first_name, last_name) values (-17, 'Anastazja', 'Srebrna');
+insert into public.account_data (id, first_name, last_name) values (-18, 'Jan', 'Kowalski');
+insert into public.account_data (id, first_name, last_name) values (-19, 'Anna', 'Nowak');
+insert into public.account_data (id, first_name, last_name) values (-20, 'Dariusz', 'Bocian');
+insert into public.account_data (id, first_name, last_name) values (-21, 'Tomasz', 'Polak');
+insert into public.account_data (id, first_name, last_name) values (-22, 'Renata', 'Andrzejczak');
+insert into public.account_data (id, first_name, last_name) values (-23, 'Kinga', 'Malarczyk');
+insert into public.account_data (id, first_name, last_name) values (-24, 'Katarzyna', 'Kuran');
+insert into public.account_data (id, first_name, last_name) values (-25, 'Marianna', 'Nowakowska');
 insert into public.account_data (id, first_name, last_name) values (-26, 'Jakub', 'Kubiak');
 insert into public.account_data (id, first_name, last_name) values (-27, 'Kamil', 'Graczyk');
 insert into public.account_data (id, first_name, last_name) values (-28, 'Władysław', 'Łokietek');
@@ -115,41 +134,49 @@ insert into public.account_data (id, first_name, last_name) values (-32, 'Izabel
 insert into public.account_data (id, first_name, last_name) values (-33, 'Fabian', 'Mleczko');
 insert into public.account_data (id, first_name, last_name) values (-34, 'Aniela', 'Bogucka');
 insert into public.account_data (id, first_name, last_name) values (-35, 'Kalina', 'Bona');
-
+insert into public.account_data (id, first_name, last_name) values (-36, 'Bartosz', 'Bezpieczny');
+insert into public.account_data (id, first_name, last_name) values (-37, 'Liliana', 'Kwiatkowska');
 
 -- Access Levels
 insert into public.access_level (id, level, version, account_id, active, verified) values (-1, 'OWNER', 0, -1, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-2, 'OWNER', 0, -2, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-3, 'OWNER', 0, -3, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-4, 'OWNER', 0, -4, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-5, 'MANAGER', 0, -4, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-6, 'MANAGER', 0, -5, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-7, 'ADMIN', 0, -6, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-8, 'ADMIN', 0, -5, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-9, 'ADMIN', 0, -1, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-10, 'OWNER', 0, -7, FALSE, FALSE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-11, 'MANAGER', 0, -8, FALSE, FALSE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-12, 'OWNER', 0, -9, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-13, 'MANAGER', 0, -10, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-14, 'OWNER', 0, -11, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-15, 'OWNER', 0, -12, FALSE, FALSE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-16, 'ADMIN', 0, -13, FALSE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-17, 'OWNER', 0, -14, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-19, 'OWNER', 0, -01, TRUE, FALSE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-20, 'OWNER', 0, -15, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-21, 'MANAGER', 0, -16, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-22, 'ADMIN', 0, -17, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-23, 'OWNER', 0, -19, FALSE, FALSE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-24, 'MANAGER', 0, -19, FALSE, FALSE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-25, 'ADMIN', 0, -19, FALSE, FALSE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-26, 'OWNER', 0, -20, FALSE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-27, 'MANAGER', 0, -20, FALSE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-28, 'ADMIN', 0, -20, FALSE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-29, 'OWNER', 0, -21, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-30, 'MANAGER', 0, -21, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-31, 'ADMIN', 0, -21, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-32, 'OWNER', 0, -23, FALSE, FALSE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-33, 'MANAGER', 0, -23, FALSE, FALSE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-34, 'ADMIN', 0, -23, FALSE, FALSE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-35, 'OWNER', 0, -24, FALSE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-36, 'MANAGER', 0, -24, FALSE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-37, 'ADMIN', 0, -24, FALSE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-38, 'OWNER', 0, -25, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-39, 'MANAGER', 0, -25, TRUE, TRUE);
+insert into public.access_level (id, level, version, account_id, active, verified) values (-40, 'ADMIN', 0, -25, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-41, 'OWNER', 0, -26, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-42, 'MANAGER', 0, -26, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-43, 'ADMIN', 0, -26, TRUE, TRUE);
@@ -161,20 +188,14 @@ insert into public.access_level (id, level, version, account_id, active, verifie
 insert into public.access_level (id, level, version, account_id, active, verified) values (-49, 'OWNER', 0, -30, FALSE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-50, 'MANAGER', 0, -30, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-51, 'OWNER', 0, -31, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-52, 'MANAGER', 0, -31, FALSE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-53, 'OWNER', 0, -32, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-54, 'OWNER', 0, -33, TRUE, TRUE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-55, 'MANAGER', 0, -33, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-56, 'ADMIN', 0, -34, TRUE, TRUE);
-
 insert into public.access_level (id, level, version, account_id, active, verified) values (-57, 'MANAGER', 0, -35, FALSE, FALSE);
 insert into public.access_level (id, level, version, account_id, active, verified) values (-58, 'ADMIN', 0, -35, FALSE, FALSE);
-
-
-
+insert into public.access_level (id, level, version, account_id, active, verified) values (-59, 'ADMIN', 0, -36, TRUE, TRUE);
 
 -- Owner Data
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-1, 131, 'Poznań', '61-168', 'Rataje');
@@ -188,6 +209,12 @@ insert into public.owner_data (id, building_number, city, postal_code, street) v
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-17, 14, 'Łódź', '99-150', 'Smutna');
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-19, 7, 'Warszawa', '19-320', 'Niepodległości');
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-20, 10, 'Łódź', '95-143', 'Zielona');
+insert into public.owner_data (id, building_number, city, postal_code, street) values (-23, 15, 'Łódź', '99-151', 'Wesoła');
+insert into public.owner_data (id, building_number, city, postal_code, street) values (-26, 16, 'Kraków', '99-152', 'Kosmonautów');
+insert into public.owner_data (id, building_number, city, postal_code, street) values (-29, 17, 'Wrocław', '99-153', 'Astronautów');
+insert into public.owner_data (id, building_number, city, postal_code, street) values (-32, 18, 'Poznań', '99-154', 'Króla');
+insert into public.owner_data (id, building_number, city, postal_code, street) values (-35, 19, 'Grańsk', '99-155', 'Lotników');
+insert into public.owner_data (id, building_number, city, postal_code, street) values (-38, 20, 'Toruń', '99-156', 'Szybowcowa');
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-41, 45, 'Wrocław', '98-890', 'Brzozowa');
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-44, 14, 'Łódź', '99-150', 'Smutna');
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-47, 14, 'Łódź', '99-150', 'Smutna');
@@ -202,6 +229,12 @@ insert into public.manager_data (id, license_number, building_number, city, post
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-11, '253725', 185, 'Warszawa', '77-174', 'Złota');
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-13, '956654', 185, 'Częstochowa', '94-050', 'Zielona');
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-21, '123874', 20, 'Warszawa', '77-153', 'Wolska');
+insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-24, '11111111', 15, 'Łódź', '99-151', 'Wesoła');
+insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-27, '22222222', 16, 'Kraków', '99-152', 'Kosmonautów');
+insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-30, '33333333', 17, 'Wrocław', '99-153', 'Astronautów');
+insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-33, '44444444', 18, 'Poznań', '99-154', 'Króla');
+insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-36, '55555555', 19, 'Grańsk', '99-155', 'Lotników');
+insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-39, '66666666', 20, 'Toruń', '99-156', 'Szybowcowa');
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-42, '4657678', 185, 'Wrocław', '98-890', 'Brzozowa');
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-46, '9566541', 14, 'Łódź', '99-150', 'Smutna');
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-48, '9566542', 14, 'Łódź', '99-150', 'Smutna');
@@ -209,16 +242,24 @@ insert into public.manager_data (id, license_number, building_number, city, post
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-52, '9566544', 14, 'Łódź', '99-150', 'Smutna');
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-55, '654956', 54, 'Jaworzno', '94-050', 'Dworcowa');
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-57, '251154', 81, 'Chorzów', '41-500', 'Główna');
+
 -- Admin Data
 insert into public.admin_data (id) values (-7);
 insert into public.admin_data (id) values (-8);
 insert into public.admin_data (id) values (-9);
 insert into public.admin_data (id) values (-16);
 insert into public.admin_data (id) values (-22);
+insert into public.admin_data (id) values (-25);
+insert into public.admin_data (id) values (-28);
+insert into public.admin_data (id) values (-31);
+insert into public.admin_data (id) values (-34);
+insert into public.admin_data (id) values (-37);
+insert into public.admin_data (id) values (-40);
 insert into public.admin_data (id) values (-43);
 insert into public.admin_data (id) values (-45);
 insert into public.admin_data (id) values (-56);
 insert into public.admin_data (id) values (-58);
+insert into public.admin_data (id) values (-59);
 
 --region building
 -- Building
