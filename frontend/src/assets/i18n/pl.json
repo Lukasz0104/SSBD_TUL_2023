@@ -95,9 +95,9 @@
         "active": "Aktywni",
         "inactive": "Nieaktywni",
         "approval": "Oczekujący na potwierdzenie",
-        "two-items": "2 elementy na stronę",
-        "three-items": "3 elementy na stronę",
-        "four-items": "4 elementy na stronę"
+        "five-items": "5 elementów na stronę",
+        "ten-items": "10 elementów na stronę",
+        "fifteen-items": "15 elementów na stronę"
       },
       "loading": "Ładowanie kont...",
       "password-change": "Zmień hasło",
