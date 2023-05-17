@@ -1,0 +1,33 @@
+version: '3.8'
+
+networks:
+  internal:
+    ipam:
+      config:
+        - subnet: 10.31.205.0/24
+
+services:
+  db:
+    image: postgres
+    restart: always
+    networks:
+          internal:
+            ipv4_address: 10.31.205.3
+    healthcheck:
+      test: pg_isready -d postgres -U ssbd05admin
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    environment:
+      POSTGRES_DB: ebok
+      POSTGRES_USER: ssbd05admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./data/db/init-user-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+
+

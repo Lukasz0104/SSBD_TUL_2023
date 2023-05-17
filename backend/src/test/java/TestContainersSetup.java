@@ -4,7 +4,11 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 
 @Testcontainers
@@ -12,10 +16,23 @@ public class TestContainersSetup {
     protected static RequestSpecification ownerSpec;
     protected static RequestSpecification managerSpec;
     protected static RequestSpecification adminSpec;
+    private static GenericContainer postgresContainer;
 
     @BeforeAll
     static void setup() {
+        Network network = Network.SHARED;
         RestAssured.baseURI = "http://localhost:8080/eBok";
+
+        postgresContainer = new PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
+            .withInitScript("data/db/init-user-db.sql")
+            .withDatabaseName("ebok")
+            .withUsername("ssbd05admin")
+            .withPassword("admin")
+            .withNetwork(network)
+            .withNetworkAliases("db")
+            .withReuse(true);
+
+        postgresContainer.start();
 
         generateOwnerSpec();
         generateManagerSpec();
@@ -24,6 +41,7 @@ public class TestContainersSetup {
 
     @AfterAll
     static void cleanup() {
+        postgresContainer.stop();
     }
 
     static void generateOwnerSpec() {
