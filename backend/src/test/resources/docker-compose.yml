@@ -1,5 +1,13 @@
 version: '3.8'
 
+#  W celu uruchomienia testów należy dodać pliki certyfikatu, z podowdów bezpieczeństwa nie zostały one umieszczone w
+# repozytorium. Pliki potrzebne do uruchomienia to:
+#  - fullchain.pem
+#  - privkey.pem
+#  Należy je umięcić w katalogu: /backend/src/resources/data/gw/letsencrypt/live/team-5.proj-sum.it.p.lodz.pl/
+# Oraz plik:
+#  - ssl-dhparams.pem
+#  Który należy umieścić w katalogu: /backend/src/resources/data/gw/letsencrypt/
 networks:
   internal:
     ipam:
