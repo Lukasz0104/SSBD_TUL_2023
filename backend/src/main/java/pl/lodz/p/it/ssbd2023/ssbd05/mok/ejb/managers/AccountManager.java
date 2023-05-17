@@ -426,6 +426,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             if (optAccessLevel.isPresent()) {
                 AccessLevel accessLevel = optAccessLevel.get();
 
+                if (!accessLevel.isActive()) {
+                    continue;
+                }
+
                 if (newAccessLevel.getVersion() != accessLevel.getVersion()) {
                     throw new AppOptimisticLockException();
                 }

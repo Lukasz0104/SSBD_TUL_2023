@@ -48,6 +48,7 @@ import { environment } from '../environments/environment';
 import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
+import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
 
 @NgModule({
     declarations: [
@@ -80,7 +81,8 @@ import { TruncatePipe } from './pipes/truncate.pipe';
         LandingPageComponent,
         TruncatePipe,
         ConfirmRegistrationComponent,
-        RecaptchaComponent
+        RecaptchaComponent,
+        ActiveAccessLevelsPipe
     ],
     imports: [
         BrowserModule,
