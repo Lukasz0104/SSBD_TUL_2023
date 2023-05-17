@@ -44,6 +44,19 @@
     },
     "license-number": {
       "required": "Numer licencji jest wymagany."
+    },
+    "old-password": {
+      "required": "Stare hasło jest wymagane",
+      "min-length": "Stare hasło musi być dłuższe niż 8 znaków"
+    },
+    "new-password": {
+      "required": "Nowe hasło jest wymagane",
+      "same-old": "Nowe hasło nie może być takie samo jak stare hasło",
+      "same-new": "Nowe hasła muszą być identyczne",
+      "strength": "Nowe hasło jest zbyt słabe"
+    },
+    "repeat-new-password": {
+      "required": "Powtórzenie nowego hasła jest wymagane"
     }
   },
   "form": {
@@ -80,6 +93,13 @@
     "register": {
       "sign-in": "Zaloguj się",
       "account-info": "Masz już konto?"
+    },
+    "change-password": {
+      "title": "Zmień hasło",
+      "current-password": "Aktualne hasło",
+      "new-password": "Nowe hasło",
+      "repeat-password": "Powtórz hasło",
+      "action": "Zmień"
     }
   },
   "component": {
@@ -98,9 +118,16 @@
       },
       "loading": "Ładowanie kont...",
       "password-change": "Zmień hasło",
-      "activate" : "Odblokuj",
-      "deactivate" : "Zablokuj",
-      "edit-account": "Edytuj konto"
+      "activate": "Odblokuj",
+      "deactivate": "Zablokuj",
+      "edit-account": "Edytuj konto",
+      "give-owner": "Nadaj poziom dostępu Właściciel",
+      "give-manager": "Nadaj poziom dostępu Zarządca",
+      "give-admin": "Nadaj poziom dostępu Administrator",
+      "revoke-owner": "Odbierz poziom dostępu Właściciel",
+      "revoke-manager": "Odbierz poziom dostępu Zarządca",
+      "revoke-admin": "Odbierz poziom dostępu Administrator",
+      "verify": "Zweryfikuj"
     },
     "account": {
       "language": "Język",
@@ -120,7 +147,8 @@
       "edit-your-account": "Edytuj swoje konto",
       "general": "Ogólne",
       "save": "Zapisz",
-      "cancel": "Anuluj"
+      "cancel": "Anuluj",
+      "change-email": "Zmień email"
     },
     "fields": {
       "login": "Login",

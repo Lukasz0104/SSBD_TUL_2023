@@ -44,6 +44,19 @@
     },
     "license-number": {
       "required": "License number is required."
+    },
+    "old-password": {
+      "required": "Old password is required",
+      "min-length": "Old password must be longer than 8 characters"
+    },
+    "new-password": {
+      "required": "New password is required",
+      "same-old": "New password cannot be the same as old password",
+      "same-new": "New passwords must be identical",
+      "strength": "New password is too weak"
+    },
+    "repeat-new-password": {
+      "required": "Repeat new password is required"
     }
   },
   "form": {
@@ -80,6 +93,13 @@
     "register": {
       "sign-in": "Sign in",
       "account-info": "Already have an account?"
+    },
+    "change-password": {
+      "title": "Change password",
+      "current-password": "Current password",
+      "new-password": "New password",
+      "repeat-password": "Repeat password",
+      "action": "Change"
     }
   },
   "component": {
@@ -98,9 +118,16 @@
       },
       "loading": "Loading accounts...",
       "password-change": "Change password",
-      "activate" : "Unlock",
-      "deactivate" : "Lock",
-      "edit-account": "Edit account"
+      "activate": "Unlock",
+      "deactivate": "Lock",
+      "edit-account": "Edit account",
+      "give-owner": "Assign Owner access level",
+      "give-manager": "Assign Manager access level",
+      "give-admin": "Assign Administrator access level",
+      "revoke-owner": "Revoke Owner access level",
+      "revoke-manager": "Revoke Manager access level",
+      "revoke-admin": "Revoke Administrator access level",
+      "verify": "Verify"
     },
     "account": {
       "language": "Language",
@@ -120,7 +147,8 @@
       "edit-your-account": "Edit your account",
       "general": "General",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "change-email": "Change email"
     },
     "fields": {
       "login": "Login",
