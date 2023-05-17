@@ -77,14 +77,17 @@ import java.util.UUID;
         query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt"),
     @NamedQuery(
         name = "Token.removeTokensByAccountIdAndTokenType",
-        query = "DELETE FROM Token t WHERE t.account.id = :accountId AND t.tokenType = :tokenType")
+        query = "DELETE FROM Token t WHERE t.account.id = :accountId AND t.tokenType = :tokenType"),
+    @NamedQuery(
+        name = "Token.findByTokenTypeAndAccountId",
+        query = "SELECT t FROM Token t WHERE t.tokenType = :tokenType AND t.account.id = :accountId")
 })
 public class Token extends AbstractEntity {
 
     @NotNull
     @Basic(optional = false)
     @Column(name = "token", unique = true, updatable = false, nullable = false)
-    private UUID token;
+    private String token;
 
     @NotNull
     @ManyToOne(optional = false)
@@ -103,10 +106,10 @@ public class Token extends AbstractEntity {
     private TokenType tokenType;
 
     public Token(Account account, TokenType tokenType) {
-        this(UUID.randomUUID(), account, tokenType);
+        this(UUID.randomUUID().toString(), account, tokenType);
     }
 
-    public Token(UUID token, Account account, TokenType tokenType) {
+    public Token(String token, Account account, TokenType tokenType) {
         this.token = token;
         this.account = account;
         this.tokenType = tokenType;
@@ -114,12 +117,13 @@ public class Token extends AbstractEntity {
             case REFRESH_TOKEN -> LocalDateTime.now().plusHours(1);
             case PASSWORD_RESET_TOKEN -> LocalDateTime.now().plusMinutes(15);
             case BLOCKED_ACCOUNT_TOKEN -> LocalDateTime.now().plusHours(24);
+            case TWO_FACTOR_AUTH_TOKEN -> LocalDateTime.now().plusMinutes(5);
             default -> LocalDateTime.now().plusHours(2);
         };
     }
 
     public Token(Account account, long confirmationTime, TokenType tokenType) {
-        this.token = UUID.randomUUID();
+        this.token = UUID.randomUUID().toString();
         this.account = account;
         this.expiresAt = LocalDateTime.now().plus(confirmationTime, ChronoUnit.MILLIS);
         this.tokenType = tokenType;

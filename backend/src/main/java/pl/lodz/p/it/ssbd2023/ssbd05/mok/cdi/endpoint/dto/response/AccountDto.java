@@ -35,8 +35,9 @@ public class AccountDto extends OwnAccountDto {
                       @NotNull @Size(min = 2, max = 2) String language,
                       boolean verified,
                       boolean active,
+                      boolean twoFactorAuth,
                       ActivityTrackerDto activityTracker) {
-        super(id, version, accessLevels, email, login, firstName, lastName, language);
+        super(id, version, accessLevels, email, login, firstName, lastName, language, twoFactorAuth);
         this.verified = verified;
         this.active = active;
         this.activityTracker = activityTracker;

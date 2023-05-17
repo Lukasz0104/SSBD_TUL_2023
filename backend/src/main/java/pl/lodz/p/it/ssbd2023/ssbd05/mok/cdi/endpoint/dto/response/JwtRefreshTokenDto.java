@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +15,7 @@ public class JwtRefreshTokenDto {
     private String jwt;
 
     @NotNull
-    private UUID refreshToken;
+    private String refreshToken;
 
     @NotBlank
     private String language;

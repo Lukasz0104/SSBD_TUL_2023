@@ -18,7 +18,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -50,7 +49,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         super.remove(entity);
     }
 
-    public Optional<Token> findByToken(UUID token) {
+    public Optional<Token> findByToken(String token) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByToken", Token.class);
         tq.setParameter("token", token);
         try {
@@ -84,7 +83,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         return this.findByExpiresAtIf(expiresAt, true);
     }
 
-    public Optional<Token> findByTokenAndTokenType(UUID token, TokenType tokenType) {
+    public Optional<Token> findByTokenAndTokenType(String token, TokenType tokenType) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenAndTokenType", Token.class);
         tq.setParameter("token", token);
         tq.setParameter("tokenType", tokenType);
@@ -162,6 +161,13 @@ public class TokenFacade extends AbstractFacade<Token> {
             tq = em.createNamedQuery("Token.findByExpiresAtBefore", Token.class);
         }
         tq.setParameter("expiresAt", expiresAt);
+        return tq.getResultList();
+    }
+
+    public List<Token> findByTokenTypeAndAccountId(TokenType tokenType, Long accountId) {
+        TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenTypeAndAccountId", Token.class);
+        tq.setParameter("tokenType", tokenType);
+        tq.setParameter("accountId", accountId);
         return tq.getResultList();
     }
 }
