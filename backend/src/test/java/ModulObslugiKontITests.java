@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         - ssl-dhparams.pem
         Który należy umieścić w katalogu: /backend/src/resources/data/gw/letsencrypt/
  */
-public class IntegrationTests extends TestContainersSetup {
+public class ModulObslugiKontITests extends TestContainersSetup {
 
     // Zaloguj się
     @Nested
