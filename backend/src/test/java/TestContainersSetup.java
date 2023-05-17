@@ -7,9 +7,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 
 @Testcontainers
 public class TestContainersSetup {
@@ -17,11 +23,11 @@ public class TestContainersSetup {
     protected static RequestSpecification managerSpec;
     protected static RequestSpecification adminSpec;
     private static GenericContainer postgresContainer;
+    private static GenericContainer payaraContainer;
 
     @BeforeAll
-    static void setup() {
+    static void setup() throws IOException {
         Network network = Network.SHARED;
-        RestAssured.baseURI = "http://localhost:8080/eBok";
 
         postgresContainer = new PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
             .withInitScript("data/db/init-user-db.sql")
@@ -30,9 +36,27 @@ public class TestContainersSetup {
             .withPassword("admin")
             .withNetwork(network)
             .withNetworkAliases("db")
+            .waitingFor(Wait.forListeningPort())
             .withReuse(true);
 
+        MountableFile warFile = MountableFile.forHostPath(
+            Paths.get(new File("target/eBok.war").getCanonicalPath()).toAbsolutePath(), 0777);
+
+        payaraContainer = new GenericContainer("payara/server-full:6.2023.2-jdk17")
+            .withEnv("mail_smtp_host", "smtp.gmail.com.local")
+            .withExposedPorts(8080)
+            .dependsOn(postgresContainer)
+            .withNetwork(network)
+            .withNetworkAliases("app")
+            .withCopyFileToContainer(warFile, "/opt/payara/deployments/ebok.war")
+            .waitingFor(Wait.forLogMessage(".*was successfully deployed in.*", 1))
+            .withReuse(true);
+
+
         postgresContainer.start();
+        payaraContainer.start();
+
+        RestAssured.baseURI = "http://localhost:" + payaraContainer.getMappedPort(8080) + "/eBok";
 
         generateOwnerSpec();
         generateManagerSpec();
@@ -41,6 +65,7 @@ public class TestContainersSetup {
 
     @AfterAll
     static void cleanup() {
+        payaraContainer.stop();
         postgresContainer.stop();
     }
 
