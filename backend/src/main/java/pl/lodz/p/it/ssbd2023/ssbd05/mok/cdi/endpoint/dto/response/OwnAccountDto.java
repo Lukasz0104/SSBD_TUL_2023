@@ -35,14 +35,16 @@ public class OwnAccountDto extends AccountSignableDto {
     @Size(min = 2, max = 2)
     private String language = "PL";
 
+    private boolean twoFactorAuth;
+
     public OwnAccountDto(Long id, Long version, Set<AccessLevelDto> accessLevels, String email, String login,
-                         String firstName, String lastName, String language) {
+                         String firstName, String lastName, String language, boolean twoFactorAuth) {
         super(login, version, accessLevels);
         this.email = email;
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.language = language;
+        this.twoFactorAuth = twoFactorAuth;
     }
 }
-

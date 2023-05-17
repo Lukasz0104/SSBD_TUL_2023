@@ -37,6 +37,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
@@ -111,7 +112,7 @@ public class IntegrationTests {
     }
 
 
-    //Zaloguj się
+    // Zaloguj się
     @Nested
     class MOK1 {
         @Test
@@ -562,7 +563,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC400WhenWrongRequestParameters() {
 
-            //Empty email
+            // Empty email
             given()
                 .queryParam("email", "")
                 .when()
@@ -571,7 +572,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Provided value is not an email
+            // Provided value is not an email
             given()
                 .queryParam("email", "email")
                 .when()
@@ -580,7 +581,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //No parameter provided
+            // No parameter provided
             given()
                 .when()
                 .post("accounts/reset-password-message")
@@ -606,7 +607,7 @@ public class IntegrationTests {
 
         @Test
         void shouldReturnSC400WhenWrongParametersDuringPasswordResetConfirm() {
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
@@ -619,7 +620,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid password, should have at least one number and one special character
+            // Invalid password, should have at least one number and one special character
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not_uuid");
             given()
@@ -631,7 +632,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -643,7 +644,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty token
+            // Empty token
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
             given()
@@ -3060,7 +3061,7 @@ public class IntegrationTests {
         @Test
         void shouldForcefullyChangeOtherAccountsPasswordByAdmin() {
 
-            //User can log in with P@ssw0rd
+            // User can log in with P@ssw0rd
 
             JSONObject credentials = new JSONObject();
             credentials.put("login", "jkubiak");
@@ -3085,7 +3086,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //Change user password by admin
+            // Change user password by admin
             given()
                 .spec(adminSpec)
                 .contentType(ContentType.JSON)
@@ -3094,7 +3095,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //User's account has become inactive
+            // User's account has become inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -3105,7 +3106,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(false))
                 .body("verified", Matchers.equalTo(true));
 
-            //Activate user in order to change if password has changed
+            // Activate user in order to change if password has changed
             ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
             dto.setId(-26L);
             dto.setActive(true);
@@ -3118,7 +3119,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if user is active
+            // Check if user is active
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -3129,7 +3130,7 @@ public class IntegrationTests {
                 .body("active", Matchers.equalTo(true))
                 .body("verified", Matchers.equalTo(true));
 
-            //User cannot log in with the same credentials, password has changed
+            // User cannot log in with the same credentials, password has changed
             given()
                 .contentType(ContentType.JSON)
                 .body(credentials.toString())
@@ -3142,7 +3143,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenUserCurrentlyDoesntHaveActiveAdminAccessLevel() {
 
-            //Logged in as manager
+            // Logged in as manager
             given()
                 .spec(managerSpec)
                 .contentType(ContentType.JSON)
@@ -3151,7 +3152,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Logged in as owner
+            // Logged in as owner
             given()
                 .spec(ownerSpec)
                 .contentType(ContentType.JSON)
@@ -3160,7 +3161,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 
-            //Unauthorized user
+            // Unauthorized user
             given()
                 .contentType(ContentType.JSON)
                 .when()
@@ -3184,7 +3185,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingInactiveAccountsPassword() {
 
-            //Check if account is inactive
+            // Check if account is inactive
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -3207,7 +3208,7 @@ public class IntegrationTests {
         @Test
         void shouldReturnSC403WhenChangingUnverifiedAccountsPassword() {
 
-            //Check if account is unverified
+            // Check if account is unverified
             given()
                 .contentType(ContentType.JSON)
                 .spec(adminSpec)
@@ -3257,7 +3258,7 @@ public class IntegrationTests {
         void shouldReturnSC400WhenForcePasswordChangeAndWrongParameters() {
             ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
 
-            //Empty token
+            // Empty token
 
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("");
@@ -3269,7 +3270,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Empty password
+            // Empty password
             resetPasswordDto.setPassword("");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -3280,7 +3281,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Password should contain at least one number and one special character
+            // Password should contain at least one number and one special character
             resetPasswordDto.setPassword("newPassword");
             resetPasswordDto.setToken(UUID.randomUUID().toString());
             given()
@@ -3291,7 +3292,7 @@ public class IntegrationTests {
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                 .assertThat().contentType(ContentType.HTML);
 
-            //Invalid uuid
+            // Invalid uuid
             resetPasswordDto.setPassword("newPassword@1");
             resetPasswordDto.setToken("not-uuid");
             given()
@@ -4258,4 +4259,443 @@ public class IntegrationTests {
         }
     }
 
+    @Nested
+    class TwoFactorAuthentication {
+
+        @Test
+        void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsAdmin() {
+
+            //With parameter
+            //Check if user has two factor auth disabled
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Enable two factor auth
+            given()
+                .queryParam("status", true)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Change back to disabled
+            given()
+                .queryParam("status", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check again if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsManager() {
+
+            //With parameter
+            //Check if user has two factor auth disabled
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Enable two factor auth
+            given()
+                .queryParam("status", true)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Change back to disabled
+            given()
+                .queryParam("status", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check again if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsOwner() {
+
+            //With parameter
+            //Check if user has two factor auth disabled
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Enable two factor auth
+            given()
+                .queryParam("status", true)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Change back to disabled
+            given()
+                .queryParam("status", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsAdminAndParameterIsWrong() {
+            //Without parameter
+            //Change to enabled without providing parameter
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Wrong parameter name
+            given()
+                .queryParam("wrong", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(adminSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsManagerAndParameterIsWrong() {
+            //Without parameter
+            //Change to enabled without providing parameter
+            given()
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Wrong parameter name
+            given()
+                .queryParam("wrong", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsOwnerAndParameterIsWrong() {
+            //Without parameter
+            //Change to enabled without providing parameter
+            given()
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Wrong parameter name
+            given()
+                .queryParam("wrong", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Return user back to normal
+            given()
+                .queryParam("status", false)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldDisableTwoFactorAuthWhenStatusParameterPresentButWrongValueAndAuthenticatedByAdmin() {
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Parameter that is not boolean
+            given()
+                .queryParam("status", true)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Disable two factor auth
+            given()
+                .queryParam("status", "wrong")
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldDisableTwoFactorAuthWhenStatusParameterPresentButWrongValueAndAuthenticatedByManager() {
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Parameter that is not boolean
+            given()
+                .queryParam("status", true)
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Disable two factor auth
+            given()
+                .queryParam("status", "wrong")
+                .spec(managerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldDisableTwoFactorAuthWhenStatusParameterPresentButWrongValueAndAuthenticatedByOwner() {
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+
+            //Parameter that is not boolean
+            given()
+                .queryParam("status", true)
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            //Check if change was made
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(true));
+
+            //Disable two factor auth
+            given()
+                .queryParam("status", "wrong")
+                .spec(ownerSpec)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("twoFactorAuth", Matchers.equalTo(false));
+        }
+
+        @Test
+        void shouldReturnSC403WhenUserNotAuthenticated() {
+            given()
+                .queryParam("status", true)
+                .put("accounts/me/change_two_factor_auth_status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
 }

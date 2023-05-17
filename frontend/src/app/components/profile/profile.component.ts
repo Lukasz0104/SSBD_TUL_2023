@@ -29,4 +29,15 @@ export class ProfileComponent {
             this.ownAccount$ = this.accountService.getOwnProfile();
         });
     }
+
+    changeTwoFactorAuthStatus() {
+        this.ownAccount$.subscribe((result) => {
+            if (result != null) {
+                this.accountService.changeTwoFactorAuthStatus(
+                    !result.twoFactorAuth
+                );
+                result.twoFactorAuth = !result.twoFactorAuth;
+            }
+        });
+    }
 }

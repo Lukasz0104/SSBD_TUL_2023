@@ -61,6 +61,30 @@ const routes: Routes = [
             {
                 path: 'confirm-account',
                 component: ConfirmRegistrationComponent
+            },
+            {
+                path: 'reset-password',
+                component: ResetPasswordComponent,
+                data: {
+                    title: 'Reset password'
+                },
+                canActivate: [canActivateLoginOrRegister]
+            },
+            {
+                path: 'reset-password-confirm/:token',
+                component: ResetPasswordConfirmComponent,
+                data: {
+                    title: 'Confirm password reset'
+                },
+                canActivate: [canActivateLoginOrRegister]
+            },
+            {
+                path: 'force-password-override/:token',
+                component: ForcePasswordChangeOverrideComponent,
+                data: {
+                    title: 'Override password change'
+                },
+                canActivate: [canActivateLoginOrRegister]
             }
         ]
     },
@@ -107,30 +131,6 @@ const routes: Routes = [
                 canActivate: [canActivateManagerAdmin]
             }
         ]
-    },
-    {
-        path: 'reset-password',
-        component: ResetPasswordComponent,
-        data: {
-            title: 'Reset password'
-        },
-        canActivate: [canActivateLoginOrRegister]
-    },
-    {
-        path: 'reset-password-confirm/:token',
-        component: ResetPasswordConfirmComponent,
-        data: {
-            title: 'Confirm password reset'
-        },
-        canActivate: [canActivateLoginOrRegister]
-    },
-    {
-        path: 'force-password-override/:token',
-        component: ForcePasswordChangeOverrideComponent,
-        data: {
-            title: 'Override password change'
-        },
-        canActivate: [canActivateLoginOrRegister]
     }
 ];
 
