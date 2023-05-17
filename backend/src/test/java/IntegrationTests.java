@@ -6339,5 +6339,18 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
+
+        @Test
+        void shouldReturnSC202When2FAIsEnabled() {
+            LoginDto loginDto = new LoginDto("bbezpieczny", "P@ssw0rd");
+
+            given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .then()
+                .assertThat()
+                .statusCode(Response.Status.ACCEPTED.getStatusCode());
+        }
     }
 }
