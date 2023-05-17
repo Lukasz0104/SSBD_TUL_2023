@@ -200,6 +200,10 @@
       "building-number": "Numer budynku",
       "postal-code": "Kod pocztowy",
       "city": "Miasto"
+    },
+    "landing-page": {
+      "title": "Zmień oblicze swojej wspólnoty z eBok!",
+      "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę."
     }
   },
   "modal": {
@@ -212,7 +216,12 @@
     "confirm-action": {
       "force-password-message": "Czy napewno chcesz zmienić hasło konta?",
       "force-password-danger": "Ta czynność zablokuje wybrane konto.",
-      "action": "Potwierdzam"
+      "action": "Potwierdzam",
+      "grant-access-level": "Potwierdź nadanie dostępu",
+      "revoke-access-level": "Czy na pewno chcesz usunąć poziom dostępu",
+      "edit-account": "Czy na pewno chcesz edytować konto",
+      "edit-account-danger": "Tej akcji nie da się cofnąć!",
+      "change-password": "Czy na pewno chcesz zmienić swoje hasło?"
     }
   },
   "access-levels": {
@@ -239,7 +248,7 @@
     "account": {
       "reset-password-message": "Wiadomość do zresetowania hasła została wysłana",
       "reset-password-change": "Hasło zostało zmienione. Możesz się teraz zalogować",
-      "language-fail": "Błąd zmiany hasła",
+      "language-fail": "Błąd zmiany języka",
       "reset-password-message-fail": "Błąd wysyłania wiadomości",
       "reset-password-fail": "Bład podczas zmiany hasła",
       "force-password-change-message": "Hasło zostało zmienione, a wybrane konto zostało zablokowane",
@@ -264,7 +273,11 @@
       "change-password": "Zmiana hasła konta powiodła się",
       "change-password-fail": "Zmiana hasła konta nie powiodła się",
       "change-access-level": "Aktualny poziom dostępu został zmieniony",
-      "change-access-level-fail": "Zmiana aktualnego poziomu dostępu nie powiodła się"
+      "change-access-level-fail": "Zmiana aktualnego poziomu dostępu nie powiodła się",
+      "grant-access-level": "Pomyślnie nadano poziom dostępu",
+      "revoke-access-level": "Operacja zakończona sukcesem",
+      "grant-access-level-fail": "Błąd podczas nadawania wybranego poziomu dostępu",
+      "revoke-access-level-fail": "Operacja zakończona niepowodzeniem"
     },
     "guard": {
       "access-denied": "Odmowa dostępu"

@@ -70,7 +70,7 @@ export class ChangePasswordComponent {
             const modal = this.modalService.open(ConfirmActionComponent);
             const instance = modal.componentInstance as ConfirmActionComponent;
 
-            instance.message = 'Czy na pewno chcesz zmienić swoje hasło?';
+            instance.message = 'modal.confirm-action.change-password';
             instance.danger = ``;
 
             modal.closed.subscribe((res: boolean): void => {

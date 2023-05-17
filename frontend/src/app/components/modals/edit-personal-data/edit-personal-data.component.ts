@@ -6,6 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable, tap } from 'rxjs';
 import { AccessType } from '../../../model/access-type';
 import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-edit-personal-data',
@@ -74,7 +75,8 @@ export class EditPersonalDataComponent {
     constructor(
         public activeModal: NgbActiveModal,
         private modalService: NgbModal,
-        private accountService: AccountService
+        private accountService: AccountService,
+        private translate: TranslateService
     ) {
         this.ownAccount$ = accountService.getOwnProfile().pipe(
             tap((result) => {
@@ -122,8 +124,10 @@ export class EditPersonalDataComponent {
         });
         const instance = modalRef.componentInstance as ConfirmActionComponent;
 
-        instance.message = `Czy na pewno chcesz edytować konto ${this.ownAccount?.login}?`;
-        instance.danger = `Tej akcji nie da się cofnąć!`;
+        instance.message =
+            this.translate.instant('modal.confirm-action.edit-account') +
+            `${this.ownAccount?.login}?`;
+        instance.danger = `modal.confirm-action.edit-account-danger`;
         modalRef.closed.subscribe((res: boolean) => {
             if (res) {
                 this.onSubmit();

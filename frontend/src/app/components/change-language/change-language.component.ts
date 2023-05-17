@@ -22,7 +22,6 @@ export class ChangeLanguageComponent {
     }
 
     changeLanguage(language: string) {
-        let success = true;
         if (this.authService.isAuthenticated()) {
             this.accountService
                 .changeLanguage(language)
@@ -33,14 +32,15 @@ export class ChangeLanguageComponent {
                                 'toast.account.language-fail'
                             )
                         );
-                        success = false;
+                    } else {
+                        this.translate.use(language.toLowerCase());
+                        localStorage.setItem(
+                            'language',
+                            language.toLowerCase()
+                        );
+                        this.language = language;
                     }
                 });
-        }
-        if (success) {
-            this.translate.use(language.toLowerCase());
-            localStorage.setItem('language', language.toLowerCase());
-            this.language = language;
         }
     }
 }

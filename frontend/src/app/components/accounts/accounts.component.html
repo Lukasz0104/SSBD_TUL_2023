@@ -218,9 +218,7 @@
                                             | translate
                                     }}
                                 </button>
-                                <button
-                                    *ngIf="!account.active"
-                                    ngbDropdownItem>
+                                <button ngbDropdownItem>
                                     <app-change-active-status
                                         (statusChangedEvent)="reload()"
                                         [id]="account.id"

@@ -127,7 +127,7 @@ export class EditPersonalDataAsAdminComponent {
         const modal = this.modalService.open(ConfirmActionComponent);
         const instance = modal.componentInstance as ConfirmActionComponent;
 
-        instance.message = 'Czy na pewno chcesz edytować konto';
+        instance.message = 'modal.confirm-action.edit-account';
         instance.danger = `${this.newAccount?.login}`;
 
         modal.closed.subscribe((res: boolean): void => {

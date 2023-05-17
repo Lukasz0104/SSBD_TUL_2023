@@ -131,11 +131,13 @@ export class RegisterComponent {
 
     protected continueToOwnerForm() {
         this.licenseNumberControl.disable();
+        this.captchaCode = '';
         this.formIndex++;
     }
 
     protected continueToManagerForm() {
         this.licenseNumberControl.enable();
+        this.captchaCode = '';
         this.formIndex++;
     }
 

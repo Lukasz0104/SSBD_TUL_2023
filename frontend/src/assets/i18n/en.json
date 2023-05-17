@@ -201,6 +201,10 @@
       "building-number": "Building number",
       "postal-code": "Postal code",
       "city": "City"
+    },
+    "landing-page": {
+      "title": "Zmień oblicze swojej wspólnoty z eBok!",
+      "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę."
     }
   },
   "modal": {
@@ -213,7 +217,12 @@
     "confirm-action": {
       "force-password-message": "Do you want to change chosen account's password?",
       "force-password-danger": "This action will block this account.",
-      "action": "Confirm"
+      "action": "Confirm",
+      "grant-access-level": "Confirm access level grant",
+      "revoke-access-level": "Are you sure, you want to revoke access level",
+      "edit-account": "Are you sure, you want to edit account",
+      "edit-account-danger": "This action cannot be undone!",
+      "change-password": "Are you sure, you want to change your password?"
     }
   },
   "access-levels": {
@@ -265,7 +274,11 @@
       "change-password": "Account's password change successful",
       "change-password-fail": "Could not change password",
       "change-access-level": "Current access level has been changed",
-      "change-access-level-fail": "Could not change current access level"
+      "change-access-level-fail": "Could not change current access level",
+      "grant-access-level": "Access level granted successfully",
+      "revoke-access-level": "Action successful",
+      "grant-access-level-fail": "Could not grant chosen access level",
+      "revoke-access-level-fail": "Action failure"
     },
     "guard": {
       "access-denied": "Access denied"
@@ -339,7 +352,7 @@
   "confirm-register": {
     "response": {
       "message": {
-        "token_not_found": "Link has been used",
+        "token_not_found": "Link was used",
         "expired_token": "Link has expired",
         "rollback.limit.exceeded": "Request timmed out",
         "optimistic_lock": "Register confirmation failed"
@@ -405,6 +418,17 @@
       "message": {
         "account_not_found": "This account could not be found",
         "no_access_level": "Your account does not have chosen access level"
+      }
+    }
+  },
+  "grant-access-level": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not grant access level to chosen account, please try again",
+        "access-management-self": "Cannot grant access level to your own account",
+        "account_not_found": "This account could not be found",
+        "license-number-already-taken": "License number already taken"
       }
     }
   }
