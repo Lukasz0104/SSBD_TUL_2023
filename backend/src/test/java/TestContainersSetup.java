@@ -23,10 +23,10 @@ import java.nio.file.Paths;
     repozytorium. Pliki potrzebne do uruchomienia to:
         - fullchain.pem
         - privkey.pem
-        Należy je umięcić w katalogu: /backend/src/resources/data/gw/letsencrypt/live/team-5.proj-sum.it.p.lodz.pl/
+        Należy je umięcić w katalogu: /backend/src/test/resources/data/gw/letsencrypt/live/team-5.proj-sum.it.p.lodz.pl/
     Oraz plik:
         - ssl-dhparams.pem
-        Który należy umieścić w katalogu: /backend/src/resources/data/gw/letsencrypt/
+        Który należy umieścić w katalogu: /backend/src/test/resources/data/gw/letsencrypt/
  */
 
 @Testcontainers
