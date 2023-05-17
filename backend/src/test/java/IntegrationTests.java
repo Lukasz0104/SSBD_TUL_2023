@@ -30,13 +30,12 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
@@ -658,473 +657,6 @@ public class IntegrationTests {
         }
     }
 
-    //Wyloguj się
-    @Nested
-    class MOK8 {
-
-        @Test
-        void shouldLogoutWithValidRefreshTokenAndInvalidateIt() {
-            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
-
-            String refreshToken = given()
-                .contentType(ContentType.JSON)
-                .body(loginDto)
-                .when()
-                .post("/login")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .contentType(ContentType.JSON)
-                .body("jwt", Matchers.any(String.class),
-                    "refreshToken", Matchers.any(String.class),
-                    "language", Matchers.any(String.class))
-                .extract()
-                .jsonPath()
-                .getString("refreshToken");
-
-            given().spec(ownerSpec)
-                .when()
-                .delete("/logout?token=" + refreshToken)
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            RefreshJwtDto refreshJwtDto = new RefreshJwtDto("pduda", refreshToken);
-            given().body(refreshJwtDto)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/refresh")
-                .then()
-                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
-                .body("message", Matchers.equalTo(I18n.AUTHENTICATION_EXCEPTION));
-        }
-
-        @Test
-        void shouldLogoutWithNonExistentRefreshToken() {
-            given().spec(ownerSpec)
-                .when()
-                .delete("/logout?token=" + UUID.randomUUID())
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenRefreshTokenIsNotUUID() {
-            given().spec(ownerSpec)
-                .when()
-                .delete("/logout?token=definitelyNotUUID")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenJwtIsNotAttached() {
-            given()
-                .when()
-                .delete("/logout?token=" + UUID.randomUUID())
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC204ForAllConcurrentRequests() throws BrokenBarrierException, InterruptedException {
-            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
-
-            String refreshToken = given()
-                .contentType(ContentType.JSON)
-                .body(loginDto)
-                .when()
-                .post("/login")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .contentType(ContentType.JSON)
-                .body("jwt", Matchers.any(String.class),
-                    "refreshToken", Matchers.any(String.class),
-                    "language", Matchers.any(String.class))
-                .extract()
-                .jsonPath()
-                .getString("refreshToken");
-
-            int threadNumber = 5;
-            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
-            List<Thread> threads = new ArrayList<>(threadNumber);
-            AtomicInteger numberFinished = new AtomicInteger();
-            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
-
-            for (int i = 0; i < threadNumber; i++) {
-                threads.add(new Thread(() -> {
-                    try {
-                        cyclicBarrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    int statusCode = given().spec(ownerSpec)
-                        .when()
-                        .delete("/logout?token=" + refreshToken).getStatusCode();
-
-                    if (statusCode == 204) {
-                        numberOfSuccessfulAttempts.getAndIncrement();
-                    }
-                    numberFinished.getAndIncrement();
-                }));
-            }
-            threads.forEach(Thread::start);
-            cyclicBarrier.await();
-            while (numberFinished.get() != threadNumber) {
-            }
-
-            assertEquals(numberFinished.get(), numberOfSuccessfulAttempts.get());
-        }
-    }
-
-    @Nested
-    class MOK9 {
-        @Test
-        void shouldChangeLanguageWhenUserAuthenticatedAdmin() {
-            given()
-                .spec(adminSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/EN")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(adminSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("EN"));
-
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/PL")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(adminSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-        }
-
-        @Test
-        void shouldChangeLanguageWhenUserAuthenticatedOwner() {
-            given()
-                .spec(ownerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-
-            given()
-                .spec(ownerSpec)
-                .put("accounts/me/change-language/En")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(ownerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("EN"));
-
-            given()
-                .spec(ownerSpec)
-                .put("accounts/me/change-language/Pl")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(ownerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-        }
-
-        @Test
-        void shouldChangeLanguageWhenUserAuthenticatedManager() {
-            given()
-                .spec(managerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-
-            given()
-                .spec(managerSpec)
-                .put("accounts/me/change-language/en")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(managerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("EN"));
-
-            given()
-                .spec(managerSpec)
-                .put("accounts/me/change-language/pl")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(managerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-        }
-
-        @Test
-        void shouldReturnSC403WhenUserNotAuthenticated() {
-            given()
-                .put("accounts/me/change-language/en")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenLanguageDoesntExist() {
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/ger")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
-
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/1")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
-        }
-    }
-
-    //Wyświetl listę kont
-    @Nested
-    class MOK15 {
-
-        @Test
-        void shouldGetAllAccountsAsAdmin() {
-            List<AccountDto> accounts =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
-        }
-
-        @Test
-        void shouldGetAllAccountsAsManager() {
-            List<AccountDto> accounts =
-                given().spec(managerSpec)
-                    .when()
-                    .get("/accounts")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
-        }
-
-        @Test
-        void shouldGetAllAdminsAsAdmin() {
-            List<AccountDto> admins =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/admins")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(admins);
-        }
-
-        @Test
-        void shouldGetAllManagersAsAdmin() {
-            List<AccountDto> managers =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/managers")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(managers);
-        }
-
-        @Test
-        void shouldGetAllOwnersAsAdmin() {
-            List<AccountDto> owners =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetAllOwnersAsManager() {
-            List<AccountDto> owners =
-                given().spec(managerSpec)
-                    .when()
-                    .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetUnapprovedOwnersAsManager() {
-            List<AccountDto> owners =
-                given().spec(managerSpec)
-                    .contentType(ContentType.JSON)
-                    .when()
-                    .get("/accounts/owners/unapproved")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetUnapprovedManagersAsAdmin() {
-            List<AccountDto> managers =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/managers/unapproved")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(managers);
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAllAccountsAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsManager() {
-            given().spec(managerSpec)
-                .when()
-                .get("/accounts/managers")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAdminsAsManager() {
-            given().spec(managerSpec)
-                .when()
-                .get("/accounts/admins")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/owners")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsAdmin() {
-            given().spec(adminSpec)
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedManagersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/managers/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAccountsAsGuest() {
-            given()
-                .when()
-                .get("/accounts")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingOwnersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/owners")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/managers")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAdminsAsGuest() {
-            given()
-                .when()
-                .get("/accounts/admins")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedManagersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/managers/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-    }
-
     // Wyświetl dane konta użytkownika
     @Nested
     class MOK4 {
@@ -1279,7 +811,6 @@ public class IntegrationTests {
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode());
         }
     }
-
 
     // Zmień własne hasło
     @Nested
@@ -1610,6 +1141,139 @@ public class IntegrationTests {
         }
     }
 
+
+    //Zmień adres e-mail przypisany do własnego konta
+    @Nested
+    class MOK6 {
+
+        @Test
+        void shouldReturnSC204AfterRequestEmailChangeWhenLoggedIn() {
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterRequestEmailChangeWhenNotLoggedIn() {
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        // ------------------------------------------------------------
+        @Test
+        void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
+            UUID randomUUID = UUID.randomUUID();
+            given()
+                .contentType(ContentType.JSON)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC404AfterConfirmEmailWhenNoToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted("notValidToken"))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithEmptyBody() {
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body("")
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidBody() {
+            UUID randomUUID = UUID.randomUUID();
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("notValidBody");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotFoundToken() {
+            String validEmail = "email@email.com";
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto(validEmail);
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.TOKEN_NOT_FOUND));
+        }
+
+    }
 
     // Zmień własne dane osobowe
     @Nested
@@ -3064,352 +2728,6 @@ public class IntegrationTests {
 
     }
 
-    @Nested
-    class MOK15 {
-
-        @Test
-        void shouldGetAllAccountsAsAdmin() {
-            List<AccountDto> accounts =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
-        }
-
-        @Test
-        void shouldGetAllAccountsAsManager() {
-            List<AccountDto> accounts =
-                given().spec(managerSpec)
-                    .when()
-                    .get("/accounts")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
-        }
-
-        @Test
-        void shouldGetAllAdminsAsAdmin() {
-            List<AccountDto> admins =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/admins")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(admins);
-        }
-
-        @Test
-        void shouldGetAllManagersAsAdmin() {
-            List<AccountDto> managers =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/managers")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(managers);
-        }
-
-        @Test
-        void shouldGetAllOwnersAsAdmin() {
-            List<AccountDto> owners =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetAllOwnersAsManager() {
-            List<AccountDto> owners =
-                given().spec(managerSpec)
-                    .when()
-                    .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetUnapprovedOwnersAsManager() {
-            List<AccountDto> owners =
-                given().spec(managerSpec)
-                    .contentType(ContentType.JSON)
-                    .when()
-                    .get("/accounts/owners/unapproved")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetUnapprovedManagersAsAdmin() {
-            List<AccountDto> managers =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/managers/unapproved")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(managers);
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAllAccountsAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsManager() {
-            given().spec(managerSpec)
-                .when()
-                .get("/accounts/managers")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAdminsAsManager() {
-            given().spec(managerSpec)
-                .when()
-                .get("/accounts/admins")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/owners")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsAdmin() {
-            given().spec(adminSpec)
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedManagersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/managers/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAccountsAsGuest() {
-            given()
-                .when()
-                .get("/accounts")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingOwnersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/owners")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/managers")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAdminsAsGuest() {
-            given()
-                .when()
-                .get("/accounts/admins")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedManagersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/managers/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-    }
-
-    //Zmień adres e-mail przypisany do własnego konta
-    @Nested
-    class MOK6 {
-
-        @Test
-        void shouldReturnSC204AfterRequestEmailChangeWhenLoggedIn() {
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(adminSpec)
-                .when()
-                .post("/accounts/me/change-email")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(managerSpec)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/accounts/me/change-email")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(ownerSpec)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/accounts/me/change-email")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403AfterRequestEmailChangeWhenNotLoggedIn() {
-            given()
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/accounts/me/change-email")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        // ------------------------------------------------------------
-        @Test
-        void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
-            UUID randomUUID = UUID.randomUUID();
-            given()
-                .contentType(ContentType.JSON)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC404AfterConfirmEmailWhenNoToken() {
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email")
-                .then()
-                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithNotValidToken() {
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted("notValidToken"))
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithEmptyBody() {
-            UUID randomUUID = UUID.randomUUID();
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body("")
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithNotValidBody() {
-            UUID randomUUID = UUID.randomUUID();
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("notValidBody");
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithNotFoundToken() {
-            String validEmail = "email@email.com";
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto(validEmail);
-            UUID randomUUID = UUID.randomUUID();
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .assertThat()
-                .body("message", Matchers.equalTo(I18n.TOKEN_NOT_FOUND));
-        }
-
-    }
-
-
     //Zablokuj/odblokuj konto jako manager/admin
     @Nested
     class MOK11 {
@@ -3974,6 +3292,218 @@ public class IntegrationTests {
 
 
             assertEquals(active1, active11);
+        }
+    }
+
+    @Nested
+    class MOK15 {
+
+        @Test
+        void shouldGetAllAccountsAsAdmin() {
+            List<AccountDto> accounts =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAccountsAsManager() {
+            List<AccountDto> accounts =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAdminsAsAdmin() {
+            List<AccountDto> admins =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/admins")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(admins);
+        }
+
+        @Test
+        void shouldGetAllManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsAdmin() {
+            List<AccountDto> owners =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .get("/accounts/owners/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllAccountsAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsAdmin() {
+            given().spec(adminSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountsAsGuest() {
+            given()
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsGuest() {
+            given()
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
     }
 
