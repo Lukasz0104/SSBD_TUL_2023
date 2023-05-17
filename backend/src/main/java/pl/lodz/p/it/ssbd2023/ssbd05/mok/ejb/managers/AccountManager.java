@@ -94,9 +94,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     public void confirmRegistration(String confirmToken)
         throws AppBaseException {
-        Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
+        Token token = tokenFacade.findByTokenAndTokenType(confirmToken, TokenType.CONFIRM_REGISTRATION_TOKEN)
+            .orElseThrow(TokenNotFoundException::new);
 
-        token.validateSelf(TokenType.CONFIRM_REGISTRATION_TOKEN);
+        token.validateSelf();
 
         Account account = token.getAccount();
         account.setVerified(true);
@@ -124,9 +125,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     public void confirmEmail(String email, String confirmToken, String login)
         throws AppBaseException {
 
-        Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
+        Token token = tokenFacade.findByTokenAndTokenType(confirmToken, TokenType.CONFIRM_EMAIL_TOKEN)
+            .orElseThrow(TokenNotFoundException::new);
 
-        token.validateSelf(TokenType.CONFIRM_EMAIL_TOKEN);
+        token.validateSelf();
 
         Account account = token.getAccount();
 

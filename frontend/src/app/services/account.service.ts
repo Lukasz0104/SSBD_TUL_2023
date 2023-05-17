@@ -53,19 +53,10 @@ export class AccountService {
                         );
                     });
                 }),
-                catchError((response: HttpErrorResponse) => {
-                    if (response.status == 404) {
-                        this.router.navigate(['/login']).then(() => {
-                            this.toastService.clearAll();
-                            this.toastService.showSuccess(
-                                'toast.account.reset-password-message'
-                            );
-                        });
-                    } else {
-                        this.toastService.showDanger(
-                            'toast.account.reset-password-message-fail'
-                        );
-                    }
+                catchError(() => {
+                    this.toastService.showDanger(
+                        'toast.account.reset-password-message-fail'
+                    );
                     return of(null);
                 })
             );
@@ -156,9 +147,7 @@ export class AccountService {
             .subscribe();
     }
 
-    register(
-        dto: RegisterOwnerDto | RegisterManagerDto
-    ): Observable<ResponseMessage | null> {
+    register(dto: RegisterOwnerDto | RegisterManagerDto) {
         const isManagerDto = 'licenseNumber' in dto && !!dto.licenseNumber;
 
         return this.http
@@ -169,8 +158,15 @@ export class AccountService {
                 dto
             )
             .pipe(
-                map((res) => res?.message ?? null),
-                catchError((e: HttpErrorResponse) => of(e.error.message))
+                map(() => of(true)),
+                catchError((e: HttpErrorResponse) => {
+                    this.handleError(
+                        'toast.account.register-fail',
+                        'register',
+                        e
+                    );
+                    return EMPTY;
+                })
             );
     }
 
@@ -185,7 +181,14 @@ export class AccountService {
             )
             .pipe(
                 map((res) => res?.message ?? null),
-                catchError((e: HttpErrorResponse) => of(e.error.message))
+                catchError((e: HttpErrorResponse) => {
+                    if (e.error.message == null || e.status == 500) {
+                        this.toastService.showDanger(
+                            'toast.account.confirm-register-fail'
+                        );
+                    }
+                    return of(e.error.message);
+                })
             );
     }
 
@@ -254,12 +257,16 @@ export class AccountService {
             .pipe(
                 map((): boolean => {
                     this.toastService.showSuccess(
-                        'toast.edit-account-as-admin-success'
+                        'toast.account.edit-account-as-admin'
                     );
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.showDanger(err.error.message);
+                    this.handleError(
+                        'toast.account.edit-account-as-admin-fail',
+                        'edit-as-admin',
+                        err
+                    );
                     switch (err.error.message) {
                         case ResponseMessage.OPTIMISTIC_LOCK:
                             return of(true);
@@ -320,11 +327,15 @@ export class AccountService {
     changeEmail() {
         return this.http.post(`${this.accountsUrl}/me/change-email`, null).pipe(
             map(() => {
-                this.toastService.showSuccess('mail.sent.success'); //fixme
+                this.toastService.showSuccess('toast.account.change-email');
                 return true;
             }),
             catchError((err: HttpErrorResponse) => {
-                this.toastService.showDanger(err.error.message);
+                this.handleError(
+                    'toast.account.change-email-fail',
+                    'change-email',
+                    err
+                );
                 return of(false);
             })
         );
@@ -338,11 +349,17 @@ export class AccountService {
             )
             .pipe(
                 map(() => {
-                    this.toastService.showSuccess('email.change.success');
+                    this.toastService.showSuccess(
+                        'toast.account.change-email-confirm'
+                    );
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.showDanger(err.error.message);
+                    this.handleError(
+                        'toast.account.change-email-confirm-fail',
+                        'change-email-confirm',
+                        err
+                    );
                     return of(false);
                 })
             );
@@ -359,11 +376,17 @@ export class AccountService {
             )
             .pipe(
                 map(() => {
-                    this.toastService.showSuccess('status.change.success'); //todo
+                    this.toastService.showSuccess(
+                        'toast.account.change-status'
+                    );
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.showDanger(err.error.message);
+                    this.handleError(
+                        'toast.account.change-status-fail',
+                        'change-status',
+                        err
+                    );
                     return of(false);
                 })
             );
@@ -380,11 +403,17 @@ export class AccountService {
             )
             .pipe(
                 map(() => {
-                    this.toastService.showSuccess('status.change.success'); //todo
+                    this.toastService.showSuccess(
+                        'toast.account.change-status'
+                    );
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.showDanger(err.error.message); // TODO add translation for response.message.bad-access-level
+                    this.handleError(
+                        'toast.account.change-status-fail',
+                        'change-status',
+                        err
+                    );
                     return of(false);
                 })
             );
@@ -396,12 +425,16 @@ export class AccountService {
             .pipe(
                 map(() => {
                     this.toastService.showSuccess(
-                        'toast.change-password-success'
+                        'toast.account.change-password'
                     );
                     return true;
                 }),
                 catchError((res: HttpErrorResponse) => {
-                    this.toastService.showDanger(`toast.${res.error.message}`);
+                    this.handleError(
+                        'toast.account.change-password-fail',
+                        'change-password',
+                        res
+                    );
                     return of(false);
                 })
             );
@@ -431,13 +464,15 @@ export class AccountService {
                         map((res: ChangeAccessLevelDto): void => {
                             this.authService.setCurrentGroup(res.accessType);
                             this.toastService.showSuccess(
-                                'toast.switch-access-level-success'
+                                'toast.account.change-access-level'
                             );
                             this.router.navigate([this.router.url]);
                         }),
-                        catchError(() => {
-                            this.toastService.showDanger(
-                                'toast.switch-access-level-fail'
+                        catchError((err: HttpErrorResponse) => {
+                            this.handleError(
+                                'toast.account.change-access-level-fail',
+                                'change-access-level',
+                                err
                             );
                             this.authService.logout();
                             return EMPTY;

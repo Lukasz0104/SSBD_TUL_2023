@@ -40,6 +40,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidCaptchaCodeExce
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -169,7 +170,11 @@ public class AccountEndpoint {
     @Path("/reset-password-message")
     public Response sendResetPasswordMessage(@NotBlank @Email @QueryParam("email") String email)
         throws AppBaseException {
-        accountManager.sendResetPasswordMessage(email);
+        try {
+            accountManager.sendResetPasswordMessage(email);
+        } catch (AccountNotFoundException anfe) {
+            return Response.noContent().build();
+        }
         return Response.noContent().build();
     }
 

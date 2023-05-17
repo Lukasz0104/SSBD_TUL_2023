@@ -3,10 +3,12 @@
         class="modal-title"
         id="modal-basic-title">
         <ng-container *ngIf="grantNewAccessLevelMode; else verifyBlock">
-            Nadaj poziom dostępu
+            {{ 'form.give-access-level.grant' | translate }}
             {{ 'access-levels.' + accessType | translate }}
         </ng-container>
-        <ng-template #verifyBlock>Zweryfikuj</ng-template>
+        <ng-template #verifyBlock>
+            {{ 'form.give-access-level.verify' | translate }}</ng-template
+        >
     </h3>
 </div>
 
@@ -21,7 +23,7 @@
                 <label
                     for="zipcodeInput"
                     class="form-label">
-                    Kod pocztowy
+                    {{ 'component.fields.postal-code' | translate }}
                 </label>
                 <input
                     id="zipcodeInput"
@@ -29,7 +31,9 @@
                     type="text"
                     required
                     class="form-control"
-                    placeholder="Postal code"
+                    placeholder="{{
+                        'component.fields.postal-code' | translate
+                    }}"
                     [ngClass]="{
                         'is-invalid': postalCodeControl.invalid,
                         'is-valid': postalCodeControl.valid
@@ -40,11 +44,11 @@
                     <p
                         *ngIf="pcErrors['required']; else pcNotEmpty"
                         class="mb-0">
-                        Postal code is required.
+                        {{ 'validation.postal-code.required' | translate }}
                     </p>
                     <ng-template #pcNotEmpty>
                         <p class="mb-0">
-                            Postal code must be 6 characters long.
+                            {{ 'validation.postal-code.length' | translate }}
                         </p>
                     </ng-template>
                 </div>
@@ -53,12 +57,12 @@
                 <label
                     for="cityInput"
                     class="form-label">
-                    Miasto
+                    {{ 'component.fields.city' | translate }}
                 </label>
                 <input
                     id="cityInput"
                     formControlName="city"
-                    placeholder="City"
+                    placeholder="{{ 'component.fields.city' | translate }}"
                     type="text"
                     required
                     class="form-control"
@@ -72,22 +76,18 @@
                     <p
                         *ngIf="cityErrors['required']; else cityNotEmpty"
                         class="mb-0">
-                        City is required.
+                        {{ 'validation.city.required' | translate }}
                     </p>
                     <ng-template #cityNotEmpty>
                         <p
                             *ngIf="cityErrors['minlength'] as minlen"
                             class="mb-0">
-                            City must be at least
-                            {{ minlen['requiredLength'] }}
-                            characters.
+                            {{ 'validation.city.min-length' | translate }}
                         </p>
                         <p
                             *ngIf="cityErrors['maxlength'] as maxlen"
                             class="mb-0">
-                            City must be at most
-                            {{ maxlen['requiredLength'] }}
-                            characters.
+                            {{ 'validation.city.max-length' | translate }}
                         </p>
                     </ng-template>
                 </div>
@@ -96,7 +96,7 @@
                 <label
                     for="streetInput"
                     class="form-label">
-                    Ulica
+                    {{ 'component.fields.street' | translate }}
                 </label>
                 <input
                     id="streetInput"
@@ -104,7 +104,7 @@
                     type="text"
                     required
                     class="form-control"
-                    placeholder="Street"
+                    placeholder="{{ 'component.fields.street' | translate }}"
                     [ngClass]="{
                         'is-invalid': streetControl.invalid,
                         'is-valid': streetControl.valid
@@ -115,14 +115,12 @@
                     <p
                         *ngIf="streetErrors['required']"
                         class="mb-0">
-                        Street is required.
+                        {{ 'validation.street.required' | translate }}
                     </p>
                     <p
                         *ngIf="streetErrors['maxlength'] as maxlen"
                         class="mb-0">
-                        Street must be at most
-                        {{ maxlen['requiredLength'] }}
-                        characters.
+                        {{ 'validation.street.length' | translate }}
                     </p>
                 </div>
             </div>
@@ -130,7 +128,7 @@
                 <label
                     for="buildingNumberInput"
                     class="form-label">
-                    Numer budynku
+                    {{ 'component.fields.building-number' | translate }}
                 </label>
                 <input
                     id="buildingNumberInput"
@@ -139,7 +137,9 @@
                     min="1"
                     required
                     class="form-control"
-                    placeholder="Buidling number"
+                    placeholder="{{
+                        'component.fields.building-number' | translate
+                    }}"
                     [ngClass]="{
                         'is-invalid': buildingNumberControl.invalid,
                         'is-valid': buildingNumberControl.valid
@@ -150,13 +150,12 @@
                     <p
                         *ngIf="bnErrors['required']"
                         class="mb-0">
-                        Building number is required.
+                        {{ 'validation.building.required' | translate }}
                     </p>
                     <p
                         *ngIf="bnErrors['min']"
                         class="mb-0">
-                        Building number must be greater than
-                        {{ bnErrors['min']['min'] - 1 }}.
+                        {{ 'validation.building.length' | translate }}
                     </p>
                 </div>
             </div>
@@ -167,7 +166,7 @@
             <label
                 for="licenseNumberInput"
                 class="form-label">
-                Numer licencji
+                {{ 'component.account.license-number' | translate }}
             </label>
             <input
                 id="licenseNumberInput"
@@ -175,7 +174,9 @@
                 type="text"
                 required
                 class="form-control"
-                placeholder="License number"
+                placeholder="{{
+                    'component.account.license-number' | translate
+                }}"
                 [ngClass]="{
                     'is-invalid': licenseNumberControl.invalid,
                     'is-valid': licenseNumberControl.valid
@@ -186,7 +187,7 @@
                 <p
                     *ngIf="licenseNumberControl.errors['required']"
                     class="mb-0">
-                    License number is required.
+                    {{ 'validation.license-number.required' | translate }}
                 </p>
             </div>
         </div>
@@ -207,7 +208,7 @@
         *ngIf="!grantNewAccessLevelMode"
         class="btn btn-danger"
         (click)="reject()">
-        Odrzuć
+        {{ 'form.give-access-level.reject' | translate }}
     </button>
     <button
         [disabled]="
@@ -216,8 +217,10 @@
         (click)="grant()"
         class="btn btn-success">
         <ng-container *ngIf="grantNewAccessLevelMode; else verifyBlock">
-            Nadaj poziom dostępu
+            {{ 'form.give-access-level.grant' | translate }}
         </ng-container>
-        <ng-template #verifyBlock> Zatwierdź </ng-template>
+        <ng-template #verifyBlock>
+            {{ 'form.give-access-level.confirm' | translate }}</ng-template
+        >
     </button>
 </div>

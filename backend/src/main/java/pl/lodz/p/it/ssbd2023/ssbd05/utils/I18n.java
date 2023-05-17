@@ -122,6 +122,7 @@ public class I18n {
     public static final String UNAUTHORIZED = "response.message.unauthorized";
     public static final String INVALID_CAPTCHA_CODE = "response.message.invalid_captcha";
     public static final String INVALID_UUID = "response.message.invalid.uuid";
+    public static final String NO_ACCESS_LEVEL = "response.message.no_access_level";
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);
