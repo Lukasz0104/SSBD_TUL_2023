@@ -5,6 +5,7 @@ import jakarta.interceptor.InvocationContext;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AccessLevelAlreadyGrantedException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.EmailAddressAlreadyTakenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LicenseNumberAlreadyTakenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.LoginAlreadyTakenException;
@@ -24,6 +25,8 @@ public class AccountFacadeExceptionsInterceptor {
                 throw new EmailAddressAlreadyTakenException();
             } else if (exceptionMessage.contains("account_login_key")) {
                 throw new LoginAlreadyTakenException();
+            } else if (exceptionMessage.contains("access_level_account_id_level_unique")) {
+                throw new AccessLevelAlreadyGrantedException();
             }
             throw new AppDatabaseException(pe);
         }

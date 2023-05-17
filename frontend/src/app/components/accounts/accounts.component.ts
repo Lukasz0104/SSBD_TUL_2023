@@ -20,7 +20,7 @@ export class AccountsComponent implements OnInit {
 
     accounts$: Observable<Account[]> | undefined;
     page = 1;
-    pageSize = 3;
+    pageSize = 10;
 
     chosenOption = new BehaviorSubject<number>(1);
     chosenAccessType = new BehaviorSubject<AccessType>(AccessType.OWNER);

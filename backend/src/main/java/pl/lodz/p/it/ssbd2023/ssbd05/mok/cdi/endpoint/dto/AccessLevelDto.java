@@ -7,11 +7,13 @@ import jakarta.json.bind.annotation.JsonbTypeInfo;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(callSuper = false)
 @JsonbTypeInfo(key = "level", value = {
     @JsonbSubtype(alias = "OWNER", type = OwnerDataDto.class),
     @JsonbSubtype(alias = "MANAGER", type = ManagerDataDto.class),

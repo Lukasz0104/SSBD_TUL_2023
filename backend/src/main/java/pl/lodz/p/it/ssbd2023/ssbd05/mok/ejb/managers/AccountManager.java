@@ -379,14 +379,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
                 al.setVerified(true);
                 al.setActive(true);
-
-                if (accessLevel instanceof OwnerData ownerData) {
-                    ((OwnerData) al).setAddress(ownerData.getAddress());
-                } else if (accessLevel instanceof ManagerData managerData) {
-                    ManagerData md = (ManagerData) al;
-                    md.setLicenseNumber(managerData.getLicenseNumber());
-                    md.setAddress(managerData.getAddress());
-                }
             }, () -> {
                 accessLevel.setAccount(account);
                 accessLevel.setActive(true);

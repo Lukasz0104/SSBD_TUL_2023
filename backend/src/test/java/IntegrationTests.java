@@ -1,5 +1,7 @@
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,6 +18,7 @@ import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,6 +31,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -47,6 +52,7 @@ import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IntegrationTests {
@@ -470,6 +476,7 @@ public class IntegrationTests {
         }
     }
 
+    // Wyloguj się
     @Nested
     class MOK3 {
         @Test
@@ -656,474 +663,7 @@ public class IntegrationTests {
         }
     }
 
-    //Wyloguj się
-    @Nested
-    class MOK8 {
-
-        @Test
-        void shouldLogoutWithValidRefreshTokenAndInvalidateIt() {
-            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
-
-            String refreshToken = given()
-                .contentType(ContentType.JSON)
-                .body(loginDto)
-                .when()
-                .post("/login")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .contentType(ContentType.JSON)
-                .body("jwt", Matchers.any(String.class),
-                    "refreshToken", Matchers.any(String.class),
-                    "language", Matchers.any(String.class))
-                .extract()
-                .jsonPath()
-                .getString("refreshToken");
-
-            given().spec(ownerSpec)
-                .when()
-                .delete("/logout?token=" + refreshToken)
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            RefreshJwtDto refreshJwtDto = new RefreshJwtDto("pduda", refreshToken);
-            given().body(refreshJwtDto)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/refresh")
-                .then()
-                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
-                .body("message", Matchers.equalTo(I18n.AUTHENTICATION_EXCEPTION));
-        }
-
-        @Test
-        void shouldLogoutWithNonExistentRefreshToken() {
-            given().spec(ownerSpec)
-                .when()
-                .delete("/logout?token=" + UUID.randomUUID())
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenRefreshTokenIsNotUUID() {
-            given().spec(ownerSpec)
-                .when()
-                .delete("/logout?token=definitelyNotUUID")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenJwtIsNotAttached() {
-            given()
-                .when()
-                .delete("/logout?token=" + UUID.randomUUID())
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC204ForAllConcurrentRequests() throws BrokenBarrierException, InterruptedException {
-            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
-
-            String refreshToken = given()
-                .contentType(ContentType.JSON)
-                .body(loginDto)
-                .when()
-                .post("/login")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .contentType(ContentType.JSON)
-                .body("jwt", Matchers.any(String.class),
-                    "refreshToken", Matchers.any(String.class),
-                    "language", Matchers.any(String.class))
-                .extract()
-                .jsonPath()
-                .getString("refreshToken");
-
-            int threadNumber = 5;
-            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
-            List<Thread> threads = new ArrayList<>(threadNumber);
-            AtomicInteger numberFinished = new AtomicInteger();
-            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
-
-            for (int i = 0; i < threadNumber; i++) {
-                threads.add(new Thread(() -> {
-                    try {
-                        cyclicBarrier.await();
-                    } catch (InterruptedException | BrokenBarrierException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    int statusCode = given().spec(ownerSpec)
-                        .when()
-                        .delete("/logout?token=" + refreshToken).getStatusCode();
-
-                    if (statusCode == 204) {
-                        numberOfSuccessfulAttempts.getAndIncrement();
-                    }
-                    numberFinished.getAndIncrement();
-                }));
-            }
-            threads.forEach(Thread::start);
-            cyclicBarrier.await();
-            while (numberFinished.get() != threadNumber) {
-            }
-
-            assertEquals(numberFinished.get(), numberOfSuccessfulAttempts.get());
-        }
-    }
-
-    @Nested
-    class MOK9 {
-        @Test
-        void shouldChangeLanguageWhenUserAuthenticatedAdmin() {
-            given()
-                .spec(adminSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/EN")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(adminSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("EN"));
-
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/PL")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(adminSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-        }
-
-        @Test
-        void shouldChangeLanguageWhenUserAuthenticatedOwner() {
-            given()
-                .spec(ownerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-
-            given()
-                .spec(ownerSpec)
-                .put("accounts/me/change-language/En")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(ownerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("EN"));
-
-            given()
-                .spec(ownerSpec)
-                .put("accounts/me/change-language/Pl")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(ownerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-        }
-
-        @Test
-        void shouldChangeLanguageWhenUserAuthenticatedManager() {
-            given()
-                .spec(managerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-
-            given()
-                .spec(managerSpec)
-                .put("accounts/me/change-language/en")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(managerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("EN"));
-
-            given()
-                .spec(managerSpec)
-                .put("accounts/me/change-language/pl")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            given()
-                .spec(managerSpec)
-                .get("accounts/me")
-                .then()
-                .assertThat()
-                .body("language", Matchers.equalTo("PL"));
-        }
-
-        @Test
-        void shouldReturnSC403WhenUserNotAuthenticated() {
-            given()
-                .put("accounts/me/change-language/en")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenLanguageDoesntExist() {
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/ger")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
-
-            given()
-                .spec(adminSpec)
-                .put("accounts/me/change-language/1")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
-        }
-    }
-
-    //Wyświetl listę kont
-    @Nested
-    class MOK15 {
-
-        @Test
-        void shouldGetAllAccountsAsAdmin() {
-            List<AccountDto> accounts =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
-        }
-
-        @Test
-        void shouldGetAllAccountsAsManager() {
-            List<AccountDto> accounts =
-                given().spec(managerSpec)
-                    .when()
-                    .get("/accounts")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
-        }
-
-        @Test
-        void shouldGetAllAdminsAsAdmin() {
-            List<AccountDto> admins =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/admins")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(admins);
-        }
-
-        @Test
-        void shouldGetAllManagersAsAdmin() {
-            List<AccountDto> managers =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/managers")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(managers);
-        }
-
-        @Test
-        void shouldGetAllOwnersAsAdmin() {
-            List<AccountDto> owners =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetAllOwnersAsManager() {
-            List<AccountDto> owners =
-                given().spec(managerSpec)
-                    .when()
-                    .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetUnapprovedOwnersAsManager() {
-            List<AccountDto> owners =
-                given().spec(managerSpec)
-                    .contentType(ContentType.JSON)
-                    .when()
-                    .get("/accounts/owners/unapproved")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(owners);
-        }
-
-        @Test
-        void shouldGetUnapprovedManagersAsAdmin() {
-            List<AccountDto> managers =
-                given().spec(adminSpec)
-                    .when()
-                    .get("/accounts/managers/unapproved")
-                    .getBody().as(ArrayList.class);
-
-            assertNotNull(managers);
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAllAccountsAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsManager() {
-            given().spec(managerSpec)
-                .when()
-                .get("/accounts/managers")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAdminsAsManager() {
-            given().spec(managerSpec)
-                .when()
-                .get("/accounts/admins")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/owners")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsAdmin() {
-            given().spec(adminSpec)
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedManagersAsOwner() {
-            given().spec(ownerSpec)
-                .when()
-                .get("/accounts/managers/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAccountsAsGuest() {
-            given()
-                .when()
-                .get("/accounts")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingOwnersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/owners")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingManagersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/managers")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingAdminsAsGuest() {
-            given()
-                .when()
-                .get("/accounts/admins")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedOwnersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/owners/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC403WhenGettingUnapprovedManagersAsGuest() {
-            given()
-                .when()
-                .get("/accounts/managers/unapproved")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-    }
-
-    //Wyświetl dane konta użytkownika
+    // Wyświetl dane konta użytkownika
     @Nested
     class MOK4 {
 
@@ -1278,7 +818,470 @@ public class IntegrationTests {
         }
     }
 
-    //Zmień dane osobowe
+    // Zmień własne hasło
+    @Nested
+    class MOK5 {
+
+        @Test
+        void shouldChangePasswordWhenProvidedValidNewPasswordAndValidOldPassword() {
+
+            String oldPass = "P@ssw0rd";
+            String newPass = "Haslo123@rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals((Integer) account.get("version"), (Integer) oldAccount.get("version") + 1);
+
+            given().spec(adminSpec).when()
+                .body(new ChangePasswordDto(newPass, oldPass))
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC401WhenProvidedWrongOldPassword() {
+            String oldPass = "P@ssw0rd7";
+            String newPass = "Haslo123@rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedInvalidOldPassword() {
+            String oldPass = "";
+            String newPass = "Haslo123@rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordLength() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@Sl0";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordNumber() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@Slopasswd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordSpecialCharacter() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h4Slopa55wo";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordLowerCase() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "H@S7OPASSWD";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedWeakNewPasswordUpperCase() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@slo1passwd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedIdenticalPasswords() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "P@ssw0rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenProvidedEmptyOldPasswords() {
+            String oldPass = "";
+            String newPass = "P@ssw0rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().spec(adminSpec).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Test
+        public void shouldReturnSC403WhenNoAccountIsLoggedIn() {
+            String oldPass = "P@ssw0rd";
+            String newPass = "h@P4ssw0rd";
+            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+            JsonPath oldAccount = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+
+            given().when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-password")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            JsonPath account = given().spec(adminSpec)
+                .when()
+                .get("/accounts/me").jsonPath();
+            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
+        }
+
+        @Nested
+        class ConcurrentCases {
+
+            @Test
+            public void shouldOneRequestChangePassword() throws BrokenBarrierException, InterruptedException {
+                OwnAccountDto oldAcc = given().spec(ownerSpec)
+                    .when()
+                    .get("/accounts/me").as(OwnAccountDto.class);
+
+                String oldPass = "P@ssw0rd";
+                String newPass = "Haslo123@rd" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+                ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given().spec(ownerSpec).when()
+                            .body(dto)
+                            .contentType(ContentType.JSON)
+                            .put("/accounts/me/change-password")
+                            .getStatusCode();
+
+                        if (statusCode == 204) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                OwnAccountDto newAcc = given()
+                    .spec(ownerSpec)
+                    .when()
+                    .get("/accounts/me")
+                    .as(OwnAccountDto.class);
+
+                assertEquals(oldAcc.getFirstName(), newAcc.getFirstName());
+                assertEquals(oldAcc.getVersion() + 1, newAcc.getVersion());
+                given().spec(ownerSpec).when()
+                    .body(new ChangePasswordDto(newPass, oldPass))
+                    .contentType(ContentType.JSON)
+                    .put("/accounts/me/change-password")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+        }
+    }
+
+
+    // Zmień adres e-mail przypisany do własnego konta
+    @Nested
+    class MOK6 {
+
+        @Test
+        void shouldReturnSC204AfterRequestEmailChangeWhenLoggedIn() {
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterRequestEmailChangeWhenNotLoggedIn() {
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        // ------------------------------------------------------------
+        @Test
+        void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
+            UUID randomUUID = UUID.randomUUID();
+            given()
+                .contentType(ContentType.JSON)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC404AfterConfirmEmailWhenNoToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted("notValidToken"))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithEmptyBody() {
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body("")
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidBody() {
+            UUID randomUUID = UUID.randomUUID();
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("notValidBody");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotFoundToken() {
+            String validEmail = "email@email.com";
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto(validEmail);
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.TOKEN_NOT_FOUND));
+        }
+
+    }
+
+    // Zmień własne dane osobowe
     @Nested
     class MOK7 {
         private static RequestSpecification testSpec;
@@ -1713,7 +1716,7 @@ public class IntegrationTests {
                 OwnAccountDto dto = response.body().as(OwnAccountDto.class);
                 String etag = response.getHeader("ETag");
 
-                //firstName
+                // firstName
                 dto.setFirstName("");
 
                 given()
@@ -1726,7 +1729,7 @@ public class IntegrationTests {
                     .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
 
-                //lastName
+                // lastName
                 dto.setLastName("");
 
                 given()
@@ -1739,7 +1742,7 @@ public class IntegrationTests {
                     .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
 
-                //accountVersion
+                // accountVersion
                 dto.setVersion(null);
 
                 given()
@@ -1827,7 +1830,7 @@ public class IntegrationTests {
                     OwnAccountDto dto = response.body().as(OwnAccountDto.class);
                     String etag = response.getHeader("ETag");
 
-                    //buildingNumber negative
+                    // buildingNumber negative
                     for (AccessLevelDto level : dto.getAccessLevels()) {
                         if (level instanceof ManagerDataDto managerData) {
                             AddressDto addressDto = new AddressDto(
@@ -1893,7 +1896,7 @@ public class IntegrationTests {
                     OwnAccountDto dto = response.body().as(OwnAccountDto.class);
                     String etag = response.getHeader("ETag");
 
-                    //address null
+                    // address null
                     for (AccessLevelDto level : dto.getAccessLevels()) {
                         if (level instanceof ManagerDataDto managerData) {
                             managerData.setAddress(null);
@@ -2173,7 +2176,8 @@ public class IntegrationTests {
                 );
                 assertEquals(addressDto, editedAddressDto);
                 assertEquals(response.body().jsonPath()
-                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() + 1,
+                                 .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() +
+                             1,
                     editedOwnerDataDto.getVersion());
             }
 
@@ -2259,7 +2263,8 @@ public class IntegrationTests {
                 assertEquals(newLicenseNumber, editedManagerDataDto.getLicenseNumber());
 
                 assertEquals(response.body().jsonPath()
-                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class).getVersion() + 1,
+                                 .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class)
+                                 .getVersion() + 1,
                     editedManagerDataDto.getVersion());
             }
 
@@ -2349,145 +2354,390 @@ public class IntegrationTests {
             }
         }
 
-
     }
 
-
-    //Zmień adres e-mail przypisany do własnego konta
     @Nested
-    class MOK6 {
+    class MOK8 {
 
         @Test
-        void shouldReturnSC204AfterRequestEmailChangeWhenLoggedIn() {
+        void shouldLogoutWithValidRefreshTokenAndInvalidateIt() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+
+            String refreshToken = given()
+                .contentType(ContentType.JSON)
+                .body(loginDto)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("jwt", Matchers.any(String.class),
+                    "refreshToken", Matchers.any(String.class),
+                    "language", Matchers.any(String.class))
+                .extract()
+                .jsonPath()
+                .getString("refreshToken");
+
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=" + refreshToken)
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            RefreshJwtDto refreshJwtDto = new RefreshJwtDto("pduda", refreshToken);
+            given().body(refreshJwtDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/refresh")
+                .then()
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
+                .body("message", Matchers.equalTo(I18n.AUTHENTICATION_EXCEPTION));
+        }
+
+        @Test
+        void shouldLogoutWithNonExistentRefreshToken() {
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=" + UUID.randomUUID())
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenRefreshTokenIsNotUUID() {
+            given().spec(ownerSpec)
+                .when()
+                .delete("/logout?token=definitelyNotUUID")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenJwtIsNotAttached() {
+            given()
+                .when()
+                .delete("/logout?token=" + UUID.randomUUID())
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC204ForAllConcurrentRequests() throws BrokenBarrierException, InterruptedException {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+
+            String refreshToken = given()
+                .contentType(ContentType.JSON)
+                .body(loginDto)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("jwt", Matchers.any(String.class),
+                    "refreshToken", Matchers.any(String.class),
+                    "language", Matchers.any(String.class))
+                .extract()
+                .jsonPath()
+                .getString("refreshToken");
+
+            int threadNumber = 5;
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+            List<Thread> threads = new ArrayList<>(threadNumber);
+            AtomicInteger numberFinished = new AtomicInteger();
+            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+            for (int i = 0; i < threadNumber; i++) {
+                threads.add(new Thread(() -> {
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    int statusCode = given().spec(ownerSpec)
+                        .when()
+                        .delete("/logout?token=" + refreshToken).getStatusCode();
+
+                    if (statusCode == 204) {
+                        numberOfSuccessfulAttempts.getAndIncrement();
+                    }
+                    numberFinished.getAndIncrement();
+                }));
+            }
+            threads.forEach(Thread::start);
+            cyclicBarrier.await();
+            while (numberFinished.get() != threadNumber) {
+            }
+
+            assertEquals(numberFinished.get(), numberOfSuccessfulAttempts.get());
+        }
+    }
+
+    // Wyświetl listę kont
+    @Nested
+    class MOK9 {
+        @Test
+        void shouldChangeLanguageWhenUserAuthenticatedAdmin() {
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
 
             given()
-                .contentType(ContentType.JSON)
                 .spec(adminSpec)
-                .when()
-                .post("/accounts/me/change-email")
+                .put("accounts/me/change-language/EN")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("EN"));
+
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change-language/PL")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(adminSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+        }
+
+        @Test
+        void shouldChangeLanguageWhenUserAuthenticatedOwner() {
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+
+            given()
+                .spec(ownerSpec)
+                .put("accounts/me/change-language/En")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("EN"));
+
+            given()
+                .spec(ownerSpec)
+                .put("accounts/me/change-language/Pl")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+        }
+
+        @Test
+        void shouldChangeLanguageWhenUserAuthenticatedManager() {
+            given()
+                .spec(managerSpec)
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
+
+            given()
+                .spec(managerSpec)
+                .put("accounts/me/change-language/en")
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
             given()
                 .spec(managerSpec)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/accounts/me/change-email")
+                .get("accounts/me")
+                .then()
+                .assertThat()
+                .body("language", Matchers.equalTo("EN"));
+
+            given()
+                .spec(managerSpec)
+                .put("accounts/me/change-language/pl")
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
             given()
-                .spec(ownerSpec)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/accounts/me/change-email")
+                .spec(managerSpec)
+                .get("accounts/me")
                 .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+                .assertThat()
+                .body("language", Matchers.equalTo("PL"));
         }
 
         @Test
-        void shouldReturnSC403AfterRequestEmailChangeWhenNotLoggedIn() {
+        void shouldReturnSC403WhenUserNotAuthenticated() {
             given()
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/accounts/me/change-email")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        // ------------------------------------------------------------
-        @Test
-        void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
-            UUID randomUUID = UUID.randomUUID();
-            given()
-                .contentType(ContentType.JSON)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .put("accounts/me/change-language/en")
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
 
         @Test
-        void shouldReturnSC404AfterConfirmEmailWhenNoToken() {
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+        void shouldReturnSC400WhenLanguageDoesntExist() {
             given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email")
-                .then()
-                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithNotValidToken() {
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted("notValidToken"))
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithEmptyBody() {
-            UUID randomUUID = UUID.randomUUID();
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body("")
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithNotValidBody() {
-            UUID randomUUID = UUID.randomUUID();
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto("notValidBody");
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-        }
-
-        @Test
-        void shouldReturnSC400WhenConfirmEmailWithNotFoundToken() {
-            String validEmail = "email@email.com";
-            ChangeEmailDto changeEmailDto = new ChangeEmailDto(validEmail);
-            UUID randomUUID = UUID.randomUUID();
-
-            given()
-                .contentType(ContentType.JSON)
-                .spec(ownerSpec)
-                .body(changeEmailDto)
-                .when()
-                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .spec(adminSpec)
+                .put("accounts/me/change-language/ger")
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .assertThat()
-                .body("message", Matchers.equalTo(I18n.TOKEN_NOT_FOUND));
+                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
+
+            given()
+                .spec(adminSpec)
+                .put("accounts/me/change-language/1")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .and().body("message", Matchers.equalTo(I18n.LANGUAGE_NOT_FOUND));
         }
+    }
+
+    // Zmiana poziomu dostępu
+    @Nested
+    class MOK10 {
+
+        private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
+            .addHeader("Authorization", "Bearer "
+                                        + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
+                                            .contentType(ContentType.JSON)
+                                            .when()
+                                            .post("/login")
+                                            .jsonPath()
+                                            .get("jwt"))
+            .build();
+
+        private RequestSpecification makeSpec(String login) {
+            return new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer "
+                                            + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
+                                                .contentType(ContentType.JSON)
+                                                .when()
+                                                .post("/login")
+                                                .jsonPath()
+                                                .get("jwt"))
+                .build();
+        }
+
+        @Test
+        public void shouldChangeAccessLevelWhenValidAccessTypeProvidedAndAccessLevelActiveAndVerified() {
+
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.OK.getStatusCode())
+                .body("accessType", Matchers.equalTo("OWNER"));
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidAccessLevelProvided1() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("adad");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC400WhenInvalidAccessLevelProvided2() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMINISTRATOR");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC400WhenBlankAccessLevelProvided() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenAccountNotHaveProvidedAccessLevel() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
+
+            given().spec(makeSpec("pduda")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenAccountHasInactiveProvidedAccessLevel() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
+
+            given().spec(makeSpec("bkowalewski")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenAccountHasUnverifiedProvidedAccessLevel() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+
+            given().spec(makeSpec("nkowalska")).when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        public void shouldReturnSC403WhenNoAccountIsLoggedIn() {
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+
+            given().when()
+                .body(dto)
+                .contentType(ContentType.JSON)
+                .put("/accounts/me/change-access-level")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
 
     }
 
-
-    //Zablokuj/odblokuj konto jako manager/admin
+    // Zablokuj/odblokuj konto jako manager/admin
     @Nested
     class MOK11 {
 
@@ -2744,9 +2994,9 @@ public class IntegrationTests {
                 .jsonPath()
                 .getString("active"));
 
-            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -32, !active1); //OWNER
-            ChangeActiveStatusDto dto2 = new ChangeActiveStatusDto((long) -33, !active2); //MANAGER
-            ChangeActiveStatusDto dto3 = new ChangeActiveStatusDto((long) -34, !active3); //ADMIN
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -32, !active1); // OWNER
+            ChangeActiveStatusDto dto2 = new ChangeActiveStatusDto((long) -33, !active2); // MANAGER
+            ChangeActiveStatusDto dto3 = new ChangeActiveStatusDto((long) -34, !active3); // ADMIN
 
             given()
                 .contentType(ContentType.JSON)
@@ -3055,6 +3305,1644 @@ public class IntegrationTests {
     }
 
     @Nested
+    class MOK15 {
+
+        @Test
+        void shouldGetAllAccountsAsAdmin() {
+            List<AccountDto> accounts =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAccountsAsManager() {
+            List<AccountDto> accounts =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(accounts);
+            assertTrue(accounts.size() > 0);
+        }
+
+        @Test
+        void shouldGetAllAdminsAsAdmin() {
+            List<AccountDto> admins =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/admins")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(admins);
+        }
+
+        @Test
+        void shouldGetAllManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsAdmin() {
+            List<AccountDto> owners =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetAllOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .when()
+                    .get("/accounts/owners")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedOwnersAsManager() {
+            List<AccountDto> owners =
+                given().spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .get("/accounts/owners/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(owners);
+        }
+
+        @Test
+        void shouldGetUnapprovedManagersAsAdmin() {
+            List<AccountDto> managers =
+                given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/managers/unapproved")
+                    .getBody().as(ArrayList.class);
+
+            assertNotNull(managers);
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllAccountsAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsAdmin() {
+            given().spec(adminSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountsAsGuest() {
+            given()
+                .when()
+                .get("/accounts")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAdminsAsGuest() {
+            given()
+                .when()
+                .get("/accounts/admins")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedOwnersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/owners/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingUnapprovedManagersAsGuest() {
+            given()
+                .when()
+                .get("/accounts/managers/unapproved")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    @Nested
+    class MOK12 {
+        private static final String ACCOUNT_URL = "/accounts/%d";
+
+        @Nested
+        class GrantAdminAccessLevelTest {
+            private static final String GRANT_URL = "/accounts/%d/access-levels/administrator";
+
+            @Nested
+            class GrantAdminAccessLevelPositiveTest {
+                @Test
+                void shouldGrantAccessLevelWhenDoesNotAlreadyExistsWithStatusCode204Test() {
+                    final int id = -18;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it.level=='ADMIN'}", nullValue());
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsUnverifiedWithStatusCode204Test() {
+                    final int id = -19;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(false),
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsInactiveWithStatusCode204Test() {
+                    final int id = -20;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsActiveWithStatusCode204Test() {
+                    final int id = -21;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true));
+
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='ADMIN'}.active", is(true),
+                            "accessLevels.find{it.level=='ADMIN'}.verified", is(true));
+                }
+            }
+
+            @Nested
+            class GrantAdminAccessLevelForbiddenTest {
+                @Test
+                void shouldFailToGrantAdminAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantAdminAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantAdminAccessLevelAsGuestWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantAdminAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(adminSpec)
+                    .when()
+                    .put(GRANT_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToGrantAdminAccessLevelToOwnAccountWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .put(GRANT_URL.formatted(-6))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+        }
+
+        @Nested
+        class GrantManagerAccessLevelTest {
+            private static final String GRANT_URL = "/accounts/%d/access-levels/manager";
+            private static AddressDto addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+            private static AddManagerAccessLevelDto dto;
+
+            @Nested
+            class GrantManagerAccessLevelPositiveTest {
+                private static String license;
+
+                @BeforeAll
+                static void setup() {
+                    addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+                }
+
+                @BeforeEach
+                void createDto() {
+                    license = generateRandomString();
+                    dto = new AddManagerAccessLevelDto(license, addressDto);
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenDoesNotAlreadyExistsWithStatusCode204Test() {
+                    final int id = -18;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it.level=='MANAGER'}", nullValue());
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.licenseNumber", is(license),
+                            "accessLevels.find{it.level=='MANAGER'}.address.postalCode", is(addressDto.postalCode()),
+                            "accessLevels.find{it.level=='MANAGER'}.address.city", is(addressDto.city()),
+                            "accessLevels.find{it.level=='MANAGER'}.address.street", is(addressDto.street()),
+                            "accessLevels.find{it.level=='MANAGER'}.address.buildingNumber",
+                            is(addressDto.buildingNumber()));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsUnverifiedWithStatusCode204Test() {
+                    final int id = -19;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(false),
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsInactiveWithStatusCode204Test() {
+                    final int id = -20;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .body(dto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsActiveWithStatusCode204Test() {
+                    final int id = -21;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true));
+
+                    given(adminSpec)
+                        .body(dto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='MANAGER'}.active", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                }
+            }
+
+            @Nested
+            class GrantManagerAccessLevelForbiddenTest {
+                @Test
+                void shouldFailToGrantManagerAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantManagerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToGrantManagerAccessLevelAsGuestWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-16))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantManagerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                dto = new AddManagerAccessLevelDto(generateRandomString(), addressDto);
+                given(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .put(GRANT_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Nested
+            class GrantManagerAccessLevelValidationTest {
+                private static AddressDto invalidAddressDto;
+
+                @Test
+                void shouldFailToGrantManagerAccessLevelWithoutPayloadWithStatusCode400Test() {
+                    given(adminSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "  "})
+                void shouldFailToGrantManagerAccessLevelWithLicenseNumberConstraintViolationWithStatusCode400Test(
+                    String licenseNumber) {
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(licenseNumber, addressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullSource
+                @ValueSource(ints = {-1, 0})
+                void shouldFailToGrantManagerAccessLevelWithBuildingNumberConstraintViolationWithStatusCode400Test(
+                    Integer buildingNo) {
+                    invalidAddressDto = new AddressDto("12-321", "Łódź", "Wólczańska", buildingNo);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {
+                    " ", "  ", "a",
+                    "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongCityNameExceedingLimit"})
+                void shouldFailToGrantManagerAccessLevelWithCityConstraintViolationWithStatusCode400Test(String city) {
+                    invalidAddressDto = new AddressDto("12-321", city, "Wólczańska", 123);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {
+                    " ", "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongStreetNameExceedingLimit"})
+                void shouldFailToGrantManagerAccessLevelWithStreetConstraintViolationWithStatusCode400Test(
+                    String street) {
+                    invalidAddressDto = new AddressDto("12-321", "Łódź", street, 123);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "      ", "12345", "1234567"})
+                void shouldFailToGrantManagerAccessLevelWithZipCodeConstraintViolationWithStatusCode400Test(
+                    String zipCode) {
+                    invalidAddressDto = new AddressDto(zipCode, "Łódź", "Politechniki", 1);
+
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(-18))
+                        .then()
+                        .statusCode(400)
+                        .contentType(ContentType.HTML);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantManagerAccessLevelWithAlreadyTakenLicenseNumberWithStatusCode409Test() {
+                given(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(new AddManagerAccessLevelDto("11111111", addressDto))
+                    .when()
+                    .put(GRANT_URL.formatted(-18))
+                    .then()
+                    .statusCode(409)
+                    .contentType(ContentType.JSON)
+                    .body("message", is(I18n.LICENSE_NUMBER_ALREADY_TAKEN));
+            }
+
+            @Test
+            void shouldFailToGrantManagerAccessLevelToOwnAccountWithStatusCode403Test() {
+                given(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                    .when()
+                    .put(GRANT_URL.formatted(-6))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+
+            @Test
+            void shouldGrantManagerAccessLevelPerformOneConcurrentChangeTest()
+                throws BrokenBarrierException, InterruptedException {
+                final int threads = 10;
+
+                AtomicInteger successCount = new AtomicInteger();
+                AtomicInteger finishedCount = new AtomicInteger();
+                AtomicBoolean accessLevelGrantedMessage = new AtomicBoolean();
+
+                List<Thread> threadList = new ArrayList<>(threads);
+
+                CyclicBarrier startBarrier = new CyclicBarrier(threads + 1);
+                CyclicBarrier endBarrier = new CyclicBarrier(threads + 1);
+
+                for (int i = 0; i < threads; i++) {
+                    int finalI = i;
+                    threadList.add(new Thread(() -> {
+                        AddressDto address = new AddressDto(
+                            "93-300", "Łódź" + finalI, "Wólczańska" + finalI, finalI + 1);
+
+                        AddManagerAccessLevelDto dto = new AddManagerAccessLevelDto(generateRandomString(), address);
+
+                        try {
+                            startBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given(adminSpec)
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .when()
+                            .put(GRANT_URL.formatted(-37))
+                            .then()
+                            .extract()
+                            .statusCode();
+
+                        if (statusCode == 204) {
+                            successCount.getAndIncrement();
+                        } else if (statusCode == 409) {
+                            accessLevelGrantedMessage.set(true);
+                        }
+
+                        finishedCount.getAndIncrement();
+                        try {
+                            endBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }));
+                }
+                threadList.forEach(Thread::start);
+                startBarrier.await();
+                endBarrier.await();
+
+                assertTrue(successCount.get() >= 1);
+                assertTrue(accessLevelGrantedMessage.get());
+            }
+
+            private static String generateRandomString() {
+                return UUID.randomUUID().toString().replace("-", "");
+            }
+        }
+
+        @Nested
+        class GrantOwnerAccessLevelTest {
+            private static final String GRANT_URL = "/accounts/%d/access-levels/owner";
+            private static AddressDto addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+            private static AddOwnerAccessLevelDto ownerDto;
+
+            @Nested
+            class GrantOwnerAccessLevelPositiveTest {
+                @BeforeAll
+                static void setup() {
+                    addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+                    ownerDto = new AddOwnerAccessLevelDto(addressDto);
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenDoesNotAlreadyExistsWithStatusCode204Test() {
+                    final int id = -18;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it.level=='OWNER'}", nullValue());
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.address.postalCode", is(addressDto.postalCode()),
+                            "accessLevels.find{it.level=='OWNER'}.address.city", is(addressDto.city()),
+                            "accessLevels.find{it.level=='OWNER'}.address.street", is(addressDto.street()),
+                            "accessLevels.find{it.level=='OWNER'}.address.buildingNumber",
+                            is(addressDto.buildingNumber()));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsUnverifiedWithStatusCode204Test() {
+                    final int id = -19;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(false),
+                            "accessLevels.find{it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsInactiveWithStatusCode204Test() {
+                    final int id = -20;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .body(ownerDto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                }
+
+                @Test
+                void shouldGrantAccessLevelWhenIsActiveWithStatusCode204Test() {
+                    final int id = -21;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true));
+
+                    given(managerSpec)
+                        .body(ownerDto)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(204)
+                        .body(is(""));
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it.level=='OWNER'}.active", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                }
+            }
+
+            @Nested
+            class GrantOwnerAccessLevelForbiddenTest {
+                private final int id = -18;
+
+                @BeforeAll
+                static void setup() {
+                    addressDto = new AddressDto("93-300", "Łódź", "Wólczańska", 215);
+                    ownerDto = new AddOwnerAccessLevelDto(addressDto);
+                }
+
+                @Test
+                void shouldFailToAddOwnerAccessLevelAsAdminWithStatusCode403Test() {
+                    given(adminSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToAddOwnerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToAddOwnerAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .contentType(ContentType.JSON)
+                        .body(ownerDto)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantOwnerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(new AddOwnerAccessLevelDto(addressDto))
+                    .when()
+                    .put(GRANT_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404);
+            }
+
+            @Nested
+            class GrantOwnerAccessLevelConstraintViolationTest {
+                private static final int id = -18;
+                private static AddressDto invalidAddressDto;
+
+                @Test
+                void shouldFailToGrantOwnerAccessLevelWithoutPayloadTest() {
+                    given(managerSpec)
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullSource
+                @ValueSource(ints = {0, -1})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidBuildingNumberWithStatusCode400Test(Integer bn) {
+                    invalidAddressDto = new AddressDto("12-345", "Warszawa", "Wyścigowa", bn);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "  ", "A",
+                    "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongCityNameExceedingLimit"})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidCityWithStatusCode400Test(String city) {
+                    invalidAddressDto = new AddressDto("12-345", city, "Wyścigowa", 5428);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "  ",
+                    "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongStreetNameExceedingLimit"})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidStreetWithStatusCode400Test(String street) {
+                    invalidAddressDto = new AddressDto("12-345", "Poznań", street, 5428);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+
+                @ParameterizedTest
+                @NullAndEmptySource
+                @ValueSource(strings = {" ", "      ", "12345", "1234567"})
+                void shouldFailToGrantOwnerAccessLevelWithInvalidZipCodeWithStatusCode400Test(String zipCode) {
+                    invalidAddressDto = new AddressDto(zipCode, "Poznań", "Prosta", 5428);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(new AddOwnerAccessLevelDto(invalidAddressDto))
+                        .when()
+                        .put(GRANT_URL.formatted(id))
+                        .then()
+                        .statusCode(400);
+                }
+            }
+
+            @Test
+            void shouldFailToGrantOwnerAccessLevelToOwnAccountWithStatusCode403Test() {
+                given(managerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(new AddOwnerAccessLevelDto(addressDto))
+                    .then()
+                    .statusCode(403)
+                    .contentType(ContentType.JSON)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+
+            @Test
+            void shouldGrantOwnerAccessLevelPerformOneConcurrentChangeTest()
+                throws BrokenBarrierException, InterruptedException {
+                final int threads = 10;
+
+                AtomicInteger successCount = new AtomicInteger();
+                AtomicInteger finishedCount = new AtomicInteger();
+                AtomicBoolean accessLevelGrantedMessage = new AtomicBoolean();
+
+                List<Thread> threadList = new ArrayList<>(threads);
+
+                CyclicBarrier startBarrier = new CyclicBarrier(threads + 1);
+                CyclicBarrier endBarrier = new CyclicBarrier(threads + 1);
+
+                for (int i = 0; i < threads; i++) {
+                    int finalI = i;
+                    threadList.add(new Thread(() -> {
+                        AddressDto address = new AddressDto(
+                            "93-300", "Łódź" + finalI, "Wólczańska" + finalI, finalI + 1);
+
+                        AddOwnerAccessLevelDto dto = new AddOwnerAccessLevelDto(address);
+
+                        try {
+                            startBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given(managerSpec)
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .when()
+                            .put(GRANT_URL.formatted(-37))
+                            .then()
+                            .extract()
+                            .statusCode();
+
+                        if (statusCode == 204) {
+                            successCount.getAndIncrement();
+                        } else if (statusCode == 409) {
+                            accessLevelGrantedMessage.set(true);
+                        }
+
+                        finishedCount.getAndIncrement();
+                        try {
+                            endBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }));
+                }
+                threadList.forEach(Thread::start);
+                startBarrier.await();
+                endBarrier.await();
+
+                assertTrue(successCount.get() >= 1);
+                assertTrue(accessLevelGrantedMessage.get());
+            }
+        }
+    }
+
+    @Nested
+    class MOK13 {
+        private static final String ACCOUNT_URL = "/accounts/%d";
+
+        @Nested
+        class RevokeAdminAccessLevelTest {
+            private static final String REVOKE_URL = "/accounts/%d/access-levels/administrator";
+
+            @Nested
+            class RevokeAdminAccessLevelPositiveTest {
+                @Test
+                void shouldRevokeAdminAccessLevelIfActiveWithStatusCode204Test() {
+                    final int id = -25;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(true));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeAdminAccessLevelIfInactiveWithStatusCode204Test() {
+                    final int id = -24;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeAdminAccessLevelIfUnverifiedWithStatusCode204Test() {
+                    final int id = -23;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='ADMIN'}.verified", is(false),
+                            "accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='ADMIN'}.verified", is(true),
+                            "accessLevels.find{it->it.level=='ADMIN'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeAdminAccessLevelNotChangeAnythingIfAccessLevelDoesNotExistWithStatusCode204Test() {
+                    final int id = -22;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}", nullValue());
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='ADMIN'}", nullValue());
+                }
+            }
+
+            @Nested
+            class RevokeAdminAccessLevelForbiddenTest {
+                private static final int id = -25;
+
+                @Test
+                void shouldFailToRevokeAdminAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeAdminAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeAdminAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToRevokeAdminAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(adminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToRevokeAdminAccessLevelFromOwnAccountWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-6))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+        }
+
+        @Nested
+        class RevokeManagerAccessLevelTest {
+            private static final String REVOKE_URL = "accounts/%d/access-levels/manager";
+
+            @Nested
+            class RevokeManagerAccessLevelPositiveTest {
+                @Test
+                void shouldRevokeManagerAccessLevelIfActiveWithStatusCode204Test() {
+                    final int id = -25;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(true));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeManagerAccessLevelIfInactiveWithStatusCode204Test() {
+                    final int id = -24;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeManagerAccessLevelIfUnverifiedWithStatusCode204Test() {
+                    final int id = -23;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='MANAGER'}.verified", is(false),
+                            "accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it->it.level=='MANAGER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeManagerAccessLevelNotChangeAnythingIfAccessLevelDoesNotExistWithStatusCode204Test() {
+                    final int id = -22;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}", nullValue());
+
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='MANAGER'}", nullValue());
+                }
+            }
+
+            @Nested
+            class RevokeManagerAccessLevelForbiddenTest {
+                static final int id = -25;
+
+                @Test
+                void shouldFailToRevokeManagerAccessLevelAsManagerWithStatusCode403Test() {
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeManagerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeManagerAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToRevokeManagerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(adminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToRevokeManagerAccessLevelFromOwnAccountWithStatusCode403Test() {
+                var jwt = given()
+                    .body(new LoginDto("dchmielewski", "P@ssw0rd"))
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/login")
+                    .jsonPath()
+                    .get("jwt");
+
+                var managerAdminSpec = new RequestSpecBuilder()
+                    .addHeader("Authorization", "Bearer " + jwt)
+                    .build();
+
+                given(managerAdminSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-5))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+        }
+
+        @Nested
+        class RevokeOwnerAccessLevelTest {
+            private static final String REVOKE_URL = "accounts/%d/access-levels/owner";
+
+            @Nested
+            class RevokeOwnerAccessLevelPositiveTest {
+                @Test
+                void shouldRevokeOwnerAccessLevelIfActiveWithStatusCode204Test() {
+                    final int id = -25;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(true));
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeOwnerAccessLevelIfInactiveWithStatusCode204Test() {
+                    final int id = -24;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeOwnerAccessLevelIfUnverifiedWithStatusCode204Test() {
+                    final int id = -23;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='OWNER'}.verified", is(false),
+                            "accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body(
+                            "accessLevels.find{it->it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it->it.level=='OWNER'}.active", is(false));
+                }
+
+                @Test
+                void shouldRevokeOwnerAccessLevelNotChangeAnythingIfAccessLevelDoesNotExistWithStatusCode204Test() {
+                    final int id = -22;
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}", nullValue());
+
+                    given(managerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(204);
+
+                    given(adminSpec)
+                        .when()
+                        .get(ACCOUNT_URL.formatted(id))
+                        .then()
+                        .statusCode(200)
+                        .body("accessLevels.find{it->it.level=='OWNER'}", nullValue());
+                }
+            }
+
+            @Nested
+            class RevokeOwnerAccessLevelForbiddenTest {
+                static final int id = -25;
+
+                @Test
+                void shouldFailToRevokeOwnerAccessLevelAsAdminWithStatusCode403Test() {
+                    given(adminSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeOwnerAccessLevelAsOwnerWithStatusCode403Test() {
+                    given(ownerSpec)
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+
+                @Test
+                void shouldFailToRevokeOwnerAccessLevelAsGuestWithStatusCode403Test() {
+                    given()
+                        .when()
+                        .delete(REVOKE_URL.formatted(id))
+                        .then()
+                        .statusCode(403);
+                }
+            }
+
+            @Test
+            void shouldFailToRevokeOwnerAccessLevelWhenAccountDoesNotExistWithStatusCode404Test() {
+                given(managerSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-98765))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.ACCOUNT_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToRevokeOwnerAccessLevelFromOwnAccountWithStatusCode403Test() {
+                given(managerSpec)
+                    .when()
+                    .delete(REVOKE_URL.formatted(-4))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+        }
+    }
+
+    @Nested
     class MOK16 {
         @Test
         void shouldForcefullyChangeOtherAccountsPasswordByAdmin() {
@@ -3339,398 +5227,8 @@ public class IntegrationTests {
         }
     }
 
-    @Nested // zmiana hasła
-    class MOK5 {
-
-        @Test
-        void shouldChangePasswordWhenProvidedValidNewPasswordAndValidOldPassword() {
-
-            String oldPass = "P@ssw0rd";
-            String newPass = "Haslo123@rd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals((Integer) account.get("version"), (Integer) oldAccount.get("version") + 1);
-
-            given().spec(adminSpec).when()
-                .body(new ChangePasswordDto(newPass, oldPass))
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
-        }
-
-        @Test
-        public void shouldReturnSC401WhenProvidedWrongOldPassword() {
-            String oldPass = "P@ssw0rd7";
-            String newPass = "Haslo123@rd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedInvalidOldPassword() {
-            String oldPass = "";
-            String newPass = "Haslo123@rd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedWeakNewPasswordLength() {
-            String oldPass = "P@ssw0rd";
-            String newPass = "h@Sl0";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedWeakNewPasswordNumber() {
-            String oldPass = "P@ssw0rd";
-            String newPass = "h@Slopasswd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedWeakNewPasswordSpecialCharacter() {
-            String oldPass = "P@ssw0rd";
-            String newPass = "h4Slopa55wo";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedWeakNewPasswordLowerCase() {
-            String oldPass = "P@ssw0rd";
-            String newPass = "H@S7OPASSWD";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedWeakNewPasswordUpperCase() {
-            String oldPass = "P@ssw0rd";
-            String newPass = "h@slo1passwd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedIdenticalPasswords() {
-            String oldPass = "P@ssw0rd";
-            String newPass = "P@ssw0rd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenProvidedEmptyOldPasswords() {
-            String oldPass = "";
-            String newPass = "P@ssw0rd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().spec(adminSpec).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-
-        @Test
-        public void shouldReturnSC403WhenNoAccountIsLoggedIn() {
-            String oldPass = "P@ssw0rd";
-            String newPass = "h@P4ssw0rd";
-            ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
-
-            JsonPath oldAccount = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-
-            given().when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-
-            JsonPath account = given().spec(adminSpec)
-                .when()
-                .get("/accounts/me").jsonPath();
-            Assertions.assertEquals(account.get("version"), (Integer) oldAccount.get("version"));
-        }
-    }
-
-    @Nested // zmiana poziomu dostępu
-    class MOK10 {
-
-        private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
-            .addHeader("Authorization", "Bearer "
-                + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/login")
-                .jsonPath()
-                .get("jwt"))
-            .build();
-
-        private RequestSpecification makeSpec(String login) {
-            return new RequestSpecBuilder()
-                .addHeader("Authorization", "Bearer "
-                    + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
-                    .contentType(ContentType.JSON)
-                    .when()
-                    .post("/login")
-                    .jsonPath()
-                    .get("jwt"))
-                .build();
-        }
-
-        @Test
-        public void shouldChangeAccessLevelWhenValidAccessTypeProvidedAndAccessLevelActiveAndVerified() {
-
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
-
-            given().spec(makeSpec("pduda")).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .body("accessType", Matchers.equalTo("OWNER"));
-        }
-
-        @Test
-        public void shouldReturnSC400WhenInvalidAccessLevelProvided1() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("adad");
-
-            given().spec(makeSpec("pduda")).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void shouldReturnSC400WhenInvalidAccessLevelProvided2() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMINISTRATOR");
-
-            given().spec(makeSpec("pduda")).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void shouldReturnSC400WhenBlankAccessLevelProvided() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("");
-
-            given().spec(makeSpec("pduda")).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void shouldReturnSC403WhenAccountNotHaveProvidedAccessLevel() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
-
-            given().spec(makeSpec("pduda")).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        public void shouldReturnSC403WhenAccountHasInactiveProvidedAccessLevel() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
-
-            given().spec(makeSpec("bkowalewski")).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        public void shouldReturnSC403WhenAccountHasUnverifiedProvidedAccessLevel() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
-
-            given().spec(makeSpec("nkowalska")).when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-        @Test
-        public void shouldReturnSC403WhenNoAccountIsLoggedIn() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
-
-            given().when()
-                .body(dto)
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-access-level")
-                .then()
-                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
-        }
-
-
-    }
-
-    @Nested // edycje dowolnego niewłasnego konta przez administratora
+    // Edycja danych personalnych własnego konta
+    @Nested
     class MOK17 {
 
         private EditAnotherPersonalDataDto makeEditPersonalDataDto(AccountDto acc) {
@@ -3745,437 +5243,582 @@ public class IntegrationTests {
             return dto;
         }
 
-        @Test
-        public void shouldChangeUserFirstNameAndLastName() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            acc.setFirstName("newFirstName");
-            acc.setLastName("newLastName");
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+        @Nested
+        class PositiveCases {
+
+            @Test
+            public void shouldChangeUserFirstNameAndLastName() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setFirstName("newFirstName");
+                acc.setLastName("newLastName");
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .body("login", Matchers.equalTo(acc.getLogin()))
-                .body("firstName", Matchers.equalTo("newFirstName"))
-                .body("lastName", Matchers.equalTo("newLastName"));
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.OK.getStatusCode())
+                    .body("login", Matchers.equalTo(acc.getLogin()))
+                    .body("firstName", Matchers.equalTo("newFirstName"))
+                    .body("lastName", Matchers.equalTo("newLastName"));
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertEquals(acc2, acc);
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                Assertions.assertEquals(acc2, acc);
+            }
+
+            @Test
+            public void shouldChangeUserEmailAndLanguage() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setEmail("newFirstName@gmail.com");
+                acc.setLanguage("EN");
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.OK.getStatusCode())
+                    .body("login", Matchers.equalTo(acc.getLogin()))
+                    .body("email", Matchers.equalTo("newFirstName@gmail.com"))
+                    .body("language", Matchers.equalTo("EN"));
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                Assertions.assertEquals(acc2, acc);
+            }
+
+            @Test
+            public void shouldChangeUserOwnerData() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                OwnerDataDto accessLevelDto = (OwnerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
+                acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.OK.getStatusCode())
+                    .body("login", Matchers.equalTo(acc.getLogin()))
+                    .body("accessLevels[0].address.buildingNumber",
+                        Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
+                    .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
+                    .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
+                    .body("accessLevels[0].address.postalCode",
+                        Matchers.equalTo(accessLevelDto.getAddress().postalCode()));
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                Assertions.assertEquals(acc2, acc);
+            }
+
+            @Test
+            public void shouldChangeUserManagerData() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
+                accessLevelDto.setLicenseNumber("98765432");
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.OK.getStatusCode())
+                    .body("login", Matchers.equalTo(acc.getLogin()))
+                    .body("accessLevels[0].address.buildingNumber",
+                        Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
+                    .body("accessLevels[0].licenseNumber", Matchers.equalTo(accessLevelDto.getLicenseNumber()))
+                    .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
+                    .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
+                    .body("accessLevels[0].address.postalCode",
+                        Matchers.equalTo(accessLevelDto.getAddress().postalCode()));
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16").as(AccountDto.class);
+                Assertions.assertEquals(acc2, acc);
+            }
         }
 
-        @Test
-        public void shouldChangeUserEmailAndLanguage() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            acc.setEmail("newFirstName@gmail.com");
-            acc.setLanguage("EN");
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+        @Nested
+        class ConstraintCases {
+            @ParameterizedTest
+            @ValueSource(strings = {"", "imie"})
+            public void shouldReturnSC400WhenInvalidEmailAddress(String email) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setEmail(email);
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                assertNotEquals(acc2, acc);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {"",
+                "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+            public void shouldReturnSC400WhenInvalidFirstName(String name) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setLastName(name);
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                assertNotEquals(acc2, acc);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {"",
+                "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+            public void shouldReturnSC400WhenInvalidLastName(String name) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setLastName(name);
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                assertNotEquals(acc2, acc);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {"", "ES", "ESD"})
+            public void shouldReturnSC400WhenLanguageNotFound(String lang) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+                JSONObject obj = new JSONObject(dto);
+                obj.put("language", lang);
 
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .body("login", Matchers.equalTo(acc.getLogin()))
-                .body("email", Matchers.equalTo("newFirstName@gmail.com"))
-                .body("language", Matchers.equalTo("EN"));
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(obj)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertEquals(acc2, acc);
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {"", "999", "1234567", "12"})
+            public void shouldReturnSC400WhenInvalidAccessLevelPostalCode(String postalCode) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setAddress(new AddressDto(postalCode, "Wrocław", "Warszawska", 99));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {"", "1",
+                "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+            public void shouldReturnSC400WhenInvalidAccessLevelCity(String str) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setAddress(new AddressDto("90-987", str, "Warszawska", 99));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {
+                "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+            public void shouldReturnSC400WhenInvalidAccessLevelStreet(String str) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", str, 99));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {-99, 0})
+            public void shouldReturnSC400WhenInvalidAccessLevelBuildingNumber(int l) {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", "Zielona", l));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
         }
 
-        @Test
-        public void shouldChangeUserOwnerData() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            OwnerDataDto accessLevelDto = (OwnerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
-            acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+        @Nested
+        class SignatureCases {
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .body("login", Matchers.equalTo(acc.getLogin()))
-                .body("accessLevels[0].address.buildingNumber",
-                    Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
-                .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
-                .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
-                .body("accessLevels[0].address.postalCode", Matchers.equalTo(accessLevelDto.getAddress().postalCode()));
+            @Test
+            public void shouldReturnSC400WhenInvalidSignatureLogin() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setLogin("newLogin1");
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertEquals(acc2, acc);
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                assertNotEquals(acc2.getLogin(), acc.getLogin());
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @Test
+            public void shouldReturnSC400WhenInvalidSignatureVersion() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setVersion(acc.getVersion() + 1);
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion() - 1);
+
+            }
+
+            @Test
+            public void shouldReturnSC400WhenInvalidSignatureAccessLevelId() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setId(accessLevelDto.getId() + 1);
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+            }
+
+            @Test
+            public void shouldReturnSC400WhenInvalidSignatureAccessLevelVersion() {
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setVersion(accessLevelDto.getVersion() + 1);
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+
+                given().spec(adminSpec).when()
+                    .header(new Header("If-Match", resp.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put("/accounts/admin/edit-other")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+
+                AccountDto acc2 = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16").as(AccountDto.class);
+                Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
+                assertNotEquals(acc2.getAccessLevels().stream().findFirst().get().getVersion(),
+                    acc.getAccessLevels().stream().findFirst().get().getVersion());
+            }
         }
 
-        @Test
-        public void shouldChangeUserManagerData() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16");
-            AccountDto acc = resp.as(AccountDto.class);
-            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
-            accessLevelDto.setLicenseNumber("98765432");
-            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+        @Nested
+        class ConcurrentTests {
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode())
-                .body("login", Matchers.equalTo(acc.getLogin()))
-                .body("accessLevels[0].address.buildingNumber",
-                    Matchers.equalTo(accessLevelDto.getAddress().buildingNumber()))
-                .body("accessLevels[0].licenseNumber", Matchers.equalTo(accessLevelDto.getLicenseNumber()))
-                .body("accessLevels[0].address.city", Matchers.equalTo(accessLevelDto.getAddress().city()))
-                .body("accessLevels[0].address.street", Matchers.equalTo(accessLevelDto.getAddress().street()))
-                .body("accessLevels[0].address.postalCode", Matchers.equalTo(accessLevelDto.getAddress().postalCode()));
+            @Test
+            public void shouldBeSuccessfulForOneRequestEditAccountData()
+                throws BrokenBarrierException, InterruptedException {
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16").as(AccountDto.class);
-            Assertions.assertEquals(acc2, acc);
-        }
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16");
+                AccountDto acc = resp.as(AccountDto.class);
+                acc.setFirstName("Concurrent" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
-        @ParameterizedTest
-        @ValueSource(strings = {"", "imie"})
-        public void shouldReturnSC400WhenInvalidEmailAddress(String email) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            acc.setEmail(email);
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            assertNotEquals(acc2, acc);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
+                        int statusCode = given()
+                            .header(new Header("If-Match", resp.getHeader("ETag")))
+                            .contentType(ContentType.JSON)
+                            .spec(adminSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put("/accounts/admin/edit-other")
+                            .getStatusCode();
 
-        @ParameterizedTest
-        @ValueSource(strings = {"",
-            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
-        public void shouldReturnSC400WhenInvalidFirstName(String name) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            acc.setLastName(name);
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                assertEquals(1, numberOfSuccessfulAttempts.get());
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            assertNotEquals(acc2, acc);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
+                io.restassured.response.Response editedResponse = given()
+                    .spec(adminSpec)
+                    .when()
+                    .get("/accounts/-16")
+                    .thenReturn();
+                AccountDto editedDto = editedResponse.body().as(AccountDto.class);
+                assertNotEquals(resp.body().jsonPath().getString("firstName"), editedDto.getFirstName());
+                assertEquals(dto.getFirstName(), editedDto.getFirstName());
+                assertEquals(dto.getVersion() + 1, editedDto.getVersion());
+            }
 
-        @ParameterizedTest
-        @ValueSource(strings = {"",
-            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
-        public void shouldReturnSC400WhenInvalidLastName(String name) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            acc.setLastName(name);
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+            @Test
+            public void shouldBeSuccessfulForOneRequestEditAccessLevel()
+                throws BrokenBarrierException, InterruptedException {
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                io.restassured.response.Response resp = given().spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15");
+                AccountDto acc = resp.as(AccountDto.class);
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            assertNotEquals(acc2, acc);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
+                OwnerDataDto accessLevelDto = (OwnerDataDto) acc.getAccessLevels().stream().findFirst().get();
+                accessLevelDto.setAddress(
+                    new AddressDto("99-000", "Wrocław", "S_" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
+                        99));
+                acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[] {accessLevelDto}))));
 
-        @ParameterizedTest
-        @ValueSource(strings = {"", "ES", "ESD"})
-        public void shouldReturnSC400WhenLanguageNotFound(String lang) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-            JSONObject obj = new JSONObject(dto);
-            obj.put("language", lang);
+                EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(obj)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
+                        int statusCode = given()
+                            .header(new Header("If-Match", resp.getHeader("ETag")))
+                            .contentType(ContentType.JSON)
+                            .spec(adminSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put("/accounts/admin/edit-other")
+                            .getStatusCode();
 
-        @Test
-        public void shouldReturnSC400WhenInvalidSignatureLogin() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            acc.setLogin("newLogin1");
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
 
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
+                assertEquals(1, numberOfSuccessfulAttempts.get());
 
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            assertNotEquals(acc2.getLogin(), acc.getLogin());
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
-
-        @Test
-        public void shouldReturnSC400WhenInvalidSignatureVersion() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15");
-            AccountDto acc = resp.as(AccountDto.class);
-            acc.setVersion(acc.getVersion() + 1);
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
-
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion() - 1);
-
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {"", "999", "1234567", "12"})
-        public void shouldReturnSC400WhenInvalidAccessLevelPostalCode(String postalCode) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16");
-            AccountDto acc = resp.as(AccountDto.class);
-            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setAddress(new AddressDto(postalCode, "Wrocław", "Warszawska", 99));
-            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {"", "1",
-            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
-        public void shouldReturnSC400WhenInvalidAccessLevelCity(String str) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16");
-            AccountDto acc = resp.as(AccountDto.class);
-            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setAddress(new AddressDto("90-987", str, "Warszawska", 99));
-            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {
-            "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
-        public void shouldReturnSC400WhenInvalidAccessLevelStreet(String str) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16");
-            AccountDto acc = resp.as(AccountDto.class);
-            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", str, 99));
-            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
-
-        @ParameterizedTest
-        @ValueSource(ints = {-99, 0})
-        public void shouldReturnSC400WhenInvalidAccessLevelBuildingNumber(int l) {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16");
-            AccountDto acc = resp.as(AccountDto.class);
-            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", "Zielona", l));
-            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
-
-        @Test
-        public void shouldReturnSC400WhenInvalidSignatureAccessLevelId() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16");
-            AccountDto acc = resp.as(AccountDto.class);
-            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setId(accessLevelDto.getId() + 1);
-            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
-
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-        }
-
-        @Test
-        public void shouldReturnSC400WhenInvalidSignatureAccessLevelVersion() {
-            io.restassured.response.Response resp = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16");
-            AccountDto acc = resp.as(AccountDto.class);
-            ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
-            accessLevelDto.setVersion(accessLevelDto.getVersion() + 1);
-            acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
-            EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
-
-            given().spec(adminSpec).when()
-                .header(new Header("If-Match", resp.getHeader("ETag")))
-                .contentType(ContentType.JSON)
-                .body(dto)
-                .put("/accounts/admin/edit-other")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .body("message", Matchers.equalTo(I18n.SIGNATURE_MISMATCH));
-
-            AccountDto acc2 = given().spec(adminSpec)
-                .when()
-                .get("/accounts/-16").as(AccountDto.class);
-            Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-            assertNotEquals(acc2.getAccessLevels().stream().findFirst().get().getVersion(),
-                acc.getAccessLevels().stream().findFirst().get().getVersion());
+                io.restassured.response.Response editedResponse = given()
+                    .spec(adminSpec)
+                    .when()
+                    .get("/accounts/-15")
+                    .thenReturn();
+                AccountDto editedDto = editedResponse.body().as(AccountDto.class);
+                assertNotEquals(resp.as(AccountDto.class).getAccessLevels(), editedDto.getAccessLevels());
+                assertEquals(
+                    ((OwnerDataDto) dto.getAccessLevels().stream().findFirst().get()).getAddress(),
+                    ((OwnerDataDto) editedDto.getAccessLevels().stream().findFirst().get()).getAddress());
+                assertEquals(dto.getVersion(), editedDto.getVersion());
+                assertEquals(dto.getAccessLevels().stream().findFirst().get().getVersion() + 1,
+                    editedDto.getAccessLevels().stream().findFirst().get().getVersion());
+            }
         }
 
         @Test
@@ -4263,8 +5906,8 @@ public class IntegrationTests {
         @Test
         void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsAdmin() {
 
-            //With parameter
-            //Check if user has two factor auth disabled
+            // With parameter
+            // Check if user has two factor auth disabled
             given()
                 .spec(adminSpec)
                 .get("accounts/me")
@@ -4272,7 +5915,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Enable two factor auth
+            // Enable two factor auth
             given()
                 .queryParam("status", true)
                 .spec(adminSpec)
@@ -4280,7 +5923,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(adminSpec)
                 .get("accounts/me")
@@ -4288,7 +5931,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Change back to disabled
+            // Change back to disabled
             given()
                 .queryParam("status", false)
                 .spec(adminSpec)
@@ -4296,7 +5939,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check again if change was made
+            // Check again if change was made
             given()
                 .spec(adminSpec)
                 .get("accounts/me")
@@ -4308,8 +5951,8 @@ public class IntegrationTests {
         @Test
         void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsManager() {
 
-            //With parameter
-            //Check if user has two factor auth disabled
+            // With parameter
+            // Check if user has two factor auth disabled
             given()
                 .spec(managerSpec)
                 .get("accounts/me")
@@ -4317,7 +5960,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Enable two factor auth
+            // Enable two factor auth
             given()
                 .queryParam("status", true)
                 .spec(managerSpec)
@@ -4325,7 +5968,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(managerSpec)
                 .get("accounts/me")
@@ -4333,7 +5976,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Change back to disabled
+            // Change back to disabled
             given()
                 .queryParam("status", false)
                 .spec(managerSpec)
@@ -4341,7 +5984,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check again if change was made
+            // Check again if change was made
             given()
                 .spec(managerSpec)
                 .get("accounts/me")
@@ -4353,8 +5996,8 @@ public class IntegrationTests {
         @Test
         void shouldChangeTwoFactorAuthStatusWhenUserAuthenticatedAsOwner() {
 
-            //With parameter
-            //Check if user has two factor auth disabled
+            // With parameter
+            // Check if user has two factor auth disabled
             given()
                 .spec(ownerSpec)
                 .get("accounts/me")
@@ -4362,7 +6005,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Enable two factor auth
+            // Enable two factor auth
             given()
                 .queryParam("status", true)
                 .spec(ownerSpec)
@@ -4370,7 +6013,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(ownerSpec)
                 .get("accounts/me")
@@ -4378,7 +6021,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Change back to disabled
+            // Change back to disabled
             given()
                 .queryParam("status", false)
                 .spec(ownerSpec)
@@ -4389,15 +6032,15 @@ public class IntegrationTests {
 
         @Test
         void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsAdminAndParameterIsWrong() {
-            //Without parameter
-            //Change to enabled without providing parameter
+            // Without parameter
+            // Change to enabled without providing parameter
             given()
                 .spec(adminSpec)
                 .put("accounts/me/change_two_factor_auth_status")
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(adminSpec)
                 .get("accounts/me")
@@ -4405,7 +6048,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Return user back to normal
+            // Return user back to normal
             given()
                 .queryParam("status", false)
                 .spec(adminSpec)
@@ -4413,7 +6056,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(adminSpec)
                 .get("accounts/me")
@@ -4421,7 +6064,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Wrong parameter name
+            // Wrong parameter name
             given()
                 .queryParam("wrong", false)
                 .spec(adminSpec)
@@ -4429,7 +6072,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(adminSpec)
                 .get("accounts/me")
@@ -4437,7 +6080,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Return user back to normal
+            // Return user back to normal
             given()
                 .queryParam("status", false)
                 .spec(adminSpec)
@@ -4448,15 +6091,15 @@ public class IntegrationTests {
 
         @Test
         void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsManagerAndParameterIsWrong() {
-            //Without parameter
-            //Change to enabled without providing parameter
+            // Without parameter
+            // Change to enabled without providing parameter
             given()
                 .spec(managerSpec)
                 .put("accounts/me/change_two_factor_auth_status")
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(managerSpec)
                 .get("accounts/me")
@@ -4464,7 +6107,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Return user back to normal
+            // Return user back to normal
             given()
                 .queryParam("status", false)
                 .spec(managerSpec)
@@ -4472,7 +6115,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(managerSpec)
                 .get("accounts/me")
@@ -4480,7 +6123,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Wrong parameter name
+            // Wrong parameter name
             given()
                 .queryParam("wrong", false)
                 .spec(managerSpec)
@@ -4488,7 +6131,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(managerSpec)
                 .get("accounts/me")
@@ -4496,7 +6139,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Return user back to normal
+            // Return user back to normal
             given()
                 .queryParam("status", false)
                 .spec(managerSpec)
@@ -4507,15 +6150,15 @@ public class IntegrationTests {
 
         @Test
         void shouldActivateTwoFactorAuthStatusWhenUserAuthenticatedAsOwnerAndParameterIsWrong() {
-            //Without parameter
-            //Change to enabled without providing parameter
+            // Without parameter
+            // Change to enabled without providing parameter
             given()
                 .spec(ownerSpec)
                 .put("accounts/me/change_two_factor_auth_status")
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(ownerSpec)
                 .get("accounts/me")
@@ -4523,7 +6166,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Return user back to normal
+            // Return user back to normal
             given()
                 .queryParam("status", false)
                 .spec(ownerSpec)
@@ -4531,7 +6174,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(ownerSpec)
                 .get("accounts/me")
@@ -4539,7 +6182,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Wrong parameter name
+            // Wrong parameter name
             given()
                 .queryParam("wrong", false)
                 .spec(ownerSpec)
@@ -4547,7 +6190,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(ownerSpec)
                 .get("accounts/me")
@@ -4555,7 +6198,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Return user back to normal
+            // Return user back to normal
             given()
                 .queryParam("status", false)
                 .spec(ownerSpec)
@@ -4573,7 +6216,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Parameter that is not boolean
+            // Parameter that is not boolean
             given()
                 .queryParam("status", true)
                 .spec(ownerSpec)
@@ -4581,7 +6224,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(ownerSpec)
                 .get("accounts/me")
@@ -4589,7 +6232,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Disable two factor auth
+            // Disable two factor auth
             given()
                 .queryParam("status", "wrong")
                 .spec(ownerSpec)
@@ -4614,7 +6257,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Parameter that is not boolean
+            // Parameter that is not boolean
             given()
                 .queryParam("status", true)
                 .spec(managerSpec)
@@ -4622,7 +6265,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(managerSpec)
                 .get("accounts/me")
@@ -4630,7 +6273,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Disable two factor auth
+            // Disable two factor auth
             given()
                 .queryParam("status", "wrong")
                 .spec(managerSpec)
@@ -4655,7 +6298,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(false));
 
-            //Parameter that is not boolean
+            // Parameter that is not boolean
             given()
                 .queryParam("status", true)
                 .spec(ownerSpec)
@@ -4663,7 +6306,7 @@ public class IntegrationTests {
                 .then()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
-            //Check if change was made
+            // Check if change was made
             given()
                 .spec(ownerSpec)
                 .get("accounts/me")
@@ -4671,7 +6314,7 @@ public class IntegrationTests {
                 .assertThat()
                 .body("twoFactorAuth", Matchers.equalTo(true));
 
-            //Disable two factor auth
+            // Disable two factor auth
             given()
                 .queryParam("status", "wrong")
                 .spec(ownerSpec)
@@ -4694,6 +6337,19 @@ public class IntegrationTests {
                 .put("accounts/me/change_two_factor_auth_status")
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC202When2FAIsEnabled() {
+            LoginDto loginDto = new LoginDto("bbezpieczny", "P@ssw0rd");
+
+            given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .then()
+                .assertThat()
+                .statusCode(Response.Status.ACCEPTED.getStatusCode());
         }
     }
 }
