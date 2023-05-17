@@ -29,7 +29,7 @@ export class AccountComponent implements OnInit {
         });
     }
 
-    editPersonalDataAsAdmin() {
+    editPersonalDataAsAdmin(): void {
         this.account$
             ?.pipe(
                 map((account: Account | null) => {

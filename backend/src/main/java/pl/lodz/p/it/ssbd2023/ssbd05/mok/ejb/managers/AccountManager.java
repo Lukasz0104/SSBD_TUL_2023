@@ -33,9 +33,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -45,7 +45,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Stateful
@@ -69,7 +68,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     private EmailService emailService;
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     @Override
     public void registerAccount(Account account) throws AppBaseException {
@@ -78,11 +77,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         accountFacade.create(account);
 
-        Token token = new Token(account, properties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
+        Token token =
+            new Token(account, appProperties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
 
         tokenFacade.create(token);
 
-        String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+        String actionLink = appProperties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
 
         emailService.sendConfirmRegistrationEmail(
             account.getEmail(),
@@ -92,7 +92,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    public void confirmRegistration(UUID confirmToken)
+    public void confirmRegistration(String confirmToken)
         throws AppBaseException {
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
 
@@ -114,14 +114,14 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
         tokenFacade.create(token);
 
-        String link = properties.getFrontendUrl() + "/confirm-email/" + token.getToken();
+        String link = appProperties.getFrontendUrl() + "/confirm-email/" + token.getToken();
         emailService.changeEmailAddress(
             account.getEmail(), account.getFullName(), link,
             account.getLanguage().toString());
     }
 
     @Override
-    public void confirmEmail(String email, UUID confirmToken, String login)
+    public void confirmEmail(String email, String confirmToken, String login)
         throws AppBaseException {
 
         Token token = tokenFacade.findByToken(confirmToken).orElseThrow(TokenNotFoundException::new);
@@ -191,12 +191,12 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getFullName(),
-            properties.getFrontendUrl() + "/reset-password-confirm/" + resetPasswordToken.getToken(),
+            appProperties.getFrontendUrl() + "/reset-password-confirm/" + resetPasswordToken.getToken(),
             account.getLanguage().toString());
     }
 
     @Override
-    public void resetPassword(String password, UUID token) throws AppBaseException {
+    public void resetPassword(String password, String token) throws AppBaseException {
         Token resetPasswordToken = tokenFacade.findByTokenAndTokenType(token, TokenType.PASSWORD_RESET_TOKEN)
             .orElseThrow(TokenNotFoundException::new);
         resetPasswordToken.validateSelf();
@@ -336,9 +336,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 continue;
             }
             long timeLeft = Duration.between(now, token.getExpiresAt()).toMillis();
-            if (timeLeft < (properties.getAccountConfirmationTime() / 2.0)) {
+            if (timeLeft < (appProperties.getAccountConfirmationTime() / 2.0)) {
 
-                String actionLink = properties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
+                String actionLink = appProperties.getFrontendUrl() + "/confirm-account?token=" + token.getToken();
                 account.setReminded(true);
                 emailService.sendConfirmRegistrationReminderEmail(
                     account.getEmail(),
@@ -417,6 +417,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             if (optAccessLevel.isPresent()) {
                 AccessLevel accessLevel = optAccessLevel.get();
 
+                if (!accessLevel.isActive()) {
+                    continue;
+                }
+
                 if (newAccessLevel.getVersion() != accessLevel.getVersion()) {
                     throw new AppOptimisticLockException();
                 }
@@ -478,13 +482,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Token passwordChangeToken = new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
         tokenFacade.create(passwordChangeToken);
-        String link = properties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
+        String link = appProperties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
         emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), link);
     }
 
     @Override
-    public void overrideForcedPassword(String password, UUID token) throws AppBaseException {
+    public void overrideForcedPassword(String password, String token) throws AppBaseException {
         Token overridePasswordChangeToken =
             tokenFacade.findByTokenAndTokenType(token, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN)
                 .orElseThrow(TokenNotFoundException::new);
@@ -522,5 +526,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 accessType
             );
         }
+    }
+
+    @Override
+    public void changeTwoFactorAuthStatus(String login, Boolean status)
+        throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        account.setTwoFactorAuth(status);
+        accountFacade.edit(account);
     }
 }

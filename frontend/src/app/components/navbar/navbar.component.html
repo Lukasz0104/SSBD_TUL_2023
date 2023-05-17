@@ -25,9 +25,10 @@
             <div
                 ngbDropdownMenu
                 class="dropdown-menu-end bg-dark text-center">
-                <span class="text-white">{{
+                <span class="text-white mb-0">{{
                     'access-levels.' + authService.getCurrentGroup() | translate
                 }}</span>
+                <div class="dropdown-divider bg-white"></div>
                 <button
                     class="text-white"
                     routerLink="/dashboard/profile"

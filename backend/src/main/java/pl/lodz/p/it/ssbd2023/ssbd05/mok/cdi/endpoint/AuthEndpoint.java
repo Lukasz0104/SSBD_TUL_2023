@@ -26,16 +26,16 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ConfirmLoginDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshTokenDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.IpUtils;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 
 import java.time.Instant;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,7 +60,7 @@ public class AuthEndpoint {
     private SecurityContext securityContext;
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     @POST
     @Path("login")
@@ -73,13 +73,16 @@ public class AuthEndpoint {
         CredentialValidationResult credentialValidationResult =
             identityStoreHandler.validate(new UsernamePasswordCredential(dto.getLogin(), dto.getPassword()));
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         JwtRefreshTokenDto jwtRefreshTokenDto = null;
         do {
             try {
                 if (credentialValidationResult.getStatus() == CredentialValidationResult.Status.VALID) {
-                    jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip);
+                    jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip, false);
+                    if (jwtRefreshTokenDto == null) {
+                        return Response.accepted().build();
+                    }
                 } else {
                     authManager.registerUnsuccessfulLogin(dto.getLogin(), ip);
                 }
@@ -112,14 +115,13 @@ public class AuthEndpoint {
     @PermitAll
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
         String ip = IpUtils.getIpAddress(httpServletRequest);
-        UUID token = UUID.fromString(dto.getRefreshToken());
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         JwtRefreshTokenDto jwtRefreshTokenDto = null;
         do {
             try {
-                jwtRefreshTokenDto = authManager.refreshJwt(token, dto.getLogin());
+                jwtRefreshTokenDto = authManager.refreshJwt(dto.getRefreshToken(), dto.getLogin());
                 rollbackTX = authManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
                 rollbackTX = true;
@@ -146,7 +148,7 @@ public class AuthEndpoint {
         String ip = IpUtils.getIpAddress(httpServletRequest);
         String login = securityContext.getUserPrincipal().getName();
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;
         do {
             try {
@@ -167,5 +169,32 @@ public class AuthEndpoint {
         LOGGER.log(Level.INFO, "User={0} has ended his session at {1} from address {2}.",
             new Object[] {login, Instant.now(), ip});
         return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/confirm-login")
+    @PermitAll
+    public Response confirmLogin(@NotNull @Valid ConfirmLoginDTO dto) throws AppBaseException {
+        authManager.confirmLogin(dto.getLogin(), dto.getCode());
+        JwtRefreshTokenDto jwtRefreshTokenDto = null;
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollbackTX = false;
+        do {
+            try {
+                String ip = IpUtils.getIpAddress(httpServletRequest);
+                jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip, true);
+                rollbackTX = authManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --txLimit > 0);
+
+        if (rollbackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(jwtRefreshTokenDto).build();
     }
 }

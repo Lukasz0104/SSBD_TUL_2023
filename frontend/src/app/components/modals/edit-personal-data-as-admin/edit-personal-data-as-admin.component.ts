@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../../services/account.service';
 import { AccessType } from '../../../model/access-type';
 import { Account } from '../../../model/account';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-edit-personal-data-as-admin',
@@ -78,7 +79,8 @@ export class EditPersonalDataAsAdminComponent {
 
     constructor(
         public activeModal: NgbActiveModal,
-        private accountService: AccountService
+        private accountService: AccountService,
+        private modalService: NgbModal
     ) {}
 
     setAccount(acc: Account) {
@@ -121,44 +123,56 @@ export class EditPersonalDataAsAdminComponent {
         });
     }
 
-    onSubmit() {
-        if (this.newAccount != null) {
-            this.newAccount.firstName = this.firstName;
-            this.newAccount.lastName = this.lastName;
-            this.newAccount.email = this.email;
-            this.newAccount.language = this.language;
-            for (const level of this.newAccount.accessLevels) {
-                switch (level.level) {
-                    case AccessType.OWNER:
-                        if (level.address != null) {
-                            level.address.street = this.ownerStreet;
-                            level.address.buildingNumber =
-                                this.ownerBuildingNumber;
-                            level.address.city = this.ownerCity;
-                            level.address.postalCode = this.ownerPostalCode;
+    onSubmit(): void {
+        const modal = this.modalService.open(ConfirmActionComponent);
+        const instance = modal.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'Czy na pewno chcesz edytować konto';
+        instance.danger = `${this.newAccount?.login}`;
+
+        modal.closed.subscribe((res: boolean): void => {
+            if (res) {
+                if (this.newAccount != null) {
+                    this.newAccount.firstName = this.firstName;
+                    this.newAccount.lastName = this.lastName;
+                    this.newAccount.email = this.email;
+                    this.newAccount.language = this.language;
+                    for (const level of this.newAccount.accessLevels) {
+                        switch (level.level) {
+                            case AccessType.OWNER:
+                                if (level.address != null) {
+                                    level.address.street = this.ownerStreet;
+                                    level.address.buildingNumber =
+                                        this.ownerBuildingNumber;
+                                    level.address.city = this.ownerCity;
+                                    level.address.postalCode =
+                                        this.ownerPostalCode;
+                                }
+                                break;
+                            case AccessType.MANAGER:
+                                if (level.address != null) {
+                                    level.address.street = this.managerStreet;
+                                    level.address.buildingNumber =
+                                        this.managerBuildingNumber;
+                                    level.address.city = this.managerCity;
+                                    level.address.postalCode =
+                                        this.managerPostalCode;
+                                }
+                                level.licenseNumber = this.managerLicenseNumber;
+                                break;
                         }
-                        break;
-                    case AccessType.MANAGER:
-                        if (level.address != null) {
-                            level.address.street = this.managerStreet;
-                            level.address.buildingNumber =
-                                this.managerBuildingNumber;
-                            level.address.city = this.managerCity;
-                            level.address.postalCode = this.managerPostalCode;
-                        }
-                        level.licenseNumber = this.managerLicenseNumber;
-                        break;
+                    }
+
+                    this.accountService
+                        .editPersonalDataAsAdmin(this.newAccount)
+                        .subscribe((result) => {
+                            if (result) {
+                                this.activeModal.close();
+                            }
+                        });
                 }
             }
-
-            this.accountService
-                .editPersonalDataAsAdmin(this.newAccount)
-                .subscribe((result) => {
-                    if (result) {
-                        this.activeModal.close();
-                    }
-                });
-        }
+        });
     }
 
     areAllValid() {

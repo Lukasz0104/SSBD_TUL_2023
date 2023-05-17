@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, EMPTY, Observable, filter, switchMap } from 'rxjs';
+import { BehaviorSubject, EMPTY, filter, Observable, switchMap } from 'rxjs';
 import { AccessType } from '../../model/access-type';
 import { Account } from '../../model/account';
 import { AccessLevelService } from '../../services/access-level.service';
@@ -96,7 +96,9 @@ export class AccountsComponent implements OnInit {
             'modal.confirm-action.force-password-danger';
         modalRef.result.then((result: boolean) => {
             if (result) {
-                this.accountService.forcePasswordChange(login);
+                this.accountService.forcePasswordChange(login).subscribe(() => {
+                    this.reload();
+                });
             }
         });
     }
@@ -116,6 +118,7 @@ export class AccountsComponent implements OnInit {
                 account = res;
             })
             .catch(() => EMPTY);
+        this.reload();
     }
 
     openGrantAccessLevelModal(

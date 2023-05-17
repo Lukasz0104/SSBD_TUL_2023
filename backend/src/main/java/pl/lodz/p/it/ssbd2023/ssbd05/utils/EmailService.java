@@ -24,32 +24,33 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Stateless
 public class EmailService {
 
+    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
     @Inject
-    private Properties applicationProperties;
+    private AppProperties appProperties;
     private Session session;
     private MimeMessage mimeMessage;
-    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
     @PostConstruct
     private void init() {
-        java.util.Properties mailProperties = new java.util.Properties();
-        mailProperties.put("mail.smtp.host", applicationProperties.getSmtpHost());
-        mailProperties.put("mail.smtp.starttls.enable", applicationProperties.isSmtpStarttls());
-        mailProperties.put("mail.smtp.ssl.enable", applicationProperties.isSmtpSsl());
-        mailProperties.put("mail.smtp.auth", applicationProperties.isSmtpAuth());
-        mailProperties.put("mail.smtp.port", applicationProperties.getSmtpPort());
+        Properties mailProperties = new java.util.Properties();
+        mailProperties.put("mail.smtp.host", appProperties.getSmtpHost());
+        mailProperties.put("mail.smtp.starttls.enable", appProperties.isSmtpStarttls());
+        mailProperties.put("mail.smtp.ssl.enable", appProperties.isSmtpSsl());
+        mailProperties.put("mail.smtp.auth", appProperties.isSmtpAuth());
+        mailProperties.put("mail.smtp.port", appProperties.getSmtpPort());
 
         Authenticator authenticator = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(applicationProperties.getSender(),
-                    applicationProperties.getSenderPassword());
+                return new PasswordAuthentication(appProperties.getSender(),
+                    appProperties.getSenderPassword());
             }
         };
 
@@ -331,6 +332,17 @@ public class EmailService {
             I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_SUBJECT, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
+    public void twoFactorAuthEmail(String receiver, String name, String language, String code) {
+        this.sendMessageWithoutLink(receiver, name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_MESSAGE, language)
+                .replace("$CODE", code),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
         );
     }

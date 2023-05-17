@@ -83,7 +83,7 @@ export class AccountService {
     }
 
     resetPasswordConfirm(resetPasswordDTO: object) {
-        return this.http
+        this.http
             .post(`${this.accountsUrl}/reset-password`, resetPasswordDTO)
             .pipe(
                 map(() => {
@@ -123,14 +123,13 @@ export class AccountService {
                         'force-password-change',
                         response
                     );
-                    return EMPTY;
+                    return of(null);
                 })
-            )
-            .subscribe();
+            );
     }
 
     overrideForcePasswordChange(resetPasswordDTO: object) {
-        return this.http
+        this.http
             .put(
                 `${this.accountsUrl}/override-forced-password`,
                 resetPasswordDTO
@@ -224,7 +223,9 @@ export class AccountService {
             })
             .pipe(
                 tap(() => {
-                    this.toastService.showSuccess('SUCCESS!');
+                    this.toastService.showSuccess(
+                        'toast.account.edit-own-account'
+                    );
                 }),
                 map(() => true),
                 catchError((err: HttpErrorResponse) => {
@@ -445,5 +446,37 @@ export class AccountService {
                     .subscribe();
             })
             .catch(() => false);
+    }
+
+    changeTwoFactorAuthStatus(status: boolean) {
+        this.http
+            .put(
+                `${this.accountsUrl}/me/change_two_factor_auth_status?status=` +
+                    status,
+                {}
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.clearAll();
+                    if (status) {
+                        this.toastService.showSuccess(
+                            'toast.account.two-factor-status-active'
+                        );
+                    } else {
+                        this.toastService.showSuccess(
+                            'toast.account.two-factor-status-inactive'
+                        );
+                    }
+                }),
+                catchError((response: HttpErrorResponse) => {
+                    this.handleError(
+                        'toast.account.two-factor-status-fail',
+                        'change-two-factor-status',
+                        response
+                    );
+                    return EMPTY;
+                })
+            )
+            .subscribe();
     }
 }

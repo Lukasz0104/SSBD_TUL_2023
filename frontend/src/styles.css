@@ -25,6 +25,10 @@ app-dashboard + app-toast-section > section.toast-container {
     top: 56px !important;
 }
 
+app-home + app-toast-section > section.toast-container {
+    top: 67px !important;
+}
+
 .sidebar {
     height: 100vh;
 }
@@ -33,4 +37,25 @@ app-dashboard + app-toast-section > section.toast-container {
     .sidebar {
         height: 100%;
     }
+}
+
+.bg-calculator {
+    background: url('src/assets/bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.glass {
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(9.3px);
+    -webkit-backdrop-filter: blur(9.3px);
+}
+
+.bg-image-full {
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: center;
+    background-size: cover;
 }

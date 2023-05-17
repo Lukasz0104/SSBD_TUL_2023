@@ -24,6 +24,8 @@ import { environment } from '../../../environments/environment';
     ]
 })
 export class RegisterComponent {
+    captchaCode = '';
+
     protected languages = environment.languages;
 
     protected personalDetailsForm = this.fb.group({
@@ -111,7 +113,8 @@ export class RegisterComponent {
             ...this.personalDetailsForm.getRawValue(),
             ...this.authDetailsForm.getRawValue(),
             address: this.ownerOrManagerForm.getRawValue().address,
-            licenseNumber: this.ownerOrManagerForm.value.licenseNumber
+            licenseNumber: this.ownerOrManagerForm.value.licenseNumber,
+            captchaCode: this.captchaCode
         };
 
         this.accountService.register(dto).subscribe((errorMsg) => {
@@ -125,6 +128,9 @@ export class RegisterComponent {
                 case ResponseMessage.LOGIN_ALREADY_TAKEN:
                     this.toast.showDanger('Login is already taken.');
                     break;
+                case ResponseMessage.INVALID_CAPTCHA_CODE:
+                    this.toast.showDanger('Captcha code is invalid.');
+                    break;
                 case null:
                     this.toast.showSuccess('Registration successful.');
                     this.forms.forEach((f) => f.reset());
@@ -132,6 +138,10 @@ export class RegisterComponent {
                     break;
             }
         });
+    }
+
+    onCaptchaResolved(captcha: string) {
+        this.captchaCode = captcha;
     }
 
     protected continueToOwnerForm() {
@@ -187,7 +197,11 @@ export class RegisterComponent {
     }
 
     protected get allFormsValid() {
-        return this.forms.every((f) => f.valid);
+        return (
+            this.forms.every((f) => f.valid) &&
+            this.captchaCode &&
+            this.captchaCode.length > 0
+        );
     }
 
     //#region control getters
@@ -250,5 +264,6 @@ export class RegisterComponent {
     protected get passwordMismatch() {
         return this.authDetailsForm.errors?.['passwordMismatch'];
     }
+
     //#endregion
 }

@@ -195,7 +195,9 @@
                                 aria-labelledby="dropdownBasic1"
                                 ngbDropdownMenu>
                                 <button
-                                    *ngIf="authService.isAdmin()"
+                                    *ngIf="
+                                        authService.isAdmin() && account.active
+                                    "
                                     (click)="forceChange(account.login)"
                                     ngbDropdownItem>
                                     {{
@@ -205,7 +207,9 @@
                                 </button>
                                 <button
                                     *ngIf="
-                                        account.login !== authService.getLogin()
+                                        account.login !==
+                                            authService.getLogin() &&
+                                        authService.isAdmin()
                                     "
                                     ngbDropdownItem
                                     (click)="editPersonalDataAsAdmin(account)">
@@ -215,9 +219,7 @@
                                     }}
                                 </button>
                                 <button
-                                    *ngIf="
-                                        account.login !== authService.getLogin()
-                                    "
+                                    *ngIf="!account.active"
                                     ngbDropdownItem>
                                     <app-change-active-status
                                         (statusChangedEvent)="reload()"

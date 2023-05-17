@@ -37,9 +37,21 @@ import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.
 import { ChangeActiveStatusComponent } from './components/change-active-status/change-active-status.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { EditPersonalDataAsAdminComponent } from './components/modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { RecaptchaComponent } from './components/recaptcha/recaptcha.component';
+import {
+    RECAPTCHA_SETTINGS,
+    RecaptchaFormsModule,
+    RecaptchaModule,
+    RecaptchaSettings
+} from 'ng-recaptcha';
+import { environment } from '../environments/environment';
 import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
+import { TwoFactorAuthComponent } from './components/modals/two-factor-auth/two-factor-auth.component';
+import { CodeInputModule } from 'angular-code-input';
+import { GuestNavbarComponent } from './components/guest-navbar/guest-navbar.component';
+import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
 
 @NgModule({
     declarations: [
@@ -70,7 +82,12 @@ import { TruncatePipe } from './pipes/truncate.pipe';
         ConfirmRegistrationComponent,
         GrantAccessLevelComponent,
         LandingPageComponent,
-        TruncatePipe
+        TruncatePipe,
+        TwoFactorAuthComponent,
+        ConfirmRegistrationComponent,
+        RecaptchaComponent,
+        ActiveAccessLevelsPipe,
+        GuestNavbarComponent
     ],
     imports: [
         BrowserModule,
@@ -88,10 +105,19 @@ import { TruncatePipe } from './pipes/truncate.pipe';
             }
         }),
         BrowserAnimationsModule,
-        FormsModule
+        FormsModule,
+        RecaptchaFormsModule,
+        RecaptchaModule,
+        CodeInputModule
     ],
     providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+        {
+            provide: RECAPTCHA_SETTINGS,
+            useValue: {
+                siteKey: environment.recaptchaKey
+            } as RecaptchaSettings
+        }
     ],
     bootstrap: [AppComponent]
 })
