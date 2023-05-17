@@ -30,13 +30,12 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
@@ -50,67 +49,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IntegrationTests {
-
-    protected static RequestSpecification ownerSpec;
-    protected static RequestSpecification managerSpec;
-    protected static RequestSpecification adminSpec;
-
-    @BeforeAll
-    static void setup() {
-
-        RestAssured.baseURI = "http://localhost:8080/eBok";
-
-        generateOwnerSpec();
-        generateManagerSpec();
-        generateAdminSpec();
-    }
-
-    static void generateOwnerSpec() {
-        LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
-
-        String ownerJWT = RestAssured.given().body(loginDto)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/login")
-            .jsonPath()
-            .get("jwt");
-
-        ownerSpec = new RequestSpecBuilder()
-            .addHeader("Authorization", "Bearer " + ownerJWT)
-            .build();
-    }
-
-    static void generateManagerSpec() {
-        LoginDto loginDto = new LoginDto("pduda", "P@ssw0rd");
-
-        String managerJWT = RestAssured.given().body(loginDto)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/login")
-            .jsonPath()
-            .get("jwt");
-
-        managerSpec = new RequestSpecBuilder()
-            .addHeader("Authorization", "Bearer " + managerJWT)
-            .build();
-    }
-
-    static void generateAdminSpec() {
-        LoginDto loginDto = new LoginDto("bjaworski", "P@ssw0rd");
-
-        String adminJWT = RestAssured.given().body(loginDto)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/login")
-            .jsonPath()
-            .get("jwt");
-
-        adminSpec = new RequestSpecBuilder()
-            .addHeader("Authorization", "Bearer " + adminJWT)
-            .build();
-    }
-
+public class IntegrationTests extends TestContainersSetup {
 
     // Zaloguj się
     @Nested
