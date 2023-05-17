@@ -64,7 +64,14 @@
                                         'component.account.verified' | translate
                                     }}</strong>
                                 </p>
-                                <p>{{ account.verified }}</p>
+                                <p>
+                                    {{
+                                        'component.account.verified-' +
+                                            account.verified
+                                            | translate
+                                            | titlecase
+                                    }}
+                                </p>
                             </div>
                         </div>
                     </ng-template>

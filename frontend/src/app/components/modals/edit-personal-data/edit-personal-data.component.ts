@@ -126,7 +126,7 @@ export class EditPersonalDataComponent {
 
         instance.message =
             this.translate.instant('modal.confirm-action.edit-account') +
-            `${this.ownAccount?.login}?`;
+            ` ${this.ownAccount?.login}?`;
         instance.danger = `modal.confirm-action.edit-account-danger`;
         modalRef.closed.subscribe((res: boolean) => {
             if (res) {

@@ -184,9 +184,11 @@
       "general": "Ogólne",
       "save": "Zapisz",
       "cancel": "Anuluj",
-      "two-factor-auth": "Uwierztelnianie dwuetapowe",
+      "two-factor-auth": "Uwierzytelnianie dwuetapowe",
       "change-email": "Zmień email",
-      "email": "Adres email"
+      "email": "Adres email",
+      "verified-true": "tak",
+      "verified-false": "nie"
     },
     "fields": {
       "login": "Login",
@@ -220,7 +222,7 @@
       "grant-access-level": "Potwierdź nadanie dostępu",
       "revoke-access-level": "Czy na pewno chcesz usunąć poziom dostępu",
       "edit-account": "Czy na pewno chcesz edytować konto",
-      "edit-account-danger": "Tej akcji nie da się cofnąć!",
+      "edit-account-danger": "Tej akcji nie można cofnąć!",
       "change-password": "Czy na pewno chcesz zmienić swoje hasło?"
     }
   },

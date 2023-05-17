@@ -107,7 +107,7 @@
       "password": "Password",
       "repeat-password": "Repeat password",
       "back": "Back",
-      "register-as-owner": "Register as owners",
+      "register-as-owner": "Register as owner",
       "register-as-manager": "Register as manager",
       "action": "Register"
     },
@@ -187,7 +187,9 @@
       "cancel": "Cancel",
       "two-factor-auth": "2FA Authentication",
       "change-email": "Change email",
-      "email": "Email address"
+      "email": "Email address",
+      "verified-true": "yes",
+      "verified-false": "no"
     },
     "fields": {
       "login": "Login",
@@ -203,8 +205,8 @@
       "city": "City"
     },
     "landing-page": {
-      "title": "Zmień oblicze swojej wspólnoty z eBok!",
-      "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę."
+      "title": "Improve your community with eBok!",
+      "description": "The application aims to support the management of a residential community in the process of settling accounts for the units belonging to it. Each unit has an individual allocation of fee categories that are part of the settlement, and each category has a current rate and settlement principle. One of the main tasks of the system is to forecast the amount of future advances and assist the community manager in adjusting rates to minimize the difference between the projected costs incurred by unit owners and the actual costs incurred by the community."
     }
   },
   "modal": {
