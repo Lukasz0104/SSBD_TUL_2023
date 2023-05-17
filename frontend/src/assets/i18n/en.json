@@ -95,9 +95,9 @@
         "active": "Active",
         "inactive": "Inactive",
         "approval": "Need approval",
-        "two-items": "2 items per page",
-        "three-items": "3 items per page",
-        "four-items": "4 items per page"
+        "five-items": "5 items per page",
+        "ten-items": "10 items per page",
+        "fifteen-items": "15 items per page"
       },
       "loading": "Loading accounts...",
       "password-change": "Change password",

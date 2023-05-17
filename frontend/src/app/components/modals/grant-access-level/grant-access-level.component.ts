@@ -29,7 +29,6 @@ export class GrantAccessLevelComponent {
 
     @Input()
     set accessLevel(value: AccessLevel | null) {
-        this.ownerOrManagerForm.enable();
         if (value) {
             this._accessLevel = value;
 
@@ -44,17 +43,16 @@ export class GrantAccessLevelComponent {
     @Input()
     set accessType(value) {
         this._accessType = value;
+        this.ownerOrManagerForm.enable();
         switch (value) {
             case AccessType.ADMIN:
                 this.ownerOrManagerForm.disable();
                 break;
             case AccessType.MANAGER:
-                this.ownerOrManagerForm.enable();
-                this.ownerOrManagerForm.controls.licenseNumber.enable();
+                this.licenseNumberControl.enable();
                 break;
             case AccessType.OWNER:
-                this.ownerOrManagerForm.enable();
-                this.ownerOrManagerForm.controls.licenseNumber.disable();
+                this.licenseNumberControl.disable();
                 break;
         }
     }
@@ -73,31 +71,28 @@ export class GrantAccessLevelComponent {
 
     protected ownerOrManagerForm = new FormGroup({
         address: this.fb.group({
-            postalCode: this.fb.control(
-                this.accessLevel?.address?.postalCode ?? '',
-                {
-                    validators: [
-                        Validators.required,
-                        Validators.minLength(6),
-                        Validators.maxLength(6)
-                    ]
-                }
-            ),
-            city: this.fb.control(this.accessLevel?.address?.city ?? '', {
+            postalCode: this.fb.control('', {
+                validators: [
+                    Validators.required,
+                    Validators.minLength(6),
+                    Validators.maxLength(6)
+                ]
+            }),
+            city: this.fb.control('', {
                 validators: [
                     Validators.required,
                     Validators.minLength(2),
                     Validators.maxLength(85)
                 ]
             }),
-            street: this.fb.control(this.accessLevel?.address?.city ?? '', {
+            street: this.fb.control('', {
                 validators: [Validators.required, Validators.maxLength(85)]
             }),
             buildingNumber: this.fb.control(0, {
                 validators: [Validators.required, Validators.min(1)]
             })
         }),
-        licenseNumber: this.fb.control(this.accessLevel?.licenseNumber ?? '', {
+        licenseNumber: this.fb.control('', {
             validators: [Validators.required]
         })
     });
