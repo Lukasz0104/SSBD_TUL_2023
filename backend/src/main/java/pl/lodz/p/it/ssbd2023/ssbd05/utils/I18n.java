@@ -116,6 +116,7 @@ public class I18n {
     public static final String UNAUTHORIZED = "response.message.unauthorized";
 
     public static final String INVALID_UUID = "response.message.invalid.uuid";
+    public static final String ACCESS_LEVEL_ALREADY_GRANTED = "response.message.access-level-already-granted";
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);

@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IntegrationTests {
@@ -1278,6 +1279,16 @@ public class IntegrationTests {
                     .statusCode(404)
                     .body("message", is(I18n.ACCOUNT_NOT_FOUND));
             }
+
+            @Test
+            void shouldFailToGrantAdminAccessLevelToOwnAccountWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .put(GRANT_URL.formatted(-6))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
         }
 
         @Nested
@@ -1288,6 +1299,7 @@ public class IntegrationTests {
 
             @Nested
             class GrantManagerAccessLevelPositiveTest {
+                private static String license;
 
                 @BeforeAll
                 static void setup() {
@@ -1296,7 +1308,8 @@ public class IntegrationTests {
 
                 @BeforeEach
                 void createDto() {
-                    dto = new AddManagerAccessLevelDto(generateRandomString(), addressDto);
+                    license = generateRandomString();
+                    dto = new AddManagerAccessLevelDto(license, addressDto);
                 }
 
                 @Test
@@ -1326,7 +1339,13 @@ public class IntegrationTests {
                         .statusCode(200)
                         .body(
                             "accessLevels.find{it.level=='MANAGER'}.active", is(true),
-                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true));
+                            "accessLevels.find{it.level=='MANAGER'}.verified", is(true),
+                            "accessLevels.find{it.level=='MANAGER'}.licenseNumber", is(license),
+                            "accessLevels.find{it.level=='MANAGER'}.address.postalCode", is(addressDto.postalCode()),
+                            "accessLevels.find{it.level=='MANAGER'}.address.city", is(addressDto.city()),
+                            "accessLevels.find{it.level=='MANAGER'}.address.street", is(addressDto.street()),
+                            "accessLevels.find{it.level=='MANAGER'}.address.buildingNumber",
+                            is(addressDto.buildingNumber()));
                 }
 
                 @Test
@@ -1503,11 +1522,11 @@ public class IntegrationTests {
                 @ValueSource(ints = {-1, 0})
                 void shouldFailToGrantManagerAccessLevelWithBuildingNumberConstraintViolationWithStatusCode400Test(
                     Integer buildingNo) {
-                    addressDto = new AddressDto("12-321", "Łódź", "Wólczańska", buildingNo);
+                    invalidAddressDto = new AddressDto("12-321", "Łódź", "Wólczańska", buildingNo);
 
                     given(adminSpec)
                         .contentType(ContentType.JSON)
-                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
                         .when()
                         .put(GRANT_URL.formatted(-18))
                         .then()
@@ -1521,11 +1540,11 @@ public class IntegrationTests {
                     " ", "  ", "a",
                     "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongCityNameExceedingLimit"})
                 void shouldFailToGrantManagerAccessLevelWithCityConstraintViolationWithStatusCode400Test(String city) {
-                    addressDto = new AddressDto("12-321", city, "Wólczańska", 123);
+                    invalidAddressDto = new AddressDto("12-321", city, "Wólczańska", 123);
 
                     given(adminSpec)
                         .contentType(ContentType.JSON)
-                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
                         .when()
                         .put(GRANT_URL.formatted(-18))
                         .then()
@@ -1539,11 +1558,11 @@ public class IntegrationTests {
                     " ", "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongStreetNameExceedingLimit"})
                 void shouldFailToGrantManagerAccessLevelWithStreetConstraintViolationWithStatusCode400Test(
                     String street) {
-                    addressDto = new AddressDto("12-321", "Łódź", street, 123);
+                    invalidAddressDto = new AddressDto("12-321", "Łódź", street, 123);
 
                     given(adminSpec)
                         .contentType(ContentType.JSON)
-                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
                         .when()
                         .put(GRANT_URL.formatted(-18))
                         .then()
@@ -1556,11 +1575,11 @@ public class IntegrationTests {
                 @ValueSource(strings = {" ", "      ", "12345", "1234567"})
                 void shouldFailToGrantManagerAccessLevelWithZipCodeConstraintViolationWithStatusCode400Test(
                     String zipCode) {
-                    addressDto = new AddressDto(zipCode, "Łódź", "Politechniki", 1);
+                    invalidAddressDto = new AddressDto(zipCode, "Łódź", "Politechniki", 1);
 
                     given(adminSpec)
                         .contentType(ContentType.JSON)
-                        .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                        .body(new AddManagerAccessLevelDto(generateRandomString(), invalidAddressDto))
                         .when()
                         .put(GRANT_URL.formatted(-18))
                         .then()
@@ -1582,7 +1601,76 @@ public class IntegrationTests {
                     .body("message", is(I18n.LICENSE_NUMBER_ALREADY_TAKEN));
             }
 
-            // TODO add tests for race conditions
+            @Test
+            void shouldFailToGrantManagerAccessLevelToOwnAccountWithStatusCode403Test() {
+                given(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(new AddManagerAccessLevelDto(generateRandomString(), addressDto))
+                    .when()
+                    .put(GRANT_URL.formatted(-6))
+                    .then()
+                    .statusCode(403)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+
+            @Test
+            void shouldGrantManagerAccessLevelPerformOneConcurrentChangeTest()
+                throws BrokenBarrierException, InterruptedException {
+                final int threads = 10;
+
+                AtomicInteger successCount = new AtomicInteger();
+                AtomicInteger finishedCount = new AtomicInteger();
+                AtomicBoolean accessLevelGrantedMessage = new AtomicBoolean();
+
+                List<Thread> threadList = new ArrayList<>(threads);
+
+                CyclicBarrier startBarrier = new CyclicBarrier(threads + 1);
+                CyclicBarrier endBarrier = new CyclicBarrier(threads + 1);
+
+                for (int i = 0; i < threads; i++) {
+                    int finalI = i;
+                    threadList.add(new Thread(() -> {
+                        AddressDto address = new AddressDto(
+                            "93-300", "Łódź" + finalI, "Wólczańska" + finalI, finalI + 1);
+
+                        AddManagerAccessLevelDto dto = new AddManagerAccessLevelDto(generateRandomString(), address);
+
+                        try {
+                            startBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given(adminSpec)
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .when()
+                            .put(GRANT_URL.formatted(-37))
+                            .then()
+                            .extract()
+                            .statusCode();
+
+                        if (statusCode == 204) {
+                            successCount.getAndIncrement();
+                        } else if (statusCode == 409) {
+                            accessLevelGrantedMessage.set(true);
+                        }
+
+                        finishedCount.getAndIncrement();
+                        try {
+                            endBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }));
+                }
+                threadList.forEach(Thread::start);
+                startBarrier.await();
+                endBarrier.await();
+
+                assertTrue(successCount.get() >= 1);
+                assertTrue(accessLevelGrantedMessage.get());
+            }
 
             private static String generateRandomString() {
                 return UUID.randomUUID().toString().replace("-", "");
@@ -1630,7 +1718,12 @@ public class IntegrationTests {
                         .statusCode(200)
                         .body(
                             "accessLevels.find{it.level=='OWNER'}.active", is(true),
-                            "accessLevels.find{it.level=='OWNER'}.verified", is(true));
+                            "accessLevels.find{it.level=='OWNER'}.verified", is(true),
+                            "accessLevels.find{it.level=='OWNER'}.address.postalCode", is(addressDto.postalCode()),
+                            "accessLevels.find{it.level=='OWNER'}.address.city", is(addressDto.city()),
+                            "accessLevels.find{it.level=='OWNER'}.address.street", is(addressDto.street()),
+                            "accessLevels.find{it.level=='OWNER'}.address.buildingNumber",
+                            is(addressDto.buildingNumber()));
                 }
 
                 @Test
@@ -1862,7 +1955,76 @@ public class IntegrationTests {
                 }
             }
 
-            // TODO race condition tests
+            @Test
+            void shouldFailToGrantOwnerAccessLevelToOwnAccountWithStatusCode403Test() {
+                given(managerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(new AddOwnerAccessLevelDto(addressDto))
+                    .then()
+                    .statusCode(403)
+                    .contentType(ContentType.JSON)
+                    .body("message", is(I18n.ACCESS_MANAGEMENT_SELF));
+            }
+
+            @Test
+            void shouldGrantOwnerAccessLevelPerformOneConcurrentChangeTest()
+                throws BrokenBarrierException, InterruptedException {
+                final int threads = 10;
+
+                AtomicInteger successCount = new AtomicInteger();
+                AtomicInteger finishedCount = new AtomicInteger();
+                AtomicBoolean accessLevelGrantedMessage = new AtomicBoolean();
+
+                List<Thread> threadList = new ArrayList<>(threads);
+
+                CyclicBarrier startBarrier = new CyclicBarrier(threads + 1);
+                CyclicBarrier endBarrier = new CyclicBarrier(threads + 1);
+
+                for (int i = 0; i < threads; i++) {
+                    int finalI = i;
+                    threadList.add(new Thread(() -> {
+                        AddressDto address = new AddressDto(
+                            "93-300", "Łódź" + finalI, "Wólczańska" + finalI, finalI + 1);
+
+                        AddOwnerAccessLevelDto dto = new AddOwnerAccessLevelDto(address);
+
+                        try {
+                            startBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given(managerSpec)
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .when()
+                            .put(GRANT_URL.formatted(-37))
+                            .then()
+                            .extract()
+                            .statusCode();
+
+                        if (statusCode == 204) {
+                            successCount.getAndIncrement();
+                        } else if (statusCode == 409) {
+                            accessLevelGrantedMessage.set(true);
+                        }
+
+                        finishedCount.getAndIncrement();
+                        try {
+                            endBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }));
+                }
+                threadList.forEach(Thread::start);
+                startBarrier.await();
+                endBarrier.await();
+
+                assertTrue(successCount.get() >= 1);
+                assertTrue(accessLevelGrantedMessage.get());
+            }
         }
     }
 

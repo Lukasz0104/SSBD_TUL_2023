@@ -28,7 +28,8 @@ export class GrantAccessLevelComponent {
     private _accessLevel: AccessLevel | null = null;
 
     @Input()
-    set accessLevel(value: AccessLevel | undefined) {
+    set accessLevel(value: AccessLevel | null) {
+        this.ownerOrManagerForm.enable();
         if (value) {
             this._accessLevel = value;
 
@@ -36,6 +37,7 @@ export class GrantAccessLevelComponent {
                 address: value.address,
                 licenseNumber: value.licenseNumber
             });
+            this.ownerOrManagerForm.disable();
         }
     }
 
