@@ -55,67 +55,17 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IntegrationTests {
-
-    protected static RequestSpecification ownerSpec;
-    protected static RequestSpecification managerSpec;
-    protected static RequestSpecification adminSpec;
-
-    @BeforeAll
-    static void setup() {
-
-        RestAssured.baseURI = "http://localhost:8080/eBok";
-
-        generateOwnerSpec();
-        generateManagerSpec();
-        generateAdminSpec();
-    }
-
-    static void generateOwnerSpec() {
-        LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
-
-        String ownerJWT = RestAssured.given().body(loginDto)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/login")
-            .jsonPath()
-            .get("jwt");
-
-        ownerSpec = new RequestSpecBuilder()
-            .addHeader("Authorization", "Bearer " + ownerJWT)
-            .build();
-    }
-
-    static void generateManagerSpec() {
-        LoginDto loginDto = new LoginDto("pduda", "P@ssw0rd");
-
-        String managerJWT = RestAssured.given().body(loginDto)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/login")
-            .jsonPath()
-            .get("jwt");
-
-        managerSpec = new RequestSpecBuilder()
-            .addHeader("Authorization", "Bearer " + managerJWT)
-            .build();
-    }
-
-    static void generateAdminSpec() {
-        LoginDto loginDto = new LoginDto("bjaworski", "P@ssw0rd");
-
-        String adminJWT = RestAssured.given().body(loginDto)
-            .contentType(ContentType.JSON)
-            .when()
-            .post("/login")
-            .jsonPath()
-            .get("jwt");
-
-        adminSpec = new RequestSpecBuilder()
-            .addHeader("Authorization", "Bearer " + adminJWT)
-            .build();
-    }
-
+/*
+    W celu uruchomienia testów należy dodać pliki certyfikatu, z podowdów bezpieczeństwa nie zostały one umieszczone w
+    repozytorium. Pliki potrzebne do uruchomienia to:
+        - fullchain.pem
+        - privkey.pem
+        Należy je umięcić w katalogu: /backend/src/test/resources/data/gw/letsencrypt/live/team-5.proj-sum.it.p.lodz.pl/
+    Oraz plik:
+        - ssl-dhparams.pem
+        Który należy umieścić w katalogu: /backend/src/test/resources/data/gw/letsencrypt/
+ */
+public class MokITests extends TestContainersSetup {
 
     // Zaloguj się
     @Nested
@@ -2177,8 +2127,8 @@ public class IntegrationTests {
                 );
                 assertEquals(addressDto, editedAddressDto);
                 assertEquals(response.body().jsonPath()
-                                 .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() +
-                             1,
+                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() +
+                        1,
                     editedOwnerDataDto.getVersion());
             }
 
@@ -2264,8 +2214,8 @@ public class IntegrationTests {
                 assertEquals(newLicenseNumber, editedManagerDataDto.getLicenseNumber());
 
                 assertEquals(response.body().jsonPath()
-                                 .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class)
-                                 .getVersion() + 1,
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class)
+                        .getVersion() + 1,
                     editedManagerDataDto.getVersion());
             }
 
@@ -2617,23 +2567,23 @@ public class IntegrationTests {
 
         private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
             .addHeader("Authorization", "Bearer "
-                                        + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
-                                            .contentType(ContentType.JSON)
-                                            .when()
-                                            .post("/login")
-                                            .jsonPath()
-                                            .get("jwt"))
+                + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt"))
             .build();
 
         private RequestSpecification makeSpec(String login) {
             return new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer "
-                                            + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
-                                                .contentType(ContentType.JSON)
-                                                .when()
-                                                .post("/login")
-                                                .jsonPath()
-                                                .get("jwt"))
+                    + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/login")
+                    .jsonPath()
+                    .get("jwt"))
                 .build();
         }
 

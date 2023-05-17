@@ -1,0 +1,3 @@
+CREATE USER ssbd05mok PASSWORD 'mok';
+CREATE USER ssbd05mow PASSWORD 'mow';
+CREATE USER ssbd05auth WITH PASSWORD 'auth';
