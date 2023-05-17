@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EditPersonalData, OwnAccount } from '../../../model/account';
 import { AccountService } from '../../../services/account.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable, tap } from 'rxjs';
 import { AccessType } from '../../../model/access-type';
+import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-edit-personal-data',
@@ -72,6 +73,7 @@ export class EditPersonalDataComponent {
 
     constructor(
         public activeModal: NgbActiveModal,
+        private modalService: NgbModal,
         private accountService: AccountService
     ) {
         this.ownAccount$ = accountService.getOwnProfile().pipe(
@@ -112,6 +114,21 @@ export class EditPersonalDataComponent {
                 }
             })
         );
+    }
+
+    confirm() {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message = `Czy na pewno chcesz edytować konto ${this.ownAccount?.login}?`;
+        instance.danger = `Tej akcji nie da się cofnąć!`;
+        modalRef.closed.subscribe((res: boolean) => {
+            if (res) {
+                this.onSubmit();
+            }
+        });
     }
 
     onSubmit() {

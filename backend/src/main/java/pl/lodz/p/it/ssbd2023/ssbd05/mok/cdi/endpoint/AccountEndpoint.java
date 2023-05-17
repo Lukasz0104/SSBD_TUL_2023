@@ -232,7 +232,24 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeEmail() throws AppBaseException {
 
-        accountManager.changeEmail(securityContext.getUserPrincipal().getName());
+        int retryTXCounter = appProperties.getTransactionRepeatLimit();
+        boolean rollbackTX = false;
+        do {
+            try {
+                accountManager.changeEmail(securityContext.getUserPrincipal().getName());
+                rollbackTX = accountManager.isLastTransactionRollback();
+
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (retryTXCounter < 2) {
+                    throw aole;
+                }
+            }
+        } while (rollbackTX && --retryTXCounter > 0);
+
+        if (rollbackTX && retryTXCounter == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
         return Response.noContent().build();
     }
 

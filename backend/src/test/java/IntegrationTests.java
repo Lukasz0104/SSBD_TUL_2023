@@ -1,5 +1,7 @@
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,19 +19,26 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangePasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.EditAnotherPersonalDataDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -38,6 +47,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IntegrationTests {
@@ -648,6 +658,7 @@ public class IntegrationTests {
         }
     }
 
+    //Wyloguj się
     @Nested
     class MOK8 {
 
@@ -901,6 +912,7 @@ public class IntegrationTests {
         }
     }
 
+    //Wyświetl listę kont
     @Nested
     class MOK15 {
 
@@ -1110,6 +1122,1937 @@ public class IntegrationTests {
                 .get("/accounts/managers/unapproved")
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    //Wyświetl dane konta użytkownika
+    @Nested
+    class MOK4 {
+
+        private static final String ownProfileURL = "/accounts/me";
+        private static final String profileURL = "/accounts/%d";
+        private static RequestSpecification testSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("kgraczyk", "P@ssw0rd");
+
+            String jwt = RestAssured.given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassGettingOwnAccountDetails() {
+            io.restassured.response.Response response = given().spec(testSpec)
+                .when()
+                .get(ownProfileURL)
+                .thenReturn();
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+
+            String etag = response.getHeader("ETag");
+            assertNotNull(etag);
+            assertTrue(etag.length() > 0);
+
+            OwnAccountDto dto = response.getBody().as(OwnAccountDto.class);
+            assertNotNull(dto);
+            assertEquals("kgraczyk", dto.getLogin());
+            assertEquals("kgraczyk@gmail.local", dto.getEmail());
+            assertEquals("PL", dto.getLanguage());
+            assertEquals("Kamil", dto.getFirstName());
+            assertEquals("Graczyk", dto.getLastName());
+            assertEquals(-27, dto.getId());
+            assertEquals(2, dto.getAccessLevels().size());
+            for (AccessLevelDto level : dto.getAccessLevels()) {
+                if (level instanceof OwnerDataDto ownerData) {
+                    assertTrue(ownerData.isActive());
+                    assertTrue(ownerData.isVerified());
+
+                    AddressDto addressDto = ownerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                } else if (level instanceof ManagerDataDto managerData) {
+                    assertEquals("9566541", managerData.getLicenseNumber());
+                    assertTrue(managerData.isActive());
+                    assertTrue(managerData.isVerified());
+
+                    AddressDto addressDto = managerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                }
+            }
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnAccountDetailsAsGuest() {
+            when()
+                .get(ownProfileURL)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldPassGettingAccountDetails() {
+            io.restassured.response.Response response = given().spec(adminSpec)
+                .when()
+                .get(profileURL.formatted(-27))
+                .thenReturn();
+
+            assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+
+            String etag = response.getHeader("ETag");
+            assertNotNull(etag);
+            assertTrue(etag.length() > 0);
+
+            AccountDto dto = response.getBody().as(AccountDto.class);
+            assertNotNull(dto);
+            assertEquals("kgraczyk", dto.getLogin());
+            assertEquals("kgraczyk@gmail.local", dto.getEmail());
+            assertEquals("PL", dto.getLanguage());
+            assertEquals("Kamil", dto.getFirstName());
+            assertEquals("Graczyk", dto.getLastName());
+            assertEquals(-27, dto.getId());
+            assertEquals(2, dto.getAccessLevels().size());
+
+            assertTrue(dto.isActive());
+            assertTrue(dto.isVerified());
+            for (AccessLevelDto level : dto.getAccessLevels()) {
+                if (level instanceof OwnerDataDto ownerData) {
+                    assertTrue(ownerData.isActive());
+                    assertTrue(ownerData.isVerified());
+
+                    AddressDto addressDto = ownerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                } else if (level instanceof ManagerDataDto managerData) {
+                    assertEquals("9566541", managerData.getLicenseNumber());
+                    assertTrue(managerData.isActive());
+                    assertTrue(managerData.isVerified());
+
+                    AddressDto addressDto = managerData.getAddress();
+                    assertEquals(14, addressDto.buildingNumber());
+                    assertEquals("Łódź", addressDto.city());
+                    assertEquals("99-150", addressDto.postalCode());
+                    assertEquals("Smutna", addressDto.street());
+                }
+            }
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountDetailsAsManager() {
+            given().spec(managerSpec)
+                .when()
+                .get(profileURL.formatted(-1))
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAccountDetailsAsOwnerWithStatusCode403() {
+            given().spec(ownerSpec)
+                .when()
+                .get(profileURL.formatted(-1))
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC404WhenGettingNonExistentAccountDetails() {
+            given().spec(adminSpec)
+                .when()
+                .get(profileURL.formatted(-2137))
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
+    }
+
+    //Zmień dane osobowe
+    @Nested
+    class MOK7 {
+        private static RequestSpecification testSpec;
+        private static final String ownProfileURL = "/accounts/me";
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wodwazny", "P@ssw0rd");
+
+            String jwt = RestAssured.given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassWhenEditingOwnAccountDetails() {
+            io.restassured.response.Response response = given().spec(testSpec)
+                .when()
+                .get(ownProfileURL)
+                .thenReturn();
+            OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+            String etag = response.getHeader("ETag");
+
+            dto.setFirstName("Wojroll");
+            dto.setLastName("Brave");
+
+            AddressDto addressDto = new AddressDto(
+                "99-151",
+                "Łęczyca",
+                "Belwederska",
+                12);
+            String licenseNumber = "123456";
+            for (AccessLevelDto level : dto.getAccessLevels()) {
+                if (level instanceof OwnerDataDto ownerData) {
+                    ownerData.setAddress(addressDto);
+                } else if (level instanceof ManagerDataDto managerData) {
+                    managerData.setLicenseNumber(licenseNumber);
+                    managerData.setAddress(addressDto);
+                }
+            }
+
+            given()
+                .header("If-Match", etag)
+                .spec(testSpec)
+                .when()
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put(ownProfileURL)
+                .then()
+                .contentType(ContentType.JSON)
+                .statusCode(Response.Status.OK.getStatusCode());
+
+            io.restassured.response.Response edited = given().spec(testSpec)
+                .when()
+                .get(ownProfileURL)
+                .thenReturn();
+
+            OwnAccountDto editedDto = edited.as(OwnAccountDto.class);
+            assertEquals(dto.getFirstName(), editedDto.getFirstName());
+            assertEquals(dto.getLastName(), editedDto.getLastName());
+
+            ManagerDataDto editedManagerData = edited.body().jsonPath()
+                .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+            assertEquals(editedManagerData.getAddress(), addressDto);
+            assertEquals(editedManagerData.getLicenseNumber(), licenseNumber);
+
+            OwnerDataDto editedOwnerData = edited.body().jsonPath()
+                .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+
+            assertEquals(editedOwnerData.getAddress(), addressDto);
+        }
+
+        @Test
+        void shouldReturnSC403WhenEditingOwnAccountDetailsAsGuest() {
+            io.restassured.response.Response response = given().spec(testSpec)
+                .when()
+                .get(ownProfileURL)
+                .thenReturn();
+            OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+            String etag = response.getHeader("ETag");
+
+            given()
+                .header("If-Match", etag)
+                .when()
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .put(ownProfileURL)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Nested
+        class InactiveEdit {
+
+            private static RequestSpecification omitManagerSpec;
+            private static RequestSpecification omitOwnerSpec;
+
+            @BeforeAll
+            static void generateTestSpec() {
+                LoginDto loginDto = new LoginDto("ptomczyk", "P@ssw0rd");
+
+                String jwt = RestAssured.given().body(loginDto)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/login")
+                    .jsonPath()
+                    .get("jwt");
+
+                omitManagerSpec = new RequestSpecBuilder()
+                    .addHeader("Authorization", "Bearer " + jwt)
+                    .build();
+
+                loginDto = new LoginDto("kkowalski", "P@ssw0rd");
+
+                jwt = RestAssured.given().body(loginDto)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/login")
+                    .jsonPath()
+                    .get("jwt");
+
+                omitOwnerSpec = new RequestSpecBuilder()
+                    .addHeader("Authorization", "Bearer " + jwt)
+                    .build();
+            }
+
+            @Test
+            void shouldOmitInactiveManagerAccessLevelWhenEditingOwnAccountDetails() {
+                io.restassured.response.Response response = given().spec(omitManagerSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .then().extract().response();
+
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber("654321");
+                        AddressDto addressDto = new AddressDto(
+                            "99-151",
+                            "Łęczyca",
+                            "Belwederska",
+                            12);
+                        managerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(omitManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                io.restassured.response.Response edited = given().spec(omitManagerSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+
+                OwnAccountDto verifyDto = edited.as(OwnAccountDto.class);
+
+                String firstName = response.body().jsonPath().getString("firstName");
+                assertEquals(firstName, verifyDto.getFirstName());
+
+                String lastName = response.body().jsonPath().getString("lastName");
+                assertEquals(lastName, verifyDto.getLastName());
+
+                ManagerDataDto managerData = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                ManagerDataDto editedManagerData = edited.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                assertEquals(editedManagerData.getAddress(), managerData.getAddress());
+                assertEquals(editedManagerData.getLicenseNumber(), managerData.getLicenseNumber());
+            }
+
+            @Test
+            void shouldOmitInactiveOwnerAccessLevelWhenEditingOwnAccountDetails() {
+                io.restassured.response.Response response = given().spec(omitOwnerSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .then().extract().response();
+
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto ownerData) {
+                        AddressDto addressDto = new AddressDto(
+                            "99-151",
+                            "Łęczyca",
+                            "Belwederska",
+                            12);
+                        ownerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(omitOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                io.restassured.response.Response edited = given().spec(omitOwnerSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+
+                OwnAccountDto verifyDto = edited.as(OwnAccountDto.class);
+
+                String firstName = response.body().jsonPath().getString("firstName");
+                assertEquals(firstName, verifyDto.getFirstName());
+
+                String lastName = response.body().jsonPath().getString("lastName");
+                assertEquals(lastName, verifyDto.getLastName());
+
+                OwnerDataDto ownerData = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                OwnerDataDto editedOwnerData = edited.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                assertEquals(editedOwnerData.getAddress(), ownerData.getAddress());
+            }
+        }
+
+        @Nested
+        class SignatureMismatch {
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidETag() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = "eTag";
+
+                given()
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithChangedVersion() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.setVersion(-1L);
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithChangedAccessLevelVersion() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    level.setVersion(-1L);
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithAddedAccessLevel() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.getAccessLevels().add(new AdminDataDto());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithRemovedAccessLevel() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                OwnerDataDto ownerDataDto = null;
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto dataDto) {
+                        ownerDataDto = dataDto;
+                    }
+                }
+                dto.getAccessLevels().remove(ownerDataDto);
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+        }
+
+        @Nested
+        class Constraints {
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithoutIfMatch() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                given()
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithoutBody() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                String etag = response.getHeader("ETag");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC409WhenSettingExistingLicenseNumber() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber("9566541");
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidPersonalData() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                //firstName
+                dto.setFirstName("");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                //lastName
+                dto.setLastName("");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                //accountVersion
+                dto.setVersion(null);
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @NullAndEmptySource
+            void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidLicenseNumber(String value) {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber(value);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Nested
+            class Address {
+
+                @ParameterizedTest
+                @NullSource
+                @ValueSource(strings = {"99-1511", "99-51"})
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidPostalCode(String postalCode) {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get(ownProfileURL)
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-1511",
+                                "Łęczyca",
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put(ownProfileURL)
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @ParameterizedTest
+                @ValueSource(ints = {-1, 0})
+                @NullSource
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidBuildingNumber(Integer buildingNumber) {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get(ownProfileURL)
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    //buildingNumber negative
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                "Łęczyca",
+                                "Belwederska",
+                                buildingNumber);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put(ownProfileURL)
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @ParameterizedTest
+                @ValueSource(strings = {"Ł",
+                    "ŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczycaŁęczyca"})
+                @NullSource
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidCity(String city) {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get(ownProfileURL)
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            AddressDto addressDto = new AddressDto(
+                                "99-151",
+                                city,
+                                "Belwederska",
+                                12);
+                            managerData.setAddress(addressDto);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put(ownProfileURL)
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC400WhenEditingOwnAccountDetailsWithInvalidAddress() {
+                    io.restassured.response.Response response = given().spec(testSpec)
+                        .when()
+                        .get(ownProfileURL)
+                        .thenReturn();
+                    OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                    String etag = response.getHeader("ETag");
+
+                    //address null
+                    for (AccessLevelDto level : dto.getAccessLevels()) {
+                        if (level instanceof ManagerDataDto managerData) {
+                            managerData.setAddress(null);
+                        }
+                    }
+
+                    given()
+                        .header("If-Match", etag)
+                        .spec(testSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .put(ownProfileURL)
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+            }
+
+
+        }
+
+        @Nested
+        class OptimisticLock {
+            @Test
+            void shouldReturnSC409WhenEditingOwnAccountDetailsThatChangedInTheMeantime() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.setFirstName("Changed");
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC409WhenEditingOwnAccountDetailsWithOwnerDataChangedInTheMeantime() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto ownerData) {
+                        AddressDto addressDto = new AddressDto(
+                            "91-151",
+                            "Łęczyca3",
+                            "Belwederska3",
+                            12);
+                        ownerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC409WhenEditingOwnAccountDetailsWithManagerDataChangedInTheMeantime() {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber("654321");
+                        AddressDto addressDto = new AddressDto(
+                            "91-151",
+                            "Łęczyca4",
+                            "Belwederska4",
+                            12);
+                        managerData.setAddress(addressDto);
+                    }
+                }
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.OK.getStatusCode());
+
+                given()
+                    .header("If-Match", etag)
+                    .spec(testSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .put(ownProfileURL)
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class ConcurrentTests {
+            @Test
+            void shouldReturnSC200ForOneRequestWhenEditingPersonalData()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                dto.setFirstName("Concurrent" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put(ownProfileURL)
+                            .getStatusCode();
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response editedResponse = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto editedDto = editedResponse.body().as(OwnAccountDto.class);
+                assertNotEquals(response.body().jsonPath().getString("firstName"), editedDto.getFirstName());
+                assertEquals(dto.getFirstName(), editedDto.getFirstName());
+                assertEquals(dto.getVersion() + 1, editedDto.getVersion());
+            }
+
+            @Test
+            void shouldReturnSC200ForOneRequestWhenEditingOwnerData()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                AddressDto addressDto = new AddressDto(
+                    "91-151",
+                    "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
+                    "Belwederska3",
+                    12);
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof OwnerDataDto ownerData) {
+                        ownerData.setAddress(addressDto);
+                    }
+                }
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put(ownProfileURL)
+                            .getStatusCode();
+
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response editedResponse = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+
+                OwnAccountDto editedDto = editedResponse.body().as(OwnAccountDto.class);
+                OwnerDataDto editedOwnerDataDto = editedResponse.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                AddressDto editedAddressDto = editedOwnerDataDto.getAddress();
+
+                assertNotEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getAddress(),
+                    editedAddressDto
+                );
+                assertEquals(addressDto, editedAddressDto);
+                assertEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() + 1,
+                    editedOwnerDataDto.getVersion());
+            }
+
+            @Test
+            void shouldReturnSC200ForOneRequestWhenEditingManagerData()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                AddressDto addressDto = new AddressDto(
+                    "91-151",
+                    "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
+                    "Belwederska4",
+                    12);
+                String newLicenseNumber = String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+                for (AccessLevelDto level : dto.getAccessLevels()) {
+                    if (level instanceof ManagerDataDto managerData) {
+                        managerData.setLicenseNumber(newLicenseNumber);
+                        managerData.setAddress(addressDto);
+                    }
+                }
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .put(ownProfileURL)
+                            .getStatusCode();
+
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response editedResponse = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+
+                OwnAccountDto editedDto = editedResponse.body().as(OwnAccountDto.class);
+                ManagerDataDto editedManagerDataDto = editedResponse.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                AddressDto editedAddressDto = editedManagerDataDto.getAddress();
+
+                assertNotEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class).getAddress(),
+                    editedAddressDto
+                );
+                assertEquals(addressDto, editedAddressDto);
+                assertNotEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class).getLicenseNumber(),
+                    editedManagerDataDto.getLicenseNumber()
+                );
+                assertEquals(newLicenseNumber, editedManagerDataDto.getLicenseNumber());
+
+                assertEquals(response.body().jsonPath()
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class).getVersion() + 1,
+                    editedManagerDataDto.getVersion());
+            }
+
+            @Test
+            void shouldReturnSC200ForAtMostTwoRequestsAndAtLeastOneRequestWhenEditingDifferentParts()
+                throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto = response.body().as(OwnAccountDto.class);
+                String etag = response.getHeader("ETag");
+
+                AddressDto addressDto = new AddressDto(
+                    "91-151",
+                    "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
+                    "Belwederska4",
+                    12);
+
+                ManagerDataDto managerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                OwnerDataDto ownerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+
+                dto.getAccessLevels().clear();
+                ownerDataDto.setAddress(addressDto);
+                dto.getAccessLevels().add(ownerDataDto);
+                dto.getAccessLevels().add(managerDataDto);
+
+                io.restassured.response.Response response2 = given().spec(testSpec)
+                    .when()
+                    .get(ownProfileURL)
+                    .thenReturn();
+                OwnAccountDto dto2 = response2.body().as(OwnAccountDto.class);
+
+                managerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class);
+                ownerDataDto = response.body().jsonPath()
+                    .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class);
+                dto2.getAccessLevels().clear();
+
+                String newLicenseNumber = String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+
+                managerDataDto.setAddress(addressDto);
+                managerDataDto.setLicenseNumber(newLicenseNumber);
+                dto2.getAccessLevels().add(ownerDataDto);
+                dto2.getAccessLevels().add(managerDataDto);
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    OwnAccountDto payload = (i % 2 == 0) ? dto : dto2;
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .header("If-Match", etag)
+                            .spec(testSpec)
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body(payload)
+                            .put(ownProfileURL)
+                            .then()
+                            .extract().statusCode();
+
+                        if (statusCode == 200) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                int test = numberOfSuccessfulAttempts.get();
+                assertTrue(1 <= test && test <= 2);
+            }
+        }
+
+
+    }
+
+
+    //Zmień adres e-mail przypisany do własnego konta
+    @Nested
+    class MOK6 {
+
+        @Test
+        void shouldReturnSC204AfterRequestEmailChangeWhenLoggedIn() {
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(managerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .spec(ownerSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterRequestEmailChangeWhenNotLoggedIn() {
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/accounts/me/change-email")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        // ------------------------------------------------------------
+        @Test
+        void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
+            UUID randomUUID = UUID.randomUUID();
+            given()
+                .contentType(ContentType.JSON)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC404AfterConfirmEmailWhenNoToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidToken() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted("notValidToken"))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithEmptyBody() {
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body("")
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotValidBody() {
+            UUID randomUUID = UUID.randomUUID();
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("notValidBody");
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC400WhenConfirmEmailWithNotFoundToken() {
+            String validEmail = "email@email.com";
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto(validEmail);
+            UUID randomUUID = UUID.randomUUID();
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(ownerSpec)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.TOKEN_NOT_FOUND));
+        }
+
+    }
+
+
+    //Zablokuj/odblokuj konto jako manager/admin
+    @Nested
+    class MOK11 {
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusWhenNotLoggedIn() {
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+
+            given()
+                .contentType(ContentType.JSON)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusAsManagerWrongEndpoint() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -1, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusAsAdminWrongEndpoint() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -1, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusOfAdminAsManager() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -34, false);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403AfterChangeActiveStatusOfManagerAsManager() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -33, false);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsManagerEmptyBody() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body("")
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsAdminEmptyBody() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body("")
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsManagerNotValidDTO() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC400AfterChangeActiveStatusAsAdminNotValidDTO() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto();
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        }
+
+
+        @Test
+        void shouldReturnSC404AfterChangeActiveStatusAsAdminUserNotFound() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) Integer.MAX_VALUE, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.ACCOUNT_NOT_FOUND));
+        }
+
+        @Test
+        void shouldReturnSC404AfterChangeActiveStatusAsManagerUserNotFound() {
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) Integer.MAX_VALUE, true);
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.ACCOUNT_NOT_FOUND));
+        }
+
+        @Test
+        void shouldReturnSC204AndNotChangeActiveStatusWhenTheyAreTheSame() {
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -32, active1);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            assertEquals(active1, active11);
+
+        }
+
+
+        @Test
+        void shouldChangeActiveStatusAsManagerOnOwnerAccount() {
+
+            boolean active = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto((long) -32, !active);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active)));
+
+        }
+
+        @Test
+        void shouldChangeActiveStatusAsAdminOnAnyAccount() {
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            boolean active2 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            boolean active3 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-34))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -32, !active1); //OWNER
+            ChangeActiveStatusDto dto2 = new ChangeActiveStatusDto((long) -33, !active2); //MANAGER
+            ChangeActiveStatusDto dto3 = new ChangeActiveStatusDto((long) -34, !active3); //ADMIN
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto2)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto3)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+            // -----------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-32))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active1)));
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active2)));
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-34))
+                .then()
+                .assertThat()
+                .body("active", Matchers.not(Matchers.equalTo(active3)));
+        }
+
+        @Test
+        void shouldNotChangeActiveStatusAsManagerOnOwnAccount() {
+            boolean active = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            long id = Long.parseLong(given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("id"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto(id, active);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            boolean active2 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            assertEquals(active, active2);
+        }
+
+        @Test
+        void shouldNotChangeActiveStatusAsAdminOnOwnAccount() {
+            boolean active = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            long id = Long.parseLong(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("id"));
+
+            ChangeActiveStatusDto dto = new ChangeActiveStatusDto(id, active);
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .body(dto)
+                .when()
+                .put("/accounts/admin/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+            boolean active2 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/me")
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            assertEquals(active, active2);
+        }
+
+        @Test
+        void shouldChangeActiveStatusAsManagerOnAccountWithNotVerifiedOrActiveManagerAndAdminAccessLevels() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then()
+                .assertThat()
+                .body("accessLevels[0].active", Matchers.equalTo(false))
+                .body("accessLevels[0].verified", Matchers.equalTo(false))
+                .body("accessLevels[1].active", Matchers.equalTo(false))
+                .body("accessLevels[1].verified", Matchers.equalTo(false));
+
+
+            // ------------------------------------------------------------------------
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -35, !active1);
+
+            // -------------------------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+
+            //-------------------------------------------------------------------------------
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+
+            assertNotEquals(active1, active11);
+        }
+
+        @Test
+        void shouldChangeActiveStatusAsAdminOnAccountWithNotVerifiedOrActiveManagerAndAdminAccessLevels() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then()
+                .assertThat()
+                .body("accessLevels[0].active", Matchers.equalTo(false))
+                .body("accessLevels[0].verified", Matchers.equalTo(false))
+                .body("accessLevels[1].active", Matchers.equalTo(false))
+                .body("accessLevels[1].verified", Matchers.equalTo(false));
+
+
+            // ------------------------------------------------------------------------
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -35, !active1);
+
+            // -------------------------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+
+            //-------------------------------------------------------------------------------
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-35))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+
+            assertNotEquals(active1, active11);
+        }
+
+        @Test
+        void shouldNotChangeActiveStatusAsManagerOnAccountWithAccessLevelOtherThanOwner() {
+            given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then()
+                .assertThat()
+                .body("accessLevels[0].active", Matchers.equalTo(true))
+                .body("accessLevels[0].verified", Matchers.equalTo(true))
+                .body("accessLevels[1].active", Matchers.equalTo(true))
+                .body("accessLevels[1].verified", Matchers.equalTo(true));
+
+
+            // ------------------------------------------------------------------------
+
+            boolean active1 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+            ChangeActiveStatusDto dto1 = new ChangeActiveStatusDto((long) -33, !active1);
+
+            // -------------------------------------------------------------------------
+
+            given()
+                .contentType(ContentType.JSON)
+                .spec(managerSpec)
+                .body(dto1)
+                .when()
+                .put("/accounts/manager/change-active-status")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+
+            //-------------------------------------------------------------------------------
+            boolean active11 = Boolean.parseBoolean(given()
+                .contentType(ContentType.JSON)
+                .spec(adminSpec)
+                .when()
+                .get("/accounts/%s".formatted(-33))
+                .then().extract()
+                .jsonPath()
+                .getString("active"));
+
+
+            assertEquals(active1, active11);
         }
     }
 
@@ -1945,7 +3888,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -1971,7 +3914,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -1997,7 +3940,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -2048,7 +3991,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2.getLogin(), acc.getLogin());
+            assertNotEquals(acc2.getLogin(), acc.getLogin());
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -2233,7 +4176,7 @@ public class IntegrationTests {
                 .when()
                 .get("/accounts/-16").as(AccountDto.class);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
-            Assertions.assertNotEquals(acc2.getAccessLevels().stream().findFirst().get().getVersion(),
+            assertNotEquals(acc2.getAccessLevels().stream().findFirst().get().getVersion(),
                 acc.getAccessLevels().stream().findFirst().get().getVersion());
         }
 
@@ -2262,7 +4205,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/" + me.getId()).as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
         }
 
         @Test
@@ -2286,7 +4229,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
 
@@ -2311,7 +4254,7 @@ public class IntegrationTests {
             AccountDto acc2 = given().spec(adminSpec)
                 .when()
                 .get("/accounts/-15").as(AccountDto.class);
-            Assertions.assertNotEquals(acc2, acc);
+            assertNotEquals(acc2, acc);
             Assertions.assertEquals(acc2.getVersion(), acc.getVersion());
         }
     }
