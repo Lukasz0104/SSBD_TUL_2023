@@ -30,6 +30,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.InvalidPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccessLevelFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -57,6 +58,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Inject
     private AccountFacade accountFacade;
+
+    @Inject
+    private AccessLevelFacade accessLevelFacade;
 
     @Inject
     private TokenFacade tokenFacade;
@@ -368,23 +372,26 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         AtomicBoolean wasActive = new AtomicBoolean(false);
 
-        account.getAccessLevels()
+        Optional<AccessLevel> accessLevelOptional = account.getAccessLevels()
             .stream()
             .filter(al -> al.getLevel() == accessLevel.getLevel())
-            .findFirst()
-            .ifPresentOrElse(al -> {
-                wasActive.set(al.isActive());
+            .findFirst();
+        if (accessLevelOptional.isPresent()) {
+            AccessLevel al = accessLevelOptional.get();
+            wasActive.set(al.isActive());
 
-                al.setVerified(true);
-                al.setActive(true);
-            }, () -> {
-                accessLevel.setAccount(account);
-                accessLevel.setActive(true);
-                accessLevel.setVerified(true);
-                account.getAccessLevels().add(accessLevel);
-            });
+            al.setVerified(true);
+            al.setActive(true);
+            accessLevelFacade.edit(al);
+            //accountFacade.edit(account);
+        } else {
+            accessLevel.setAccount(account);
+            accessLevel.setActive(true);
+            accessLevel.setVerified(true);
+            account.getAccessLevels().add(accessLevel);
+            accessLevelFacade.create(accessLevel);
+        }
 
-        accountFacade.edit(account);
 
         if (!wasActive.get()) {
             emailService.notifyAboutNewAccessLevel(

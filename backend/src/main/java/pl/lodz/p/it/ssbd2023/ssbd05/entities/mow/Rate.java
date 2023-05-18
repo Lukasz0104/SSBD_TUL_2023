@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
@@ -16,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -103,6 +105,7 @@ import java.time.LocalDate;
         name = "Rate.findByEffectiveDateAfter",
         query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate"),
 })
+@EntityListeners({EntityControlListenerMOW.class})
 public class Rate extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

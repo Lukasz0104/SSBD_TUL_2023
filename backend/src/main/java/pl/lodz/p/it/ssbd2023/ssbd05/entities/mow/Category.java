@@ -4,6 +4,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
@@ -14,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -33,6 +35,7 @@ import java.util.Set;
         query = "SELECT c FROM Category c WHERE c.name = :name")
 })
 @NoArgsConstructor
+@EntityListeners({EntityControlListenerMOW.class})
 public class Category extends AbstractEntity implements Serializable {
 
     @NotNull

@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -88,6 +90,7 @@ import java.time.Year;
         name = "Forecast.findByMonthAndYearAndRateId",
         query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year AND f.rate.id = :rate"),
 })
+@EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
