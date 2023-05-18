@@ -426,11 +426,11 @@
   "grant-access-level": {
     "response": {
       "message": {
-        "rollback.limit.exceeded": "Request timed out",
-        "optimistic_lock": "Could not grant access level to chosen account, please try again",
-        "access-management-self": "Cannot grant access level to your own account",
-        "account_not_found": "This account could not be found",
-        "license-number-already-taken": "License number already taken"
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można nadać poziomu dostępu, spróbuj ponownie",
+        "access-management-self": "Nie można nadać poziomu dostępu własnemu kontu",
+        "account_not_found": "To konto nie zostało znalezione",
+        "license-number-already-taken": "Ten numer licencji jest już zajęty"
       }
     }
   }
