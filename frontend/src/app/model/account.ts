@@ -10,6 +10,10 @@ export interface OwnAccount {
     login: string;
     version: number;
     twoFactorAuth: boolean;
+    createdTime?: Date;
+    createdBy?: string;
+    updatedTime?: Date;
+    updatedBy?: string;
 }
 
 export interface EditPersonalData {
@@ -34,6 +38,10 @@ export interface AccessLevel {
     licenseNumber?: string;
     verified: boolean;
     active: boolean;
+    createdTime?: Date;
+    createdBy?: string;
+    updatedTime?: Date;
+    updatedBy?: string;
 }
 
 export interface Address {
