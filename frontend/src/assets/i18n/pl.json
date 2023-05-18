@@ -422,5 +422,16 @@
         "no_access_level": "Twoje konta nie posiada wybranego poziomu dostępu"
       }
     }
+  },
+  "grant-access-level": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not grant access level to chosen account, please try again",
+        "access-management-self": "Cannot grant access level to your own account",
+        "account_not_found": "This account could not be found",
+        "license-number-already-taken": "License number already taken"
+      }
+    }
   }
 }
