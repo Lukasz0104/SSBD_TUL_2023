@@ -13,6 +13,7 @@
     },
     "login": {
       "required": "Login jest wymagany",
+      "min-length": "Login musi składać się z conajmniej 3 znaków.",
       "max-length": "Login może składać się z maksymalnie 100 znaków."
     },
     "email": {
