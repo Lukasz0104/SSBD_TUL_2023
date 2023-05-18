@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
@@ -38,6 +41,7 @@ import java.util.UUID;
     AuthManagerExceptionsInterceptor.class,
     LoggerInterceptor.class,
 })
+@DenyAll
 public class AuthManager extends AbstractManager implements AuthManagerLocal, SessionSynchronization {
 
     @Inject
@@ -60,6 +64,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
 
 
     @Override
+    @PermitAll
     public JwtRefreshTokenDto registerSuccessfulLogin(String login, String ip, boolean confirmed)
         throws AppBaseException {
         Account account = accountFacade.findByLogin(login)
@@ -92,6 +97,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     }
 
     @Override
+    @PermitAll
     public void registerUnsuccessfulLogin(String login, String ip) throws AppBaseException {
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AuthenticationException::new);
@@ -114,6 +120,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     }
 
     @Override
+    @PermitAll
     public JwtRefreshTokenDto refreshJwt(String token, String login) throws AppBaseException {
         Token refreshToken = tokenFacade.findByToken(token)
             .orElseThrow(AuthenticationException::new);
@@ -133,6 +140,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         return new JwtRefreshTokenDto(jwt, newRefreshToken.getToken(), account.getLanguage().toString());
     }
 
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public void logout(String token, String login) throws AppBaseException {
         Optional<Token> optionalToken =
             tokenFacade.findByTokenAndTokenType(token, TokenType.REFRESH_TOKEN);
@@ -149,6 +157,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     }
 
     @Override
+    @PermitAll
     public void confirmLogin(String login, String code) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AuthenticationException::new);
         if (!account.isAbleToAuthenticate()) {
@@ -171,6 +180,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         tokenFacade.remove(twoFactorToken);
     }
 
+    @PermitAll
     private void sendCodeToUser(String login) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AuthenticationException::new);
         Random random = new Random();

@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import jakarta.annotation.security.DenyAll;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -17,6 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
     GenericFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class,
 })
+@DenyAll
 public class AdminDataFacade extends AbstractFacade<AdminData> {
 
     @PersistenceContext(unitName = "ssbd05mokPU")

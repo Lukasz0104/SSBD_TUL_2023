@@ -167,6 +167,10 @@
       "verify": "Verify"
     },
     "account": {
+      "created-at": "Created at",
+      "created-by": "Created by",
+      "updated-at": "Updated at",
+      "updated-by": "Updated by",
       "language": "Language",
       "verified": "Verified",
       "personal-data": "Personal data",

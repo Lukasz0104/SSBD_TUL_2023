@@ -4,6 +4,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -74,6 +76,7 @@ import java.util.Set;
         name = "Place.findByAddressAndInactive",
         query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false")
 })
+@EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

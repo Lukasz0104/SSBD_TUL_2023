@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -22,11 +24,18 @@ public class ManagerDataDto extends AccessLevelDto {
     @NotBlank
     private String licenseNumber;
 
-    public ManagerDataDto(Long id, Long version, AddressDto address, String licenseNumber, boolean verified,
-                          boolean active) {
-        super(id, version, verified, active);
+    public ManagerDataDto(Long id, Long version, boolean verified, boolean active,
+                          LocalDateTime createdTime, String createdBy, LocalDateTime updatedTime,
+                          String updatedBy, AddressDto address, String licenseNumber) {
+        super(id, version, verified, active, createdTime, createdBy, updatedTime, updatedBy);
         this.address = address;
         this.licenseNumber = licenseNumber;
     }
 
+    public ManagerDataDto(Long id, Long version, boolean verified, boolean active, AddressDto address,
+                          String licenseNumber) {
+        super(id, version, verified, active);
+        this.address = address;
+        this.licenseNumber = licenseNumber;
+    }
 }

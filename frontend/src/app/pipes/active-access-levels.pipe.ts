@@ -6,6 +6,10 @@ import { AccessLevel } from '../model/account';
 })
 export class ActiveAccessLevelsPipe implements PipeTransform {
     transform(accessLevels: AccessLevel[] | undefined): AccessLevel[] {
-        return accessLevels?.filter((al) => al.active && al.verified) ?? [];
+        return (
+            accessLevels
+                ?.sort((a, b) => (a.level < b.level ? -1 : 1))
+                .filter((al) => al.active && al.verified) ?? []
+        );
     }
 }

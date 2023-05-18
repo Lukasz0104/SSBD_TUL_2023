@@ -1,0 +1,94 @@
+version: '3.8'
+
+networks:
+  internal:
+    ipam:
+      config:
+        - subnet: 10.31.205.0/24
+
+services:
+  app:
+    image: "payara-own"
+    build: ./
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+          internal:
+            ipv4_address: 10.31.205.4
+    ports:
+      - "4848:4848"
+    expose:
+      - "8080"
+    healthcheck:
+      test: curl --fail  http://localhost:4848
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+      
+      
+  db:
+    image: postgres
+    restart: always
+    networks:
+          internal:
+            ipv4_address: 10.31.205.3
+    healthcheck:
+      test: pg_isready -d postgres -U ssbd05admin
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    environment:
+      POSTGRES_DB: ebok
+      POSTGRES_USER: ssbd05admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./data/db/init-user-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+      
+  nginx-gw:
+    image: nginx:alpine
+    extra_hosts:
+       - "team-5.proj-sum.it.p.lodz.pl:10.31.205.4"
+       - "nginx-app:10.31.205.5"
+    networks:
+          internal:
+            ipv4_address: 10.31.205.2
+    depends_on:
+      nginx-app:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+    volumes:
+      - ./data/gw/nginx/:/etc/nginx/:ro
+      - ./data/gw/letsencrypt/:/etc/letsencrypt/:ro
+    ports:
+      - "8080:80"
+      - "8443:443"
+      
+  nginx-app:
+    image: nginx:alpine
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: wget http://localhost:8080 > /dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    volumes:
+     - ./data/app/nginx/:/etc/nginx/:ro
+     - ./frontend/dist/frontend/:/var/www/
+    expose:
+     - "80"
+    networks:
+          internal:
+            ipv4_address: 10.31.205.5
+
+

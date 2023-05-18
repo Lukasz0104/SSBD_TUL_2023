@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.TransactionAttribute;
@@ -24,6 +25,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ConfirmLoginDTO;
@@ -43,6 +45,7 @@ import java.util.logging.Logger;
 @Path("")
 @RequestScoped
 @TransactionAttribute(TransactionAttributeType.NEVER)
+@DenyAll
 public class AuthEndpoint {
 
     protected static final Logger LOGGER = Logger.getGlobal();
@@ -92,6 +95,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 
@@ -128,6 +133,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 
@@ -159,6 +166,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 
@@ -189,6 +198,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 
