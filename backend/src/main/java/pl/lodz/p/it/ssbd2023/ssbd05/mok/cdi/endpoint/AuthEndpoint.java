@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.TransactionAttribute;
@@ -44,6 +45,7 @@ import java.util.logging.Logger;
 @Path("")
 @RequestScoped
 @TransactionAttribute(TransactionAttributeType.NEVER)
+@DenyAll
 public class AuthEndpoint {
 
     protected static final Logger LOGGER = Logger.getGlobal();

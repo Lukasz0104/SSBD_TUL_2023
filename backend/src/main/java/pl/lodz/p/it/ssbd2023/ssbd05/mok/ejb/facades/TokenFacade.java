@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -25,6 +27,7 @@ import java.util.Optional;
     GenericFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class,
 })
+@DenyAll
 public class TokenFacade extends AbstractFacade<Token> {
 
     @PersistenceContext(unitName = "ssbd05mokPU")
@@ -40,15 +43,18 @@ public class TokenFacade extends AbstractFacade<Token> {
     }
 
     @Override
+    @PermitAll
     public void create(Token entity) throws AppBaseException {
         super.create(entity);
     }
 
     @Override
+    @PermitAll
     public void remove(Token entity) throws AppBaseException {
         super.remove(entity);
     }
 
+    @PermitAll
     public Optional<Token> findByToken(String token) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByToken", Token.class);
         tq.setParameter("token", token);
@@ -83,6 +89,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         return this.findByExpiresAtIf(expiresAt, true);
     }
 
+    @PermitAll
     public Optional<Token> findByTokenAndTokenType(String token, TokenType tokenType) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenAndTokenType", Token.class);
         tq.setParameter("token", token);
@@ -94,6 +101,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         }
     }
 
+    @PermitAll
     public void removeTokensByAccountIdAndTokenType(Long accountId, TokenType tokenType) {
         TypedQuery tq = em.createNamedQuery("Token.removeTokensByAccountIdAndTokenType", Token.class);
         tq.setParameter("accountId", accountId);
@@ -164,6 +172,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         return tq.getResultList();
     }
 
+    @PermitAll
     public List<Token> findByTokenTypeAndAccountId(TokenType tokenType, Long accountId) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenTypeAndAccountId", Token.class);
         tq.setParameter("tokenType", tokenType);

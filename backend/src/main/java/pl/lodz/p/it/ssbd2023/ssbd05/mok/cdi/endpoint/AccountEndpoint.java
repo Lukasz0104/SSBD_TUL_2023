@@ -7,6 +7,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createOwnAccountDto;
 
+import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -65,6 +66,7 @@ import java.util.List;
 
 @RequestScoped
 @Path("/accounts")
+@DenyAll
 public class AccountEndpoint {
 
     @Inject
@@ -85,6 +87,7 @@ public class AccountEndpoint {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/owner")
+    @PermitAll
     public Response registerOwner(@NotNull @Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
         if (!recaptchaService.verifyCode(registerOwnerDto.getCaptchaCode())) {
             throw new InvalidCaptchaCodeException();
@@ -118,6 +121,7 @@ public class AccountEndpoint {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/manager")
+    @PermitAll
     public Response registerManager(@NotNull @Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
         if (!recaptchaService.verifyCode(registerManagerDto.getCaptchaCode())) {
             throw new InvalidCaptchaCodeException();
@@ -151,6 +155,7 @@ public class AccountEndpoint {
 
     @POST
     @Path("/confirm-registration")
+    @PermitAll
     public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;

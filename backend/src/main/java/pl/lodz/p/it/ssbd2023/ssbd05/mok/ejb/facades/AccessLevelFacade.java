@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -23,6 +25,7 @@ import java.util.List;
     AccountFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class,
 })
+@DenyAll
 public class AccessLevelFacade extends AbstractFacade<AccessLevel> {
 
     @PersistenceContext(unitName = "ssbd05mokPU")
@@ -38,11 +41,13 @@ public class AccessLevelFacade extends AbstractFacade<AccessLevel> {
     }
 
     @Override
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public void create(AccessLevel entity) throws AppBaseException {
         super.create(entity);
     }
 
     @Override
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public void edit(AccessLevel entity) throws AppBaseException {
         super.edit(entity);
     }

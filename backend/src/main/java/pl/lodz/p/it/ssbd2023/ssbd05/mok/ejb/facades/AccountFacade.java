@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -27,6 +30,7 @@ import java.util.Optional;
     AccountFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class,
 })
+@DenyAll
 public class AccountFacade extends AbstractFacade<Account> {
 
     @PersistenceContext(unitName = "ssbd05mokPU")
@@ -42,11 +46,13 @@ public class AccountFacade extends AbstractFacade<Account> {
     }
 
     @Override
+    @PermitAll
     public void create(Account entity) throws AppBaseException {
         super.create(entity);
     }
 
     @Override
+    @PermitAll
     public void edit(Account entity) throws AppBaseException {
         super.edit(entity);
     }
@@ -62,6 +68,13 @@ public class AccountFacade extends AbstractFacade<Account> {
         super.remove(entity);
     }
 
+    @Override
+    @RolesAllowed({"MANAGER", "ADMIN"})
+    public Optional<Account> find(Long id) {
+        return super.find(id);
+    }
+
+    @PermitAll
     public Optional<Account> findByLogin(String login) {
         try {
             TypedQuery<Account> tq = em.createNamedQuery("Account.findByLogin", Account.class);
@@ -72,6 +85,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
+    @PermitAll
     public Optional<Account> findByEmail(String email) {
         try {
             TypedQuery<Account> tq = em.createNamedQuery("Account.findByEmail", Account.class);
@@ -92,6 +106,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public List<Account> findByActive(boolean active) {
         TypedQuery<Account> tq;
         if (active) {
@@ -102,6 +117,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public List<Account> findByActiveAccessLevel(AccessType accessType, boolean active) {
         TypedQuery<Account> tq;
         if (active) {
@@ -113,6 +129,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public List<Account> findByActiveAndVerifiedAccessLevel(AccessType accessType) {
         TypedQuery<Account> tq =
             em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevel", Account.class);

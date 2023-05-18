@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createManagerAccessLevelFromDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createOwnerAccessLevelFromDto;
 
+import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -28,6 +29,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 
 @RequestScoped
 @Path("/accounts/{id}/access-levels")
+@DenyAll
 public class AccessLevelEndpoint {
 
     @Inject
