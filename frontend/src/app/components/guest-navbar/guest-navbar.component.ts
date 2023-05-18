@@ -15,10 +15,6 @@ export class GuestNavbarComponent {
 
     onClick(language: string) {
         this.translate.use(language);
-        if (this.isPl && language != 'pl') {
-            this.isPl = !this.isPl;
-        } else if (!this.isPl && language == 'pl') {
-            this.isPl = !this.isPl;
-        }
+        this.isPl = language == 'pl';
     }
 }
