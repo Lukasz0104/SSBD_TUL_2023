@@ -64,7 +64,10 @@
                                 </p>
                                 <p>{{ ownAccount.language }}</p>
                                 <p>
-                                    <strong>Uwierzytelnianie dwuetapowe</strong>
+                                    <strong>{{
+                                        'component.account.two-factor-auth'
+                                            | translate
+                                    }}</strong>
                                 </p>
                                 <div class="form-check form-switch">
                                     <input
@@ -244,7 +247,7 @@
                 <button
                     ngbAccordionButton
                     class="fs-5">
-                    Change password
+                    {{ 'form.change-password.title' | translate }}
                 </button>
             </h2>
             <div ngbAccordionCollapse>

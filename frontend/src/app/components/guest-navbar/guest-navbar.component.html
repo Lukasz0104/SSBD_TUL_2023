@@ -47,6 +47,29 @@
                         >{{ 'nav.register' | translate }}</a
                     >
                 </li>
+                <li class="nav-item">
+                    <a
+                        class="nav-link"
+                        (click)="isMenuCollapsed = true">
+                        <span
+                            class="btn-sm cursor-pointer"
+                            [ngClass]="{
+                                'text-dark': isPl
+                            }"
+                            (click)="onClick('pl')">
+                            PL
+                        </span>
+                        |
+                        <span
+                            class="btn-sm cursor-pointer"
+                            [ngClass]="{
+                                'text-dark': !isPl
+                            }"
+                            (click)="onClick('en')">
+                            EN
+                        </span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

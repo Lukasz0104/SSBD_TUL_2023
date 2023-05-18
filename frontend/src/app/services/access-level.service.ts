@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { AccessLevel, Address } from '../model/account';
 import { AccessType } from '../model/access-type';
-import { Observable, catchError, map, of } from 'rxjs';
+import { catchError, EMPTY, map, Observable, of } from 'rxjs';
 import { ResponseMessage } from '../common/response-message.enum';
+import { ToastService } from './toast.service';
 
 type GrantAccessLevel =
     | AccessLevel
@@ -22,7 +23,7 @@ type MessageResponse = { message: ResponseMessage };
 export class AccessLevelService {
     private readonly BASE_URL = `${environment.apiUrl}/accounts`;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private toastService: ToastService) {}
 
     grantAccessLevel(
         id: number,
@@ -33,7 +34,18 @@ export class AccessLevelService {
             .put<MessageResponse | null>(this.buildUrl(id, type), level)
             .pipe(
                 map((res) => res?.message ?? null),
-                catchError((e: HttpErrorResponse) => of(e.error.message))
+                catchError((e: HttpErrorResponse) => {
+                    if (e.error.message == null || e.status == 500) {
+                        this.toastService.showDanger(
+                            'toast.grant-access-level-fail'
+                        );
+                    } else {
+                        this.toastService.showDanger(
+                            'grant-access-level.' + e.error.message
+                        );
+                    }
+                    return EMPTY;
+                })
             );
     }
 

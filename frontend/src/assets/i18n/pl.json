@@ -3,17 +3,23 @@
     "password": {
       "required": "Hasło jest wymagane",
       "length": "Hasło musi mieć co najmniej 8 znaków",
-      "strength": "Hasło jest zbyt słabe"
+      "strength": "Hasło jest zbyt słabe",
+      "message": "Hasło musi składać się z conajmniej 8 znaków i musi zawierać małą literę, dużą literę, numer oraz symbol",
+      "match": "Hasło oraz powtórzone hasło muszą się zgadzać"
     },
     "repeat-password": {
       "required": "Powtórzenie hasła jest wymagane",
       "match": "Powtórzone hasło nie jest takie samo jak hasło"
     },
     "login": {
-      "required": "Login jest wymagany"
+      "required": "Login jest wymagany",
+      "min-length": "Login musi składać się z conajmniej 3 znaków.",
+      "max-length": "Login może składać się z maksymalnie 100 znaków."
     },
     "email": {
-      "required": "Email jest wymagany"
+      "required": "Email jest wymagany",
+      "valid": "Wprowadzona wartość musi być adresem email.",
+      "max-length": "Email może składać się z maksymalnie 320 znaków."
     },
     "first-name": {
       "required": "Imię jest wymagane.",
@@ -44,6 +50,19 @@
     },
     "license-number": {
       "required": "Numer licencji jest wymagany."
+    },
+    "old-password": {
+      "required": "Stare hasło jest wymagane",
+      "min-length": "Stare hasło musi być dłuższe niż 8 znaków"
+    },
+    "new-password": {
+      "required": "Nowe hasło jest wymagane",
+      "same-old": "Nowe hasło nie może być takie samo jak stare hasło",
+      "same-new": "Nowe hasła muszą być identyczne",
+      "strength": "Nowe hasło jest zbyt słabe"
+    },
+    "repeat-new-password": {
+      "required": "Powtórzenie nowego hasła jest wymagane"
     }
   },
   "form": {
@@ -82,7 +101,42 @@
     },
     "register": {
       "sign-in": "Zaloguj się",
-      "account-info": "Masz już konto?"
+      "account-info": "Masz już konto?",
+      "title": "Zarejestruj się do eBok",
+      "continue": "Kontynuuj",
+      "password": "Hasło",
+      "repeat-password": "Powtórz hasło",
+      "back": "Powróć",
+      "register-as-owner": "Zarejestruj się jako właściciel",
+      "register-as-manager": "Zarejestruj się jako zarządca",
+      "action": "Zarejestruj się"
+    },
+    "change-password": {
+      "title": "Zmień hasło",
+      "current-password": "Aktualne hasło",
+      "new-password": "Nowe hasło",
+      "repeat-password": "Powtórz hasło",
+      "action": "Zmień"
+    },
+    "give-access-level": {
+      "reject": "Odrzuć",
+      "grant": "Nadaj poziom dostępu",
+      "confirm": "Potwierdź",
+      "verify": "Zweryfikuj"
+    },
+    "confirm-registration": {
+      "fail": "Nie udało się potwierdzić rejestracji",
+      "action": "Potwierdzanie twojej rejestracji",
+      "loading": "Ładowanie ...",
+      "go-to": "Przejdź do",
+      "go-to-where": "Strony głównej",
+      "confirmation": "Rejestracja potwierdzona",
+      "message": "Teraz twoje dane muszą zostać zweryfikowane. Otzymasz informację o pomyślnej weryfikacji na podany adres email."
+    },
+    "change-email-confirm": {
+      "title": "Potwierdź email",
+      "content": "Aby potwierdzić, podaj poprawny",
+      "action": "Potwierdź"
     }
   },
   "component": {
@@ -103,7 +157,14 @@
       "password-change": "Zmień hasło",
       "activate": "Odblokuj",
       "deactivate": "Zablokuj",
-      "edit-account": "Edytuj konto"
+      "edit-account": "Edytuj konto",
+      "give-owner": "Nadaj poziom dostępu Właściciel",
+      "give-manager": "Nadaj poziom dostępu Zarządca",
+      "give-admin": "Nadaj poziom dostępu Administrator",
+      "revoke-owner": "Odbierz poziom dostępu Właściciel",
+      "revoke-manager": "Odbierz poziom dostępu Zarządca",
+      "revoke-admin": "Odbierz poziom dostępu Administrator",
+      "verify": "Zweryfikuj"
     },
     "account": {
       "created-at": "Czas utworzenia",
@@ -128,7 +189,11 @@
       "general": "Ogólne",
       "save": "Zapisz",
       "cancel": "Anuluj",
-      "two-factor-auth": "Uwierztelnianie dwuetapowe"
+      "two-factor-auth": "Uwierzytelnianie dwuetapowe",
+      "change-email": "Zmień email",
+      "email": "Adres email",
+      "verified-true": "tak",
+      "verified-false": "nie"
     },
     "fields": {
       "login": "Login",
@@ -142,6 +207,10 @@
       "building-number": "Numer budynku",
       "postal-code": "Kod pocztowy",
       "city": "Miasto"
+    },
+    "landing-page": {
+      "title": "Zmień oblicze swojej wspólnoty z eBok!",
+      "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę."
     }
   },
   "modal": {
@@ -154,7 +223,12 @@
     "confirm-action": {
       "force-password-message": "Czy napewno chcesz zmienić hasło konta?",
       "force-password-danger": "Ta czynność zablokuje wybrane konto.",
-      "action": "Potwierdzam"
+      "action": "Potwierdzam",
+      "grant-access-level": "Potwierdź nadanie dostępu",
+      "revoke-access-level": "Czy na pewno chcesz usunąć poziom dostępu",
+      "edit-account": "Czy na pewno chcesz edytować konto",
+      "edit-account-danger": "Tej akcji nie można cofnąć!",
+      "change-password": "Czy na pewno chcesz zmienić swoje hasło?"
     }
   },
   "access-levels": {
@@ -181,7 +255,7 @@
     "account": {
       "reset-password-message": "Wiadomość do zresetowania hasła została wysłana",
       "reset-password-change": "Hasło zostało zmienione. Możesz się teraz zalogować",
-      "language-fail": "Błąd zmiany hasła",
+      "language-fail": "Błąd zmiany języka",
       "reset-password-message-fail": "Błąd wysyłania wiadomości",
       "reset-password-fail": "Bład podczas zmiany hasła",
       "force-password-change-message": "Hasło zostało zmienione, a wybrane konto zostało zablokowane",
@@ -190,7 +264,27 @@
       "two-factor-status-active": "Dwuetapowe uwierzytelnianie zostało włączone",
       "two-factor-status-inactive": "Dwuetapowe uwierzytelnianie zostało wyłączone",
       "two-factor-status-fail": "Błąd podczas zmiany statusu",
-      "edit-own-account": "Edycja profilu zakończyła się sukcesem"
+      "edit-own-account": "Edycja profilu zakończyła się sukcesem",
+      "confirm-register": "Potwierdzono rejestrację",
+      "confirm-register-fail": "Nie udało się potwierdzić rejestracji",
+      "register-fail": "Rejestracja nie powiodła się",
+      "register": "Rejestracja powiodła się, potwierdzenie rejestracji zostało wysłane na podany adres email",
+      "edit-account-as-admin": "Edycja profilu zakończyła się sukcesem",
+      "edit-account-as-admin-fail": "Bład podczas edycji konta",
+      "change-email": "Wiadomość pozwalająca na zmianę adresu email, została wysłana",
+      "change-email-fail": "Nie udało się wysłać wiadomości",
+      "change-email-confirm": "Adres email został zmieniony",
+      "change-email-confirm-fail": "Zmiana adresu email nie powiodła się",
+      "change-status": "Zmiana statusu konta powiodła się",
+      "change-status-fail": "Zmiana statusu konta nie powiodła się",
+      "change-password": "Zmiana hasła konta powiodła się",
+      "change-password-fail": "Zmiana hasła konta nie powiodła się",
+      "change-access-level": "Aktualny poziom dostępu został zmieniony",
+      "change-access-level-fail": "Zmiana aktualnego poziomu dostępu nie powiodła się",
+      "grant-access-level": "Pomyślnie nadano poziom dostępu",
+      "revoke-access-level": "Operacja zakończona sukcesem",
+      "grant-access-level-fail": "Błąd podczas nadawania wybranego poziomu dostępu",
+      "revoke-access-level-fail": "Operacja zakończona niepowodzeniem"
     },
     "guard": {
       "access-denied": "Odmowa dostępu"
@@ -221,7 +315,7 @@
   "edit-own-profile": {
     "response": {
       "message": {
-        "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
+        "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
         "account_not_found": "Modyfikowane konto nie istnieje",
@@ -246,6 +340,101 @@
         "expired_token": "Kod wygasł, zaloguj się ponownie",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Logowanie nie powiodło się, spróbuj ponownie"
+      }
+    }
+  },
+  "register": {
+    "response": {
+      "message": {
+        "invalid_captcha": "Niepoprawny kod CAPTCHA",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Rejestracja zakończyła się niepowodzeniem, spróbuj ponownie",
+        "license-number-already-taken": "Ten numer licencji jest już zajęty",
+        "email-address-already-taken": "Ten adres email jest już zajęty",
+        "login-already-taken": "Ten login jest już zajęty"
+      }
+    }
+  },
+  "confirm-register": {
+    "response": {
+      "message": {
+        "token_not_found": "Link został już wykorzystany",
+        "expired_token": "Link wygasł",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie udało się potwierdzić rejestracji"
+      }
+    }
+  },
+  "edit-as-admin": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
+        "account_not_found": "Modyfikowane konto nie istnieje",
+        "illegal_self_action": "Nie można modyfikować własnego konta jako administrator",
+        "email-address-already-taken": "Nie można zmodyfikować konta, podany adres email jest już używany"
+      }
+    }
+  },
+  "change-email": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można wysłać wiadomości, spróbuj ponownie",
+        "account_not_found": "To konto nie zostało znalezione"
+      }
+    }
+  },
+  "change-email-confirm": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Zmiana adresu email nie powiodła się, spróbuj ponownie",
+        "email-address-already-taken": "Ten adres email jest już w użyciu",
+        "token_not_found": "Link został już użyty",
+        "invalid_token_type": "Niepoprawny link"
+      }
+    }
+  },
+  "change-status": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Zmiana statusu konta nie powiodła się, spróbuj ponownie",
+        "bad-access-level": "Jako zarządca nie możesz zmienić statusu administratora lub innych zarządców",
+        "account_not_found": "To konto nie zostało znalezione",
+        "illegal_self_action": "Nie można zmienic statusu twojego konta"
+      }
+    }
+  },
+  "change-password": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Zmiana twojego hasła nie powiodła się, spróbuj ponownie",
+        "account_not_found": "To konto nie zostało znalezione",
+        "invalid_password": "Podane stare hasło nie jest poprawne",
+        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
+      }
+    }
+  },
+  "change-access-level": {
+    "response": {
+      "message": {
+        "account_not_found": "To konto nie zostało znalezione",
+        "no_access_level": "Twoje konta nie posiada wybranego poziomu dostępu"
+      }
+    }
+  },
+  "grant-access-level": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można nadać poziomu dostępu, spróbuj ponownie",
+        "access-management-self": "Nie można nadać poziomu dostępu własnemu kontu",
+        "account_not_found": "To konto nie zostało znalezione",
+        "license-number-already-taken": "Ten numer licencji jest już zajęty"
       }
     }
   }

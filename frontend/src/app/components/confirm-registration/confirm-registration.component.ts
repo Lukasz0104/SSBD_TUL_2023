@@ -26,7 +26,6 @@ export class ConfirmRegistrationComponent implements OnInit {
                 })
             )
             .subscribe((response) => {
-                console.log(response);
                 this.loading = false;
                 this.success = !response;
                 this.response = response;

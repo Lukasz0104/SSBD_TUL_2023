@@ -100,7 +100,7 @@ export class GrantAccessLevelComponent {
     grant() {
         const confirmModal = this.modalService.open(ConfirmActionComponent);
         confirmModal.componentInstance.message =
-            'Potwierdź nadanie poziomu dostępu'; // TODO translate
+            'modal.confirm-action.grant-access-level';
         confirmModal.componentInstance.danger = `access-levels.${this.accessType}`;
 
         confirmModal.closed.pipe(filter((res) => res)).subscribe(() => {
@@ -122,11 +122,9 @@ export class GrantAccessLevelComponent {
                 .subscribe((message) => {
                     if (!message) {
                         this.toastService.showSuccess(
-                            'Pomyślnie nadano poziom dostępu'
-                        ); // TODO translate
+                            'toast.account.grant-access-level'
+                        );
                         this.activeModal.close();
-                    } else {
-                        this.toastService.showDanger(message); // TODO translate
                     }
                 });
         });
@@ -138,7 +136,7 @@ export class GrantAccessLevelComponent {
             .subscribe((success) => {
                 if (success) {
                     this.toastService.showSuccess(
-                        'Operacja zakończona pomyślnie'
+                        'toast.account.revoke-access-level'
                     );
                     this.activeModal.close();
                 }

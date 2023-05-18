@@ -5,42 +5,58 @@
                 <div class="rounded-5 shadow-lg p-4 p-sm-5 glass">
                     <ng-container *ngIf="!loading; else loadingBlock">
                         <ng-container *ngIf="success; else fail">
-                            <h2 class="fw-bold mb-4">Registration confirmed</h2>
+                            <h2 class="fw-bold mb-4">
+                                {{
+                                    'form.confirm-registration.confirmation'
+                                        | translate
+                                }}
+                            </h2>
                             <p class="">
-                                Now your data needs to be verified. After
-                                successful verification you will be notified on
-                                the provided email address.
+                                {{
+                                    'form.confirm-registration.message'
+                                        | translate
+                                }}
                             </p>
                             <div>
                                 <p class="mb-0 text-center">
-                                    Go to
+                                    {{
+                                        'form.confirm-registration.go-to'
+                                            | translate
+                                    }}
                                     <a
                                         class="text-primary fw-bold"
                                         routerLink="/"
-                                        >Home page</a
+                                        >{{
+                                            'form.confirm-registration.go-to-where'
+                                                | translate
+                                        }}</a
                                     >
                                 </p>
                             </div>
                         </ng-container>
                         <ng-template #fail>
                             <h2 class="fw-bold mb-4">
-                                Failed to confirm registration
+                                {{
+                                    'form.confirm-registration.fail' | translate
+                                }}
                             </h2>
                             <p class="text-center">
-                                {{ response }}
+                                {{ 'confirm-register.' + response | translate }}
                             </p>
                         </ng-template>
                     </ng-container>
                     <ng-template #loadingBlock>
                         <h2 class="fw-bold mb-4">
-                            Confirming your registration
+                            {{ 'form.confirm-registration.action' | translate }}
                         </h2>
                         <p class="text-center">
                             <span
                                 class="spinner-border spinner-border-sm"
                                 role="status">
                             </span>
-                            Loading...
+                            {{
+                                'form.confirm-registration.loading' | translate
+                            }}
                         </p>
                     </ng-template>
                 </div>

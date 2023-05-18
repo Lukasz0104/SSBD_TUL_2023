@@ -42,6 +42,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidCaptchaCodeExce
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -191,8 +192,11 @@ public class AccountEndpoint {
         boolean rollBackTX = false;
         do {
             try {
-                accountManager.sendResetPasswordMessage(email);
-                rollBackTX = accountManager.isLastTransactionRollback();
+                try {
+                    accountManager.sendResetPasswordMessage(email);
+                } catch (AccountNotFoundException anfe) {
+                    return Response.noContent().build();
+                }
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
             }

@@ -10,23 +10,24 @@
                             [formGroup]="changeEmailForm"
                             class="mb-3 md-4">
                             <h2 class="fw-bold mb-4">
-                                {{ 'form.change-email.title' //| translate }}
+                                {{
+                                    'form.change-email-confirm.title'
+                                        | translate
+                                }}
                             </h2>
                             <p>
                                 {{
-                                    'form.change-email.content-before-bold' //| translate
+                                    'form.change-email-confirm.content'
+                                        | translate
                                 }}
                                 <b>email</b>
-                                {{
-                                    'form.change-email.content-after-bold' //| translate
-                                }}
                             </p>
                             <div class="mb-3">
                                 <label
                                     class="form-label"
                                     for="email"
                                     >{{
-                                        'form.fields.email' //| translate
+                                        'form.fields.email' | translate
                                     }}</label
                                 >
                                 <div class="input-group">
@@ -54,7 +55,7 @@
                                     "
                                     class="validation-message"
                                     >{{
-                                        'validation.email.required' //| translate
+                                        'validation.email.required' | translate
                                     }}</span
                                 >
                             </div>
@@ -74,7 +75,8 @@
                                     </ng-container>
                                     <ng-template #loginButton
                                         >{{
-                                            'form.forgot-password.action' // | translate
+                                            'form.change-email-confirm.action'
+                                                | translate
                                         }}
                                     </ng-template>
                                 </button>

@@ -143,7 +143,7 @@ export class AccountsComponent implements OnInit {
         const modal = this.modalService.open(ConfirmActionComponent);
         const instance = modal.componentInstance as ConfirmActionComponent;
 
-        instance.message = 'Czy na pewno chcesz usunąć poziom dostępu';
+        instance.message = 'modal.confirm-action.revoke-access-level';
         instance.danger = `access-levels.${level}`;
 
         modal.closed
@@ -154,17 +154,17 @@ export class AccountsComponent implements OnInit {
                 )
             )
             .subscribe((res) => {
-                console.log(res);
                 if (res) {
                     this.toastService.showSuccess(
-                        'Operacja wykonana pomyślnie'
+                        'toast.account.revoke-access-level'
                     );
                 } else {
-                    this.toastService.showDanger('Coś poszło nie tak...');
+                    this.toastService.showDanger(
+                        'toast.account.revoke-access-level-fail'
+                    );
                 }
                 this.reload();
             });
-        // TODO translate
     }
 
     protected hasAccessLevel(account: Account, level: AccessType) {

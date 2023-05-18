@@ -5,7 +5,6 @@ import {
     NonNullableFormBuilder,
     Validators
 } from '@angular/forms';
-import { ResponseMessage } from '../../common/response-message.enum';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
 import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
@@ -117,25 +116,11 @@ export class RegisterComponent {
             captchaCode: this.captchaCode
         };
 
-        this.accountService.register(dto).subscribe((errorMsg) => {
-            switch (errorMsg) {
-                case ResponseMessage.LICENSE_NUMBER_ALREADY_TAKEN:
-                    this.toast.showDanger('License number is already taken.');
-                    break;
-                case ResponseMessage.EMAIL_ADDRESS_ALREADY_TAKEN:
-                    this.toast.showDanger('Email address is already taken.');
-                    break;
-                case ResponseMessage.LOGIN_ALREADY_TAKEN:
-                    this.toast.showDanger('Login is already taken.');
-                    break;
-                case ResponseMessage.INVALID_CAPTCHA_CODE:
-                    this.toast.showDanger('Captcha code is invalid.');
-                    break;
-                case null:
-                    this.toast.showSuccess('Registration successful.');
-                    this.forms.forEach((f) => f.reset());
-                    this.formIndex = 0;
-                    break;
+        this.accountService.register(dto).subscribe((response) => {
+            if (response) {
+                this.toast.showSuccess('toast.account.register');
+                this.forms.forEach((f) => f.reset());
+                this.formIndex = 0;
             }
         });
     }
@@ -146,11 +131,13 @@ export class RegisterComponent {
 
     protected continueToOwnerForm() {
         this.licenseNumberControl.disable();
+        this.captchaCode = '';
         this.formIndex++;
     }
 
     protected continueToManagerForm() {
         this.licenseNumberControl.enable();
+        this.captchaCode = '';
         this.formIndex++;
     }
 

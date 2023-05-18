@@ -110,7 +110,7 @@
                             <label
                                 class="form-label"
                                 for="language">
-                                Language
+                                {{ 'component.account.language' | translate }}
                             </label>
                             <select
                                 class="form-select"
@@ -127,7 +127,7 @@
                             <label
                                 class="form-label"
                                 for="email">
-                                Email address
+                                {{ 'component.account.email' | translate }}
                             </label>
                             <input
                                 class="form-control"
@@ -144,12 +144,14 @@
                                 <p
                                     *ngIf="emailControl.errors['required']"
                                     class="mb-0">
-                                    Email is required.
+                                    {{
+                                        'validation.email.required' | translate
+                                    }}
                                 </p>
                                 <p
                                     *ngIf="emailControl.errors['email']"
                                     class="mb-0">
-                                    Invalid email address
+                                    {{ 'validation.email.valid' | translate }}
                                 </p>
                             </div>
                         </div>
@@ -398,14 +400,18 @@
                         </h2>
                         <form [formGroup]="editManagerDataForm">
                             <div *ngIf="accessLevel.address as address">
-                                <p><strong>Address</strong></p>
+                                <p>
+                                    <strong>{{
+                                        'component.fields.address' | translate
+                                    }}</strong>
+                                </p>
 
                                 <div class="mb-2 has-validation">
                                     <label
                                         class="form-label"
                                         for="street">
                                         {{
-                                            'component.fields.address'
+                                            'component.fields.street'
                                                 | translate
                                         }}
                                     </label>

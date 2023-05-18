@@ -464,14 +464,13 @@ public class MokITests extends TestContainersSetup {
         }
 
         @Test
-        void shouldReturnSC404WhenAccountDoesntExist() {
+        void shouldReturnSC204WhenAccountDoesntExist() {
             given()
                 .queryParam("email", "non_existent@gmail.local")
                 .when()
                 .post("accounts/reset-password-message")
                 .then()
-                .statusCode(Response.Status.NOT_FOUND.getStatusCode())
-                .and().body("message", Matchers.equalTo(I18n.ACCOUNT_NOT_FOUND));
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
         }
 
         @Test

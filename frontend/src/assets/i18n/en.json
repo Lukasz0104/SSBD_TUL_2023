@@ -1,19 +1,25 @@
 {
   "validation": {
     "password": {
-      "required": "Password is required",
-      "length": "Password must be at least 8 characters",
-      "strength": "Password is too weak"
+      "required": "Password is required.",
+      "length": "Password must be at least 8 characters.",
+      "strength": "Password is too weak.",
+      "message": "Password must be at least 8 characters long and must contain a lower case letter, upper case letter, digit and a symbol.",
+      "match": "Password and repeat password must match"
     },
     "repeat-password": {
-      "required": "Repeated password is required",
-      "match": "Repeated password doesn't match password"
+      "required": "Repeated password is required.",
+      "match": "Repeated password doesn't match password."
     },
     "login": {
-      "required": "Login is required"
+      "required": "Login is required.",
+      "min-length": "Login must be at least 3 characters long.",
+      "max-length": "Login must be at most 100 characters long."
     },
     "email": {
-      "required": "Email is required"
+      "required": "Email is required.",
+      "valid": "Email address must be valid.",
+      "max-length": "Email address must be at most 320 characters long."
     },
     "first-name": {
       "required": "First name is required.",
@@ -44,6 +50,19 @@
     },
     "license-number": {
       "required": "License number is required."
+    },
+    "old-password": {
+      "required": "Old password is required",
+      "min-length": "Old password must be longer than 8 characters"
+    },
+    "new-password": {
+      "required": "New password is required",
+      "same-old": "New password cannot be the same as old password",
+      "same-new": "New passwords must be identical",
+      "strength": "New password is too weak"
+    },
+    "repeat-new-password": {
+      "required": "Repeat new password is required"
     }
   },
   "form": {
@@ -82,7 +101,42 @@
     },
     "register": {
       "sign-in": "Sign in",
-      "account-info": "Already have an account?"
+      "account-info": "Already have an account?",
+      "title": "Register to eBok",
+      "continue": "Continue",
+      "password": "Password",
+      "repeat-password": "Repeat password",
+      "back": "Back",
+      "register-as-owner": "Register as owner",
+      "register-as-manager": "Register as manager",
+      "action": "Register"
+    },
+    "change-password": {
+      "title": "Change password",
+      "current-password": "Current password",
+      "new-password": "New password",
+      "repeat-password": "Repeat password",
+      "action": "Change"
+    },
+    "give-access-level": {
+      "reject": "Reject",
+      "grant": "Grant access level",
+      "confirm": "Confirm",
+      "verify": "Verify"
+    },
+    "confirm-registration": {
+      "fail": "Failed to confirm registration",
+      "action": "Confirming your registration",
+      "loading": "Loading ...",
+      "go-to": "Go to",
+      "go-to-where": "Home page",
+      "confirmation": "Registration confirmed",
+      "message": "Now your data needs to be verified. After successful verification you will be notified on the provided email address."
+    },
+    "change-email-confirm": {
+      "title": "Confirm your email",
+      "content": "In order to confirm, provide a valid ",
+      "action": "Confirm"
     }
   },
   "component": {
@@ -103,7 +157,14 @@
       "password-change": "Change password",
       "activate": "Unlock",
       "deactivate": "Lock",
-      "edit-account": "Edit account"
+      "edit-account": "Edit account",
+      "give-owner": "Assign Owner access level",
+      "give-manager": "Grant Manager access level",
+      "give-admin": "Grant Administrator access level",
+      "revoke-owner": "Revoke Owner access level",
+      "revoke-manager": "Revoke Manager access level",
+      "revoke-admin": "Revoke Administrator access level",
+      "verify": "Verify"
     },
     "account": {
       "created-at": "Created at",
@@ -128,7 +189,11 @@
       "general": "General",
       "save": "Save",
       "cancel": "Cancel",
-      "two-factor-auth": "2FA Authentication"
+      "two-factor-auth": "2FA Authentication",
+      "change-email": "Change email",
+      "email": "Email address",
+      "verified-true": "yes",
+      "verified-false": "no"
     },
     "fields": {
       "login": "Login",
@@ -142,6 +207,10 @@
       "building-number": "Building number",
       "postal-code": "Postal code",
       "city": "City"
+    },
+    "landing-page": {
+      "title": "Improve your community with eBok!",
+      "description": "The application aims to support the management of a residential community in the process of settling accounts for the units belonging to it. Each unit has an individual allocation of fee categories that are part of the settlement, and each category has a current rate and settlement principle. One of the main tasks of the system is to forecast the amount of future advances and assist the community manager in adjusting rates to minimize the difference between the projected costs incurred by unit owners and the actual costs incurred by the community."
     }
   },
   "modal": {
@@ -154,7 +223,12 @@
     "confirm-action": {
       "force-password-message": "Do you want to change chosen account's password?",
       "force-password-danger": "This action will block this account.",
-      "action": "Confirm"
+      "action": "Confirm",
+      "grant-access-level": "Confirm access level grant",
+      "revoke-access-level": "Are you sure, you want to revoke access level",
+      "edit-account": "Are you sure, you want to edit account",
+      "edit-account-danger": "This action cannot be undone!",
+      "change-password": "Are you sure, you want to change your password?"
     }
   },
   "access-levels": {
@@ -190,7 +264,27 @@
       "two-factor-status-active": "2FA has been activated",
       "two-factor-status-inactive": "2FA has been disabled",
       "two-factor-status-fail": "Error while changing status",
-      "edit-own-account": "Account data modification success"
+      "edit-own-account": "Account data modification success",
+      "confirm-register": "Register confirmation successful",
+      "confirm-register-fail": "Could not confirm registration",
+      "register-fail": "Registration failure",
+      "register": "Registration successful, confirm registration email has been sent to provided email address",
+      "edit-account-as-admin": "Account data modification success",
+      "edit-account-as-admin-fail": "Error while editing account",
+      "change-email": "Change email message has been sent",
+      "change-email-fail": "Could not send message",
+      "change-email-confirm": "Email has been changed",
+      "change-email-confirm-fail": "Could not change email",
+      "change-status": "Account's status change successful",
+      "change-status-fail": "Could not change account's status",
+      "change-password": "Account's password change successful",
+      "change-password-fail": "Could not change password",
+      "change-access-level": "Current access level has been changed",
+      "change-access-level-fail": "Could not change current access level",
+      "grant-access-level": "Access level granted successfully",
+      "revoke-access-level": "Action successful",
+      "grant-access-level-fail": "Could not grant chosen access level",
+      "revoke-access-level-fail": "Action failure"
     },
     "guard": {
       "access-denied": "Access denied"
@@ -246,6 +340,101 @@
         "expired_token": "Code expired, log in again",
         "rollback.limit.exceeded": "Request timmed out",
         "optimistic_lock": "Login unsuccessful, please try again"
+      }
+    }
+  },
+  "register": {
+    "response": {
+      "message": {
+        "invalid_captcha": "Invalid captcha code",
+        "rollback.limit.exceeded": "Request timmed out",
+        "optimistic_lock": "Register unsuccessful, please try again",
+        "license-number-already-taken": "License number already taken",
+        "email-address-already-taken": "Email address already taken",
+        "login-already-taken": "Login already taken"
+      }
+    }
+  },
+  "confirm-register": {
+    "response": {
+      "message": {
+        "token_not_found": "Link was used",
+        "expired_token": "Link has expired",
+        "rollback.limit.exceeded": "Request timmed out",
+        "optimistic_lock": "Register confirmation failed"
+      }
+    }
+  },
+  "edit-as-admin": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Cannot edit account, violation of unmodifiable data",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot edit account, account data has changed since opening form, try again",
+        "account_not_found": "Modified account does not exist",
+        "illegal_self_action": "Cannot modify your own account as administrator",
+        "email-address-already-taken": "Cannot modify, this email address is already in use"
+      }
+    }
+  },
+  "change-email": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not send message, try again",
+        "account_not_found": "This account could not be found"
+      }
+    }
+  },
+  "change-email-confirm": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not set new email, please try again",
+        "email-address-already-taken": "This email address is already in use",
+        "token_not_found": "Link has been used",
+        "invalid_token_type": "Link was not valid"
+      }
+    }
+  },
+  "change-status": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not change this account's status, please try again",
+        "bad-access-level": "As Manager you cannot change status of Admin and other Managers",
+        "account_not_found": "This account could not be found",
+        "illegal_self_action": "Cannot change status of your own account"
+      }
+    }
+  },
+  "change-password": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not change your password, please try again",
+        "account_not_found": "This account could not be found",
+        "invalid_password": "Provided old password is not correct",
+        "repeated_password": "New password cannot be the same as old password"
+      }
+    }
+  },
+  "change-access-level": {
+    "response": {
+      "message": {
+        "account_not_found": "This account could not be found",
+        "no_access_level": "Your account does not have chosen access level"
+      }
+    }
+  },
+  "grant-access-level": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not grant access level to chosen account, please try again",
+        "access-management-self": "Cannot grant access level to your own account",
+        "account_not_found": "This account could not be found",
+        "license-number-already-taken": "License number already taken"
       }
     }
   }

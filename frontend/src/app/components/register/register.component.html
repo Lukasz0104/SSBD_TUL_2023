@@ -3,7 +3,9 @@
         <div class="row justify-content-center align-items-center h-100">
             <div class="col-12 col-md-8 col-lg-6">
                 <div class="rounded-5 shadow-lg p-4 p-sm-5 glass">
-                    <h2 class="fw-bold mb-4">Register to eBok</h2>
+                    <h2 class="fw-bold mb-4">
+                        {{ 'form.register.title' | translate }}
+                    </h2>
                     <p>
                         <ngb-progressbar
                             [value]="progressPercentage"
@@ -19,7 +21,10 @@
                                 <label
                                     class="form-label mb-0"
                                     for="firstNameInput">
-                                    First name
+                                    {{
+                                        'component.fields.first-name'
+                                            | translate
+                                    }}
                                 </label>
                                 <input
                                     [ngClass]="{
@@ -29,7 +34,10 @@
                                     class="form-control"
                                     formControlName="firstName"
                                     id="firstNameInput"
-                                    placeholder="First name"
+                                    placeholder="{{
+                                        'component.fields.first-name'
+                                            | translate
+                                    }}"
                                     required
                                     type="text" />
                                 <div
@@ -40,7 +48,10 @@
                                             firstNameControl.errors['required']
                                         "
                                         class="mb-0">
-                                        First name is required.
+                                        {{
+                                            'validation.first-name.required'
+                                                | translate
+                                        }}
                                     </p>
                                     <p
                                         *ngIf="
@@ -49,9 +60,10 @@
                                             ] as maxlen
                                         "
                                         class="mb-0">
-                                        First name must be shorter than
-                                        {{ maxlen['requiredLength'] }}
-                                        characters.
+                                        {{
+                                            'validation.first-name.max-length'
+                                                | translate
+                                        }}
                                     </p>
                                 </div>
                             </div>
@@ -59,7 +71,9 @@
                                 <label
                                     class="form-label mb-0"
                                     for="lastNameInput">
-                                    Last name
+                                    {{
+                                        'component.fields.last-name' | translate
+                                    }}
                                 </label>
                                 <input
                                     [ngClass]="{
@@ -69,7 +83,9 @@
                                     class="form-control"
                                     formControlName="lastName"
                                     id="lastNameInput"
-                                    placeholder="Last name"
+                                    placeholder="{{
+                                        'component.fields.last-name' | translate
+                                    }}"
                                     required
                                     type="text" />
                                 <div
@@ -80,7 +96,10 @@
                                             lastNameControl.errors['required']
                                         "
                                         class="mb-0">
-                                        Last name is required.
+                                        {{
+                                            'validation.last-name.required'
+                                                | translate
+                                        }}
                                     </p>
                                     <p
                                         *ngIf="
@@ -89,9 +108,10 @@
                                             ] as maxlen
                                         "
                                         class="mb-0">
-                                        Last name must be shorter than
-                                        {{ maxlen['requiredLength'] }}
-                                        characters.
+                                        {{
+                                            'validation.last-name.max-length'
+                                                | translate
+                                        }}
                                     </p>
                                 </div>
                             </div>
@@ -100,7 +120,10 @@
                                     <label
                                         class="input-group-text"
                                         for="languageInput">
-                                        Language
+                                        {{
+                                            'component.account.language'
+                                                | translate
+                                        }}
                                     </label>
                                     <select
                                         class="form-select"
@@ -116,7 +139,9 @@
                                         (click)="formIndex = formIndex + 1"
                                         [disabled]="personalDetailsForm.invalid"
                                         class="btn btn-secondary">
-                                        Continue
+                                        {{
+                                            'form.register.continue' | translate
+                                        }}
                                     </button>
                                 </div>
                             </div>
@@ -139,7 +164,7 @@
                                     class="form-control"
                                     formControlName="email"
                                     id="emailInput"
-                                    placeholder="Email address"
+                                    placeholder="Email"
                                     required
                                     type="email" />
                                 <div
@@ -148,21 +173,27 @@
                                     <p
                                         *ngIf="emailErrors['required']"
                                         class="mb-0">
-                                        Email address is required.
+                                        {{
+                                            'validation.email.required'
+                                                | translate
+                                        }}
                                     </p>
                                     <p
                                         *ngIf="emailErrors['email']"
                                         class="mb-0">
-                                        Email address must be valid.
+                                        {{
+                                            'validation.email.valid' | translate
+                                        }}
                                     </p>
                                     <p
                                         *ngIf="
                                             emailErrors['maxlength'] as maxlen
                                         "
                                         class="mb-0">
-                                        Email must be shorter than
-                                        {{ maxlen['requiredLength'] }}
-                                        characters.
+                                        {{
+                                            'validation.email.max-length'
+                                                | translate
+                                        }}
                                     </p>
                                 </div>
                             </div>
@@ -192,7 +223,10 @@
                                             else loginNotEmpty
                                         "
                                         class="mb-0">
-                                        Login is required.
+                                        {{
+                                            'validation.login.required'
+                                                | translate
+                                        }}
                                     </p>
                                     <ng-template #loginNotEmpty>
                                         <p
@@ -202,9 +236,10 @@
                                                 ] as minlen
                                             "
                                             class="mb-0">
-                                            Login is must be at least
-                                            {{ minlen['requiredLength'] }}
-                                            characters.
+                                            {{
+                                                'validation.login.min-length'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -213,9 +248,10 @@
                                                 ] as maxlen
                                             "
                                             class="mb-0">
-                                            Login must be shorter than
-                                            {{ maxlen['requiredLength'] }}
-                                            characters.
+                                            {{
+                                                'validation.login.max-length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </ng-template>
                                 </div>
@@ -224,7 +260,7 @@
                                 <label
                                     class="form-label mb-0"
                                     for="passwordInput">
-                                    Password
+                                    {{ 'form.register.password' | translate }}
                                 </label>
                                 <input
                                     [ngClass]="{
@@ -234,7 +270,9 @@
                                     class="form-control"
                                     formControlName="password"
                                     id="passwordInput"
-                                    placeholder="Password"
+                                    placeholder="{{
+                                        'form.register.password' | translate
+                                    }}"
                                     required
                                     type="password" />
                                 <div
@@ -243,22 +281,27 @@
                                     <ng-container
                                         *ngIf="passwordControl.errors?.['required']; else pwdNotEmpty">
                                         <p class="mb-0">
-                                            Password is required.
+                                            {{
+                                                'validation.password.required'
+                                                    | translate
+                                            }}
                                         </p>
                                     </ng-container>
                                     <ng-template #pwdNotEmpty>
                                         <p
                                             *ngIf="passwordControl.errors?.['weakPassword']; else mismatch"
                                             class="mb-0">
-                                            Password must be at least 8
-                                            characters long and must contain a
-                                            lower case letter, upper case
-                                            letter, digit and a symbol.
+                                            {{
+                                                'validation.password.message'
+                                                    | translate
+                                            }}
                                         </p>
                                         <ng-template #mismatch>
                                             <p class="mb-0">
-                                                Password and repeat password
-                                                must match.
+                                                {{
+                                                    'validation.password.match'
+                                                        | translate
+                                                }}
                                             </p>
                                         </ng-template>
                                     </ng-template>
@@ -268,7 +311,10 @@
                                 <label
                                     class="form-label mb-0"
                                     for="repeatPasswordInput">
-                                    Repeat password
+                                    {{
+                                        'form.register.repeat-password'
+                                            | translate
+                                    }}
                                 </label>
                                 <input
                                     [ngClass]="{
@@ -278,7 +324,10 @@
                                     class="form-control"
                                     formControlName="repeatPassword"
                                     id="repeatPasswordInput"
-                                    placeholder="Repeat password"
+                                    placeholder=" {{
+                                        'form.register.repeat-password'
+                                            | translate
+                                    }}"
                                     required
                                     type="password" />
                                 <div
@@ -289,12 +338,17 @@
                                         repeatPasswordControl.errors?.['required']; else mismatch
                                     "
                                         class="mb-0">
-                                        Repeat password is required.
+                                        {{
+                                            'validation.repeat-password.required'
+                                                | translate
+                                        }}
                                     </p>
                                     <ng-template #mismatch>
                                         <p class="mb-0">
-                                            Password and repeat password must
-                                            match.
+                                            {{
+                                                'validation.password.match'
+                                                    | translate
+                                            }}
                                         </p>
                                     </ng-template>
                                 </div>
@@ -305,21 +359,29 @@
                                         <button
                                             class="btn btn-secondary col col-12"
                                             (click)="formIndex = formIndex - 1">
-                                            Back
+                                            {{
+                                                'form.register.back' | translate
+                                            }}
                                         </button>
                                         <button
                                             (click)="continueToOwnerForm()"
                                             [disabled]="authDetailsForm.invalid"
                                             type="button"
                                             class="btn btn-primary col col-12">
-                                            Register as owner
+                                            {{
+                                                'form.register.register-as-owner'
+                                                    | translate
+                                            }}
                                         </button>
                                         <button
                                             (click)="continueToManagerForm()"
                                             [disabled]="authDetailsForm.invalid"
                                             type="button"
                                             class="btn btn-warning col col-12">
-                                            Register as manager
+                                            {{
+                                                'form.register.register-as-manager'
+                                                    | translate
+                                            }}
                                         </button>
                                     </div>
                                 </div>
@@ -335,12 +397,18 @@
                                     <label
                                         for="postalCodeInput"
                                         class="form-label mb-0">
-                                        Postal code
+                                        {{
+                                            'component.fields.postal-code'
+                                                | translate
+                                        }}
                                     </label>
                                     <input
                                         id="postalCodeInput"
                                         type="text"
-                                        placeholder="Postal code"
+                                        placeholder="{{
+                                            'component.fields.postal-code'
+                                                | translate
+                                        }}"
                                         formControlName="postalCode"
                                         required
                                         class="form-control"
@@ -360,12 +428,17 @@
                                                 else pcNotEmpty
                                             "
                                             class="mb-0">
-                                            Postal code is required.
+                                            {{
+                                                'validation.postal-code.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <ng-template #pcNotEmpty>
                                             <p class="mb-0">
-                                                Postal code must be 6 characters
-                                                long.
+                                                {{
+                                                    'validation.postal-code.length'
+                                                        | translate
+                                                }}
                                             </p>
                                         </ng-template>
                                     </div>
@@ -374,14 +447,18 @@
                                     <label
                                         for="cityInput"
                                         class="form-label mb-0">
-                                        City
+                                        {{
+                                            'component.fields.city' | translate
+                                        }}
                                     </label>
                                     <input
                                         type="text"
                                         class="form-control"
                                         id="cityInput"
                                         formControlName="city"
-                                        placeholder="City"
+                                        placeholder="{{
+                                            'component.fields.city' | translate
+                                        }}"
                                         required
                                         [ngClass]="{
                                             'is-invalid': cityControl.invalid,
@@ -396,7 +473,10 @@
                                                 else cityNotEmpty
                                             "
                                             class="mb-0">
-                                            City is required.
+                                            {{
+                                                'validation.city.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <ng-template #cityNotEmpty>
                                             <p
@@ -406,9 +486,10 @@
                                                     ] as minlen
                                                 "
                                                 class="mb-0">
-                                                City must be at least
-                                                {{ minlen['requiredLength'] }}
-                                                characters.
+                                                {{
+                                                    'validation.city.min-length'
+                                                        | translate
+                                                }}
                                             </p>
                                             <p
                                                 *ngIf="
@@ -417,9 +498,10 @@
                                                     ] as maxlen
                                                 "
                                                 class="mb-0">
-                                                City must be at most
-                                                {{ maxlen['requiredLength'] }}
-                                                characters.
+                                                {{
+                                                    'validation.city.max-length'
+                                                        | translate
+                                                }}
                                             </p>
                                         </ng-template>
                                     </div>
@@ -428,7 +510,10 @@
                                     <label
                                         for="streetInput"
                                         class="form-label mb-0">
-                                        Street
+                                        {{
+                                            'component.fields.street'
+                                                | translate
+                                        }}
                                     </label>
                                     <input
                                         type="text"
@@ -436,7 +521,10 @@
                                         required
                                         formControlName="street"
                                         class="form-control"
-                                        placeholder="Street"
+                                        placeholder="{{
+                                            'component.fields.street'
+                                                | translate
+                                        }}"
                                         [ngClass]="{
                                             'is-invalid': streetControl.invalid,
                                             'is-valid': streetControl.valid
@@ -449,7 +537,10 @@
                                         <p
                                             *ngIf="streetErrors['required']"
                                             class="mb-0">
-                                            Street is required.
+                                            {{
+                                                'validation.street.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="
@@ -458,9 +549,10 @@
                                                 ] as maxlen
                                             "
                                             class="mb-0">
-                                            Street must be at most
-                                            {{ maxlen['requiredLength'] }}
-                                            characters.
+                                            {{
+                                                'validation.street.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -468,7 +560,10 @@
                                     <label
                                         for="buildingNumberInput"
                                         class="form-label mb-0">
-                                        Building number
+                                        {{
+                                            'component.fields.building-number'
+                                                | translate
+                                        }}
                                     </label>
                                     <input
                                         type="number"
@@ -476,7 +571,10 @@
                                         required
                                         class="form-control"
                                         formControlName="buildingNumber"
-                                        placeholder="Buidling number"
+                                        placeholder="{{
+                                            'component.fields.building-number'
+                                                | translate
+                                        }}"
                                         [ngClass]="{
                                             'is-invalid':
                                                 buildingNumberControl.invalid,
@@ -491,13 +589,18 @@
                                         <p
                                             *ngIf="bnErrors['required']"
                                             class="mb-0">
-                                            Building number is required.
+                                            {{
+                                                'validation.building.required'
+                                                    | translate
+                                            }}
                                         </p>
                                         <p
                                             *ngIf="bnErrors['min']"
                                             class="mb-0">
-                                            Building number must be greater than
-                                            {{ bnErrors['min']['min'] - 1 }}.
+                                            {{
+                                                'validation.building.length'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 </div>
@@ -508,7 +611,10 @@
                                 <label
                                     for="licenseNumberInput"
                                     class="form-label mb-0">
-                                    License number
+                                    {{
+                                        'component.account.license-number'
+                                            | translate
+                                    }}
                                 </label>
                                 <input
                                     type="text"
@@ -516,7 +622,10 @@
                                     required
                                     class="form-control"
                                     formControlName="licenseNumber"
-                                    placeholder="License number"
+                                    placeholder="{{
+                                        'component.account.license-number'
+                                            | translate
+                                    }}"
                                     [ngClass]="{
                                         'is-invalid':
                                             licenseNumberControl.invalid,
@@ -532,7 +641,10 @@
                                             ]
                                         "
                                         class="mb-0">
-                                        License number is required.
+                                        {{
+                                            'validation.license-number.required'
+                                                | translate
+                                        }}
                                     </p>
                                 </div>
                             </div>
@@ -546,13 +658,18 @@
                                         <button
                                             class="btn btn-secondary col col-12 col-sm-2"
                                             (click)="formIndex = formIndex - 1">
-                                            Back
+                                            {{
+                                                'form.register.back' | translate
+                                            }}
                                         </button>
                                         <button
                                             [disabled]="!allFormsValid"
                                             type="submit"
                                             class="btn btn-primary ms-auto col col-12 col-sm-5">
-                                            Register
+                                            {{
+                                                'form.register.action'
+                                                    | translate
+                                            }}
                                         </button>
                                     </div>
                                 </div>

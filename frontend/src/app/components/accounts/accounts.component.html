@@ -218,9 +218,7 @@
                                             | translate
                                     }}
                                 </button>
-                                <button
-                                    *ngIf="!account.active"
-                                    ngbDropdownItem>
+                                <button ngbDropdownItem>
                                     <app-change-active-status
                                         (statusChangedEvent)="reload()"
                                         [id]="account.id"
@@ -236,7 +234,10 @@
                                         )
                                     "
                                     ngbDropdownItem>
-                                    Nadaj poziom dostępu Administrator
+                                    {{
+                                        'component.accounts.give-admin'
+                                            | translate
+                                    }}
                                 </button>
                                 <button
                                     *ngIf="
@@ -249,7 +250,10 @@
                                         )
                                     "
                                     ngbDropdownItem>
-                                    Nadaj poziom dostępu Zarządca
+                                    {{
+                                        'component.accounts.give-manager'
+                                            | translate
+                                    }}
                                 </button>
                                 <button
                                     *ngIf="showGrantOwnerDropdownItem(account)"
@@ -260,7 +264,10 @@
                                         )
                                     "
                                     ngbDropdownItem>
-                                    Nadaj poziom dostępu Właściciel
+                                    {{
+                                        'component.accounts.give-owner'
+                                            | translate
+                                    }}
                                 </button>
                                 <button
                                     *ngIf="showRevokeAdminDropdownItem(account)"
@@ -271,7 +278,10 @@
                                         )
                                     "
                                     ngbDropdownItem>
-                                    Odbierz poziom dostępu Administrator
+                                    {{
+                                        'component.accounts.revoke-admin'
+                                            | translate
+                                    }}
                                 </button>
                                 <button
                                     *ngIf="
@@ -284,7 +294,10 @@
                                         )
                                     "
                                     ngbDropdownItem>
-                                    Odbierz poziom dostępu Zarządca
+                                    {{
+                                        'component.accounts.revoke-manager'
+                                            | translate
+                                    }}
                                 </button>
                                 <button
                                     *ngIf="showRevokeOwnerDropdownItem(account)"
@@ -295,7 +308,10 @@
                                         )
                                     "
                                     ngbDropdownItem>
-                                    Odbierz poziom dostępu Właściciel
+                                    {{
+                                        'component.accounts.revoke-owner'
+                                            | translate
+                                    }}
                                 </button>
                                 <button
                                     *ngIf="chosenOption.getValue() === 3"
@@ -307,7 +323,9 @@
                                         )
                                     "
                                     ngbDropdownItem>
-                                    Zweryfikuj
+                                    {{
+                                        'component.accounts.verify' | translate
+                                    }}
                                 </button>
                             </div>
                         </div>
