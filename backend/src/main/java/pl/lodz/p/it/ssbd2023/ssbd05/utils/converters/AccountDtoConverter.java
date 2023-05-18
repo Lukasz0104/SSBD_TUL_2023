@@ -110,7 +110,11 @@ public class AccountDtoConverter {
             account.getFirstName(),
             account.getLastName(),
             account.getLanguage().toString(),
-            account.isTwoFactorAuth()
+            account.isTwoFactorAuth(),
+            account.getCreatedTime(),
+            (account.getCreatedBy() != null) ? account.getCreatedBy().getLogin() : "anonymous",
+            account.getUpdatedTime(),
+            (account.getUpdatedBy() != null) ? account.getUpdatedBy().getLogin() : "anonymous"
         );
     }
 
@@ -124,9 +128,13 @@ public class AccountDtoConverter {
             account.getFirstName(),
             account.getLastName(),
             account.getLanguage().toString(),
+            account.isTwoFactorAuth(),
+            account.getCreatedTime(),
+            (account.getCreatedBy() != null) ? account.getCreatedBy().getLogin() : "anonymous",
+            account.getUpdatedTime(),
+            (account.getUpdatedBy() != null) ? account.getUpdatedBy().getLogin() : "anonymous",
             account.isVerified(),
             account.isActive(),
-            account.isTwoFactorAuth(),
             createActivityTrackerDto(account.getActivityTracker())
         );
     }
@@ -149,9 +157,13 @@ public class AccountDtoConverter {
                     new OwnerDataDto(
                         ownerData.getId(),
                         ownerData.getVersion(),
-                        createAddressDtoFromAddress(ownerData.getAddress()),
                         ownerData.isVerified(),
-                        ownerData.isActive()
+                        ownerData.isActive(),
+                        ownerData.getCreatedTime(),
+                        (ownerData.getCreatedBy() != null) ? ownerData.getCreatedBy().getLogin() : "anonymous",
+                        ownerData.getUpdatedTime(),
+                        (ownerData.getUpdatedBy() != null) ? ownerData.getUpdatedBy().getLogin() : "anonymous",
+                        createAddressDtoFromAddress(ownerData.getAddress())
                     )
                 );
             } else if (accessLevel instanceof ManagerData managerData) {
@@ -159,10 +171,14 @@ public class AccountDtoConverter {
                     new ManagerDataDto(
                         managerData.getId(),
                         managerData.getVersion(),
-                        createAddressDtoFromAddress(managerData.getAddress()),
-                        managerData.getLicenseNumber(),
                         managerData.isVerified(),
-                        managerData.isActive()
+                        managerData.isActive(),
+                        managerData.getCreatedTime(),
+                        (managerData.getCreatedBy() != null) ? managerData.getCreatedBy().getLogin() : "anonymous",
+                        managerData.getUpdatedTime(),
+                        (managerData.getUpdatedBy() != null) ? managerData.getUpdatedBy().getLogin() : "anonymous",
+                        createAddressDtoFromAddress(managerData.getAddress()),
+                        managerData.getLicenseNumber()
                     )
                 );
             } else if (accessLevel instanceof AdminData adminData) {
@@ -171,7 +187,12 @@ public class AccountDtoConverter {
                         adminData.getId(),
                         adminData.getVersion(),
                         adminData.isVerified(),
-                        adminData.isActive())
+                        adminData.isActive(),
+                        adminData.getCreatedTime(),
+                        (adminData.getCreatedBy() != null) ? adminData.getCreatedBy().getLogin() : "anonymous",
+                        adminData.getUpdatedTime(),
+                        (adminData.getUpdatedBy() != null) ? adminData.getUpdatedBy().getLogin() : "anonymous"
+                    )
                 );
             }
         }

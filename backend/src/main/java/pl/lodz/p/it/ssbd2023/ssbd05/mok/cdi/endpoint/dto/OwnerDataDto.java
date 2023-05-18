@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -16,7 +18,14 @@ public class OwnerDataDto extends AccessLevelDto {
     @Valid
     private AddressDto address;
 
-    public OwnerDataDto(Long id, Long version, AddressDto address, boolean verified, boolean active) {
+    public OwnerDataDto(Long id, Long version, boolean verified, boolean active,
+                        LocalDateTime createdTime, String createdBy, LocalDateTime updatedTime,
+                        String updatedBy, AddressDto address) {
+        super(id, version, verified, active, createdTime, createdBy, updatedTime, updatedBy);
+        this.address = address;
+    }
+
+    public OwnerDataDto(Long id, Long version, boolean verified, boolean active, AddressDto address) {
         super(id, version, verified, active);
         this.address = address;
     }
