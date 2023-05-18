@@ -361,12 +361,16 @@
     }
   },
   "edit-as-admin": {
-    "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
-    "rollback.limit.exceeded": "Wygasł limit czasu żądania",
-    "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
-    "account_not_found": "Modyfikowane konto nie istnieje",
-    "illegal_self_action": "Nie można modyfikować własnego konta jako administrator",
-    "email-address-already-taken": "Nie można zmodyfikować konta, podany adres email jest już używany"
+    "response": {
+      "message": {
+        "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
+        "account_not_found": "Modyfikowane konto nie istnieje",
+        "illegal_self_action": "Nie można modyfikować własnego konta jako administrator",
+        "email-address-already-taken": "Nie można zmodyfikować konta, podany adres email jest już używany"
+      }
+    }
   },
   "change-email": {
     "response": {
