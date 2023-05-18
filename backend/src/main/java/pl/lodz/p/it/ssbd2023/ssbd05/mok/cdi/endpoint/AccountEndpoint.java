@@ -36,6 +36,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidCaptchaCodeException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
@@ -59,6 +60,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.RecaptchaService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestScoped
@@ -98,8 +100,12 @@ public class AccountEndpoint {
         boolean rollbackTX = false;
 
         do {
-            accountManager.registerAccount(account);
-            rollbackTX = accountManager.isLastTransactionRollback();
+            try {
+                accountManager.registerAccount(account);
+                rollbackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
+            }
         } while (rollbackTX && --txLimit > 0);
 
         if (rollbackTX && txLimit == 0) {
@@ -128,8 +134,12 @@ public class AccountEndpoint {
         boolean rollbackTX = false;
 
         do {
-            accountManager.registerAccount(account);
-            rollbackTX = accountManager.isLastTransactionRollback();
+            try {
+                accountManager.registerAccount(account);
+                rollbackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
+            }
         } while (rollbackTX && --txLimit > 0);
 
         if (rollbackTX && txLimit == 0) {
@@ -153,6 +163,8 @@ public class AccountEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
 
         } while (rollbackTX && --txLimit > 0);
@@ -169,7 +181,22 @@ public class AccountEndpoint {
     @Path("/reset-password-message")
     public Response sendResetPasswordMessage(@NotBlank @Email @QueryParam("email") String email)
         throws AppBaseException {
-        accountManager.sendResetPasswordMessage(email);
+
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                accountManager.sendResetPasswordMessage(email);
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
         return Response.noContent().build();
     }
 
@@ -190,6 +217,8 @@ public class AccountEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
             }
         } while (rollBackTX && --txLimit > 0);
 
@@ -217,6 +246,8 @@ public class AccountEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
             }
         } while (rollBackTX && --txLimit > 0);
 
@@ -244,6 +275,8 @@ public class AccountEndpoint {
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --retryTXCounter > 0);
 
@@ -272,6 +305,8 @@ public class AccountEndpoint {
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --retryTXCounter > 0);
 
@@ -301,6 +336,8 @@ public class AccountEndpoint {
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --retryTXCounter > 0);
 
@@ -330,6 +367,8 @@ public class AccountEndpoint {
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --retryTXCounter > 0);
 
@@ -348,10 +387,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        OwnAccountDto dto;
+        OwnAccountDto dto = null;
         do {
-            dto = createOwnAccountDto(accountManager.getAccountDetails(login));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                dto = createOwnAccountDto(accountManager.getAccountDetails(login));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -369,10 +412,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        AccountDto dto;
+        AccountDto dto = null;
         do {
-            dto = createAccountDto(accountManager.getAccountDetails(id));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                dto = createAccountDto(accountManager.getAccountDetails(id));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -389,7 +436,20 @@ public class AccountEndpoint {
     public Response changeAccessLevel(@Valid @NotNull ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
         AccessType accessType = AccessType.valueOf(accessLevelDto.getAccessType());
 
-        accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
 
         return Response.ok(new AccessTypeDto(accessType)).build();
     }
@@ -410,6 +470,8 @@ public class AccountEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
             }
         } while (rollBackTX && --txLimit > 0);
 
@@ -426,10 +488,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<AccountDto> accounts;
+        List<AccountDto> accounts = new ArrayList<>();
         do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAllAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAllAccounts(active));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -446,10 +512,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<AccountDto> accounts;
+        List<AccountDto> accounts = new ArrayList<>();
         do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -465,10 +535,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<AccountDto> accounts;
+        List<AccountDto> accounts = new ArrayList<>();
         do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedOwnerAccounts());
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedOwnerAccounts());
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -485,10 +559,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<AccountDto> accounts;
+        List<AccountDto> accounts = new ArrayList<>();
         do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -504,10 +582,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<AccountDto> accounts;
+        List<AccountDto> accounts = new ArrayList<>();
         do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedManagerAccounts());
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedManagerAccounts());
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -524,10 +606,14 @@ public class AccountEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<AccountDto> accounts;
+        List<AccountDto> accounts = new ArrayList<>();
         do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -554,6 +640,8 @@ public class AccountEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
             }
         } while (rollBackTX && --txLimit > 0);
 
@@ -581,6 +669,8 @@ public class AccountEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
             }
         } while (rollBackTX && --txLimit > 0);
 
@@ -608,10 +698,14 @@ public class AccountEndpoint {
         boolean rollBackTX = false;
         OwnAccountDto ownAccountDto = null;
         do {
-            ownAccountDto = AccountDtoConverter.createOwnAccountDto(
-                accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
-                    login));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                ownAccountDto = AccountDtoConverter.createOwnAccountDto(
+                    accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
+                        login));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -637,13 +731,17 @@ public class AccountEndpoint {
         }
 
         Account account = createAccountFromEditDto(dto);
-        AccountDto accountDto;
+        AccountDto accountDto = null;
 
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         do {
-            accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
@@ -669,6 +767,8 @@ public class AccountEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
             }
         } while (rollBackTX && --txLimit > 0);
 

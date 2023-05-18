@@ -24,6 +24,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ConfirmLoginDTO;
@@ -92,6 +93,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 
@@ -128,6 +131,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 
@@ -159,6 +164,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 
@@ -189,6 +196,8 @@ public class AuthEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
             }
         } while (rollbackTX && --txLimit > 0);
 

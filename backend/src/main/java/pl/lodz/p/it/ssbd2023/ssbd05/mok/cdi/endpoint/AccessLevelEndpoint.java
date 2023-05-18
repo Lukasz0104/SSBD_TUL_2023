@@ -19,6 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
@@ -54,6 +55,8 @@ public class AccessLevelEndpoint {
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTx = true;
             }
         } while (rollbackTx && --txLimit > 0);
 
@@ -74,10 +77,14 @@ public class AccessLevelEndpoint {
         boolean rollbackTx = false;
 
         do {
-            accountManager.grantAccessLevel(
-                id, createManagerAccessLevelFromDto(dto),
-                securityContext.getUserPrincipal().getName());
-            rollbackTx = accountManager.isLastTransactionRollback();
+            try {
+                accountManager.grantAccessLevel(
+                    id, createManagerAccessLevelFromDto(dto),
+                    securityContext.getUserPrincipal().getName());
+                rollbackTx = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTx = true;
+            }
         } while (rollbackTx && --txLimit > 0);
 
         if (rollbackTx && txLimit == 0) {
@@ -96,10 +103,14 @@ public class AccessLevelEndpoint {
         boolean rollbackTx = false;
 
         do {
-            accountManager.grantAccessLevel(
-                id, createOwnerAccessLevelFromDto(dto),
-                securityContext.getUserPrincipal().getName());
-            rollbackTx = accountManager.isLastTransactionRollback();
+            try {
+                accountManager.grantAccessLevel(
+                    id, createOwnerAccessLevelFromDto(dto),
+                    securityContext.getUserPrincipal().getName());
+                rollbackTx = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTx = true;
+            }
         } while (rollbackTx && --txLimit > 0);
 
         if (rollbackTx && txLimit == 0) {
@@ -125,6 +136,8 @@ public class AccessLevelEndpoint {
                 if (txLimit < 2) {
                     throw e;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTx = true;
             }
         } while (rollbackTx && txLimit-- > 0);
 
@@ -151,6 +164,8 @@ public class AccessLevelEndpoint {
                 if (txLimit < 2) {
                     throw e;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTx = true;
             }
         } while (rollbackTx && txLimit-- > 0);
 
@@ -177,6 +192,8 @@ public class AccessLevelEndpoint {
                 if (txLimit < 2) {
                     throw e;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTx = true;
             }
         } while (rollbackTx && txLimit-- > 0);
 
