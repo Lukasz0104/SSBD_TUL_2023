@@ -19,7 +19,7 @@ public class GenericManagerExceptionsInterceptor {
         } catch (EJBAccessException | AccessLocalException ejbae) {
             throw new AppForbiddenException();
         } catch (Exception e) {
-            throw new AppInternalServerErrorException(e);
+            throw new AppInternalServerErrorException();
         }
     }
 }
