@@ -192,11 +192,11 @@ public class AccountEndpoint {
         boolean rollBackTX = false;
         do {
             try {
-        try {
-            accountManager.sendResetPasswordMessage(email);
-        } catch (AccountNotFoundException anfe) {
-            return Response.noContent().build();
-        }
+                try {
+                    accountManager.sendResetPasswordMessage(email);
+                } catch (AccountNotFoundException anfe) {
+                    return Response.noContent().build();
+                }
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
             }
