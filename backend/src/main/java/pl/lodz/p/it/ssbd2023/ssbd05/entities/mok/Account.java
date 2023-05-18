@@ -5,6 +5,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.EntityControlListenerMOK;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -94,6 +96,7 @@ import java.util.Set;
 })
 @Getter
 @Setter
+@EntityListeners({EntityControlListenerMOK.class})
 public class Account extends AbstractEntity implements Serializable {
 
     @Setter(lombok.AccessLevel.NONE)

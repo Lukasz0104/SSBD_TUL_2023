@@ -2,6 +2,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -72,6 +74,7 @@ import java.util.Set;
                   AND m.place.building.id = :buildingId""")
 })
 @NoArgsConstructor
+@EntityListeners({EntityControlListenerMOW.class})
 public class Meter extends AbstractEntity implements Serializable {
     @NotNull
     @ManyToOne(optional = false)

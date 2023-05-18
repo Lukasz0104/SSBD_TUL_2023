@@ -23,7 +23,7 @@ public class GenericFacadeExceptionsInterceptor {
         } catch (AppBaseException abe) {
             throw abe;
         } catch (Exception e) {
-            throw new AppInternalServerErrorException(e);
+            throw new AppInternalServerErrorException();
         }
     }
 }

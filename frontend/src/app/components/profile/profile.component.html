@@ -76,6 +76,50 @@
                                         [checked]="ownAccount.twoFactorAuth" />
                                 </div>
                             </div>
+                            <div class="col-md">
+                                <p>
+                                    <strong>{{
+                                        'component.account.created-at'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{
+                                        ownAccount.createdTime
+                                            | date : 'dd/MM/yy HH:mm:ss'
+                                    }}
+                                </p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.created-by'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>{{ ownAccount.createdBy }}</p>
+                            </div>
+                            <div
+                                *ngIf="ownAccount.updatedTime"
+                                class="col-md">
+                                <p>
+                                    <strong>{{
+                                        'component.account.updated-at'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{
+                                        ownAccount.updatedTime
+                                            | date : 'dd/MM/yy HH:mm:ss'
+                                    }}
+                                </p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.updated-by'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>{{ ownAccount.updatedBy }}</p>
+                            </div>
                         </div>
                     </ng-template>
                 </div>
@@ -142,6 +186,48 @@
                                         }}</strong>
                                     </p>
                                     <p>{{ accessLevel.licenseNumber }}</p>
+                                </span>
+                                <hr />
+                                <p>
+                                    <strong>{{
+                                        'component.account.created-at'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{
+                                        accessLevel.createdTime
+                                            | date : 'dd/MM/yy HH:mm:ss'
+                                    }}
+                                </p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.created-by'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>{{ accessLevel.createdBy }}</p>
+                                <span *ngIf="accessLevel.updatedTime">
+                                    <hr />
+                                    <p>
+                                        <strong>{{
+                                            'component.account.updated-at'
+                                                | translate
+                                        }}</strong>
+                                    </p>
+                                    <p>
+                                        {{
+                                            accessLevel.updatedTime
+                                                | date : 'dd/MM/yy HH:mm:ss'
+                                        }}
+                                    </p>
+                                    <p>
+                                        <strong>{{
+                                            'component.account.updated-by'
+                                                | translate
+                                        }}</strong>
+                                    </p>
+                                    <p>{{ accessLevel.updatedBy }}</p>
                                 </span>
                                 <hr
                                     class="d-block d-md-none border-top border-5 border-dark" />

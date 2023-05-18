@@ -2,6 +2,9 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -29,6 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Stateless
+@DenyAll
 public class EmailService {
 
     protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
@@ -64,6 +68,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void resetPasswordEmail(String to, String name, String link, String language) {
         this.sendMessageWithLink(
             to,
@@ -78,6 +83,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void sendConfirmRegistrationEmail(
         String receiverAddress, String name, String linkToAction, String language) {
         this.sendMessageWithLink(
@@ -94,6 +100,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public void changeEmailAddress(String receiverAddress, String name, String link, String language) {
         this.sendMessageWithLink(
             receiverAddress,
@@ -109,6 +116,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void notifyAboutAdminLogin(String receiverAddress, String name, String language,
                                       String ip, LocalDateTime timestamp) {
         DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
@@ -130,6 +138,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void notifyBlockedAccIncorrectLoginLimit(String receiver, String name, String lang) {
         this.sendMessageWithoutLink(
             receiver, name,
@@ -142,6 +151,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({"ADMIN"})
     public void forcePasswordChangeEmail(String receiver, String name, String language, String link) {
         this.sendMessageWithLink(receiver, name,
             I18n.getMessage(I18n.EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_MESSAGE, language),
@@ -167,6 +177,7 @@ public class EmailService {
      * @param title           Title.
      * @param greeting        Greeting.
      */
+    @PermitAll
     private void sendMessageWithLink(
         String receiverAddress, String name, String content, String signature,
         String action, String link, String subject, String title, String greeting) {
@@ -194,6 +205,7 @@ public class EmailService {
      * @param title           Title.
      * @param greeting        Greeting.
      */
+    @PermitAll
     private void sendMessageWithoutLink(
         String receiverAddress, String name, String content, String signature,
         String subject, String title, String greeting) {
@@ -215,6 +227,7 @@ public class EmailService {
      * @param subject         Subject of the message.
      * @param message         Message with filled in data.
      */
+    @PermitAll
     private void sendMimeMessage(String receiverAddress, String subject, String message) {
         try {
             InternetAddress[] addresses = {new InternetAddress(receiverAddress)};
@@ -233,6 +246,7 @@ public class EmailService {
      * @param templateName Name of the template.
      * @return Content of the template.
      */
+    @PermitAll
     private String loadTemplate(String templateName) {
         StringBuilder builder = new StringBuilder();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("templates/" + templateName);
@@ -248,6 +262,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({"MANAGER", "ADMIN"})
     public void changeActiveStatusEmail(String to, String name, String language, boolean status) {
 
         if (!status) {
@@ -307,6 +322,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public void notifyAboutNewAccessLevel(String receiver, String name, String language, AccessType accessType) {
         String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
         String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_MESSAGE, language)
@@ -322,6 +338,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({"ADMIN", "MANAGER"})
     public void notifyAboutRevokedAccessLevel(String receiver, String name, String language, AccessType accessType) {
         String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
         String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_MESSAGE, language)
@@ -336,6 +353,7 @@ public class EmailService {
         );
     }
 
+    @PermitAll
     public void twoFactorAuthEmail(String receiver, String name, String language, String code) {
         this.sendMessageWithoutLink(receiver, name,
             I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_MESSAGE, language)

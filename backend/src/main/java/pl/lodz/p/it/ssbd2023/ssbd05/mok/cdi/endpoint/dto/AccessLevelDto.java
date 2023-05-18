@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.json.bind.annotation.JsonbSubtype;
@@ -9,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,4 +40,27 @@ public abstract class AccessLevelDto {
 
     @NotNull
     private boolean active;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private LocalDateTime createdTime;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private String createdBy;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private LocalDateTime updatedTime;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private String updatedBy;
+
+    public AccessLevelDto(Long id, Long version, boolean verified, boolean active) {
+        this.id = id;
+        this.version = version;
+        this.verified = verified;
+        this.active = active;
+    }
 }

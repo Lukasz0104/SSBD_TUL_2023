@@ -106,6 +106,10 @@
       "edit-account": "Edytuj konto"
     },
     "account": {
+      "created-at": "Czas utworzenia",
+      "created-by": "Utworzony przez",
+      "updated-at": "Ostatnia modyfikacja",
+      "updated-by": "Ostatnio zmodyfikowany przez",
       "language": "Język",
       "verified": "Zweryfikowany",
       "personal-data": "Dane personalne",

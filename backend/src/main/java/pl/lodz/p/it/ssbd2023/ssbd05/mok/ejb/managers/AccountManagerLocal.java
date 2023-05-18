@@ -42,17 +42,17 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void overrideForcedPassword(String password, String token) throws AppBaseException;
 
-    List<Account> getAllAccounts(boolean active);
+    List<Account> getAllAccounts(boolean active) throws AppBaseException;
 
-    List<Account> getOwnerAccounts(boolean active);
+    List<Account> getOwnerAccounts(boolean active) throws AppBaseException;
 
-    List<Account> getManagerAccounts(boolean active);
+    List<Account> getManagerAccounts(boolean active) throws AppBaseException;
 
-    List<Account> getAdminAccounts(boolean active);
+    List<Account> getAdminAccounts(boolean active) throws AppBaseException;
 
-    List<Account> getUnapprovedOwnerAccounts();
+    List<Account> getUnapprovedOwnerAccounts() throws AppBaseException;
 
-    List<Account> getUnapprovedManagerAccounts();
+    List<Account> getUnapprovedManagerAccounts() throws AppBaseException;
 
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 

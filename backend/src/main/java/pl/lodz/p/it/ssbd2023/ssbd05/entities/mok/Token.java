@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
@@ -17,6 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.EntityControlListenerMOK;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -82,6 +84,7 @@ import java.util.UUID;
         name = "Token.findByTokenTypeAndAccountId",
         query = "SELECT t FROM Token t WHERE t.tokenType = :tokenType AND t.account.id = :accountId")
 })
+@EntityListeners({EntityControlListenerMOK.class})
 public class Token extends AbstractEntity {
 
     @NotNull

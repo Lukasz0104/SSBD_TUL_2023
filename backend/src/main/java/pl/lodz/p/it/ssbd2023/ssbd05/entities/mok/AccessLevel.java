@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Inheritance;
@@ -21,6 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.EntityControlListenerMOK;
 
 import java.io.Serializable;
 
@@ -52,6 +54,7 @@ import java.io.Serializable;
             SELECT al FROM AccessLevel al
             WHERE al.active = TRUE AND al.account.id = :accountId"""),
 })
+@EntityListeners({EntityControlListenerMOK.class})
 public abstract class AccessLevel extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
