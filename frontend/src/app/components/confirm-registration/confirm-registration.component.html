@@ -5,7 +5,7 @@
                 <div class="rounded-5 shadow-lg p-4 p-sm-5 glass">
                     <ng-container *ngIf="!loading; else loadingBlock">
                         <ng-container *ngIf="success; else fail">
-                            <h2 class="fw-bold mb-4">
+                            <h2 class="fw-bold mb-4 text-body-emphasis">
                                 {{
                                     'form.confirm-registration.confirmation'
                                         | translate
@@ -35,7 +35,7 @@
                             </div>
                         </ng-container>
                         <ng-template #fail>
-                            <h2 class="fw-bold mb-4">
+                            <h2 class="fw-bold mb-4 text-body-emphasis">
                                 {{
                                     'form.confirm-registration.fail' | translate
                                 }}

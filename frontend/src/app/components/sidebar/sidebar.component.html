@@ -1,13 +1,14 @@
 <div
-    class="d-flex flex-column flex-shrink-0 sidebar p-3 bg-light border fixed-top sticky-sm-top"
+    class="d-flex flex-column flex-shrink-0 sidebar p-3 bg-light-subtle border fixed-top sticky-sm-top"
     [ngClass]="{ 'd-none': hidden }"
     style="width: 280px">
-    <div class="d-flex align-items-center link-dark text-decoration-none">
+    <div class="d-flex align-items-center text-decoration-none">
         <a
             routerLink="/"
-            class="w-100 text-center fs-3 nav-link"
-            ><i class="bi bi-buildings"></i> eBok</a
-        >
+            class="w-100 text-center fs-3 nav-link link-body-emphasis">
+            <i class="bi bi-buildings"></i>
+            eBok
+        </a>
         <button
             class="btn fs-2"
             style="border-radius: 0 0 10px 0"
@@ -25,9 +26,9 @@
         <li class="nav-item">
             <a
                 routerLink="/dashboard"
-                class="nav-link link-dark"
+                class="nav-link link-body-emphasis"
                 aria-current="page"
-                routerLinkActive="active link-light"
+                routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }">
                 <i class="bi bi-buildings"></i>
                 {{ 'nav.dashboard' | translate }}
@@ -37,8 +38,8 @@
             <a
                 routerLink="accounts"
                 href="#"
-                class="nav-link link-dark"
-                routerLinkActive="active link-light"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }">
                 <i class="bi bi-people"></i> {{ 'nav.accounts' | translate }}
             </a>
@@ -47,7 +48,7 @@
     <hr />
     <div class="d-flex justify-content-center">
         <a
-            class="d-flex align-items-center link-dark text-decoration-none"
+            class="d-flex align-items-center text-decoration-none link-body-emphasis"
             routerLink="/dashboard/profile">
             <i class="fs-2 bi bi-person"></i>
             <strong class="px-2 text-center"
@@ -92,23 +93,23 @@
     </button>
     <span class="nav-pills">
         <button
-            class="nav-link link-dark mx-auto p-2 m-2"
-            routerLinkActive="active link-light"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard">
             <i class="bi bi-buildings fs-2"></i>
         </button>
         <button
             *ngIf="authService.isAdmin() || authService.isManager()"
-            class="nav-link link-dark mx-auto p-2 m-2"
-            routerLinkActive="active link-light"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="accounts">
             <i class="bi bi-people fs-2"></i>
         </button>
         <button
-            class="nav-link link-dark mx-auto p-2 m-2"
-            routerLinkActive="active link-light"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard/profile">
             <i class="bi bi-person fs-2"></i>
