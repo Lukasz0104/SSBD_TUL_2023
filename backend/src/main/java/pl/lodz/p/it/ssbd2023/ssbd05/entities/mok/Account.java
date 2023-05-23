@@ -167,6 +167,11 @@ public class Account extends AbstractEntity implements Serializable {
     @Basic(optional = false)
     private boolean twoFactorAuth = false;
 
+    @NotNull
+    @Column(name = "light_theme_preferred", nullable = false)
+    @Basic(optional = false)
+    private boolean lightThemePreferred = true;
+
     @Embedded
     private ActivityTracker activityTracker = new ActivityTracker();
 
