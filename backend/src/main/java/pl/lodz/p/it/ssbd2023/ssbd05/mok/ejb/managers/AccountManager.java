@@ -231,7 +231,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
         tokenFacade.removeTokensByAccountIdAndTokenType(account.getId(), TokenType.PASSWORD_RESET_TOKEN);
-        account.setPassword(hashGenerator.generate(password.toCharArray()));
+        setAccountPassword(account, password.toCharArray());
         accountFacade.edit(account);
     }
 
@@ -244,13 +244,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         // check if old password is correct
         if (!hashGenerator.verify(oldPass.toCharArray(), account.getPassword())) {
             throw new InvalidPasswordException();
-        } else if (hashGenerator.verify(newPass.toCharArray(), account.getPassword())) {
-            // check if new password is same as old password
-            // TODO: zmienić na sprawdzanie histori haseł jak będziemy robić to rozszerzenie
-            throw new RepeatedPasswordException();
         }
 
-        account.setPassword(hashGenerator.generate(newPass.toCharArray()));
+        setAccountPassword(account, newPass.toCharArray());
         accountFacade.edit(account);
     }
 
@@ -543,7 +539,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         byte[] array = new byte[28];
         new Random().nextBytes(array);
-        account.setPassword(hashGenerator.generate(new String(array, StandardCharsets.UTF_8).toCharArray()));
+        setAccountPassword(account, new String(array, StandardCharsets.UTF_8).toCharArray());
         account.setActive(false);
         accountFacade.edit(account);
 
@@ -563,8 +559,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         overridePasswordChangeToken.validateSelf();
 
         Account account = overridePasswordChangeToken.getAccount();
+        setAccountPassword(account, password.toCharArray());
         tokenFacade.removeTokensByAccountIdAndTokenType(account.getId(), TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
-        account.setPassword(hashGenerator.generate(password.toCharArray()));
         account.setActive(true);
         accountFacade.edit(account);
     }
@@ -615,5 +611,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 cityDictFacade.create(new CityDict(managerData.getAddress().getCity()));
             }
         }
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    private void setAccountPassword(Account account, char[] newPasswd) throws RepeatedPasswordException {
+        if (account.getPastPasswords().stream().anyMatch((oldPass) -> hashGenerator.verify(newPasswd, oldPass))) {
+            throw new RepeatedPasswordException();
+        }
+
+        account.getPastPasswords().add(account.getPassword());
+        account.setPassword(hashGenerator.generate(newPasswd));
     }
 }

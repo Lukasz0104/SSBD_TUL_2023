@@ -6,6 +6,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE manager_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE owner_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE token TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE ON TABLE city_dict TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE past_passwords TO ssbd05mok;
 
 CREATE VIEW auth_view AS SELECT login, password, level FROM account a, access_level al WHERE (a.id = al.account_id) AND a.active = TRUE AND a.verified = TRUE AND al.active = TRUE AND al.verified = TRUE;
 

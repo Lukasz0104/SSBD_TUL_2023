@@ -72,7 +72,9 @@ export class ForcePasswordChangeOverrideComponent {
                 password: this.resetPasswordForm.getRawValue().password,
                 token: this.token
             };
-            this.accountService.overrideForcePasswordChange(resetPasswordDTO);
+            this.accountService
+                .overrideForcePasswordChange(resetPasswordDTO)
+                .subscribe((result) => (this.loading = result ?? false));
         }
     }
 }

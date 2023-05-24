@@ -301,7 +301,8 @@
         "expired_token": "Link has expired",
         "inactive_account": "Account has been blocked",
         "rollback.limit.exceeded": "Request timed out",
-        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again"
+        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again",
+        "repeated_password": "New password cannot be the same as old password"
       }
     }
   },

@@ -2,13 +2,16 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -232,6 +235,12 @@ public class Account extends AbstractEntity implements Serializable {
     @Basic(optional = false)
     @Column(name = "password", nullable = false)
     private String password;
+
+    @NotNull
+    @Column(name = "old_password")
+    @ElementCollection(targetClass = String.class)
+    @CollectionTable(name = "past_passwords", joinColumns = @JoinColumn(name = "account_id"))
+    private Set<String> pastPasswords = new HashSet<>();
 
     @NotNull
     @Basic(optional = false)
