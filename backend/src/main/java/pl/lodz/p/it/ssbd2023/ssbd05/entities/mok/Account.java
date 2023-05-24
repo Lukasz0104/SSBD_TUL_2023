@@ -199,7 +199,14 @@ import java.util.Set;
                     LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
                 )"""),
     @NamedQuery(name = "Account.findAccountsLoginsByLoginLike",
-        query = "SELECT a.login FROM Account a WHERE LOWER(a.login) LIKE CONCAT('%' ,LOWER(:login), '%')")
+        query = "SELECT a.login FROM Account a WHERE LOWER(a.login) LIKE CONCAT('%' ,LOWER(:login), '%')"),
+    @NamedQuery(
+        name = "Account.findAccountsWithoutRecentActivity",
+        query = """
+            SELECT a FROM Account a
+            WHERE a.active = true
+                  AND a.verified = true
+                  AND a.activityTracker.lastSuccessfulLogin < :lastSuccessfulLogin""")
 })
 @Getter
 @Setter

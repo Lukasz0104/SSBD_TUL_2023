@@ -21,6 +21,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,6 +66,7 @@ public class AccountFacade extends AbstractFacade<Account> {
     }
 
     @Override
+    @PermitAll
     public void remove(Account entity) throws AppBaseException {
         super.remove(entity);
     }
@@ -206,5 +208,12 @@ public class AccountFacade extends AbstractFacade<Account> {
         tq.setParameter("login", login);
         tq.setMaxResults(10);
         return tq.getResultList();
+    }
+
+    @PermitAll
+    public List<Account> findAccountsWithoutRecentActivity(LocalDateTime lastSuccessfulLoginBefore) {
+        return em.createNamedQuery("Account.findAccountsWithoutRecentActivity", Account.class)
+            .setParameter("lastSuccessfulLogin", lastSuccessfulLoginBefore)
+            .getResultList();
     }
 }

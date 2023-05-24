@@ -81,4 +81,8 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException;
 
     void changeTwoFactorAuthStatus(String login, Boolean status) throws AppBaseException;
+
+    void lockInactiveAccountsWithoutRecentLogins() throws AppBaseException;
+
+    void unlockOwnAccount(String token) throws AppBaseException;
 }

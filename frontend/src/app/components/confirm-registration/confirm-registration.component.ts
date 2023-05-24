@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { of, switchMap } from 'rxjs';
 import { AccountService } from '../../services/account.service';
 
 @Component({
@@ -22,7 +22,10 @@ export class ConfirmRegistrationComponent implements OnInit {
             .pipe(
                 switchMap((p) => {
                     const token = p['token'];
-                    return this.accountService.confirmRegistration(token);
+                    if (token) {
+                        return this.accountService.confirmRegistration(token);
+                    }
+                    return of('response.message.no-token');
                 })
             )
             .subscribe((response) => {

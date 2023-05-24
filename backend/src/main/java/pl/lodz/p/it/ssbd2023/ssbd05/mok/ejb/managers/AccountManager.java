@@ -119,7 +119,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setVerified(true);
 
         accountFacade.edit(account);
-        saveAddresses(account.getAccessLevels()); //here changes
+        saveAddresses(account.getAccessLevels()); // here changes
         tokenFacade.remove(token);
     }
 
@@ -347,6 +347,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    @PermitAll
     public void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException {
         List<Token> unverifiedTokens =
             tokenFacade.findByTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
@@ -363,6 +364,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    @PermitAll
     public void deleteExpiredTokens(LocalDateTime now) throws AppBaseException {
         List<Token> expiredTokens = tokenFacade
             .findByNotTokenTypeAndExpiresAtBefore(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
@@ -381,6 +383,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    @PermitAll
     public void remindToConfirmRegistration(LocalDateTime now) {
         List<Token> unverifiedTokens =
             tokenFacade.findByTokenTypeAndExpiresAtAfter(TokenType.CONFIRM_REGISTRATION_TOKEN, now);
@@ -463,7 +466,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setLastName(newData.getLastName());
         editAccessLevels(account.getAccessLevels(), newData);
         accountFacade.edit(account);
-        saveAddresses(account.getAccessLevels()); //here changes
+        saveAddresses(account.getAccessLevels()); // here changes
         return account;
     }
 
@@ -521,7 +524,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         editAccessLevels(accountOrig.getAccessLevels(), newData);
         accountFacade.edit(accountOrig);
-        saveAddresses(accountOrig.getAccessLevels()); //here changes
+        saveAddresses(accountOrig.getAccessLevels()); // here changes
         return accountOrig;
     }
 
@@ -600,6 +603,52 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
         account.setTwoFactorAuth(status);
         accountFacade.edit(account);
+    }
+
+    @Override
+    @PermitAll
+    public void lockInactiveAccountsWithoutRecentLogins() throws AppBaseException {
+        int days = appProperties.getMaxDaysWithoutLogin();
+        LocalDateTime lastLoginBefore = LocalDateTime.now().minusDays(days);
+        List<Account> accountsWithoutRecentLogin = accountFacade.findAccountsWithoutRecentActivity(lastLoginBefore);
+
+        for (Account acc : accountsWithoutRecentLogin) {
+            try {
+                Token unlockToken = new Token(acc, TokenType.UNLOCK_ACCOUNT_SELF_TOKEN);
+                tokenFacade.create(unlockToken);
+
+                acc.setActive(false);
+                accountFacade.edit(acc);
+
+                String link = appProperties.getFrontendUrl() + "/"
+                    + appProperties.getFrontendUnlockAccountUrl()
+                    + "?token=" + unlockToken.getToken();
+
+                emailService.notifyAboutAccountLockedDueToLackOfRecentLogins(
+                    acc.getEmail(), acc.getFullName(), link, acc.getLanguage().toString(), days);
+            } catch (AppBaseException abe) {
+                LOGGER.severe(
+                    "Failed to lock account with login=" + acc.getLogin()
+                        + "after lack of activity due to following reason: " + abe);
+            }
+        }
+    }
+
+    @Override
+    @PermitAll
+    public void unlockOwnAccount(String token) throws AppBaseException {
+        Token unlockToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
+
+        unlockToken.validateSelf(TokenType.UNLOCK_ACCOUNT_SELF_TOKEN);
+
+        Account account = unlockToken.getAccount();
+        account.setActive(true);
+
+        accountFacade.edit(account);
+        tokenFacade.remove(unlockToken);
+
+        emailService.changeActiveStatusEmail(
+            account.getEmail(), account.getFullName(), account.getLanguage().toString(), true);
     }
 
     @PermitAll

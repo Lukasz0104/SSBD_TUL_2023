@@ -80,4 +80,12 @@ public class AppProperties {
     @Inject
     @ConfigProperty(name = "security.recaptcha.secret")
     private String recaptchaSecret;
+
+    @Inject
+    @ConfigProperty(name = "account.maxDaysWithoutLogin", defaultValue = "30")
+    private int maxDaysWithoutLogin;
+
+    @Inject
+    @ConfigProperty(name = "frontend.url.unlock-account")
+    private String frontendUnlockAccountUrl;
 }

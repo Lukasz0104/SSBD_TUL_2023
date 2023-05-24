@@ -117,6 +117,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         return tq.getResultList();
     }
 
+    @PermitAll
     public List<Token> findByTokenTypeAndExpiresAtAfter(TokenType tokenType, LocalDateTime expiresAt) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenTypeAndExpiresAtAfter", Token.class);
         tq.setParameter("tokenType", tokenType);
@@ -124,6 +125,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         return tq.getResultList();
     }
 
+    @PermitAll
     public List<Token> findByTokenTypeAndExpiresAtBefore(TokenType tokenType, LocalDateTime expiresAt) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenTypeAndExpiresAtBefore", Token.class);
         tq.setParameter("tokenType", tokenType);
@@ -131,6 +133,7 @@ public class TokenFacade extends AbstractFacade<Token> {
         return tq.getResultList();
     }
 
+    @PermitAll
     public List<Token> findByNotTokenTypeAndExpiresAtBefore(TokenType tokenType, LocalDateTime expiresAt) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByNotTokenTypeAndExpiresAtBefore", Token.class);
         tq.setParameter("tokenType", tokenType);

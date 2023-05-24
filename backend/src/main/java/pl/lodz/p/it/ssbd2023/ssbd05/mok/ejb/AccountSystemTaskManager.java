@@ -49,4 +49,13 @@ public class AccountSystemTaskManager {
             LOGGER.log(Level.SEVERE, "Exception while deleting expired tokens: ", e);
         }
     }
+
+    @Schedule
+    private void lockAccountsAfterInactivity() {
+        try {
+            accountManager.lockInactiveAccountsWithoutRecentLogins();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Exception while locking inactive accounts: ", e);
+        }
+    }
 }

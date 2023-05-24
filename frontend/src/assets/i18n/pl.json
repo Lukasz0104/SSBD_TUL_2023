@@ -132,7 +132,7 @@
       "go-to": "Przejdź do",
       "go-to-where": "Strony głównej",
       "confirmation": "Rejestracja potwierdzona",
-      "message": "Teraz twoje dane muszą zostać zweryfikowane. Otzymasz informację o pomyślnej weryfikacji na podany adres email."
+      "message": "Teraz twoje dane muszą zostać zweryfikowane. Otrzymasz informację o pomyślnej weryfikacji na podany adres email."
     },
     "change-email-confirm": {
       "title": "Potwierdź email",
@@ -288,7 +288,8 @@
       "grant-access-level": "Pomyślnie nadano poziom dostępu",
       "revoke-access-level": "Operacja zakończona sukcesem",
       "grant-access-level-fail": "Błąd podczas nadawania wybranego poziomu dostępu",
-      "revoke-access-level-fail": "Operacja zakończona niepowodzeniem"
+      "revoke-access-level-fail": "Operacja zakończona niepowodzeniem",
+      "unlock-account-fail": "Nie udało się odblokować konta."
     },
     "guard": {
       "access-denied": "Odmowa dostępu"
@@ -342,7 +343,7 @@
     "response": {
       "message": {
         "authentication_exception": "Logowanie nie powiodło się",
-        "token_not_found": "Podano błedny kod",
+        "token_not_found": "Podano błędny kod",
         "expired_token": "Kod wygasł, zaloguj się ponownie",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Logowanie nie powiodło się, spróbuj ponownie"
@@ -367,7 +368,8 @@
         "token_not_found": "Link został już wykorzystany",
         "expired_token": "Link wygasł",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
-        "optimistic_lock": "Nie udało się potwierdzić rejestracji"
+        "optimistic_lock": "Nie udało się potwierdzić rejestracji",
+        "no-token": "Brak unikalnego kodu do potwierdzenia rejestracji."
       }
     }
   },
@@ -441,6 +443,22 @@
         "access-management-self": "Nie można nadać poziomu dostępu własnemu kontu",
         "account_not_found": "To konto nie zostało znalezione",
         "license-number-already-taken": "Ten numer licencji jest już zajęty"
+      }
+    }
+  },
+  "unlock-account": {
+    "confirmation": "Konto zostało odblokowane",
+    "message": "Twoje konto zostało odblokowane. Teraz ponownie możesz się zalogować.",
+    "go-to": "Przejdź do",
+    "go-to-where": "Strony logowania",
+    "fail": "Nie udało się odblokować konta",
+    "action": "Trwa odblokowywanie twojego konta.",
+    "loading": "Ładowanie ...",
+    "response": {
+      "message": {
+        "no-token": "Brak unikalnego kodu.",
+        "token_not_found": "Podano błędny kod",
+        "invalid_token_type": "Podano błędny kod"
       }
     }
   }

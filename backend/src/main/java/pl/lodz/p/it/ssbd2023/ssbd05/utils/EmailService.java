@@ -262,7 +262,7 @@ public class EmailService {
     }
 
     @Asynchronous
-    @RolesAllowed({"MANAGER", "ADMIN"})
+    @PermitAll
     public void changeActiveStatusEmail(String to, String name, String language, boolean status) {
 
         if (!status) {
@@ -308,6 +308,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void sendConfirmRegistrationFailEmail(
         String receiverAddress, String name, String language) {
         this.sendMessageWithoutLink(
@@ -361,6 +362,31 @@ public class EmailService {
             I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
+    /**
+     * Send message to given user to notify that their account was locked due to lack of successful logins.
+     *
+     * @param receiver Email address of the receiver
+     * @param name     Full name of the receiver
+     * @param link     Link with token to unlock account
+     * @param language User's preferred language.
+     * @param days     Number of days without login required to lock account
+     */
+    @PermitAll
+    @Asynchronous
+    public void notifyAboutAccountLockedDueToLackOfRecentLogins(
+        String receiver, String name, String link, String language, int days) {
+        this.sendMessageWithLink(receiver, name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_MESSAGE, language)
+                .replace("$DAYS", String.valueOf(days)),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_ACTION, language),
+            link,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_TITLE, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
         );
     }
