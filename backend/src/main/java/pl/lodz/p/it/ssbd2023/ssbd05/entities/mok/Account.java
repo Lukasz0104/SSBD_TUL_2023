@@ -66,6 +66,9 @@ import java.util.Set;
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
                 )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
             ORDER BY a.login ASC"""),
     @NamedQuery(
         name = "Account.findAllAccountsByActiveDesc",
@@ -75,6 +78,9 @@ import java.util.Set;
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
                 ) 
             ORDER BY a.login DESC"""),
     @NamedQuery(
@@ -85,6 +91,9 @@ import java.util.Set;
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
                 )"""),
     @NamedQuery(
         name = "Account.findAllAccountsByActiveAndAccessLevelAsc",
@@ -98,6 +107,9 @@ import java.util.Set;
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
                 )
                 ORDER BY a.login ASC"""),
     @NamedQuery(
@@ -113,6 +125,9 @@ import java.util.Set;
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
                 )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
                 ORDER BY a.login DESC"""),
     @NamedQuery(
         name = "Account.countAllAccountsByActiveAndAccessLevel",
@@ -126,6 +141,9 @@ import java.util.Set;
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
                 )"""),
     @NamedQuery(
         name = "Account.findAccountsThatNeedApprovalByAccessLevelAsc",
@@ -139,6 +157,9 @@ import java.util.Set;
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
                 )
                 ORDER BY a.login ASC"""),
     @NamedQuery(
@@ -154,6 +175,9 @@ import java.util.Set;
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
                 )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
                 ORDER BY a.login DESC"""),
     @NamedQuery(
         name = "Account.countAccountsThatNeedApprovalByAccessLevel",
@@ -167,7 +191,12 @@ import java.util.Set;
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
-                )""")
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )"""),
+    @NamedQuery(name = "Account.findAccountsLoginsByLoginLike",
+        query = "SELECT a.login FROM Account a WHERE LOWER(a.login) LIKE CONCAT('%' ,LOWER(:login), '%')")
 })
 @Getter
 @Setter

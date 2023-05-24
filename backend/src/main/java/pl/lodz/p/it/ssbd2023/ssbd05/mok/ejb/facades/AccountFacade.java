@@ -105,7 +105,8 @@ public class AccountFacade extends AbstractFacade<Account> {
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Page<Account> findByActive(boolean active, int page, int pageSize, boolean asc, String phrase) {
+    public Page<Account> findByActive(boolean active, int page, int pageSize, boolean asc, String phrase,
+                                      String login) {
         TypedQuery<Account> tq;
         if (asc) {
             tq = em.createNamedQuery("Account.findAllAccountsByActiveAsc", Account.class);
@@ -114,27 +115,29 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
         tq.setParameter("active", active);
         tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
 
         tq.setFirstResult(page * pageSize);
         tq.setMaxResults(pageSize);
 
-        Long count = countByActive(active, phrase);
+        Long count = countByActive(active, phrase, login);
 
         return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Long countByActive(boolean active, String phrase) {
+    public Long countByActive(boolean active, String phrase, String login) {
         TypedQuery<Long> tq;
         tq = em.createNamedQuery("Account.countAllAccountsByActive", Long.class);
         tq.setParameter("active", active);
         tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
         return tq.getSingleResult();
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
     public Page<Account> findByActiveAccessLevel(AccessType accessType, boolean active, int page, int pageSize,
-                                                 boolean asc, String phrase) {
+                                                 boolean asc, String phrase, String login) {
         TypedQuery<Account> tq;
         if (asc) {
             tq = em.createNamedQuery("Account.findAllAccountsByActiveAndAccessLevelAsc", Account.class);
@@ -144,28 +147,30 @@ public class AccountFacade extends AbstractFacade<Account> {
         tq.setParameter("active", active);
         tq.setParameter("phrase", phrase);
         tq.setParameter("level", accessType);
+        tq.setParameter("login", login);
 
         tq.setFirstResult(page * pageSize);
         tq.setMaxResults(pageSize);
 
-        Long count = countByActiveAccessLevel(active, accessType, phrase);
+        Long count = countByActiveAccessLevel(active, accessType, phrase, login);
 
         return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Long countByActiveAccessLevel(boolean active, AccessType accessType, String phrase) {
+    public Long countByActiveAccessLevel(boolean active, AccessType accessType, String phrase, String login) {
         TypedQuery<Long> tq;
         tq = em.createNamedQuery("Account.countAllAccountsByActiveAndAccessLevel", Long.class);
         tq.setParameter("active", active);
         tq.setParameter("phrase", phrase);
         tq.setParameter("level", accessType);
+        tq.setParameter("login", login);
         return tq.getSingleResult();
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
     public Page<Account> findAccountsThatNeedApprovalByAccessLevel(AccessType accessType, int page, int pageSize,
-                                                                   boolean asc, String phrase) {
+                                                                   boolean asc, String phrase, String login) {
         TypedQuery<Account> tq;
         if (asc) {
             tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevelAsc", Account.class);
@@ -174,21 +179,32 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
         tq.setParameter("level", accessType);
         tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
 
         tq.setFirstResult(page * pageSize);
         tq.setMaxResults(pageSize);
 
-        Long count = countAccountsThatNeedApprovalByAccessLevel(accessType, phrase);
+        Long count = countAccountsThatNeedApprovalByAccessLevel(accessType, phrase, login);
 
         return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Long countAccountsThatNeedApprovalByAccessLevel(AccessType accessType, String phrase) {
+    public Long countAccountsThatNeedApprovalByAccessLevel(AccessType accessType, String phrase, String login) {
         TypedQuery<Long> tq =
             em.createNamedQuery("Account.countAccountsThatNeedApprovalByAccessLevel", Long.class);
         tq.setParameter("level", accessType);
         tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
         return tq.getSingleResult();
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public List<String> findAccountsLoginsByLoginLike(String login) {
+        TypedQuery<String> tq =
+            em.createNamedQuery("Account.findAccountsLoginsByLoginLike", String.class);
+        tq.setParameter("login", login);
+        tq.setMaxResults(10);
+        return tq.getResultList();
     }
 }
