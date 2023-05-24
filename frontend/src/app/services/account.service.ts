@@ -22,7 +22,7 @@ import {
 } from '../model/registration.dto';
 import { AccountPage } from '../model/account-page';
 
-type RegisterResponse = { message: ResponseMessage };
+type MessageResponse = { message: ResponseMessage };
 
 @Injectable({
     providedIn: 'root'
@@ -153,7 +153,7 @@ export class AccountService {
         const isManagerDto = 'licenseNumber' in dto && !!dto.licenseNumber;
 
         return this.http
-            .post<RegisterResponse | null>(
+            .post<MessageResponse | null>(
                 `${this.accountsUrl}/register/${
                     isManagerDto ? 'manager' : 'owner'
                 }`,
@@ -172,9 +172,9 @@ export class AccountService {
             );
     }
 
-    confirmRegistration(token: string): Observable<ResponseMessage | null> {
+    confirmRegistration(token: string): Observable<string | null> {
         return this.http
-            .post<RegisterResponse | null>(
+            .post<MessageResponse | null>(
                 `${this.accountsUrl}/confirm-registration`,
                 null,
                 {
@@ -541,9 +541,26 @@ export class AccountService {
                 .subscribe();
         }
     }
+
     getCitiesByPattern(cityPattern: string) {
         return this.http.get<readonly string[]>(
             `${this.cityDictUrl}/city?pattern=${cityPattern}`
         );
+    }
+
+    unlockAccount(token: string): Observable<string> {
+        return this.http
+            .post<MessageResponse>(`${this.accountsUrl}/unlock-account`, null, {
+                params: { token }
+            })
+            .pipe(
+                map((res) => res?.message ?? null),
+                catchError((e: HttpErrorResponse) => {
+                    this.toastService.showDanger(
+                        'toast.account.unlock-account-fail'
+                    );
+                    return of(e.error.message);
+                })
+            );
     }
 }

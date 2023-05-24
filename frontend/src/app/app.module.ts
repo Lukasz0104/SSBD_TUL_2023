@@ -53,6 +53,7 @@ import { CodeInputModule } from 'angular-code-input';
 import { GuestNavbarComponent } from './components/guest-navbar/guest-navbar.component';
 import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
 import { ThemeSwitchComponent } from './components/theme-switch/theme-switch.component';
+import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
 
 @NgModule({
     declarations: [
@@ -89,7 +90,8 @@ import { ThemeSwitchComponent } from './components/theme-switch/theme-switch.com
         RecaptchaComponent,
         ActiveAccessLevelsPipe,
         GuestNavbarComponent,
-        ThemeSwitchComponent
+        ThemeSwitchComponent,
+        UnlockAccountComponent
     ],
     imports: [
         BrowserModule,

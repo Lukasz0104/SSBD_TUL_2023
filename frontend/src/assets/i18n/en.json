@@ -287,7 +287,8 @@
       "grant-access-level": "Access level granted successfully",
       "revoke-access-level": "Action successful",
       "grant-access-level-fail": "Could not grant chosen access level",
-      "revoke-access-level-fail": "Action failure"
+      "revoke-access-level-fail": "Action failure",
+      "unlock-account-fail": "Could not unlock your account."
     },
     "guard": {
       "access-denied": "Access denied"
@@ -364,7 +365,8 @@
         "token_not_found": "Link was used",
         "expired_token": "Link has expired",
         "rollback.limit.exceeded": "Request timmed out",
-        "optimistic_lock": "Register confirmation failed"
+        "optimistic_lock": "Register confirmation failed",
+        "no-token": "Token for confirming registration was not provided."
       }
     }
   },
@@ -438,6 +440,21 @@
         "access-management-self": "Cannot grant access level to your own account",
         "account_not_found": "This account could not be found",
         "license-number-already-taken": "License number already taken"
+      }
+    }
+  },
+  "unlock-account": {
+    "confirmation": "Account unlocked",
+    "message": "Your account was unlocked. Now you can login again.",
+    "go-to": "Go to",
+    "go-to-where": "Login page",
+    "fail": "Failed to unlock account",
+    "action": "Unlocking your account",
+    "loading": "Loading...",
+    "response": {
+      "message": {
+        "no-token": "Token not provided",
+        "token_not_found": "Invalid token"
       }
     }
   }

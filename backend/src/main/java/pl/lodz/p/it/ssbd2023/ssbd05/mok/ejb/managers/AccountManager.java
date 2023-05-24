@@ -605,7 +605,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         for (Account acc : accountsWithoutRecentLogin) {
             try {
-                // TODO powtarzanie transakcji?
                 Token unlockToken = new Token(acc, TokenType.UNLOCK_ACCOUNT_SELF_TOKEN);
                 tokenFacade.create(unlockToken);
 
@@ -613,15 +612,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
                 accountFacade.edit(acc);
 
                 String link = appProperties.getFrontendUrl() + "/"
-                              + appProperties.getFrontendUnlockAccountUrl()
-                              + "?token=" + unlockToken.getToken();
+                    + appProperties.getFrontendUnlockAccountUrl()
+                    + "?token=" + unlockToken.getToken();
 
                 emailService.notifyAboutAccountLockedDueToLackOfRecentLogins(
                     acc.getEmail(), acc.getFullName(), link, acc.getLanguage().toString(), days);
             } catch (AppBaseException abe) {
                 LOGGER.severe(
                     "Failed to lock account with login=" + acc.getLogin()
-                    + "after lack of activity due to following reason: " + abe);
+                        + "after lack of activity due to following reason: " + abe);
             }
         }
     }

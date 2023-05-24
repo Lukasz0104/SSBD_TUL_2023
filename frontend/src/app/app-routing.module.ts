@@ -19,6 +19,7 @@ import { ForcePasswordChangeOverrideComponent } from './components/force-passwor
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { canActivateGuestWithRedirect } from './guards/redirecting-guest.guard';
+import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
 
 const routes: Routes = [
     {
@@ -54,13 +55,19 @@ const routes: Routes = [
             },
             {
                 path: 'register',
-                title: 'Register',
+                data: {
+                    title: 'Register'
+                },
                 component: RegisterComponent,
                 canActivate: [canActivateLoginOrRegister]
             },
             {
                 path: 'confirm-account',
                 component: ConfirmRegistrationComponent
+            },
+            {
+                path: 'unlock-account',
+                component: UnlockAccountComponent
             },
             {
                 path: 'reset-password',
