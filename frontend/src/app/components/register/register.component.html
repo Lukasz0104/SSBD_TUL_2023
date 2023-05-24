@@ -460,6 +460,7 @@
                                             'component.fields.city' | translate
                                         }}"
                                         required
+                                        [ngbTypeahead]="search"
                                         [ngClass]="{
                                             'is-invalid': cityControl.invalid,
                                             'is-valid': cityControl.valid
@@ -500,6 +501,18 @@
                                                 class="mb-0">
                                                 {{
                                                     'validation.city.max-length'
+                                                        | translate
+                                                }}
+                                            </p>
+                                            <p
+                                                *ngIf="
+                                                    cityErrors[
+                                                        'pattern'
+                                                    ] as pattern
+                                                "
+                                                class="mb-0">
+                                                {{
+                                                    'validation.city.pattern'
                                                         | translate
                                                 }}
                                             </p>

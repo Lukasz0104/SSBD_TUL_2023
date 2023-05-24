@@ -291,6 +291,7 @@
                                         class="form-control"
                                         formControlName="city"
                                         type="text"
+                                        [ngbTypeahead]="searchOwner"
                                         [ngClass]="{
                                             'is-invalid':
                                                 ownerCityControl.invalid,
@@ -332,6 +333,18 @@
                                             class="mb-0">
                                             {{
                                                 'validation.city.max-length'
+                                                    | translate
+                                            }}
+                                        </p>
+                                        <p
+                                            *ngIf="
+                                                ownerCityControl.errors[
+                                                    'pattern'
+                                                ]
+                                            "
+                                            class="mb-0">
+                                            {{
+                                                'validation.city.pattern'
                                                     | translate
                                             }}
                                         </p>
@@ -522,6 +535,7 @@
                                         formControlName="city"
                                         id="city"
                                         type="text"
+                                        [ngbTypeahead]="searchManager"
                                         [ngClass]="{
                                             'is-invalid':
                                                 managerCityControl.invalid,
@@ -563,6 +577,18 @@
                                             class="mb-0">
                                             {{
                                                 'validation.city.max-length'
+                                                    | translate
+                                            }}
+                                        </p>
+                                        <p
+                                            *ngIf="
+                                                managerCityControl.errors[
+                                                    'pattern'
+                                                ]
+                                            "
+                                            class="mb-0">
+                                            {{
+                                                'validation.city.pattern'
                                                     | translate
                                             }}
                                         </p>

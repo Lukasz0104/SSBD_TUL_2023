@@ -10,6 +10,14 @@ import { ToastService } from '../../services/toast.service';
 import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
 import { strongPasswordValidator } from '../../validators/strong-password.validator';
 import { environment } from '../../../environments/environment';
+import {
+    debounceTime,
+    distinctUntilChanged,
+    Observable,
+    of,
+    OperatorFunction,
+    switchMap
+} from 'rxjs';
 
 @Component({
     selector: 'app-register',
@@ -78,7 +86,8 @@ export class RegisterComponent {
                 validators: [
                     Validators.required,
                     Validators.minLength(2),
-                    Validators.maxLength(85)
+                    Validators.maxLength(85),
+                    Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
                 ]
             }),
             street: this.fb.control('', {
@@ -190,6 +199,20 @@ export class RegisterComponent {
             this.captchaCode.length > 0
         );
     }
+
+    search: OperatorFunction<string, readonly string[]> = (
+        text$: Observable<string>
+    ) =>
+        text$.pipe(
+            debounceTime(200),
+            distinctUntilChanged(),
+            switchMap((value: string) => {
+                if (!this.cityControl.valid) {
+                    return of([]);
+                }
+                return this.accountService.getCitiesByPattern(value);
+            })
+        );
 
     //#region control getters
     protected get emailControl() {

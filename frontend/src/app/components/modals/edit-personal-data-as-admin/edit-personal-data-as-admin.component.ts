@@ -4,7 +4,15 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../../services/account.service';
 import { AccessType } from '../../../model/access-type';
 import { Account } from '../../../model/account';
-import { map, Observable } from 'rxjs';
+import {
+    debounceTime,
+    distinctUntilChanged,
+    map,
+    Observable,
+    of,
+    OperatorFunction,
+    switchMap
+} from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
 
@@ -51,7 +59,8 @@ export class EditPersonalDataAsAdminComponent {
         city: new FormControl('', [
             Validators.required,
             Validators.minLength(2),
-            Validators.maxLength(85)
+            Validators.maxLength(85),
+            Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
         ]),
         licenseNumber: new FormControl('', [Validators.required])
     });
@@ -73,7 +82,8 @@ export class EditPersonalDataAsAdminComponent {
         city: new FormControl('', [
             Validators.required,
             Validators.minLength(2),
-            Validators.maxLength(85)
+            Validators.maxLength(85),
+            Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
         ])
     });
 
@@ -296,6 +306,20 @@ export class EditPersonalDataAsAdminComponent {
         this.editOwnerDataForm.controls.city.setValue(value ?? '');
     }
 
+    searchOwner: OperatorFunction<string, readonly string[]> = (
+        text$: Observable<string>
+    ) =>
+        text$.pipe(
+            debounceTime(200),
+            distinctUntilChanged(),
+            switchMap((value: string) => {
+                if (!this.ownerCityControl.valid) {
+                    return of([]);
+                }
+                return this.accountService.getCitiesByPattern(value);
+            })
+        );
+
     //endregion
 
     //region manager
@@ -361,6 +385,20 @@ export class EditPersonalDataAsAdminComponent {
     set managerLicenseNumber(value: string) {
         this.editManagerDataForm.controls.licenseNumber.setValue(value ?? '');
     }
+
+    searchManager: OperatorFunction<string, readonly string[]> = (
+        text$: Observable<string>
+    ) =>
+        text$.pipe(
+            debounceTime(200),
+            distinctUntilChanged(),
+            switchMap((value: string) => {
+                if (!this.managerCityControl.valid) {
+                    return of([]);
+                }
+                return this.accountService.getCitiesByPattern(value);
+            })
+        );
 
     //endregion
 
