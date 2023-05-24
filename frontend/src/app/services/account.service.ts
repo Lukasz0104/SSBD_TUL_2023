@@ -30,6 +30,7 @@ type RegisterResponse = { message: ResponseMessage };
 export class AccountService {
     ifMatch = '';
     private readonly accountsUrl = `${environment.apiUrl}/accounts`;
+    private readonly cityDictUrl = `${environment.apiUrl}/city-dict`;
 
     constructor(
         private http: HttpClient,
@@ -536,5 +537,10 @@ export class AccountService {
                 })
                 .subscribe();
         }
+    }
+    getCitiesByPattern(cityPattern: string) {
+        return this.http.get<readonly string[]>(
+            `${this.cityDictUrl}/city?pattern=${cityPattern}`
+        );
     }
 }
