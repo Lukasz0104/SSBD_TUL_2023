@@ -5,6 +5,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE admin_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE manager_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE owner_data TO ssbd05mok;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE token TO ssbd05mok;
+GRANT SELECT, INSERT, UPDATE ON TABLE city_dict TO ssbd05mok;
 
 CREATE VIEW auth_view AS SELECT login, password, level FROM account a, access_level al WHERE (a.id = al.account_id) AND a.active = TRUE AND a.verified = TRUE AND al.active = TRUE AND al.verified = TRUE;
 
@@ -28,6 +29,7 @@ GRANT SELECT ON TABLE access_level TO ssbd05mow;
 GRANT SELECT ON TABLE owner_data TO ssbd05mow;
 GRANT SELECT ON TABLE manager_data TO ssbd05mow;
 
+GRANT SELECT, UPDATE ON SEQUENCE city_dict_id_seq TO ssbd05mok;
 GRANT SELECT, UPDATE ON SEQUENCE access_level_id_seq TO ssbd05mok;
 GRANT SELECT, UPDATE ON SEQUENCE account_id_seq TO ssbd05mok;
 GRANT SELECT, UPDATE ON SEQUENCE token_id_seq TO ssbd05mok;
@@ -196,6 +198,23 @@ insert into public.access_level (id, level, version, account_id, active, verifie
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-57, 'MANAGER', 0, -35, FALSE, FALSE, CURRENT_TIMESTAMP);
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-58, 'ADMIN', 0, -35, FALSE, FALSE, CURRENT_TIMESTAMP);
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-59, 'ADMIN', 0, -36, TRUE, TRUE, CURRENT_TIMESTAMP);
+
+-- CityDict
+insert into public.city_dict (city) values ('Poznań');
+insert into public.city_dict (city) values ('Jaworzno');
+insert into public.city_dict (city) values ('Warszawa');
+insert into public.city_dict (city) values ('Bydgoszcz');
+insert into public.city_dict (city) values ('Łódź');
+insert into public.city_dict (city) values ('Kutno');
+insert into public.city_dict (city) values ('Wrocław');
+insert into public.city_dict (city) values ('Łęczyca');
+insert into public.city_dict (city) values ('Jaworzno');
+insert into public.city_dict (city) values ( 'Chorzów');
+insert into public.city_dict (city) values ( 'Kraków');
+insert into public.city_dict (city) values ('Kurnik');
+insert into public.city_dict (city) values ('Jaworki');
+insert into public.city_dict (city) values ('Pomidorków');
+insert into public.city_dict (city) values ('Kuter');
 
 -- Owner Data
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-1, 131, 'Poznań', '61-168', 'Rataje');

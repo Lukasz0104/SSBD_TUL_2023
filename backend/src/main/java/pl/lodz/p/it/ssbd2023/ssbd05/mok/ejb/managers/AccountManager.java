@@ -12,6 +12,7 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.CityDict;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
@@ -35,6 +36,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterce
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccessLevelFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.CityDictFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
@@ -63,6 +65,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Inject
     private AccountFacade accountFacade;
+
+    @Inject
+    private CityDictFacade cityDictFacade;
 
     @Inject
     private AccessLevelFacade accessLevelFacade;
@@ -114,6 +119,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setVerified(true);
 
         accountFacade.edit(account);
+        saveAddresses(account.getAccessLevels()); //here changes
         tokenFacade.remove(token);
     }
 
@@ -448,6 +454,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setLastName(newData.getLastName());
         editAccessLevels(account.getAccessLevels(), newData);
         accountFacade.edit(account);
+        saveAddresses(account.getAccessLevels()); //here changes
         return account;
     }
 
@@ -505,6 +512,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         editAccessLevels(accountOrig.getAccessLevels(), newData);
         accountFacade.edit(accountOrig);
+        saveAddresses(accountOrig.getAccessLevels()); //here changes
         return accountOrig;
     }
 
@@ -583,5 +591,16 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
         account.setTwoFactorAuth(status);
         accountFacade.edit(account);
+    }
+
+    @PermitAll
+    private void saveAddresses(Set<AccessLevel> levelSet) throws AppBaseException {
+        for (AccessLevel level : levelSet) {
+            if (level instanceof OwnerData ownerData) {
+                cityDictFacade.create(new CityDict(ownerData.getAddress().getCity()));
+            } else if (level instanceof ManagerData managerData) {
+                cityDictFacade.create(new CityDict(managerData.getAddress().getCity()));
+            }
+        }
     }
 }
