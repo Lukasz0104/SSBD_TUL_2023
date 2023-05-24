@@ -369,4 +369,8 @@ export class AuthService {
     isAdmin() {
         return this.getCurrentGroup() === AccessType.ADMIN;
     }
+
+    getCurrentGroupObservable() {
+        return this.currentGroup.asObservable();
+    }
 }

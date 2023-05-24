@@ -10,6 +10,7 @@ import { ToastService } from '../../services/toast.service';
 import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.component';
 import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { GrantAccessLevelComponent } from '../modals/grant-access-level/grant-access-level.component';
+import { AccountPage } from '../../model/account-page';
 
 @Component({
     selector: 'app-accounts',
@@ -18,9 +19,11 @@ import { GrantAccessLevelComponent } from '../modals/grant-access-level/grant-ac
 export class AccountsComponent implements OnInit {
     protected readonly accessTypeEnum = AccessType;
 
-    accounts$: Observable<Account[]> | undefined;
+    accountsPage$: Observable<AccountPage> | undefined;
     page = 1;
     pageSize = 10;
+
+    sortDirection = 1;
 
     chosenOption = new BehaviorSubject<number>(1);
     chosenAccessType = new BehaviorSubject<AccessType>(AccessType.OWNER);
@@ -34,9 +37,7 @@ export class AccountsComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        if (this.authService.getCurrentGroup() === AccessType.ADMIN) {
-            this.chosenAccessType.next(AccessType.ALL);
-        }
+        this.loadViewPreferences();
 
         this.chosenOption.subscribe(() => {
             this.getAccounts();
@@ -50,35 +51,100 @@ export class AccountsComponent implements OnInit {
     getAccounts() {
         switch (this.chosenOption.getValue()) {
             case 1:
-                this.accounts$ = this.accountService.getAccountsByTypeAndActive(
-                    this.chosenAccessType.getValue(),
-                    true
-                );
+                this.accountsPage$ =
+                    this.accountService.getAccountsByTypeAndActive(
+                        this.chosenAccessType.getValue(),
+                        true,
+                        this.page - 1,
+                        this.pageSize,
+                        this.sortDirection === 1
+                    );
                 break;
             case 2:
-                this.accounts$ = this.accountService.getAccountsByTypeAndActive(
-                    this.chosenAccessType.getValue(),
-                    false
-                );
+                this.accountsPage$ =
+                    this.accountService.getAccountsByTypeAndActive(
+                        this.chosenAccessType.getValue(),
+                        false,
+                        this.page - 1,
+                        this.pageSize,
+                        this.sortDirection === 1
+                    );
                 break;
             case 3:
-                this.accounts$ =
+                this.accountsPage$ =
                     this.accountService.getUnapprovedAccountsByType(
-                        this.chosenAccessType.getValue()
+                        this.chosenAccessType.getValue(),
+                        this.page - 1,
+                        this.pageSize,
+                        this.sortDirection === 1
                     );
                 break;
         }
     }
 
+    loadViewPreferences() {
+        this.authService
+            .getCurrentGroupObservable()
+            .subscribe((currentGroup) => {
+                const pageSize = parseInt(
+                    localStorage.getItem('pageSize') ?? '10'
+                );
+
+                if (![5, 10, 15].includes(pageSize)) {
+                    this.pageSize = 10;
+                    localStorage.setItem('pageSize', '10');
+                }
+                this.pageSize = pageSize;
+                this.sortDirection = parseInt(
+                    localStorage.getItem('sortDirection') ?? '1'
+                );
+                this.pageSize = parseInt(
+                    localStorage.getItem('pageSize') ?? '10'
+                );
+
+                const accessTypeFilter =
+                    localStorage.getItem('accessTypeFilter') ?? 'ALL';
+                if (
+                    currentGroup == AccessType.MANAGER &&
+                    (accessTypeFilter == AccessType.MANAGER ||
+                        accessTypeFilter == AccessType.ADMIN)
+                ) {
+                    this.chosenAccessType.next(AccessType.ALL);
+                    localStorage.setItem('accessTypeFilter', AccessType.ALL);
+                } else {
+                    this.chosenAccessType.next(accessTypeFilter as AccessType);
+                }
+
+                let activeFilter = parseInt(
+                    localStorage.getItem('activeFilter') ?? '1'
+                );
+
+                if (
+                    (currentGroup == AccessType.ADMIN &&
+                        activeFilter == 3 &&
+                        accessTypeFilter != AccessType.MANAGER) ||
+                    (currentGroup == AccessType.MANAGER &&
+                        activeFilter == 3 &&
+                        accessTypeFilter != AccessType.OWNER)
+                ) {
+                    activeFilter = 1;
+                }
+                localStorage.setItem('activeFilter', activeFilter.toString());
+                this.chosenOption.next(activeFilter);
+            });
+    }
+
     changeStatusOption(option: number) {
         if (option != this.chosenOption.getValue()) {
             this.chosenOption.next(option);
+            localStorage.setItem('activeFilter', option.toString());
         }
     }
 
     changeAccessTypeOption(option: string) {
         if (option != this.chosenAccessType.getValue()) {
             this.chosenAccessType.next(option as AccessType);
+            localStorage.setItem('accessTypeFilter', option as AccessType);
         }
     }
 
@@ -226,5 +292,17 @@ export class AccountsComponent implements OnInit {
             (chosen === AccessType.ALL || chosen === AccessType.OWNER) &&
             this.hasAccessLevel(account, AccessType.OWNER)
         );
+    }
+
+    protected onSortChange() {
+        this.sortDirection = -this.sortDirection;
+        localStorage.setItem('sortDirection', this.sortDirection.toString());
+
+        this.reload();
+    }
+
+    savePageSizePreference() {
+        this.reload();
+        localStorage.setItem('pageSize', this.pageSize.toString());
     }
 }
