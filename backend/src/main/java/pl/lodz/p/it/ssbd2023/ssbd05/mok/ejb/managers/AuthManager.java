@@ -93,8 +93,10 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
             ));
 
         String jwt = jwtUtils.generateJWT(account);
-        return new JwtRefreshTokenDto(jwt, refreshToken.getToken(), account.getLanguage().toString());
+        return new JwtRefreshTokenDto(
+            jwt, refreshToken.getToken(), account.getLanguage().toString(), account.isLightThemePreferred());
     }
+
 
     @Override
     @PermitAll
@@ -137,7 +139,8 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         tokenFacade.remove(refreshToken);
         tokenFacade.create(newRefreshToken);
 
-        return new JwtRefreshTokenDto(jwt, newRefreshToken.getToken(), account.getLanguage().toString());
+        return new JwtRefreshTokenDto(
+            jwt, newRefreshToken.getToken(), account.getLanguage().toString(), account.isLightThemePreferred());
     }
 
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})

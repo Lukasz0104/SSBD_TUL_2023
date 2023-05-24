@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
+import { AccountService } from '../../services/account.service';
 
 @Component({
     selector: 'app-theme-switch',
@@ -10,7 +11,10 @@ export class ThemeSwitchComponent implements OnInit {
     private readonly LOCAL_STORAGE_KEY = 'light_theme';
     protected lightTheme = true;
 
-    constructor(@Inject(DOCUMENT) private document: Document) {}
+    constructor(
+        @Inject(DOCUMENT) private document: Document,
+        private accountService: AccountService
+    ) {}
 
     ngOnInit(): void {
         this.readLocalStorage();
@@ -29,6 +33,8 @@ export class ThemeSwitchComponent implements OnInit {
             this.LOCAL_STORAGE_KEY,
             JSON.stringify(this.lightTheme)
         );
+
+        this.accountService.updateThemePreferrence(this.lightTheme);
     }
 
     private readLocalStorage() {

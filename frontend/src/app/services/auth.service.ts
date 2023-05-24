@@ -176,6 +176,11 @@ export class AuthService {
         this.translate.use(userData.language.toLowerCase());
         localStorage.setItem('language', userData.language.toLowerCase());
 
+        localStorage.setItem(
+            'light_theme',
+            JSON.stringify(userData.lightThemePreferred)
+        );
+
         if (redirectToDashboard) {
             this.router.navigate(['/dashboard']).then(() => {
                 this.toastService.clearAll();
