@@ -309,7 +309,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     @RolesAllowed({"MANAGER"})
     public List<Account> getUnapprovedOwnerAccounts() {
-        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.OWNER);
+        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.OWNER);
     }
 
     @Override
@@ -321,7 +321,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Override
     @RolesAllowed({"ADMIN"})
     public List<Account> getUnapprovedManagerAccounts() {
-        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.MANAGER);
+        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.MANAGER);
     }
 
     @Override

@@ -98,41 +98,77 @@ public class AccountFacade extends AbstractFacade<Account> {
 
     public List<Account> findByVerified(boolean verified) {
         TypedQuery<Account> tq;
-        if (verified) {
-            tq = em.createNamedQuery("Account.findAllVerifiedAccounts", Account.class);
+        tq = em.createNamedQuery("Account.findAllAccountsByVerified", Account.class);
+        tq.setParameter("verified", verified);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public List<Account> findByActive(boolean active, boolean asc) {
+        TypedQuery<Account> tq;
+        if (asc) {
+            tq = em.createNamedQuery("Account.countAllAccountsByActive", Account.class);
         } else {
-            tq = em.createNamedQuery("Account.findAllNotVerifiedAccounts", Account.class);
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveDesc", Account.class);
         }
+        tq.setParameter("active", active);
         return tq.getResultList();
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
     public List<Account> findByActive(boolean active) {
         TypedQuery<Account> tq;
-        if (active) {
-            tq = em.createNamedQuery("Account.findAllActiveAccounts", Account.class);
+        tq = em.createNamedQuery("Account.countAllAccountsByActive", Account.class);
+        tq.setParameter("active", active);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public List<Account> findByActiveAccessLevel(AccessType accessType, boolean active, boolean asc) {
+        TypedQuery<Account> tq;
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAndAccessLevelAsc", Account.class);
         } else {
-            tq = em.createNamedQuery("Account.findAllNotActiveAccounts", Account.class);
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAndAccessLevelDesc", Account.class);
         }
+        tq.setParameter("level", accessType);
+        tq.setParameter("active", active);
         return tq.getResultList();
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
     public List<Account> findByActiveAccessLevel(AccessType accessType, boolean active) {
         TypedQuery<Account> tq;
-        if (active) {
-            tq = em.createNamedQuery("Account.findAllActiveAccountsByAccessLevel", Account.class);
+        tq = em.createNamedQuery("Account.countAllAccountsByActiveAndAccessLevel", Account.class);
+        tq.setParameter("level", accessType);
+        tq.setParameter("active", active);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public Long countAccountsThatNeedApprovalByAccessLevel(AccessType accessType) {
+        TypedQuery<Long> tq =
+            em.createNamedQuery("Account.countAccountsThatNeedApprovalByAccessLevel", Long.class);
+        tq.setParameter("level", accessType);
+        return tq.getSingleResult();
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public List<Account> findAccountsThatNeedApprovalByAccessLevel(AccessType accessType, boolean asc) {
+        TypedQuery<Account> tq;
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevelAsc", Account.class);
         } else {
-            tq = em.createNamedQuery("Account.findAllInactiveAccountsByAccessLevel", Account.class);
+            tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevelDesc", Account.class);
         }
         tq.setParameter("level", accessType);
         return tq.getResultList();
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public List<Account> findByActiveAndVerifiedAccessLevel(AccessType accessType) {
-        TypedQuery<Account> tq =
-            em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevel", Account.class);
+    public List<Account> findAccountsThatNeedApprovalByAccessLevel(AccessType accessType) {
+        TypedQuery<Account> tq;
+        tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevel", Account.class);
         tq.setParameter("level", accessType);
         return tq.getResultList();
     }

@@ -55,35 +55,66 @@ import java.util.Set;
         name = "Account.findByLanguage",
         query = "SELECT a FROM Account a WHERE a.language = :language"),
     @NamedQuery(
-        name = "Account.findAllVerifiedAccounts",
-        query = "SELECT a FROM Account a WHERE a.verified = TRUE"),
+        name = "Account.findAllAccountsByVerified",
+        query = "SELECT a FROM Account a WHERE a.verified = :verified"),
     @NamedQuery(
-        name = "Account.findAllNotVerifiedAccounts",
-        query = "SELECT a FROM Account a WHERE a.verified = FALSE"),
+        name = "Account.findAllAccountsByActiveAsc",
+        query = "SELECT a FROM Account a WHERE a.active = :active ORDER BY a.login ASC"),
     @NamedQuery(
-        name = "Account.findAllActiveAccounts",
-        query = "SELECT a FROM Account a WHERE a.active = TRUE"),
+        name = "Account.findAllAccountsByActiveDesc",
+        query = "SELECT a FROM Account a WHERE a.active = :active ORDER BY a.login DESC"),
     @NamedQuery(
-        name = "Account.findAllNotActiveAccounts",
-        query = "SELECT a FROM Account a WHERE a.active = FALSE"),
+        name = "Account.countAllAccountsByActive",
+        query = "SELECT count(a.id) FROM Account a WHERE a.active = :active"),
     @NamedQuery(
-        name = "Account.findAllActiveAccountsByAccessLevel",
+        name = "Account.findAllAccountsByActiveAndAccessLevelAsc",
         query = """
             SELECT a FROM Account a
-            JOIN AccessLevel al on al.account = a
+            JOIN AccessLevel al ON al.account = a
             WHERE a.active = TRUE
                 AND al.level = :level
-                AND al.active = TRUE
+                AND al.active = :active
+                AND al.verified = TRUE
+                ORDER BY a.login ASC"""),
+    @NamedQuery(
+        name = "Account.findAllAccountsByActiveAndAccessLevelDesc",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al ON al.account = a
+            WHERE a.active = TRUE
+                AND al.level = :level
+                AND al.active = :active
+                AND al.verified = TRUE
+                ORDER BY a.login DESC"""),
+    @NamedQuery(
+        name = "Account.countAllAccountsByActiveAndAccessLevel",
+        query = """
+            SELECT count(a.id) FROM Account a
+            JOIN AccessLevel al ON al.account = a
+            WHERE a.active = TRUE
+                AND al.level = :level
+                AND al.active = :active
                 AND al.verified = TRUE"""),
     @NamedQuery(
-        name = "Account.findAllInactiveAccountsByAccessLevel",
+        name = "Account.findAccountsThatNeedApprovalByAccessLevelAsc",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al ON al.account = a
+            WHERE a.active = TRUE AND a.verified = TRUE
+                AND al.level = :level
+                AND al.active = FALSE
+                AND al.verified = FALSE
+                ORDER BY a.login ASC"""),
+    @NamedQuery(
+        name = "Account.findAccountsThatNeedApprovalByAccessLevelDesc",
         query = """
             SELECT a FROM Account a
             JOIN AccessLevel al on al.account = a
-            WHERE a.active = FALSE
+            WHERE a.active = TRUE AND a.verified = TRUE
                 AND al.level = :level
-                AND al.active = TRUE
-                AND al.verified = TRUE"""),
+                AND al.active = FALSE
+                AND al.verified = FALSE
+                ORDER BY a.login DESC"""),
     @NamedQuery(
         name = "Account.findAccountsThatNeedApprovalByAccessLevel",
         query = """
@@ -92,7 +123,17 @@ import java.util.Set;
             WHERE a.active = TRUE AND a.verified = TRUE
                 AND al.level = :level
                 AND al.active = FALSE
-                AND al.verified = FALSE"""),
+                AND al.verified = FALSE
+                ORDER BY a.login"""),
+    @NamedQuery(
+        name = "Account.countAccountsThatNeedApprovalByAccessLevel",
+        query = """
+            SELECT count(a.id) FROM Account a
+            JOIN AccessLevel al on al.account = a
+            WHERE a.active = TRUE AND a.verified = TRUE
+                AND al.level = :level
+                AND al.active = FALSE
+                AND al.verified = FALSE""")
 })
 @Getter
 @Setter
