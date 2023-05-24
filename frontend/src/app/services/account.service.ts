@@ -20,6 +20,7 @@ import {
     RegisterManagerDto,
     RegisterOwnerDto
 } from '../model/registration.dto';
+import { AccountPage } from '../model/account-page';
 
 type RegisterResponse = { message: ResponseMessage };
 
@@ -278,7 +279,13 @@ export class AccountService {
             );
     }
 
-    getAccountsByTypeAndActive(type: AccessType, active: boolean) {
+    getAccountsByTypeAndActive(
+        type: AccessType,
+        active: boolean,
+        page: number,
+        size: number,
+        sortDirection: boolean
+    ) {
         let url;
         switch (type) {
             case AccessType.OWNER:
@@ -294,22 +301,27 @@ export class AccountService {
                 url = 'accounts';
                 break;
         }
-        return this.http.get<Account[]>(
-            `${environment.apiUrl}/${url}?active=${active}`
+        return this.http.get<AccountPage>(
+            `${environment.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}`
         );
     }
 
-    getUnapprovedAccountsByType(type: AccessType) {
+    getUnapprovedAccountsByType(
+        type: AccessType,
+        page: number,
+        size: number,
+        sortDirection: boolean
+    ) {
         if (type == AccessType.OWNER) {
-            return this.http.get<Account[]>(
-                `${this.accountsUrl}/owners/unapproved`
+            return this.http.get<AccountPage>(
+                `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}`
             );
         } else if (type == AccessType.MANAGER) {
-            return this.http.get<Account[]>(
-                `${this.accountsUrl}/managers/unapproved`
+            return this.http.get<AccountPage>(
+                `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}`
             );
         }
-        return of([]);
+        return EMPTY;
     }
 
     handleError(

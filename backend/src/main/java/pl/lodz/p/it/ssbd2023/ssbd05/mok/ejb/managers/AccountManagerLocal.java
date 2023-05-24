@@ -1,15 +1,15 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Local;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 @Local
 public interface AccountManagerLocal extends CommonManagerInterface {
@@ -43,20 +43,19 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void overrideForcedPassword(String password, String token) throws AppBaseException;
 
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     void changePreferredTheme(String login, boolean lightTheme) throws AppBaseException;
 
-    List<Account> getAllAccounts(boolean active) throws AppBaseException;
+    Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
 
-    List<Account> getOwnerAccounts(boolean active) throws AppBaseException;
+    Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
 
-    List<Account> getManagerAccounts(boolean active) throws AppBaseException;
+    Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
 
-    List<Account> getAdminAccounts(boolean active) throws AppBaseException;
+    Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
 
-    List<Account> getUnapprovedOwnerAccounts() throws AppBaseException;
+    Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc) throws AppBaseException;
 
-    List<Account> getUnapprovedManagerAccounts() throws AppBaseException;
+    Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc) throws AppBaseException;
 
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 

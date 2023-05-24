@@ -9,11 +9,12 @@
                 chosenAccessType.getValue() === 'ALL'
                     ? 'btn-primary active'
                     : 'btn-outline-primary',
-                chosenOption.getValue() === 3 && authService.isAdmin()
+                chosenOption.getValue() === 3 &&
+                (authService.isAdmin() || authService.isManager())
                     ? 'disabled'
                     : ''
             ]"
-            class="btn"
+            class="btn text-truncate"
             type="button">
             {{ 'component.accounts.display.all' | translate }}
         </button>
@@ -27,7 +28,7 @@
                     ? 'disabled'
                     : ''
             ]"
-            class="btn"
+            class="btn text-truncate"
             type="button">
             {{ 'component.accounts.display.owners' | translate }}
         </button>
@@ -42,7 +43,7 @@
                     ? 'disabled'
                     : ''
             ]"
-            class="btn"
+            class="btn text-truncate"
             type="button">
             {{ 'component.accounts.display.managers' | translate }}
         </button>
@@ -57,7 +58,7 @@
                     ? 'disabled'
                     : ''
             ]"
-            class="btn"
+            class="btn text-truncate"
             type="button">
             {{ 'component.accounts.display.admins' | translate }}
         </button>
@@ -75,7 +76,7 @@
                     ? 'btn-primary active'
                     : 'btn-outline-primary'
             ]"
-            class="btn"
+            class="btn text-truncate"
             type="button">
             {{ 'component.accounts.display.active' | translate }}
         </button>
@@ -86,7 +87,7 @@
                     ? 'btn-primary active'
                     : 'btn-outline-primary'
             ]"
-            class="btn"
+            class="btn text-truncate"
             type="button">
             {{ 'component.accounts.display.inactive' | translate }}
         </button>
@@ -105,7 +106,7 @@
                     ? 'disabled'
                     : ''
             ]"
-            class="btn"
+            class="btn text-truncate"
             type="button">
             {{ 'component.accounts.display.approval' | translate }}
         </button>
@@ -117,20 +118,33 @@
     </div>
 </div>
 
-<ng-container *ngIf="accounts$ | async as accounts; else loadingAccounts">
+<ng-container *ngIf="accountsPage$ | async as accounts; else loadingAccounts">
     <div
-        class="d-flex flex-column justify-content-between table-responsive border rounded"
+        class="d-flex flex-column justify-content-between table-responsive border rounded w-100"
         style="min-height: 300px">
         <table class="table text-center table-hover">
             <thead>
                 <tr class="bg-light-subtle">
-                    <th scope="col">
+                    <th
+                        (click)="onSortChange()"
+                        class="cursor-pointer text-nowrap"
+                        scope="col">
+                        <i
+                            [ngClass]="{
+                                'bi-arrow-up': sortDirection === 1,
+                                'bi-arrow-down': sortDirection === -1
+                            }"
+                            class="bi"></i>
                         {{ 'component.fields.login' | translate }}
                     </th>
-                    <th scope="col">
+                    <th
+                        class="text-nowrap"
+                        scope="col">
                         {{ 'component.fields.first-name' | translate }}
                     </th>
-                    <th scope="col">
+                    <th
+                        scope="col"
+                        class="text-nowrap">
                         {{ 'component.fields.last-name' | translate }}
                     </th>
                     <th scope="col">
@@ -148,12 +162,7 @@
             </thead>
             <tbody>
                 <tr
-                    *ngFor="
-                        let account of accounts.slice(
-                            (page - 1) * pageSize,
-                            page * pageSize
-                        )
-                    "
+                    *ngFor="let account of accounts.data"
                     class="cursor-pointer align-middle">
                     <td>{{ account.login }}</td>
                     <td>{{ account.firstName }}</td>
@@ -337,14 +346,16 @@
             <div>
                 <ngb-pagination
                     [(page)]="page"
-                    [collectionSize]="accounts.length"
-                    [pageSize]="pageSize">
+                    [collectionSize]="accounts.totalSize"
+                    [pageSize]="pageSize"
+                    (pageChange)="getAccounts()">
                 </ngb-pagination>
             </div>
 
             <div>
                 <select
                     [(ngModel)]="pageSize"
+                    (ngModelChange)="savePageSizePreference()"
                     class="form-select w-auto">
                     <option [ngValue]="5">
                         {{

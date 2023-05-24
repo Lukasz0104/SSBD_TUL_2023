@@ -19,6 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.AccountFacadeExceptionsIntercep
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -98,42 +99,90 @@ public class AccountFacade extends AbstractFacade<Account> {
 
     public List<Account> findByVerified(boolean verified) {
         TypedQuery<Account> tq;
-        if (verified) {
-            tq = em.createNamedQuery("Account.findAllVerifiedAccounts", Account.class);
-        } else {
-            tq = em.createNamedQuery("Account.findAllNotVerifiedAccounts", Account.class);
-        }
+        tq = em.createNamedQuery("Account.findAllAccountsByVerified", Account.class);
+        tq.setParameter("verified", verified);
         return tq.getResultList();
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public List<Account> findByActive(boolean active) {
+    public Page<Account> findByActive(boolean active, int page, int pageSize, boolean asc) {
         TypedQuery<Account> tq;
-        if (active) {
-            tq = em.createNamedQuery("Account.findAllActiveAccounts", Account.class);
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAsc", Account.class);
         } else {
-            tq = em.createNamedQuery("Account.findAllNotActiveAccounts", Account.class);
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveDesc", Account.class);
         }
-        return tq.getResultList();
+        tq.setParameter("active", active);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countByActive(active);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public List<Account> findByActiveAccessLevel(AccessType accessType, boolean active) {
+    public Long countByActive(boolean active) {
+        TypedQuery<Long> tq;
+        tq = em.createNamedQuery("Account.countAllAccountsByActive", Long.class);
+        tq.setParameter("active", active);
+        return tq.getSingleResult();
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public Page<Account> findByActiveAccessLevel(AccessType accessType, boolean active, int page, int pageSize,
+                                                 boolean asc) {
         TypedQuery<Account> tq;
-        if (active) {
-            tq = em.createNamedQuery("Account.findAllActiveAccountsByAccessLevel", Account.class);
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAndAccessLevelAsc", Account.class);
         } else {
-            tq = em.createNamedQuery("Account.findAllInactiveAccountsByAccessLevel", Account.class);
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAndAccessLevelDesc", Account.class);
+        }
+        tq.setParameter("active", active);
+        tq.setParameter("level", accessType);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countByActiveAccessLevel(active, accessType);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public Long countByActiveAccessLevel(boolean active, AccessType accessType) {
+        TypedQuery<Long> tq;
+        tq = em.createNamedQuery("Account.countAllAccountsByActiveAndAccessLevel", Long.class);
+        tq.setParameter("active", active);
+        tq.setParameter("level", accessType);
+        return tq.getSingleResult();
+    }
+
+    @RolesAllowed({"ADMIN", "MANAGER"})
+    public Page<Account> findAccountsThatNeedApprovalByAccessLevel(AccessType accessType, int page, int pageSize,
+                                                                   boolean asc) {
+        TypedQuery<Account> tq;
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevelAsc", Account.class);
+        } else {
+            tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevelDesc", Account.class);
         }
         tq.setParameter("level", accessType);
-        return tq.getResultList();
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countAccountsThatNeedApprovalByAccessLevel(accessType);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public List<Account> findByActiveAndVerifiedAccessLevel(AccessType accessType) {
-        TypedQuery<Account> tq =
-            em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevel", Account.class);
+    public Long countAccountsThatNeedApprovalByAccessLevel(AccessType accessType) {
+        TypedQuery<Long> tq =
+            em.createNamedQuery("Account.countAccountsThatNeedApprovalByAccessLevel", Long.class);
         tq.setParameter("level", accessType);
-        return tq.getResultList();
+        return tq.getSingleResult();
     }
 }

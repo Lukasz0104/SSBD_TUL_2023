@@ -37,6 +37,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccessLevelFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
@@ -296,38 +297,38 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public List<Account> getAllAccounts(boolean active) {
-        return accountFacade.findByActive(active);
+    public Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc) {
+        return accountFacade.findByActive(active, page, pageSize, asc);
     }
 
     @Override
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public List<Account> getOwnerAccounts(boolean active) {
-        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active);
+    public Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc) {
+        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active, page, pageSize, asc);
     }
 
     @Override
     @RolesAllowed({"MANAGER"})
-    public List<Account> getUnapprovedOwnerAccounts() {
-        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.OWNER);
+    public Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc) {
+        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.OWNER, page, pageSize, asc);
     }
 
     @Override
     @RolesAllowed({"ADMIN"})
-    public List<Account> getManagerAccounts(boolean active) {
-        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active);
+    public Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc) {
+        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active, page, pageSize, asc);
     }
 
     @Override
     @RolesAllowed({"ADMIN"})
-    public List<Account> getUnapprovedManagerAccounts() {
-        return accountFacade.findByActiveAndVerifiedAccessLevel(AccessType.MANAGER);
+    public Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc) {
+        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.MANAGER, page, pageSize, asc);
     }
 
     @Override
     @RolesAllowed({"ADMIN"})
-    public List<Account> getAdminAccounts(boolean active) {
-        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active);
+    public Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc) {
+        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active, page, pageSize, asc);
     }
 
     @Override

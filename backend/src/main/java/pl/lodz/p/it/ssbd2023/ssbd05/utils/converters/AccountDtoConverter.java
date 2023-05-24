@@ -21,6 +21,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RegisterAccount
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.ActivityTrackerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -211,5 +212,14 @@ public class AccountDtoConverter {
 
     public static AccessLevel createOwnerAccessLevelFromDto(AddOwnerAccessLevelDto dto) {
         return new OwnerData((createAddressFromDto(dto.address())));
+    }
+
+    public static Page<AccountDto> createAccountDtoPage(Page<Account> accountPage) {
+        List<AccountDto> list = accountPage.getData().stream()
+            .map(AccountDtoConverter::createAccountDto)
+            .toList();
+
+        return new Page<>(list, accountPage.getTotalSize(), accountPage.getPageSize(),
+            accountPage.getCurrentPage());
     }
 }
