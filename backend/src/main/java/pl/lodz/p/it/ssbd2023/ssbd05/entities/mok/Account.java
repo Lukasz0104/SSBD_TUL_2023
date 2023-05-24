@@ -71,9 +71,9 @@ import java.util.Set;
         query = """
             SELECT a FROM Account a
             JOIN AccessLevel al ON al.account = a
-            WHERE a.active = TRUE
+            WHERE a.active = :active
                 AND al.level = :level
-                AND al.active = :active
+                AND al.active = TRUE
                 AND al.verified = TRUE
                 ORDER BY a.login ASC"""),
     @NamedQuery(
@@ -81,9 +81,9 @@ import java.util.Set;
         query = """
             SELECT a FROM Account a
             JOIN AccessLevel al ON al.account = a
-            WHERE a.active = TRUE
+            WHERE a.active = :active
                 AND al.level = :level
-                AND al.active = :active
+                AND al.active = TRUE
                 AND al.verified = TRUE
                 ORDER BY a.login DESC"""),
     @NamedQuery(
@@ -91,9 +91,9 @@ import java.util.Set;
         query = """
             SELECT count(a.id) FROM Account a
             JOIN AccessLevel al ON al.account = a
-            WHERE a.active = TRUE
+            WHERE a.active = :active
                 AND al.level = :level
-                AND al.active = :active
+                AND al.active = TRUE
                 AND al.verified = TRUE"""),
     @NamedQuery(
         name = "Account.findAccountsThatNeedApprovalByAccessLevelAsc",
