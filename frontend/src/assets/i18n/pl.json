@@ -146,7 +146,7 @@
         "all": "Wszyscy",
         "owners": "Właściciele",
         "managers": "Zarządcy",
-        "admins": "Adminstratorzy",
+        "admins": "Administratorzy",
         "active": "Aktywni",
         "inactive": "Nieaktywni",
         "approval": "Oczekujący na potwierdzenie",
@@ -167,7 +167,8 @@
       "revoke-admin": "Odbierz poziom dostępu Administrator",
       "verify": "Zweryfikuj",
       "filter-content": "Imię lub nazwisko",
-      "filter-action": "Filtruj"
+      "filter-action": "Filtruj",
+      "filters": "Filtry"
     },
     "account": {
       "created-at": "Czas utworzenia",

@@ -1,6 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, EMPTY, filter, Observable, switchMap } from 'rxjs';
+import {
+    BehaviorSubject,
+    catchError,
+    debounceTime,
+    distinctUntilChanged,
+    EMPTY,
+    filter,
+    map,
+    Observable,
+    of,
+    OperatorFunction,
+    switchMap
+} from 'rxjs';
 import { AccessType } from '../../model/access-type';
 import { Account } from '../../model/account';
 import { AccessLevelService } from '../../services/access-level.service';
@@ -24,13 +36,15 @@ export class AccountsComponent implements OnInit {
     page = 1;
     pageSize = 10;
     phrase = '';
+    login = '';
 
     sortDirection = 1;
 
     chosenOption = new BehaviorSubject<number>(1);
     chosenAccessType = new BehaviorSubject<AccessType>(AccessType.OWNER);
     filter = new FormGroup({
-        phrase: new FormControl('', {})
+        phrase: new FormControl('', {}),
+        login: new FormControl('', {})
     });
 
     constructor(
@@ -53,6 +67,27 @@ export class AccountsComponent implements OnInit {
         });
     }
 
+    filter_type_ahead: OperatorFunction<string, readonly string[]> = (
+        text$: Observable<string>
+    ) =>
+        text$.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap((term) => {
+                if (term == '') {
+                    return of([]);
+                }
+                return this.accountService.getLogins(term).pipe(
+                    map((result) => {
+                        return result;
+                    }),
+                    catchError(() => {
+                        return of([]);
+                    })
+                );
+            })
+        );
+
     getAccounts() {
         switch (this.chosenOption.getValue()) {
             case 1:
@@ -63,7 +98,8 @@ export class AccountsComponent implements OnInit {
                         this.page - 1,
                         this.pageSize,
                         this.sortDirection === 1,
-                        this.phrase
+                        this.phrase,
+                        this.login
                     );
                 break;
             case 2:
@@ -74,7 +110,8 @@ export class AccountsComponent implements OnInit {
                         this.page - 1,
                         this.pageSize,
                         this.sortDirection === 1,
-                        this.phrase
+                        this.phrase,
+                        this.login
                     );
                 break;
             case 3:
@@ -84,7 +121,8 @@ export class AccountsComponent implements OnInit {
                         this.page - 1,
                         this.pageSize,
                         this.sortDirection === 1,
-                        this.phrase
+                        this.phrase,
+                        this.login
                     );
                 break;
         }
@@ -316,6 +354,7 @@ export class AccountsComponent implements OnInit {
 
     protected onFilterPhrase() {
         this.phrase = this.filter.getRawValue().phrase ?? '';
+        this.login = this.filter.getRawValue().login ?? '';
         this.reload();
     }
 
@@ -325,5 +364,19 @@ export class AccountsComponent implements OnInit {
             this.filter.controls.phrase.reset();
             this.reload();
         }
+    }
+
+    protected clearFilterLogin() {
+        if (this.filter.getRawValue().login != null) {
+            this.login = '';
+            this.filter.controls.login.reset();
+            this.reload();
+        }
+    }
+
+    protected resetFilters() {
+        this.login = '';
+        this.phrase = '';
+        this.reload();
     }
 }

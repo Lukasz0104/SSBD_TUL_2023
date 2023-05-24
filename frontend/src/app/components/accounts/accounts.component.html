@@ -1,15 +1,15 @@
 <ng-container *ngIf="authService.isAdmin() || authService.isManager()">
     <form [formGroup]="filter">
-        <div class="mb-3 row">
+        <div class="mb-3 row d-flex">
             <label
-                for="filter-search"
-                class="col-xs-3 col-sm-auto col-form-label"
-                >{{ 'component.accounts.filter-content' | translate }}:
+                for="filter-phrase"
+                class="col-xs-3 col-sm-auto col-form-label mt-2"
+                ><b>{{ 'component.accounts.filters' | translate }}:</b>
             </label>
-            <div class="col-sm-2 d-flex">
+            <div class="col-lg mt-2">
                 <div class="input-group">
                     <input
-                        id="filter-search"
+                        id="filter-phrase"
                         type="text"
                         class="form-control"
                         formControlName="phrase"
@@ -20,13 +20,34 @@
                         class="input-group-text bi bi-x-lg cursor-pointer"
                         (click)="clearFilterPhrase()"></i>
                 </div>
+            </div>
+            <div class="col-lg mt-2">
+                <div class="input-group">
+                    <input
+                        id="filter-login"
+                        type="text"
+                        class="form-control"
+                        [ngbTypeahead]="filter_type_ahead"
+                        formControlName="login"
+                        placeholder="Login" />
+                    <i
+                        class="input-group-text bi bi-x-lg cursor-pointer"
+                        (click)="clearFilterLogin()"></i>
+                </div>
+            </div>
+            <div class="col-sm mt-2">
                 <button
-                    class="btn btn-primary ms-2"
+                    class="btn btn-primary rounded-end-0"
                     (click)="onFilterPhrase()">
                     {{ 'component.accounts.filter-action' | translate }}
                 </button>
+                <button
+                    class="btn btn-outline-primary rounded-start-0"
+                    type="reset"
+                    (click)="resetFilters()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="col-lg-8 align-content-start"></div>
         </div>
     </form>
     <div

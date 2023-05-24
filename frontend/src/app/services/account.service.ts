@@ -286,7 +286,8 @@ export class AccountService {
         page: number,
         size: number,
         sortDirection: boolean,
-        phrase: string
+        phrase: string,
+        login: string
     ) {
         let url;
         switch (type) {
@@ -304,7 +305,7 @@ export class AccountService {
                 break;
         }
         return this.http.get<AccountPage>(
-            `${environment.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}`
+            `${environment.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
         );
     }
 
@@ -313,15 +314,16 @@ export class AccountService {
         page: number,
         size: number,
         sortDirection: boolean,
-        phrase: string
+        phrase: string,
+        login: string
     ) {
         if (type == AccessType.OWNER) {
             return this.http.get<AccountPage>(
-                `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}`
+                `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );
         } else if (type == AccessType.MANAGER) {
             return this.http.get<AccountPage>(
-                `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}`
+                `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );
         }
         return EMPTY;
@@ -545,6 +547,12 @@ export class AccountService {
     getCitiesByPattern(cityPattern: string) {
         return this.http.get<readonly string[]>(
             `${this.cityDictUrl}/city?pattern=${cityPattern}`
+        );
+    }
+
+    getLogins(input: string) {
+        return this.http.get<string[]>(
+            `${this.accountsUrl}/logins?login=` + input
         );
     }
 
