@@ -9,6 +9,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Local
@@ -45,23 +46,25 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void changePreferredTheme(String login, boolean lightTheme) throws AppBaseException;
 
-    Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+    Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
         throws AppBaseException;
 
-    Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+    Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
         throws AppBaseException;
 
-    Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+    Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
         throws AppBaseException;
 
-    Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+    Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
         throws AppBaseException;
 
-    Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc, String phrase)
+    Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc, String phrase, String login)
         throws AppBaseException;
 
-    Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc, String phrase)
+    Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc, String phrase, String login)
         throws AppBaseException;
+
+    List<String> getAccountsLogins(String login);
 
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 

@@ -303,38 +303,51 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc, String phrase) {
-        return accountFacade.findByActive(active, page, pageSize, asc, phrase);
+    public Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
+                                        String login) {
+        return accountFacade.findByActive(active, page, pageSize, asc, phrase, login);
     }
 
     @Override
     @RolesAllowed({"ADMIN", "MANAGER"})
-    public Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase) {
-        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active, page, pageSize, asc, phrase);
+    public Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
+                                          String login) {
+        return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active, page, pageSize, asc, phrase, login);
     }
 
     @Override
     @RolesAllowed({"MANAGER"})
-    public Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc, String phrase) {
-        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.OWNER, page, pageSize, asc, phrase);
+    public Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc, String phrase, String login) {
+        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.OWNER, page, pageSize, asc, phrase,
+            login);
     }
 
     @Override
     @RolesAllowed({"ADMIN"})
-    public Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase) {
-        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active, page, pageSize, asc, phrase);
+    public Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
+                                            String login) {
+        return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active, page, pageSize, asc, phrase, login);
     }
 
     @Override
     @RolesAllowed({"ADMIN"})
-    public Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc, String phrase) {
-        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.MANAGER, page, pageSize, asc, phrase);
+    public Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc, String phrase,
+                                                      String login) {
+        return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.MANAGER, page, pageSize, asc, phrase,
+            login);
     }
 
     @Override
     @RolesAllowed({"ADMIN"})
-    public Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc, String phrase) {
-        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active, page, pageSize, asc, phrase);
+    public Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
+                                          String login) {
+        return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active, page, pageSize, asc, phrase, login);
+    }
+
+    @Override
+    @RolesAllowed({"MANAGER", "ADMIN"})
+    public List<String> getAccountsLogins(String login) {
+        return accountFacade.findAccountsLoginsByLoginLike(login);
     }
 
     @Override

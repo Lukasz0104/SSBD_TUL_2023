@@ -167,7 +167,8 @@
       "revoke-admin": "Revoke Administrator access level",
       "verify": "Verify",
       "filter-content": "Firstname or lastname",
-      "filter-action": "Filter"
+      "filter-action": "Filter",
+      "filters": "Filters"
     },
     "account": {
       "created-at": "Created at",
@@ -341,7 +342,7 @@
         "authentication_exception": "Login unsuccessful",
         "token_not_found": "Provided code is wrong",
         "expired_token": "Code expired, log in again",
-        "rollback.limit.exceeded": "Request timmed out",
+        "rollback.limit.exceeded": "Request timed out",
         "optimistic_lock": "Login unsuccessful, please try again"
       }
     }
@@ -350,7 +351,7 @@
     "response": {
       "message": {
         "invalid_captcha": "Invalid captcha code",
-        "rollback.limit.exceeded": "Request timmed out",
+        "rollback.limit.exceeded": "Request timed out",
         "optimistic_lock": "Register unsuccessful, please try again",
         "license-number-already-taken": "License number already taken",
         "email-address-already-taken": "Email address already taken",
@@ -363,7 +364,7 @@
       "message": {
         "token_not_found": "Link was used",
         "expired_token": "Link has expired",
-        "rollback.limit.exceeded": "Request timmed out",
+        "rollback.limit.exceeded": "Request timed out",
         "optimistic_lock": "Register confirmation failed"
       }
     }
