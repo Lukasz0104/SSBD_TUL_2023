@@ -522,7 +522,8 @@ public class AccountEndpoint {
     public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                    @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                    @QueryParam("page") int page,
-                                   @QueryParam("pageSize") int pageSize) throws AppBaseException {
+                                   @QueryParam("pageSize") int pageSize,
+                                   @DefaultValue("") @QueryParam("phrase") String phrase) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
@@ -530,7 +531,7 @@ public class AccountEndpoint {
         do {
             try {
                 accounts = AccountDtoConverter.createAccountDtoPage(
-                    accountManager.getAllAccounts(active, page, pageSize, ascending));
+                    accountManager.getAllAccounts(active, page, pageSize, ascending, phrase));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -549,7 +550,8 @@ public class AccountEndpoint {
     public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                      @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                      @QueryParam("page") int page,
-                                     @QueryParam("pageSize") int pageSize)
+                                     @QueryParam("pageSize") int pageSize,
+                                     @DefaultValue("") @QueryParam("phrase") String phrase)
         throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -558,7 +560,7 @@ public class AccountEndpoint {
         do {
             try {
                 accounts = AccountDtoConverter.createAccountDtoPage(
-                    accountManager.getOwnerAccounts(active, page, pageSize, ascending));
+                    accountManager.getOwnerAccounts(active, page, pageSize, ascending, phrase));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -576,7 +578,9 @@ public class AccountEndpoint {
     @RolesAllowed({"MANAGER"})
     public Response getUnapprovedOwnerAccounts(@DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                                @QueryParam("page") int page,
-                                               @QueryParam("pageSize") int pageSize) throws AppBaseException {
+                                               @QueryParam("pageSize") int pageSize,
+                                               @DefaultValue("") @QueryParam("phrase") String phrase)
+        throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
@@ -584,7 +588,7 @@ public class AccountEndpoint {
         do {
             try {
                 accounts = AccountDtoConverter.createAccountDtoPage(
-                    accountManager.getUnapprovedOwnerAccounts(page, pageSize, ascending));
+                    accountManager.getUnapprovedOwnerAccounts(page, pageSize, ascending, phrase));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -603,7 +607,8 @@ public class AccountEndpoint {
     public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                        @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                        @QueryParam("page") int page,
-                                       @QueryParam("pageSize") int pageSize)
+                                       @QueryParam("pageSize") int pageSize,
+                                       @DefaultValue("") @QueryParam("phrase") String phrase)
         throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -612,7 +617,7 @@ public class AccountEndpoint {
         do {
             try {
                 accounts = AccountDtoConverter.createAccountDtoPage(
-                    accountManager.getManagerAccounts(active, page, pageSize, ascending));
+                    accountManager.getManagerAccounts(active, page, pageSize, ascending, phrase));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -630,7 +635,9 @@ public class AccountEndpoint {
     @RolesAllowed({"ADMIN"})
     public Response getUnapprovedManagerAccounts(@DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                                  @QueryParam("page") int page,
-                                                 @QueryParam("pageSize") int pageSize) throws AppBaseException {
+                                                 @QueryParam("pageSize") int pageSize,
+                                                 @DefaultValue("") @QueryParam("phrase") String phrase)
+        throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
@@ -638,7 +645,7 @@ public class AccountEndpoint {
         do {
             try {
                 accounts = AccountDtoConverter.createAccountDtoPage(
-                    accountManager.getUnapprovedManagerAccounts(page, pageSize, ascending));
+                    accountManager.getUnapprovedManagerAccounts(page, pageSize, ascending, phrase));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -657,7 +664,8 @@ public class AccountEndpoint {
     public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                      @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                      @QueryParam("page") int page,
-                                     @QueryParam("pageSize") int pageSize)
+                                     @QueryParam("pageSize") int pageSize,
+                                     @DefaultValue("") @QueryParam("phrase") String phrase)
         throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -666,7 +674,7 @@ public class AccountEndpoint {
         do {
             try {
                 accounts = AccountDtoConverter.createAccountDtoPage(
-                    accountManager.getAdminAccounts(active, page, pageSize, ascending));
+                    accountManager.getAdminAccounts(active, page, pageSize, ascending, phrase));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;

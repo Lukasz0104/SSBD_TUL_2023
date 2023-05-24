@@ -45,17 +45,23 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void changePreferredTheme(String login, boolean lightTheme) throws AppBaseException;
 
-    Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
+    Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+        throws AppBaseException;
 
-    Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
+    Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+        throws AppBaseException;
 
-    Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
+    Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+        throws AppBaseException;
 
-    Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc) throws AppBaseException;
+    Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc, String phrase)
+        throws AppBaseException;
 
-    Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc) throws AppBaseException;
+    Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc, String phrase)
+        throws AppBaseException;
 
-    Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc) throws AppBaseException;
+    Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc, String phrase)
+        throws AppBaseException;
 
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 

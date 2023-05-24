@@ -1,4 +1,34 @@
 <ng-container *ngIf="authService.isAdmin() || authService.isManager()">
+    <form [formGroup]="filter">
+        <div class="mb-3 row">
+            <label
+                for="filter-search"
+                class="col-xs-3 col-sm-auto col-form-label"
+                >{{ 'component.accounts.filter-content' | translate }}:
+            </label>
+            <div class="col-sm-2 d-flex">
+                <div class="input-group">
+                    <input
+                        id="filter-search"
+                        type="text"
+                        class="form-control"
+                        formControlName="phrase"
+                        placeholder="{{
+                            'component.accounts.filter-content' | translate
+                        }}" />
+                    <i
+                        class="input-group-text bi bi-x-lg cursor-pointer"
+                        (click)="clearFilterPhrase()"></i>
+                </div>
+                <button
+                    class="btn btn-primary ms-2"
+                    (click)="onFilterPhrase()">
+                    {{ 'component.accounts.filter-action' | translate }}
+                </button>
+            </div>
+            <div class="col-lg-8 align-content-start"></div>
+        </div>
+    </form>
     <div
         aria-label="Choose access type"
         class="btn-group mb-3 d-flex"

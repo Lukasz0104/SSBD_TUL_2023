@@ -59,13 +59,33 @@ import java.util.Set;
         query = "SELECT a FROM Account a WHERE a.verified = :verified"),
     @NamedQuery(
         name = "Account.findAllAccountsByActiveAsc",
-        query = "SELECT a FROM Account a WHERE a.active = :active ORDER BY a.login ASC"),
+        query = """
+            SELECT a FROM Account a 
+            WHERE a.active = :active 
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+            ORDER BY a.login ASC"""),
     @NamedQuery(
         name = "Account.findAllAccountsByActiveDesc",
-        query = "SELECT a FROM Account a WHERE a.active = :active ORDER BY a.login DESC"),
+        query = """
+            SELECT a FROM Account a
+            WHERE a.active = :active
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                ) 
+            ORDER BY a.login DESC"""),
     @NamedQuery(
         name = "Account.countAllAccountsByActive",
-        query = "SELECT count(a.id) FROM Account a WHERE a.active = :active"),
+        query = """
+            SELECT count(a.id) FROM Account a 
+            WHERE a.active = :active
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )"""),
     @NamedQuery(
         name = "Account.findAllAccountsByActiveAndAccessLevelAsc",
         query = """
@@ -75,6 +95,10 @@ import java.util.Set;
                 AND al.level = :level
                 AND al.active = TRUE
                 AND al.verified = TRUE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
                 ORDER BY a.login ASC"""),
     @NamedQuery(
         name = "Account.findAllAccountsByActiveAndAccessLevelDesc",
@@ -85,6 +109,10 @@ import java.util.Set;
                 AND al.level = :level
                 AND al.active = TRUE
                 AND al.verified = TRUE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
                 ORDER BY a.login DESC"""),
     @NamedQuery(
         name = "Account.countAllAccountsByActiveAndAccessLevel",
@@ -94,7 +122,11 @@ import java.util.Set;
             WHERE a.active = :active
                 AND al.level = :level
                 AND al.active = TRUE
-                AND al.verified = TRUE"""),
+                AND al.verified = TRUE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )"""),
     @NamedQuery(
         name = "Account.findAccountsThatNeedApprovalByAccessLevelAsc",
         query = """
@@ -104,6 +136,10 @@ import java.util.Set;
                 AND al.level = :level
                 AND al.active = FALSE
                 AND al.verified = FALSE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
                 ORDER BY a.login ASC"""),
     @NamedQuery(
         name = "Account.findAccountsThatNeedApprovalByAccessLevelDesc",
@@ -114,6 +150,10 @@ import java.util.Set;
                 AND al.level = :level
                 AND al.active = FALSE
                 AND al.verified = FALSE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
                 ORDER BY a.login DESC"""),
     @NamedQuery(
         name = "Account.countAccountsThatNeedApprovalByAccessLevel",
@@ -123,7 +163,11 @@ import java.util.Set;
             WHERE a.active = TRUE AND a.verified = TRUE
                 AND al.level = :level
                 AND al.active = FALSE
-                AND al.verified = FALSE""")
+                AND al.verified = FALSE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )""")
 })
 @Getter
 @Setter

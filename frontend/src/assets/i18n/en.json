@@ -164,7 +164,9 @@
       "revoke-owner": "Revoke Owner access level",
       "revoke-manager": "Revoke Manager access level",
       "revoke-admin": "Revoke Administrator access level",
-      "verify": "Verify"
+      "verify": "Verify",
+      "filter-content": "Firstname or lastname",
+      "filter-action": "Filter"
     },
     "account": {
       "created-at": "Created at",
