@@ -116,16 +116,6 @@ import java.util.Set;
                 AND al.verified = FALSE
                 ORDER BY a.login DESC"""),
     @NamedQuery(
-        name = "Account.findAccountsThatNeedApprovalByAccessLevel",
-        query = """
-            SELECT a FROM Account a
-            JOIN AccessLevel al on al.account = a
-            WHERE a.active = TRUE AND a.verified = TRUE
-                AND al.level = :level
-                AND al.active = FALSE
-                AND al.verified = FALSE
-                ORDER BY a.login"""),
-    @NamedQuery(
         name = "Account.countAccountsThatNeedApprovalByAccessLevel",
         query = """
             SELECT count(a.id) FROM Account a

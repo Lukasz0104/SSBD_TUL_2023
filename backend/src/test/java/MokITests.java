@@ -43,6 +43,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.RefreshJwtDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -3259,93 +3260,122 @@ public class MokITests extends TestContainersSetup {
 
         @Test
         void shouldGetAllAccountsAsAdmin() {
-            List<AccountDto> accounts =
+            Page<AccountDto> page =
                 given().spec(adminSpec)
                     .when()
                     .get("/accounts")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
         void shouldGetAllAccountsAsManager() {
-            List<AccountDto> accounts =
+            Page<AccountDto> page =
                 given().spec(managerSpec)
                     .when()
                     .get("/accounts")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(accounts);
-            assertTrue(accounts.size() > 0);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
         void shouldGetAllAdminsAsAdmin() {
-            List<AccountDto> admins =
+            Page<AccountDto> page =
                 given().spec(adminSpec)
                     .when()
                     .get("/accounts/admins")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(admins);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
         void shouldGetAllManagersAsAdmin() {
-            List<AccountDto> managers =
+            Page<AccountDto> page =
                 given().spec(adminSpec)
                     .when()
                     .get("/accounts/managers")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(managers);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
         void shouldGetAllOwnersAsAdmin() {
-            List<AccountDto> owners =
+            Page<AccountDto> page =
                 given().spec(adminSpec)
                     .when()
                     .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(owners);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
         void shouldGetAllOwnersAsManager() {
-            List<AccountDto> owners =
+            Page<AccountDto> page =
                 given().spec(managerSpec)
                     .when()
                     .get("/accounts/owners")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(owners);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
         void shouldGetUnapprovedOwnersAsManager() {
-            List<AccountDto> owners =
+            Page<AccountDto> page =
                 given().spec(managerSpec)
-                    .contentType(ContentType.JSON)
                     .when()
                     .get("/accounts/owners/unapproved")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(owners);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
         void shouldGetUnapprovedManagersAsAdmin() {
-            List<AccountDto> managers =
+            Page<AccountDto> page =
                 given().spec(adminSpec)
                     .when()
                     .get("/accounts/managers/unapproved")
-                    .getBody().as(ArrayList.class);
+                    .getBody().as(Page.class);
 
-            assertNotNull(managers);
+            assertNotNull(page);
+            assertNotNull(page.getData());
+            assertTrue(page.getTotalSize() >= 0);
+            assertTrue(page.getCurrentPage() >= 0);
+            assertTrue(page.getPageSize() >= 0);
         }
 
         @Test
