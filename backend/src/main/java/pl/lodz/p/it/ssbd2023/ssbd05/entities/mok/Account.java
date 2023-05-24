@@ -209,7 +209,7 @@ public class Account extends AbstractEntity implements Serializable {
 
     @NotNull
     @Column(name = "old_password")
-    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = String.class)
     @CollectionTable(name = "past_passwords", joinColumns = @JoinColumn(name = "account_id"))
     private Set<String> pastPasswords = new HashSet<>();
 

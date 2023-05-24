@@ -83,8 +83,7 @@ const routes: Routes = [
                 component: ForcePasswordChangeOverrideComponent,
                 data: {
                     title: 'Override password change'
-                },
-                canActivate: [canActivateLoginOrRegister]
+                }
             }
         ]
     },
