@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AccessType } from '../../../model/access-type';
+import { AccessLevels, AccessType } from '../../../model/access-type';
 
 @Component({
     selector: 'app-choose-access-level',
@@ -14,4 +14,6 @@ export class ChooseAccessLevelComponent {
     onClick(group: AccessType) {
         this.activeModal.close(group);
     }
+
+    protected readonly AccessLevels = AccessLevels;
 }

@@ -4,7 +4,7 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, EMPTY, map, of, tap } from 'rxjs';
 import { LoginResponse } from '../model/login-response';
 import jwtDecode from 'jwt-decode';
-import { AccessType } from '../model/access-type';
+import { AccessLevels, AccessType } from '../model/access-type';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RefreshSessionComponent } from '../components/modals/refresh-session/refresh-session.component';
 import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
@@ -18,7 +18,7 @@ import { TwoFactorAuthComponent } from '../components/modals/two-factor-auth/two
 })
 export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);
-    private currentGroup = new BehaviorSubject<AccessType>(AccessType.NONE);
+    private currentGroup = new BehaviorSubject<AccessType>(AccessLevels.NONE);
     private scheduledRefresh: any;
 
     constructor(
@@ -43,9 +43,9 @@ export class AuthService {
                 }
                 const group = localStorage.getItem('currentGroup');
                 if (
-                    group == AccessType.ADMIN ||
-                    group == AccessType.MANAGER ||
-                    group == AccessType.OWNER
+                    group == AccessLevels.ADMIN ||
+                    group == AccessLevels.MANAGER ||
+                    group == AccessLevels.OWNER
                 ) {
                     this.authenticated.next(true);
                     this.currentGroup.next(group as AccessType);
@@ -359,15 +359,15 @@ export class AuthService {
     }
 
     isOwner() {
-        return this.getCurrentGroup() === AccessType.OWNER;
+        return this.getCurrentGroup() === AccessLevels.OWNER;
     }
 
     isManager() {
-        return this.getCurrentGroup() === AccessType.MANAGER;
+        return this.getCurrentGroup() === AccessLevels.MANAGER;
     }
 
     isAdmin() {
-        return this.getCurrentGroup() === AccessType.ADMIN;
+        return this.getCurrentGroup() === AccessLevels.ADMIN;
     }
 
     getCurrentGroupObservable() {

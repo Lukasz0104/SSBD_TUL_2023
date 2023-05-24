@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../../services/account.service';
-import { AccessType } from '../../../model/access-type';
+import { AccessLevels } from '../../../model/access-type';
 import { Account } from '../../../model/account';
 import {
     debounceTime,
@@ -107,7 +107,7 @@ export class EditPersonalDataAsAdminComponent {
                 if (val?.accessLevels !== undefined) {
                     for (const level of val.accessLevels) {
                         switch (level.level) {
-                            case AccessType.OWNER:
+                            case AccessLevels.OWNER:
                                 this.ownerStreet = level.address?.street ?? '';
                                 this.ownerBuildingNumber =
                                     level.address?.buildingNumber ?? -1;
@@ -115,7 +115,7 @@ export class EditPersonalDataAsAdminComponent {
                                 this.ownerPostalCode =
                                     level.address?.postalCode ?? '';
                                 break;
-                            case AccessType.MANAGER:
+                            case AccessLevels.MANAGER:
                                 this.managerStreet =
                                     level.address?.street ?? '';
                                 this.managerBuildingNumber =
@@ -149,7 +149,7 @@ export class EditPersonalDataAsAdminComponent {
                     this.newAccount.language = this.language;
                     for (const level of this.newAccount.accessLevels) {
                         switch (level.level) {
-                            case AccessType.OWNER:
+                            case AccessLevels.OWNER:
                                 if (level.address != null) {
                                     level.address.street = this.ownerStreet;
                                     level.address.buildingNumber =
@@ -159,7 +159,7 @@ export class EditPersonalDataAsAdminComponent {
                                         this.ownerPostalCode;
                                 }
                                 break;
-                            case AccessType.MANAGER:
+                            case AccessLevels.MANAGER:
                                 if (level.address != null) {
                                     level.address.street = this.managerStreet;
                                     level.address.buildingNumber =
@@ -190,10 +190,10 @@ export class EditPersonalDataAsAdminComponent {
             let valid = this.editPersonalDataForm.valid;
             for (const level of this.newAccount.accessLevels) {
                 switch (level.level) {
-                    case AccessType.OWNER:
+                    case AccessLevels.OWNER:
                         valid = valid && this.editOwnerDataForm.valid;
                         break;
-                    case AccessType.MANAGER:
+                    case AccessLevels.MANAGER:
                         valid = valid && this.editManagerDataForm.valid;
                         break;
                 }
@@ -402,6 +402,7 @@ export class EditPersonalDataAsAdminComponent {
 
     //endregion
 
-    protected readonly AccessType = AccessType;
+    protected readonly AccessType = AccessLevels;
     protected readonly environment = environment;
+    protected readonly AccessLevels = AccessLevels;
 }

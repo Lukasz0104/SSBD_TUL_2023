@@ -10,7 +10,11 @@ import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { Account, EditPersonalData, OwnAccount } from '../model/account';
 import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
-import { AccessType, ChangeAccessLevelDto } from '../model/access-type';
+import {
+    AccessLevels,
+    AccessType,
+    ChangeAccessLevelDto
+} from '../model/access-type';
 import { AuthService } from './auth.service';
 import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -296,13 +300,13 @@ export class AccountService {
     ) {
         let url;
         switch (type) {
-            case AccessType.OWNER:
+            case AccessLevels.OWNER:
                 url = 'accounts/owners';
                 break;
-            case AccessType.MANAGER:
+            case AccessLevels.MANAGER:
                 url = 'accounts/managers';
                 break;
-            case AccessType.ADMIN:
+            case AccessLevels.ADMIN:
                 url = 'accounts/admins';
                 break;
             default:
@@ -322,11 +326,11 @@ export class AccountService {
         phrase: string,
         login: string
     ) {
-        if (type == AccessType.OWNER) {
+        if (type == AccessLevels.OWNER) {
             return this.http.get<AccountPage>(
                 `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );
-        } else if (type == AccessType.MANAGER) {
+        } else if (type == AccessLevels.MANAGER) {
             return this.http.get<AccountPage>(
                 `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );

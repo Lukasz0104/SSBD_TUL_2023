@@ -13,7 +13,7 @@ import {
     OperatorFunction,
     switchMap
 } from 'rxjs';
-import { AccessType } from '../../model/access-type';
+import { AccessLevels, AccessType } from '../../model/access-type';
 import { Account } from '../../model/account';
 import { AccessLevelService } from '../../services/access-level.service';
 import { AccountService } from '../../services/account.service';
@@ -30,7 +30,7 @@ import { FormControl, FormGroup } from '@angular/forms';
     templateUrl: './accounts.component.html'
 })
 export class AccountsComponent implements OnInit {
-    protected readonly accessTypeEnum = AccessType;
+    protected readonly accessTypeEnum = AccessLevels;
 
     accountsPage$: Observable<AccountPage> | undefined;
     page = 1;
@@ -41,7 +41,7 @@ export class AccountsComponent implements OnInit {
     sortDirection = 1;
 
     chosenOption = new BehaviorSubject<number>(1);
-    chosenAccessType = new BehaviorSubject<AccessType>(AccessType.OWNER);
+    chosenAccessType = new BehaviorSubject(AccessLevels.OWNER);
     filter = new FormGroup({
         phrase: new FormControl('', {}),
         login: new FormControl('', {})
@@ -151,14 +151,14 @@ export class AccountsComponent implements OnInit {
                 const accessTypeFilter =
                     localStorage.getItem('accessTypeFilter') ?? 'ALL';
                 if (
-                    currentGroup == AccessType.MANAGER &&
-                    (accessTypeFilter == AccessType.MANAGER ||
-                        accessTypeFilter == AccessType.ADMIN)
+                    currentGroup == AccessLevels.MANAGER &&
+                    (accessTypeFilter == AccessLevels.MANAGER ||
+                        accessTypeFilter == AccessLevels.ADMIN)
                 ) {
-                    this.chosenAccessType.next(AccessType.ALL);
-                    localStorage.setItem('accessTypeFilter', AccessType.ALL);
+                    this.chosenAccessType.next(AccessLevels.ALL);
+                    localStorage.setItem('accessTypeFilter', AccessLevels.ALL);
                 } else {
-                    this.chosenAccessType.next(accessTypeFilter as AccessType);
+                    this.chosenAccessType.next(accessTypeFilter);
                 }
 
                 let activeFilter = parseInt(
@@ -166,12 +166,12 @@ export class AccountsComponent implements OnInit {
                 );
 
                 if (
-                    (currentGroup == AccessType.ADMIN &&
+                    (currentGroup == AccessLevels.ADMIN &&
                         activeFilter == 3 &&
-                        accessTypeFilter != AccessType.MANAGER) ||
-                    (currentGroup == AccessType.MANAGER &&
+                        accessTypeFilter != AccessLevels.MANAGER) ||
+                    (currentGroup == AccessLevels.MANAGER &&
                         activeFilter == 3 &&
-                        accessTypeFilter != AccessType.OWNER)
+                        accessTypeFilter != AccessLevels.OWNER)
                 ) {
                     activeFilter = 1;
                 }
@@ -279,7 +279,7 @@ export class AccountsComponent implements OnInit {
             });
     }
 
-    protected hasAccessLevel(account: Account, level: AccessType) {
+    protected hasAccessLevel(account: Account, level: string): boolean {
         return (
             account.accessLevels.filter((al) => al.level === level && al.active)
                 .length === 1
@@ -289,54 +289,54 @@ export class AccountsComponent implements OnInit {
     protected showGrantAdminDropdownItem(account: Account): boolean {
         const chosen = this.chosenAccessType.getValue();
         return (
-            this.authService.getCurrentGroup() === AccessType.ADMIN &&
-            chosen === AccessType.ALL &&
-            !this.hasAccessLevel(account, AccessType.ADMIN)
+            this.authService.getCurrentGroup() === AccessLevels.ADMIN &&
+            chosen === AccessLevels.ALL &&
+            !this.hasAccessLevel(account, AccessLevels.ADMIN)
         );
     }
 
     protected showGrantManagerDropdownItem(account: Account): boolean {
         const chosen = this.chosenAccessType.getValue();
         return (
-            this.authService.getCurrentGroup() === AccessType.ADMIN &&
-            chosen === AccessType.ALL &&
-            !this.hasAccessLevel(account, AccessType.MANAGER)
+            this.authService.getCurrentGroup() === AccessLevels.ADMIN &&
+            chosen === AccessLevels.ALL &&
+            !this.hasAccessLevel(account, AccessLevels.MANAGER)
         );
     }
 
     protected showGrantOwnerDropdownItem(account: Account): boolean {
         const chosen = this.chosenAccessType.getValue();
         return (
-            this.authService.getCurrentGroup() === AccessType.MANAGER &&
-            chosen === AccessType.ALL &&
-            !this.hasAccessLevel(account, AccessType.OWNER)
+            this.authService.getCurrentGroup() === AccessLevels.MANAGER &&
+            chosen === AccessLevels.ALL &&
+            !this.hasAccessLevel(account, AccessLevels.OWNER)
         );
     }
 
     protected showRevokeAdminDropdownItem(account: Account): boolean {
         const chosen = this.chosenAccessType.getValue();
         return (
-            this.authService.getCurrentGroup() === AccessType.ADMIN &&
-            (chosen === AccessType.ALL || chosen === AccessType.ADMIN) &&
-            this.hasAccessLevel(account, AccessType.ADMIN)
+            this.authService.getCurrentGroup() === AccessLevels.ADMIN &&
+            (chosen === AccessLevels.ALL || chosen === AccessLevels.ADMIN) &&
+            this.hasAccessLevel(account, AccessLevels.ADMIN)
         );
     }
 
     protected showRevokeManagerDropdownItem(account: Account): boolean {
         const chosen = this.chosenAccessType.getValue();
         return (
-            this.authService.getCurrentGroup() === AccessType.ADMIN &&
-            (chosen === AccessType.ALL || chosen === AccessType.MANAGER) &&
-            this.hasAccessLevel(account, AccessType.MANAGER)
+            this.authService.getCurrentGroup() === AccessLevels.ADMIN &&
+            (chosen === AccessLevels.ALL || chosen === AccessLevels.MANAGER) &&
+            this.hasAccessLevel(account, AccessLevels.MANAGER)
         );
     }
 
     protected showRevokeOwnerDropdownItem(account: Account): boolean {
         const chosen = this.chosenAccessType.getValue();
         return (
-            this.authService.getCurrentGroup() === AccessType.MANAGER &&
-            (chosen === AccessType.ALL || chosen === AccessType.OWNER) &&
-            this.hasAccessLevel(account, AccessType.OWNER)
+            this.authService.getCurrentGroup() === AccessLevels.MANAGER &&
+            (chosen === AccessLevels.ALL || chosen === AccessLevels.OWNER) &&
+            this.hasAccessLevel(account, AccessLevels.OWNER)
         );
     }
 

@@ -48,7 +48,6 @@ import {
     RecaptchaModule,
     RecaptchaSettings
 } from 'ng-recaptcha';
-import { environment } from '../environments/environment';
 import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
@@ -58,6 +57,7 @@ import { GuestNavbarComponent } from './components/guest-navbar/guest-navbar.com
 import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
 import { ThemeSwitchComponent } from './components/theme-switch/theme-switch.component';
 import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
+import config from '../assets/ebok.json';
 
 @NgModule({
     declarations: [
@@ -120,13 +120,13 @@ import { UnlockAccountComponent } from './components/unlock-account/unlock-accou
         NgbTypeaheadModule
     ],
     providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
         {
             provide: RECAPTCHA_SETTINGS,
             useValue: {
-                siteKey: environment.recaptchaKey
+                siteKey: config.recaptchaKey
             } as RecaptchaSettings
-        }
+        },
+        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
     ],
     bootstrap: [AppComponent]
 })

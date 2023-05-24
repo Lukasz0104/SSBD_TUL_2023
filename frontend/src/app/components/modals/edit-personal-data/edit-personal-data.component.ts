@@ -12,7 +12,7 @@ import {
     switchMap,
     tap
 } from 'rxjs';
-import { AccessType } from '../../../model/access-type';
+import { AccessLevels } from '../../../model/access-type';
 import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -99,7 +99,7 @@ export class EditPersonalDataComponent {
                     if (result?.accessLevels !== undefined) {
                         for (const level of result.accessLevels) {
                             switch (level.level) {
-                                case AccessType.OWNER:
+                                case AccessLevels.OWNER:
                                     this.ownerStreet =
                                         level.address?.street ?? '';
                                     this.ownerBuldingNumber =
@@ -108,7 +108,7 @@ export class EditPersonalDataComponent {
                                     this.ownerPostalCode =
                                         level.address?.postalCode ?? '';
                                     break;
-                                case AccessType.MANAGER:
+                                case AccessLevels.MANAGER:
                                     this.managerStreet =
                                         level.address?.street ?? '';
                                     this.managerBuldingNumber =
@@ -151,7 +151,7 @@ export class EditPersonalDataComponent {
             this.ownAccount.lastName = this.lastName;
             for (const level of this.ownAccount.accessLevels) {
                 switch (level.level) {
-                    case AccessType.OWNER:
+                    case AccessLevels.OWNER:
                         if (level.address != null) {
                             level.address.street = this.ownerStreet;
                             level.address.buildingNumber =
@@ -160,7 +160,7 @@ export class EditPersonalDataComponent {
                             level.address.postalCode = this.ownerPostalCode;
                         }
                         break;
-                    case AccessType.MANAGER:
+                    case AccessLevels.MANAGER:
                         if (level.address != null) {
                             level.address.street = this.managerStreet;
                             level.address.buildingNumber =
@@ -188,10 +188,10 @@ export class EditPersonalDataComponent {
             let valid = this.editPersonalDataForm.valid;
             for (const level of this.ownAccount.accessLevels) {
                 switch (level.level) {
-                    case AccessType.OWNER:
+                    case AccessLevels.OWNER:
                         valid = valid && this.editOwnerDataForm.valid;
                         break;
-                    case AccessType.MANAGER:
+                    case AccessLevels.MANAGER:
                         valid = valid && this.editManagerDataForm.valid;
                         break;
                 }
@@ -374,5 +374,6 @@ export class EditPersonalDataComponent {
 
     //endregion
 
-    protected readonly AccessType = AccessType;
+    protected readonly AccessType = AccessLevels;
+    protected readonly AccessLevels = AccessLevels;
 }
