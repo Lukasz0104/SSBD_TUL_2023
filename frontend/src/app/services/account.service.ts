@@ -76,7 +76,7 @@ export class AccountService {
     }
 
     resetPasswordConfirm(resetPasswordDTO: object) {
-        this.http
+        return this.http
             .post(`${this.accountsUrl}/reset-password`, resetPasswordDTO)
             .pipe(
                 map(() => {
@@ -93,11 +93,13 @@ export class AccountService {
                         'password-change',
                         response
                     );
-                    this.router.navigate(['/']);
-                    return EMPTY;
+                    if (!response.error.message.includes('repeated_password')) {
+                        this.router.navigate(['/']);
+                        return of(true);
+                    }
+                    return of(false);
                 })
-            )
-            .subscribe();
+            );
     }
 
     forcePasswordChange(login: string) {
@@ -122,7 +124,7 @@ export class AccountService {
     }
 
     overrideForcePasswordChange(resetPasswordDTO: object) {
-        this.http
+        return this.http
             .put(
                 `${this.accountsUrl}/override-forced-password`,
                 resetPasswordDTO
@@ -142,11 +144,14 @@ export class AccountService {
                         'password-change',
                         response
                     );
-                    this.router.navigate(['/']);
-                    return EMPTY;
+
+                    if (!response.error.message.includes('repeated_password')) {
+                        this.router.navigate(['/']);
+                        return of(true);
+                    }
+                    return of(false);
                 })
-            )
-            .subscribe();
+            );
     }
 
     register(dto: RegisterOwnerDto | RegisterManagerDto) {

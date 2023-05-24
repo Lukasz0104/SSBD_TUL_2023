@@ -73,7 +73,9 @@ export class ResetPasswordConfirmComponent {
                 password: this.resetPasswordForm.getRawValue().password,
                 token: this.token
             };
-            this.accountService.resetPasswordConfirm(resetPasswordDTO);
+            this.accountService
+                .resetPasswordConfirm(resetPasswordDTO)
+                .subscribe((result) => (this.loading = result ?? false));
         }
     }
 }
