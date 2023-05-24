@@ -287,6 +287,14 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public void changePreferredTheme(String login, boolean lightTheme) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        account.setLightThemePreferred(lightTheme);
+        accountFacade.edit(account);
+    }
+
+    @Override
     @RolesAllowed({"ADMIN", "MANAGER"})
     public List<Account> getAllAccounts(boolean active) {
         return accountFacade.findByActive(active);

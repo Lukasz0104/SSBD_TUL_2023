@@ -52,6 +52,7 @@ import { TwoFactorAuthComponent } from './components/modals/two-factor-auth/two-
 import { CodeInputModule } from 'angular-code-input';
 import { GuestNavbarComponent } from './components/guest-navbar/guest-navbar.component';
 import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
+import { ThemeSwitchComponent } from './components/theme-switch/theme-switch.component';
 
 @NgModule({
     declarations: [
@@ -87,7 +88,8 @@ import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
         ConfirmRegistrationComponent,
         RecaptchaComponent,
         ActiveAccessLevelsPipe,
-        GuestNavbarComponent
+        GuestNavbarComponent,
+        ThemeSwitchComponent
     ],
     imports: [
         BrowserModule,

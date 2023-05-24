@@ -19,6 +19,12 @@ html, body {
 
 .nav-pills .nav-link.active {
     background-color: rgb(0, 0, 0, 0.075);
+    color: rgb(var(--bs-dark-rgb));
+}
+
+[data-bs-theme=dark] .nav-pills .nav-link.active {
+    background-color: rgb(255, 255, 255, 0.075);
+    color: rgb(var(--bs-white-rgb));
 }
 
 app-dashboard + app-toast-section > section.toast-container {
@@ -51,6 +57,10 @@ app-home + app-toast-section > section.toast-container {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(9.3px);
     -webkit-backdrop-filter: blur(9.3px);
+}
+
+[data-bs-theme=dark] .glass {
+    background: rgba(0, 0, 0, 0.75);
 }
 
 .bg-image-full {

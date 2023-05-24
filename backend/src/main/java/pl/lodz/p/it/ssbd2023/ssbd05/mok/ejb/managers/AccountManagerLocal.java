@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Local;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
@@ -41,6 +42,9 @@ public interface AccountManagerLocal extends CommonManagerInterface {
     void forcePasswordChange(String login) throws AppBaseException;
 
     void overrideForcedPassword(String password, String token) throws AppBaseException;
+
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    void changePreferredTheme(String login, boolean lightTheme) throws AppBaseException;
 
     List<Account> getAllAccounts(boolean active) throws AppBaseException;
 

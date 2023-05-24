@@ -1,0 +1,10 @@
+<div
+    class="fs-5 px-2 cursor-pointer"
+    (click)="themeChanged()">
+    <i
+        class="bi"
+        [ngClass]="{
+            'bi-moon-fill': lightTheme,
+            'bi-sun-fill': !lightTheme
+        }"></i>
+</div>

@@ -464,6 +464,34 @@ public class AccountEndpoint {
     }
 
     @PUT
+    @Path("/me/theme")
+    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    public Response changePreferredTheme(@NotNull @QueryParam("light") boolean lightTheme) throws AppBaseException {
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollbackTx = false;
+        String login = securityContext.getUserPrincipal().getName();
+        do {
+            try {
+                accountManager.changePreferredTheme(login, lightTheme);
+                rollbackTx = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTx = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTx = true;
+            }
+        } while (rollbackTx && txLimit-- > 0);
+
+        if (rollbackTx && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
+    }
+
+    @PUT
     @Path("/me/change-language/{language}")
     @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
     public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {

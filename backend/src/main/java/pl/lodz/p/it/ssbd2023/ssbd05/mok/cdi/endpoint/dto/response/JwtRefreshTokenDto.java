@@ -19,4 +19,6 @@ public class JwtRefreshTokenDto {
 
     @NotBlank
     private String language;
+
+    private boolean lightThemePreferred;
 }

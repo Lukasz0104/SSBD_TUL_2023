@@ -514,4 +514,15 @@ export class AccountService {
             )
             .subscribe();
     }
+    updateThemePreferrence(isLightPreferred: boolean) {
+        if (this.authService.isAuthenticated()) {
+            this.http
+                .put(`${this.accountsUrl}/me/theme`, null, {
+                    params: {
+                        light: isLightPreferred
+                    }
+                })
+                .subscribe();
+        }
+    }
 }
