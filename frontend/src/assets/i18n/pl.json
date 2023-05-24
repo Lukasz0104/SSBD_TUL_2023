@@ -164,7 +164,9 @@
       "revoke-owner": "Odbierz poziom dostępu Właściciel",
       "revoke-manager": "Odbierz poziom dostępu Zarządca",
       "revoke-admin": "Odbierz poziom dostępu Administrator",
-      "verify": "Zweryfikuj"
+      "verify": "Zweryfikuj",
+      "filter-content": "Imię lub nazwisko",
+      "filter-action": "Filtruj"
     },
     "account": {
       "created-at": "Czas utworzenia",

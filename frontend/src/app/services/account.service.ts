@@ -284,7 +284,8 @@ export class AccountService {
         active: boolean,
         page: number,
         size: number,
-        sortDirection: boolean
+        sortDirection: boolean,
+        phrase: string
     ) {
         let url;
         switch (type) {
@@ -302,7 +303,7 @@ export class AccountService {
                 break;
         }
         return this.http.get<AccountPage>(
-            `${environment.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}`
+            `${environment.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}`
         );
     }
 
@@ -310,15 +311,16 @@ export class AccountService {
         type: AccessType,
         page: number,
         size: number,
-        sortDirection: boolean
+        sortDirection: boolean,
+        phrase: string
     ) {
         if (type == AccessType.OWNER) {
             return this.http.get<AccountPage>(
-                `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}`
+                `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}`
             );
         } else if (type == AccessType.MANAGER) {
             return this.http.get<AccountPage>(
-                `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}`
+                `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}`
             );
         }
         return EMPTY;
@@ -526,6 +528,7 @@ export class AccountService {
             )
             .subscribe();
     }
+
     updateThemePreferrence(isLightPreferred: boolean) {
         if (this.authService.isAuthenticated()) {
             this.http

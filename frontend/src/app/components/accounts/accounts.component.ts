@@ -11,6 +11,7 @@ import { ConfirmActionComponent } from '../modals/confirm-action/confirm-action.
 import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { GrantAccessLevelComponent } from '../modals/grant-access-level/grant-access-level.component';
 import { AccountPage } from '../../model/account-page';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
     selector: 'app-accounts',
@@ -22,11 +23,15 @@ export class AccountsComponent implements OnInit {
     accountsPage$: Observable<AccountPage> | undefined;
     page = 1;
     pageSize = 10;
+    phrase = '';
 
     sortDirection = 1;
 
     chosenOption = new BehaviorSubject<number>(1);
     chosenAccessType = new BehaviorSubject<AccessType>(AccessType.OWNER);
+    filter = new FormGroup({
+        phrase: new FormControl('', {})
+    });
 
     constructor(
         private accountService: AccountService,
@@ -57,7 +62,8 @@ export class AccountsComponent implements OnInit {
                         true,
                         this.page - 1,
                         this.pageSize,
-                        this.sortDirection === 1
+                        this.sortDirection === 1,
+                        this.phrase
                     );
                 break;
             case 2:
@@ -67,7 +73,8 @@ export class AccountsComponent implements OnInit {
                         false,
                         this.page - 1,
                         this.pageSize,
-                        this.sortDirection === 1
+                        this.sortDirection === 1,
+                        this.phrase
                     );
                 break;
             case 3:
@@ -76,7 +83,8 @@ export class AccountsComponent implements OnInit {
                         this.chosenAccessType.getValue(),
                         this.page - 1,
                         this.pageSize,
-                        this.sortDirection === 1
+                        this.sortDirection === 1,
+                        this.phrase
                     );
                 break;
         }
@@ -304,5 +312,18 @@ export class AccountsComponent implements OnInit {
     savePageSizePreference() {
         this.reload();
         localStorage.setItem('pageSize', this.pageSize.toString());
+    }
+
+    protected onFilterPhrase() {
+        this.phrase = this.filter.getRawValue().phrase ?? '';
+        this.reload();
+    }
+
+    protected clearFilterPhrase() {
+        if (this.filter.getRawValue().phrase != null) {
+            this.phrase = '';
+            this.filter.controls.phrase.reset();
+            this.reload();
+        }
     }
 }
