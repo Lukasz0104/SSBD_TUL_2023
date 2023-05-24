@@ -166,7 +166,8 @@
       "revoke-admin": "Revoke Administrator access level",
       "verify": "Verify",
       "filter-content": "Firstname or lastname",
-      "filter-action": "Filter"
+      "filter-action": "Filter",
+      "filters": "Filters"
     },
     "account": {
       "created-at": "Created at",

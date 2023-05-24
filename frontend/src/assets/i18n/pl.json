@@ -166,7 +166,8 @@
       "revoke-admin": "Odbierz poziom dostępu Administrator",
       "verify": "Zweryfikuj",
       "filter-content": "Imię lub nazwisko",
-      "filter-action": "Filtruj"
+      "filter-action": "Filtruj",
+      "filters": "Filtry"
     },
     "account": {
       "created-at": "Czas utworzenia",

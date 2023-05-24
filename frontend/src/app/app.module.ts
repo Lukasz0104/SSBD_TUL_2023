@@ -7,7 +7,11 @@ import {
 } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NgbAccordionModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbAccordionModule,
+    NgbModule,
+    NgbTypeaheadModule
+} from '@ng-bootstrap/ng-bootstrap';
 import { LoginComponent } from './components/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -110,7 +114,8 @@ import { ThemeSwitchComponent } from './components/theme-switch/theme-switch.com
         FormsModule,
         RecaptchaFormsModule,
         RecaptchaModule,
-        CodeInputModule
+        CodeInputModule,
+        NgbTypeaheadModule
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
