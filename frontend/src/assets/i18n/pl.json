@@ -46,7 +46,8 @@
     "city": {
       "required": "Miasto jest wymagane.",
       "min-length": "Miasto musi składać się z co najmniej 2 znaków.",
-      "max-length": "Miasto może składać się z maksymalnie 85 znaków."
+      "max-length": "Miasto może składać się z maksymalnie 85 znaków.",
+      "pattern": "Miasto musi zaczynać się z wielkiej litery."
     },
     "license-number": {
       "required": "Numer licencji jest wymagany."

@@ -3,7 +3,15 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EditPersonalData, OwnAccount } from '../../../model/account';
 import { AccountService } from '../../../services/account.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Observable, tap } from 'rxjs';
+import {
+    debounceTime,
+    distinctUntilChanged,
+    Observable,
+    of,
+    OperatorFunction,
+    switchMap,
+    tap
+} from 'rxjs';
 import { AccessType } from '../../../model/access-type';
 import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
 import { TranslateService } from '@ngx-translate/core';
@@ -46,7 +54,8 @@ export class EditPersonalDataComponent {
         city: new FormControl('', [
             Validators.required,
             Validators.minLength(2),
-            Validators.maxLength(85)
+            Validators.maxLength(85),
+            Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
         ]),
         licenseNumber: new FormControl('', [Validators.required])
     });
@@ -68,7 +77,8 @@ export class EditPersonalDataComponent {
         city: new FormControl('', [
             Validators.required,
             Validators.minLength(2),
-            Validators.maxLength(85)
+            Validators.maxLength(85),
+            Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
         ])
     });
 
@@ -268,6 +278,20 @@ export class EditPersonalDataComponent {
         this.editOwnerDataForm.controls.city.setValue(value ?? '');
     }
 
+    searchOwner: OperatorFunction<string, readonly string[]> = (
+        text$: Observable<string>
+    ) =>
+        text$.pipe(
+            debounceTime(200),
+            distinctUntilChanged(),
+            switchMap((value: string) => {
+                if (!this.ownerCityControl.valid) {
+                    return of([]);
+                }
+                return this.accountService.getCitiesByPattern(value);
+            })
+        );
+
     //endregion
 
     //region manager
@@ -333,6 +357,20 @@ export class EditPersonalDataComponent {
     set managerLicenseNumber(value: string) {
         this.editManagerDataForm.controls.licenseNumber.setValue(value ?? '');
     }
+
+    searchManager: OperatorFunction<string, readonly string[]> = (
+        text$: Observable<string>
+    ) =>
+        text$.pipe(
+            debounceTime(200),
+            distinctUntilChanged(),
+            switchMap((value: string) => {
+                if (!this.managerCityControl.valid) {
+                    return of([]);
+                }
+                return this.accountService.getCitiesByPattern(value);
+            })
+        );
 
     //endregion
 

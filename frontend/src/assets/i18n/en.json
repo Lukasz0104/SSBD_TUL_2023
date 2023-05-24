@@ -46,7 +46,8 @@
     "city": {
       "required": "City is required.",
       "min-length": "City must be at least 2 characters long",
-      "max-length": "City must be at most 85 characters long."
+      "max-length": "City must be at most 85 characters long.",
+      "pattern": "City must start with capital letter."
     },
     "license-number": {
       "required": "License number is required."
