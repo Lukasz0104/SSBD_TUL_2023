@@ -643,6 +643,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     public void unlockOwnAccount(String token) throws AppBaseException {
         Token unlockToken = tokenFacade.findByToken(token).orElseThrow(TokenNotFoundException::new);
 
+        unlockToken.validateSelf(TokenType.UNLOCK_ACCOUNT_SELF_TOKEN);
+
         Account account = unlockToken.getAccount();
         account.setActive(true);
 

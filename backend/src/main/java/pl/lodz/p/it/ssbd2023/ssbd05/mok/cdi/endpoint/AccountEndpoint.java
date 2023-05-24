@@ -858,6 +858,7 @@ public class AccountEndpoint {
 
     @POST
     @Path("unlock-account")
+    @PermitAll
     public Response unlockAccountSelf(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;

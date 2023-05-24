@@ -455,7 +455,8 @@
     "response": {
       "message": {
         "no-token": "Brak unikalnego kodu.",
-        "token_not_found": "Podano błędny kod"
+        "token_not_found": "Podano błędny kod",
+        "invalid_token_type": "Podano błędny kod"
       }
     }
   }

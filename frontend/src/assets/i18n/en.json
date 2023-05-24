@@ -455,7 +455,8 @@
     "response": {
       "message": {
         "no-token": "Token not provided",
-        "token_not_found": "Invalid token"
+        "token_not_found": "Invalid token",
+        "invalid_token_type": "Invalid token"
       }
     }
   }
