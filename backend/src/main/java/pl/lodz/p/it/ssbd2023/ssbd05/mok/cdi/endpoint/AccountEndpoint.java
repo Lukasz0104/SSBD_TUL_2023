@@ -842,4 +842,30 @@ public class AccountEndpoint {
         }
         return Response.noContent().build();
     }
+
+    @POST
+    @Path("unlock-account")
+    public Response unlockAccountSelf(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                accountManager.unlockOwnAccount(token);
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollBackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.noContent().build();
+    }
 }

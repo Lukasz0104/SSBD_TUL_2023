@@ -208,7 +208,6 @@ insert into public.city_dict (city) values ('Łódź');
 insert into public.city_dict (city) values ('Kutno');
 insert into public.city_dict (city) values ('Wrocław');
 insert into public.city_dict (city) values ('Łęczyca');
-insert into public.city_dict (city) values ('Jaworzno');
 insert into public.city_dict (city) values ( 'Chorzów');
 insert into public.city_dict (city) values ( 'Kraków');
 insert into public.city_dict (city) values ('Kurnik');

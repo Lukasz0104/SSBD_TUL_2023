@@ -121,6 +121,7 @@ public class Token extends AbstractEntity {
             case PASSWORD_RESET_TOKEN -> LocalDateTime.now().plusMinutes(15);
             case BLOCKED_ACCOUNT_TOKEN -> LocalDateTime.now().plusHours(24);
             case TWO_FACTOR_AUTH_TOKEN -> LocalDateTime.now().plusMinutes(5);
+            case UNLOCK_ACCOUNT_SELF_TOKEN -> LocalDateTime.now().plusYears(1000);
             default -> LocalDateTime.now().plusHours(2);
         };
     }

@@ -167,7 +167,14 @@ import java.util.Set;
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
-                )""")
+                )"""),
+    @NamedQuery(
+        name = "Account.findAccountsWithoutRecentActivity",
+        query = """
+            SELECT a FROM Account a
+            WHERE a.active = true
+                  AND a.verified = true
+                  AND a.activityTracker.lastSuccessfulLogin < :lastSuccessfulLogin""")
 })
 @Getter
 @Setter

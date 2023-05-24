@@ -78,6 +78,15 @@ public class I18n {
     public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_ACTION =
         "email.message.force-password-change.action";
 
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_MESSAGE =
+        "email.message.inactivity-account-locked.message";
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_SUBJECT =
+        "email.message.inactivity-account-locked.subject";
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_TITLE =
+        "email.message.inactivity-account-locked.title";
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_ACTION =
+        "email.message.inactivity-account-locked.action";
+
     public static final String EMAIL_MESSAGE_TWO_FACTOR_CODE_MESSAGE =
         "email.message.two-factor-code.message";
 
