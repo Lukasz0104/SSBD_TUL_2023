@@ -4,6 +4,8 @@ import jakarta.annotation.security.DenyAll;
 import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 
@@ -14,6 +16,7 @@ import java.util.logging.Logger;
 @Startup
 @Singleton
 @DenyAll
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class AccountSystemTaskManager {
     @Inject
     private AccountManagerLocal accountManager;

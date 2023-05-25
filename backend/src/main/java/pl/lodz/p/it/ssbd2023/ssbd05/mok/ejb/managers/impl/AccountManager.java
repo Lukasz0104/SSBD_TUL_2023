@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
+package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.impl;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
@@ -42,6 +42,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccessLevelFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.CityDictFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;

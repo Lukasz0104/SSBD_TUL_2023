@@ -7,11 +7,13 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.mapper.PayloadProcessingExceptionMapper;
 
 import java.util.logging.Logger;
 
+@ApplicationScoped
 public class JwsProvider {
     private static final Logger LOGGER = Logger.getLogger(PayloadProcessingExceptionMapper.class.getName());
     @Inject

@@ -11,6 +11,8 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -37,6 +39,7 @@ import java.util.logging.Logger;
 
 @Stateless
 @DenyAll
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class EmailService {
 
     protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());

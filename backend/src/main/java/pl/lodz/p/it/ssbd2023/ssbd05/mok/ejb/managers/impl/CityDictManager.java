@@ -1,19 +1,19 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
-
-import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
-import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.impl;
 
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
-import jakarta.ejb.SessionSynchronization;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.CityDictFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.CityDictManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+
+import java.util.List;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -22,10 +22,15 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
     LoggerInterceptor.class,
 })
 @DenyAll
-public class ReadingManager extends AbstractManager implements ReadingManagerLocal, SessionSynchronization {
+public class CityDictManager extends AbstractManager implements CityDictManagerLocal {
+
+    @Inject
+    private CityDictFacade cityDictFacade;
+
     @Override
-    @RolesAllowed({MANAGER, OWNER})
-    public void createReading(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @PermitAll
+    public List<String> getCitiesStartingWith(String pattern) {
+        return cityDictFacade.findCitiesStartingWithAndLimitTo10(pattern);
     }
+
 }

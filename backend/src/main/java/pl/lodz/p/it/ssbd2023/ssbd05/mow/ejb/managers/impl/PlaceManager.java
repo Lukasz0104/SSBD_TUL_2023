@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
+package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.impl;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
@@ -9,6 +9,7 @@ import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
@@ -19,6 +20,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
 import java.util.List;
@@ -31,6 +34,10 @@ import java.util.List;
 })
 @DenyAll
 public class PlaceManager extends AbstractManager implements PlaceManagerLocal, SessionSynchronization {
+
+    @Inject
+    private PlaceFacade placeFacade;
+
     @Override
     @RolesAllowed(OWNER)
     public List<Place> getOwnPlaces() throws AppBaseException {
