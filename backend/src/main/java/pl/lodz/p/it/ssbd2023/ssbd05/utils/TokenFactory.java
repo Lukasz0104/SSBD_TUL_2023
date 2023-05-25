@@ -2,13 +2,16 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 
 import java.time.LocalDateTime;
 
 @ApplicationScoped
+@Interceptors(LoggerInterceptor.class)
 public class TokenFactory {
 
     @Inject

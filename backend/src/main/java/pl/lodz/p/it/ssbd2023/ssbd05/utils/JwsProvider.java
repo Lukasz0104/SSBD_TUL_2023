@@ -9,11 +9,14 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.mapper.PayloadProcessingExceptionMapper;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 
 import java.util.logging.Logger;
 
 @ApplicationScoped
+@Interceptors(LoggerInterceptor.class)
 public class JwsProvider {
     private static final Logger LOGGER = Logger.getLogger(PayloadProcessingExceptionMapper.class.getName());
     @Inject

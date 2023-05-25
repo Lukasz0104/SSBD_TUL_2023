@@ -15,6 +15,7 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,6 +48,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchExcep
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -70,6 +72,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 @RequestScoped
 @Path("/accounts")
 @DenyAll
+@Interceptors(LoggerInterceptor.class)
 public class AccountEndpoint {
 
     @Inject
@@ -173,7 +176,7 @@ public class AccountEndpoint {
                 }
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
-            }  catch (AppDatabaseException appDatabaseException) {
+            } catch (AppDatabaseException appDatabaseException) {
                 if (appDatabaseException.getMessage().contains("city_dict_city_key")) {
                     accountManager.confirmRegistration(token, false);
                 }

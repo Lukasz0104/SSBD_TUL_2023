@@ -3,7 +3,9 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import org.json.JSONObject;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -11,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @ApplicationScoped
+@Interceptors(LoggerInterceptor.class)
 public class RecaptchaService {
 
     @Inject
