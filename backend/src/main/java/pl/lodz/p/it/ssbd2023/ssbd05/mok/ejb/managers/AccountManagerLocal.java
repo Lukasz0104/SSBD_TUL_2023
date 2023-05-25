@@ -16,13 +16,14 @@ import java.util.List;
 public interface AccountManagerLocal extends CommonManagerInterface {
     void registerAccount(Account account) throws AppBaseException;
 
-    void confirmRegistration(String token) throws AppBaseException;
-
     void changePassword(String oldPass, String newPass, String login) throws AppBaseException;
 
     void sendResetPasswordMessage(String email) throws AppBaseException;
 
     void resetPassword(String password, String token) throws AppBaseException;
+
+    void confirmRegistration(String confirmToken, boolean withAddressSave)
+        throws AppBaseException;
 
     void changeEmail(String login) throws AppBaseException;
 
@@ -72,11 +73,11 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void remindToConfirmRegistration(LocalDateTime now);
 
-    Account editPersonalDataByAdmin(Account account) throws AppBaseException;
+    Account editPersonalDataByAdmin(Account account, boolean withAddressSave) throws AppBaseException;
 
     void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException;
 
-    Account editPersonalData(Account account, String login) throws AppBaseException;
+    Account editPersonalData(Account account, String login, boolean withAddressSave) throws AppBaseException;
 
     void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException;
 

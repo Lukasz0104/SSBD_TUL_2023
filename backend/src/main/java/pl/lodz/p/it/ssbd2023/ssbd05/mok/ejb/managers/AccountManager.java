@@ -115,7 +115,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     @PermitAll
-    public void confirmRegistration(String confirmToken)
+    public void confirmRegistration(String confirmToken, boolean withAddressSave)
         throws AppBaseException {
         Token token = tokenFacade.findByTokenAndTokenType(confirmToken, TokenType.CONFIRM_REGISTRATION_TOKEN)
             .orElseThrow(TokenNotFoundException::new);
@@ -126,7 +126,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setVerified(true);
 
         accountFacade.edit(account);
-        saveAddresses(account.getAccessLevels()); // here changes
+        if (withAddressSave) {
+            saveAddresses(account.getAccessLevels());
+        }
         tokenFacade.remove(token);
     }
 
@@ -464,7 +466,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     @RolesAllowed({ADMIN, MANAGER, OWNER})
-    public Account editPersonalData(Account newData, String login) throws AppBaseException {
+    public Account editPersonalData(Account newData, String login, boolean withAddressSave) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
         if (account.getVersion() != newData.getVersion()) {
             throw new AppOptimisticLockException();
@@ -473,7 +475,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setLastName(newData.getLastName());
         editAccessLevels(account.getAccessLevels(), newData);
         accountFacade.edit(account);
-        saveAddresses(account.getAccessLevels()); // here changes
+        if (withAddressSave) {
+            saveAddresses(account.getAccessLevels());
+        }
         return account;
     }
 
@@ -517,7 +521,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
     @Override
     @RolesAllowed({ADMIN})
-    public Account editPersonalDataByAdmin(Account newData) throws AppBaseException {
+    public Account editPersonalDataByAdmin(Account newData, boolean withAddressSave) throws AppBaseException {
 
         Account accountOrig = accountFacade.findByLogin(newData.getLogin()).orElseThrow(AccountNotFoundException::new);
         if (accountOrig.getVersion() != newData.getVersion()) {
@@ -531,7 +535,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         editAccessLevels(accountOrig.getAccessLevels(), newData);
         accountFacade.edit(accountOrig);
-        saveAddresses(accountOrig.getAccessLevels()); // here changes
+        if (withAddressSave) {
+            saveAddresses(accountOrig.getAccessLevels());
+        }
         return accountOrig;
     }
 
