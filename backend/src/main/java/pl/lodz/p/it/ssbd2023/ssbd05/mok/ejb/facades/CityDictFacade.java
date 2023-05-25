@@ -11,7 +11,9 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
+import org.eclipse.persistence.exceptions.DatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.CityDict;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
@@ -45,18 +47,9 @@ public class CityDictFacade extends AbstractFacade<CityDict> {
     @PermitAll
     public void create(CityDict entity) throws AppBaseException {
         try {
-            super.edit(entity);
-        } catch (Exception e) {
-            Throwable pe = e;
-            do {
-                String exceptionMessage = e.getMessage();
-                if (exceptionMessage.contains("city_dict_city_key")) {
-                    return;
-                }
-                pe = pe.getCause();
-            } while (pe != null);
-            throw new AppDatabaseException(pe);
-
+            super.create(entity);
+        } catch (DatabaseException | PersistenceException exp) {
+            throw new AppDatabaseException(exp);
         }
     }
 

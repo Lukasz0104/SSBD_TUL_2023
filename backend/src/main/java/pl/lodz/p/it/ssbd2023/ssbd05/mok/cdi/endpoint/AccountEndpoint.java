@@ -39,6 +39,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidCaptchaCodeException;
@@ -102,18 +103,18 @@ public class AccountEndpoint {
         account.getAccessLevels().add(accessLevel);
 
         int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        boolean rollBackTX = false;
 
         do {
             try {
                 accountManager.registerAccount(account);
-                rollbackTX = accountManager.isLastTransactionRollback();
+                rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
+                rollBackTX = true;
             }
-        } while (rollbackTX && --txLimit > 0);
+        } while (rollBackTX && --txLimit > 0);
 
-        if (rollbackTX && txLimit == 0) {
+        if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -137,18 +138,18 @@ public class AccountEndpoint {
         account.getAccessLevels().add(accessLevel);
 
         int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        boolean rollBackTX = false;
 
         do {
             try {
                 accountManager.registerAccount(account);
-                rollbackTX = accountManager.isLastTransactionRollback();
+                rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
+                rollBackTX = true;
             }
-        } while (rollbackTX && --txLimit > 0);
+        } while (rollBackTX && --txLimit > 0);
 
-        if (rollbackTX && txLimit == 0) {
+        if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -160,23 +161,28 @@ public class AccountEndpoint {
     @PermitAll
     public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        boolean rollBackTX;
         do {
             try {
-                accountManager.confirmRegistration(token);
-                rollbackTX = accountManager.isLastTransactionRollback();
+                accountManager.confirmRegistration(token, true);
+                rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
+                rollBackTX = true;
                 if (txLimit < 2) {
                     throw aole;
                 }
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
+                rollBackTX = true;
+            }  catch (AppDatabaseException appDatabaseException) {
+                if (appDatabaseException.getMessage().contains("city_dict_city_key")) {
+                    accountManager.confirmRegistration(token, false);
+                }
+                rollBackTX = accountManager.isLastTransactionRollback();
             }
 
-        } while (rollbackTX && --txLimit > 0);
+        } while (rollBackTX && --txLimit > 0);
 
-        if (rollbackTX && txLimit == 0) {
+        if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -274,23 +280,23 @@ public class AccountEndpoint {
     public Response changeEmail() throws AppBaseException {
 
         int retryTXCounter = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.changeEmail(securityContext.getUserPrincipal().getName());
-                rollbackTX = accountManager.isLastTransactionRollback();
+                rollBackTX = accountManager.isLastTransactionRollback();
 
             } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
+                rollBackTX = true;
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
+                rollBackTX = true;
             }
-        } while (rollbackTX && --retryTXCounter > 0);
+        } while (rollBackTX && --retryTXCounter > 0);
 
-        if (rollbackTX && retryTXCounter == 0) {
+        if (rollBackTX && retryTXCounter == 0) {
             throw new AppRollbackLimitExceededException();
         }
         return Response.noContent().build();
@@ -303,24 +309,24 @@ public class AccountEndpoint {
         throws AppBaseException {
 
         int retryTXCounter = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.confirmEmail(dto.getEmail(), token,
                     securityContext.getUserPrincipal().getName());
-                rollbackTX = accountManager.isLastTransactionRollback();
+                rollBackTX = accountManager.isLastTransactionRollback();
 
             } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
+                rollBackTX = true;
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
+                rollBackTX = true;
             }
-        } while (rollbackTX && --retryTXCounter > 0);
+        } while (rollBackTX && --retryTXCounter > 0);
 
-        if (rollbackTX && retryTXCounter == 0) {
+        if (rollBackTX && retryTXCounter == 0) {
             throw new AppRollbackLimitExceededException();
         }
         return Response.noContent().build();
@@ -334,24 +340,24 @@ public class AccountEndpoint {
         String managerLogin = securityContext.getUserPrincipal().getName();
 
         int retryTXCounter = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.changeActiveStatusAsManager(managerLogin,
                     dto.getId(), dto.getActive());
-                rollbackTX = accountManager.isLastTransactionRollback();
+                rollBackTX = accountManager.isLastTransactionRollback();
 
             } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
+                rollBackTX = true;
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
+                rollBackTX = true;
             }
-        } while (rollbackTX && --retryTXCounter > 0);
+        } while (rollBackTX && --retryTXCounter > 0);
 
-        if (rollbackTX && retryTXCounter == 0) {
+        if (rollBackTX && retryTXCounter == 0) {
             throw new AppRollbackLimitExceededException();
         }
         return Response.noContent().build();
@@ -365,24 +371,24 @@ public class AccountEndpoint {
         String adminLogin = securityContext.getUserPrincipal().getName();
 
         int retryTXCounter = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        boolean rollBackTX = false;
         do {
             try {
                 accountManager.changeActiveStatusAsAdmin(adminLogin,
                     dto.getId(), dto.getActive());
-                rollbackTX = accountManager.isLastTransactionRollback();
+                rollBackTX = accountManager.isLastTransactionRollback();
 
             } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
+                rollBackTX = true;
                 if (retryTXCounter < 2) {
                     throw aole;
                 }
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
+                rollBackTX = true;
             }
-        } while (rollbackTX && --retryTXCounter > 0);
+        } while (rollBackTX && --retryTXCounter > 0);
 
-        if (rollbackTX && retryTXCounter == 0) {
+        if (rollBackTX && retryTXCounter == 0) {
             throw new AppRollbackLimitExceededException();
         }
         return Response.noContent().build();
@@ -469,23 +475,23 @@ public class AccountEndpoint {
     @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changePreferredTheme(@NotNull @QueryParam("light") boolean lightTheme) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
+        boolean rollBackTX = false;
         String login = securityContext.getUserPrincipal().getName();
         do {
             try {
                 accountManager.changePreferredTheme(login, lightTheme);
-                rollbackTx = accountManager.isLastTransactionRollback();
+                rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
-                rollbackTx = true;
+                rollBackTX = true;
                 if (txLimit < 2) {
                     throw aole;
                 }
             } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTx = true;
+                rollBackTX = true;
             }
-        } while (rollbackTx && txLimit-- > 0);
+        } while (rollBackTX && txLimit-- > 0);
 
-        if (rollbackTx && txLimit == 0) {
+        if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -782,10 +788,17 @@ public class AccountEndpoint {
             try {
                 ownAccountDto = AccountDtoConverter.createOwnAccountDto(
                     accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
-                        login));
+                        login, true));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
+            } catch (AppDatabaseException appDatabaseException) {
+                if (appDatabaseException.getMessage().contains("city_dict_city_key")) {
+                    ownAccountDto = AccountDtoConverter.createOwnAccountDto(
+                        accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
+                            login, false));
+                }
+                rollBackTX = accountManager.isLastTransactionRollback();
             }
         } while (rollBackTX && --txLimit > 0);
 
@@ -793,7 +806,7 @@ public class AccountEndpoint {
             throw new AppRollbackLimitExceededException();
         }
 
-        return Response.ok().entity(ownAccountDto).build();
+        return Response.ok(ownAccountDto).build();
     }
 
     @PUT
@@ -815,13 +828,18 @@ public class AccountEndpoint {
         AccountDto accountDto = null;
 
         int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
+        boolean rollBackTX;
         do {
             try {
-                accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
+                accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, true));
                 rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
+            } catch (AppDatabaseException appDatabaseException) {
+                if (appDatabaseException.getMessage().contains("city_dict_city_key")) {
+                    accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, false));
+                }
+                rollBackTX = accountManager.isLastTransactionRollback();
             }
         } while (rollBackTX && --txLimit > 0);
 
