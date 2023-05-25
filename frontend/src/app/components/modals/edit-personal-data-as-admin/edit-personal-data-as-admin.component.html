@@ -117,7 +117,9 @@
                                 formControlName="language"
                                 id="language">
                                 <option
-                                    *ngFor="let lang of environment.languages"
+                                    *ngFor="
+                                        let lang of this.appConfig.languages
+                                    "
                                     [ngValue]="lang">
                                     {{ lang }}
                                 </option>

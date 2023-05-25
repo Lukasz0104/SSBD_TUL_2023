@@ -9,7 +9,6 @@ import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
 import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
 import { strongPasswordValidator } from '../../validators/strong-password.validator';
-import { environment } from '../../../environments/environment';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -18,6 +17,7 @@ import {
     OperatorFunction,
     switchMap
 } from 'rxjs';
+import { AppConfigService } from '../../services/app-config-service';
 
 @Component({
     selector: 'app-register',
@@ -33,7 +33,7 @@ import {
 export class RegisterComponent {
     captchaCode = '';
 
-    protected languages = environment.languages;
+    protected languages = this.appConfig.languages;
 
     protected personalDetailsForm = this.fb.group({
         firstName: this.fb.control('', {
@@ -42,7 +42,7 @@ export class RegisterComponent {
         lastName: this.fb.control('', {
             validators: [Validators.required, Validators.maxLength(100)]
         }),
-        language: this.fb.control(environment.languages[0], {
+        language: this.fb.control(this.appConfig.languages[0], {
             validators: [Validators.required]
         })
     });
@@ -113,7 +113,8 @@ export class RegisterComponent {
     constructor(
         private accountService: AccountService,
         private fb: NonNullableFormBuilder,
-        private toast: ToastService
+        private toast: ToastService,
+        private appConfig: AppConfigService
     ) {}
 
     register() {

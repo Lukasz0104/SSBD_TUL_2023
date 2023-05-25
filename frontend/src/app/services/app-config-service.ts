@@ -38,6 +38,14 @@ export class AppConfigService {
 
         return this.appConfig.recaptchaKey;
     }
+
+    get accessLevels() {
+        if (!this.appConfig) {
+            throw Error('Config file not loaded!');
+        }
+
+        return this.appConfig.accessLevels;
+    }
 }
 
 export type AppConfig = {
