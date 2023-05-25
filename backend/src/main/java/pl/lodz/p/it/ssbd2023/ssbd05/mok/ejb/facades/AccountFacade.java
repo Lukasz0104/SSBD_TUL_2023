@@ -62,12 +62,6 @@ public class AccountFacade extends AbstractFacade<Account> {
         super.edit(entity);
     }
 
-    public void lockAndEdit(Account account) throws AppBaseException {
-        em.lock(account, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-        em.merge(account);
-        em.flush();
-    }
-
     @Override
     @PermitAll
     public void remove(Account entity) throws AppBaseException {
@@ -102,6 +96,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
+    @RolesAllowed({MANAGER, ADMIN})
     public List<Account> findByVerified(boolean verified) {
         TypedQuery<Account> tq;
         tq = em.createNamedQuery("Account.findAllAccountsByVerified", Account.class);

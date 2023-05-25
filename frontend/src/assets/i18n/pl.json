@@ -232,7 +232,8 @@
       "revoke-access-level": "Czy na pewno chcesz usunąć poziom dostępu",
       "edit-account": "Czy na pewno chcesz edytować konto",
       "edit-account-danger": "Tej akcji nie można cofnąć!",
-      "change-password": "Czy na pewno chcesz zmienić swoje hasło?"
+      "change-password": "Czy na pewno chcesz zmienić swoje hasło?",
+      "verify-negative": "Potwierdź negatywną weryfikację."
     }
   },
   "access-levels": {

@@ -55,12 +55,14 @@ public class AccessLevelFacade extends AbstractFacade<AccessLevel> {
         super.edit(entity);
     }
 
+    @RolesAllowed({ADMIN, MANAGER})
     public List<AccessLevel> findByAccountId(Long accountId) {
         TypedQuery<AccessLevel> tq = em.createNamedQuery("AccessLevel.findByAccountId", AccessLevel.class);
         tq.setParameter("accountId", accountId);
         return tq.getResultList();
     }
 
+    @RolesAllowed({ADMIN, MANAGER})
     public List<AccessLevel> findActiveByAccountId(Long accountId) {
         TypedQuery<AccessLevel> tq = em.createNamedQuery("AccessLevel.findActiveByAccountId", AccessLevel.class);
         tq.setParameter("accountId", accountId);
