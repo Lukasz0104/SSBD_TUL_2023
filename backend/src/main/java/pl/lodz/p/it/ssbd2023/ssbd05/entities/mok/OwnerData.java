@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -17,7 +19,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "owner_data")
-@DiscriminatorValue("OWNER")
+@DiscriminatorValue(OWNER)
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @NamedQueries({

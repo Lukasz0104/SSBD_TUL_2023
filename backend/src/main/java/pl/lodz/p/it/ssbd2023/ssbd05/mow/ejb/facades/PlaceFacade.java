@@ -1,5 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -14,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class PlaceFacade extends AbstractFacade<Place> {
 
@@ -29,31 +35,35 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public Place findByAddress(Address address) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByAddress", Place.class);
         tq.setParameter("address", address);
         return tq.getSingleResult();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Place> findByPlaceNumber(Integer placeNumber) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByPlaceNumber", Place.class);
         tq.setParameter("placeNumber", placeNumber);
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Place> findByResidentsNumber(Integer residentsNumber) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByResidentsNumber", Place.class);
         tq.setParameter("residentsNumber", residentsNumber);
         return tq.getResultList();
     }
 
-
+    @RolesAllowed({OWNER, MANAGER})
     public List<Place> findBySquareFootage(BigDecimal squareFootage) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByResidentsNumber", Place.class);
         tq.setParameter("squareFootage", squareFootage);
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Place> findByActive(boolean active) {
         TypedQuery<Place> tq;
         if (active) {
@@ -64,6 +74,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Place> findByResidentsNumberAndActive(Integer residentsNumber, boolean active) {
         TypedQuery<Place> tq;
         if (active) {
@@ -76,6 +87,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Place> findBySquareFootageAndActive(Integer squareFootage, boolean active) {
         TypedQuery<Place> tq;
         if (active) {
@@ -88,6 +100,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Place> findByAddressAndActive(Address address, boolean active) {
         TypedQuery<Place> tq;
         if (active) {

@@ -1,5 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -15,6 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class RateFacade extends AbstractFacade<Rate> {
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -31,6 +37,7 @@ public class RateFacade extends AbstractFacade<Rate> {
 
     //CurrentRates
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findCurrentRates() {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findCurrentRates", Rate.class);
         return tq.getResultList();
@@ -38,12 +45,14 @@ public class RateFacade extends AbstractFacade<Rate> {
 
     //AccountingRules
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByAccountingRule(AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByAccountingRule", Rate.class);
         tq.setParameter("accounting_rule", accountingRule);
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAndAccountingRule(LocalDate effectiveDate, AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAndAccountingRule", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
@@ -51,6 +60,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateBeforeAndAccountingRule(LocalDate effectiveDate,
                                                                  AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateBeforeAndAccountingRule", Rate.class);
@@ -59,6 +69,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAfterAndAccountingRule(LocalDate effectiveDate,
                                                                 AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAfterAndAccountingRule", Rate.class);
@@ -67,14 +78,16 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
-
     // Category
+
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByCategory(Category category) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByCategory", Rate.class);
         tq.setParameter("category", category);
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAndCategory(LocalDate effectiveDate, Category category) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAndCategory", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
@@ -82,6 +95,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateBeforeAndCategory(LocalDate effectiveDate, Category category) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateBeforeAndCategory", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
@@ -89,6 +103,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAfterAndCategory(LocalDate effectiveDate, Category category) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAfterAndCategory", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
@@ -96,7 +111,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
-
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByCategoryAndAccountingRule(Category category, AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByCategoryAndAccountingRule", Rate.class);
         tq.setParameter("category", category);
@@ -104,6 +119,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category,
                                                                       AccountingRule accountingRule) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAndCategoryAndAccountingRule", Rate.class);
@@ -113,6 +129,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateBeforeAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category,
                                                                             AccountingRule accountingRule) {
         TypedQuery<Rate> tq =
@@ -123,6 +140,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAfterAndCategoryAndAccountingRule(LocalDate effectiveDate, Category category,
                                                                            AccountingRule accountingRule) {
         TypedQuery<Rate> tq =
@@ -133,18 +151,21 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDate(LocalDate effectiveDate) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDate", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateBefore(LocalDate effectiveDate) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateBefore", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAfter(LocalDate effectiveDate) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAfter", Rate.class);
         tq.setParameter("effectiveDate", effectiveDate);

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import {
     HttpClient,
     HttpErrorResponse,
@@ -10,7 +9,11 @@ import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { Account, EditPersonalData, OwnAccount } from '../model/account';
 import { ToastService } from './toast.service';
 import { ResponseMessage } from '../common/response-message.enum';
-import { AccessType, ChangeAccessLevelDto } from '../model/access-type';
+import {
+    AccessLevels,
+    AccessType,
+    ChangeAccessLevelDto
+} from '../model/access-type';
 import { AuthService } from './auth.service';
 import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -21,6 +24,7 @@ import {
     RegisterOwnerDto
 } from '../model/registration.dto';
 import { AccountPage } from '../model/account-page';
+import { AppConfigService } from './app-config-service';
 
 type MessageResponse = { message: ResponseMessage };
 
@@ -29,15 +33,16 @@ type MessageResponse = { message: ResponseMessage };
 })
 export class AccountService {
     ifMatch = '';
-    private readonly accountsUrl = `${environment.apiUrl}/accounts`;
-    private readonly cityDictUrl = `${environment.apiUrl}/city-dict`;
+    private readonly accountsUrl = `${this.appConfig.apiUrl}/accounts`;
+    private readonly cityDictUrl = `${this.appConfig.apiUrl}/city-dict`;
 
     constructor(
         private http: HttpClient,
         private router: Router,
         private toastService: ToastService,
         private authService: AuthService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private appConfig: AppConfigService
     ) {}
 
     resetPassword(email: string) {
@@ -296,13 +301,13 @@ export class AccountService {
     ) {
         let url;
         switch (type) {
-            case AccessType.OWNER:
+            case AccessLevels.OWNER:
                 url = 'accounts/owners';
                 break;
-            case AccessType.MANAGER:
+            case AccessLevels.MANAGER:
                 url = 'accounts/managers';
                 break;
-            case AccessType.ADMIN:
+            case AccessLevels.ADMIN:
                 url = 'accounts/admins';
                 break;
             default:
@@ -310,7 +315,7 @@ export class AccountService {
                 break;
         }
         return this.http.get<AccountPage>(
-            `${environment.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
+            `${this.appConfig.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
         );
     }
 
@@ -322,11 +327,11 @@ export class AccountService {
         phrase: string,
         login: string
     ) {
-        if (type == AccessType.OWNER) {
+        if (type == AccessLevels.OWNER) {
             return this.http.get<AccountPage>(
                 `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );
-        } else if (type == AccessType.MANAGER) {
+        } else if (type == AccessLevels.MANAGER) {
             return this.http.get<AccountPage>(
                 `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );

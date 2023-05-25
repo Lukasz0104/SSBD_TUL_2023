@@ -88,4 +88,37 @@ public class AppProperties {
     @Inject
     @ConfigProperty(name = "frontend.url.unlock-account")
     private String frontendUnlockAccountUrl;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.refresh", defaultValue = "60")
+    private long tokenExpireRefresh;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.confirm.register", defaultValue = "1440")
+    private long tokenExpireConfirmRegister;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.password.reset", defaultValue = "15")
+    private long tokenExpirePasswordReset;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.override.password.change", defaultValue = "120")
+    private long tokenExpireOverridePasswordChange;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.confirm.email", defaultValue = "120")
+    private long tokenExpireConfirmEmail;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.blocked.account", defaultValue = "1440")
+    private long tokenExpireBlockedAccount;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.two.factor.auth", defaultValue = "5")
+    private long tokenExpireTwoFactorAuth;
+
+    @Inject
+    @ConfigProperty(name = "token.expire.unlock.account.self", defaultValue = "1000000000")
+    private long tokenExpireUnlockAccountSelf;
+
 }

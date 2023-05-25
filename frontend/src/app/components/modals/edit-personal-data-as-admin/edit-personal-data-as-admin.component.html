@@ -117,7 +117,9 @@
                                 formControlName="language"
                                 id="language">
                                 <option
-                                    *ngFor="let lang of environment.languages"
+                                    *ngFor="
+                                        let lang of this.appConfig.languages
+                                    "
                                     [ngValue]="lang">
                                     {{ lang }}
                                 </option>
@@ -164,7 +166,7 @@
                     ">
                     <div
                         class="col-md"
-                        *ngIf="accessLevel.level === AccessType.OWNER">
+                        *ngIf="accessLevel.level === AccessLevels.OWNER">
                         <hr class="d-md-none border-top border-5 border-dark" />
                         <h2>
                             {{
@@ -402,7 +404,7 @@
                     </div>
                     <div
                         class="col-md"
-                        *ngIf="accessLevel.level === AccessType.MANAGER">
+                        *ngIf="accessLevel.level === AccessLevels.MANAGER">
                         <hr class="d-md-none border-top border-5 border-dark" />
                         <h2>
                             {{

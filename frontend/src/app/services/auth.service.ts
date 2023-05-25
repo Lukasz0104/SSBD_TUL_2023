@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, EMPTY, map, of, tap } from 'rxjs';
 import { LoginResponse } from '../model/login-response';
 import jwtDecode from 'jwt-decode';
-import { AccessType } from '../model/access-type';
+import { AccessLevels, AccessType } from '../model/access-type';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RefreshSessionComponent } from '../components/modals/refresh-session/refresh-session.component';
 import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
@@ -12,13 +11,14 @@ import { Router } from '@angular/router';
 import { ToastService } from './toast.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TwoFactorAuthComponent } from '../components/modals/two-factor-auth/two-factor-auth.component';
+import { AppConfigService } from './app-config-service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
     private authenticated = new BehaviorSubject<boolean>(false);
-    private currentGroup = new BehaviorSubject<AccessType>(AccessType.NONE);
+    private currentGroup = new BehaviorSubject<AccessType>(AccessLevels.NONE);
     private scheduledRefresh: any;
 
     constructor(
@@ -26,7 +26,8 @@ export class AuthService {
         private modalService: NgbModal,
         private router: Router,
         private toastService: ToastService,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private appConfig: AppConfigService
     ) {
         this.handleLocalStorageContent();
         this.addLocalStorageListener();
@@ -43,9 +44,9 @@ export class AuthService {
                 }
                 const group = localStorage.getItem('currentGroup');
                 if (
-                    group == AccessType.ADMIN ||
-                    group == AccessType.MANAGER ||
-                    group == AccessType.OWNER
+                    group == AccessLevels.ADMIN ||
+                    group == AccessLevels.MANAGER ||
+                    group == AccessLevels.OWNER
                 ) {
                     this.authenticated.next(true);
                     this.currentGroup.next(group as AccessType);
@@ -77,7 +78,7 @@ export class AuthService {
     login(login: string, password: string) {
         return this.http
             .post<LoginResponse>(
-                `${environment.apiUrl}/login`,
+                `${this.appConfig.apiUrl}/login`,
                 {
                     login,
                     password
@@ -137,7 +138,7 @@ export class AuthService {
 
     twoFactorAuthentication(login: string, code: string) {
         return this.http
-            .post<LoginResponse>(`${environment.apiUrl}/confirm-login`, {
+            .post<LoginResponse>(`${this.appConfig.apiUrl}/confirm-login`, {
                 login,
                 code
             })
@@ -190,7 +191,7 @@ export class AuthService {
 
     refreshToken() {
         this.http
-            .post<LoginResponse>(`${environment.apiUrl}/refresh`, {
+            .post<LoginResponse>(`${this.appConfig.apiUrl}/refresh`, {
                 login: this.getLogin(),
                 refreshToken: this.getRefreshToken()
             })
@@ -324,7 +325,9 @@ export class AuthService {
     logout() {
         this.http
             .delete(
-                `${environment.apiUrl}/logout?token=${this.getRefreshToken()}`
+                `${
+                    this.appConfig.apiUrl
+                }/logout?token=${this.getRefreshToken()}`
             )
             .pipe(
                 tap(() => {
@@ -359,15 +362,15 @@ export class AuthService {
     }
 
     isOwner() {
-        return this.getCurrentGroup() === AccessType.OWNER;
+        return this.getCurrentGroup() === AccessLevels.OWNER;
     }
 
     isManager() {
-        return this.getCurrentGroup() === AccessType.MANAGER;
+        return this.getCurrentGroup() === AccessLevels.MANAGER;
     }
 
     isAdmin() {
-        return this.getCurrentGroup() === AccessType.ADMIN;
+        return this.getCurrentGroup() === AccessLevels.ADMIN;
     }
 
     getCurrentGroupObservable() {

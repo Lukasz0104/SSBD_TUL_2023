@@ -1,5 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -16,6 +21,7 @@ import java.time.Year;
 import java.util.List;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class ReportFacade extends AbstractFacade<Report> {
 
@@ -31,6 +37,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         super(Report.class);
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByYear(Year year) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByYear", Report.class);
@@ -41,6 +48,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByTotalCost(BigDecimal totalCost) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByTotalCost", Report.class);
@@ -51,6 +59,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByTotalConsumption(BigDecimal totalConsumption) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByTotalConsumption", Report.class);
@@ -61,6 +70,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceId(Long placeId) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByPlaceId", Report.class);
@@ -71,6 +81,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceNumberAndBuildingId(Integer placeNumber, Long buildingId) throws
         AppDatabaseException {
         try {
@@ -83,6 +94,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByCategoryId(Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByCategoryId", Report.class);
@@ -93,6 +105,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByCategoryName(String categoryName) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByCategoryName", Report.class);
@@ -103,6 +116,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceIdAndCategoryId(Long placeId, Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByPlaceIdAndCategoryId", Report.class);
@@ -114,6 +128,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceIdAndCategoryName(Long placeId, String name) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByPlaceIdAndCategoryName", Report.class);
@@ -125,6 +140,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceNumberAndBuildingIdAndCategoryId(Integer placeNumber, Long buildingId,
                                                                     Long categoryId) throws AppDatabaseException {
         try {
@@ -139,6 +155,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceNumberAndCategoryName(Integer placeNumber, Long buildingId, String name)
         throws AppDatabaseException {
         try {
@@ -152,6 +169,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceIdAndYear(Long placeId, Year year) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByPlaceIdAndYear", Report.class);
@@ -163,6 +181,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceNumberAndBuildingIdAndYear(Integer placeNumber, Long buildingId, Year year)
         throws AppDatabaseException {
         try {
@@ -176,6 +195,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByCategoryIdAndYear(Long categoryId, Year year) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByCategoryIdAndYear", Report.class);
@@ -187,6 +207,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByCategoryNameAndYear(String categoryName, Year year) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByCategoryNameAndYear", Report.class);
@@ -198,6 +219,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceIdAndCategoryIdAndYear(Long placeId, Long categoryId, Year year)
         throws AppDatabaseException {
         try {
@@ -211,6 +233,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceIdAndCategoryNameAndYear(Long placeId, String categoryName, Year year)
         throws AppDatabaseException {
         try {
@@ -224,6 +247,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceNumberAndBuildingIdAndCategoryIdAndYear(Integer placeNumber, Long buildingId,
                                                                            Long categoryId, Year year)
         throws AppDatabaseException {
@@ -242,6 +266,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByPlaceNumberAndBuildingIdAndCategoryNameAndYear(Integer placeNumber, Long buildingId,
                                                                              String categoryName, Year year)
         throws AppDatabaseException {

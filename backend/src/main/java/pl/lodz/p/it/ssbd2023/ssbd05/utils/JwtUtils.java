@@ -33,7 +33,7 @@ public class JwtUtils {
             .setExpiration(new Date(System.currentTimeMillis() + appProperties.getJwtExpirationTime()))
             .claim("groups", account.getAccessLevels()
                 .stream()
-                .filter(AccessLevel::isActive)
+                .filter((a) -> a.isActive() && a.isVerified())
                 .map(AccessLevel::getLevel)
                 .toList())
             .signWith(this.getSigningKey(), SignatureAlgorithm.HS512)

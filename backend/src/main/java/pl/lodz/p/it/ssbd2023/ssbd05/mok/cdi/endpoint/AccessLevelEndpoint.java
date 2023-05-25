@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createManagerAccessLevelFromDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createOwnerAccessLevelFromDto;
 
@@ -42,7 +44,7 @@ public class AccessLevelEndpoint {
     private SecurityContext securityContext;
 
     @PUT
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     @Path("/administrator")
     public Response grantAdminAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
@@ -70,7 +72,7 @@ public class AccessLevelEndpoint {
     }
 
     @PUT
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     @Path("/manager")
     public Response grantManagerAccessLevel(@NotNull @PathParam("id") Long id,
                                             @NotNull @Valid AddManagerAccessLevelDto dto)
@@ -97,7 +99,7 @@ public class AccessLevelEndpoint {
     }
 
     @PUT
-    @RolesAllowed({"MANAGER"})
+    @RolesAllowed({MANAGER})
     @Path("/owner")
     public Response grantOwnerAccessLevel(@NotNull @PathParam("id") Long id, @NotNull @Valid AddOwnerAccessLevelDto dto)
         throws AppBaseException {
@@ -123,7 +125,7 @@ public class AccessLevelEndpoint {
     }
 
     @DELETE
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     @Path("/administrator")
     public Response revokeAdminAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
@@ -151,7 +153,7 @@ public class AccessLevelEndpoint {
     }
 
     @DELETE
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     @Path("/manager")
     public Response revokeManagerAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
@@ -179,7 +181,7 @@ public class AccessLevelEndpoint {
     }
 
     @DELETE
-    @RolesAllowed({"MANAGER"})
+    @RolesAllowed({MANAGER})
     @Path("/owner")
     public Response revokeOwnerAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();

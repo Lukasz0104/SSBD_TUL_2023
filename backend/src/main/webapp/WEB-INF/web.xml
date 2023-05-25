@@ -10,4 +10,21 @@
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
+
+    <security-role>
+        <role-name>ADMIN</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>MANAGER</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>OWNER</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>GUEST</role-name>
+    </security-role>
+
 </web-app>

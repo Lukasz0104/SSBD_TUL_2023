@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
-import { AccessType } from '../../model/access-type';
+import { AccessLevels, AccessType } from '../../model/access-type';
 
 @Component({
     selector: 'app-change-active-status',
@@ -32,7 +32,7 @@ export class ChangeActiveStatusComponent implements OnInit {
             this.toastService.showDanger('something.went.wrong');
         } else {
             this.loading = true;
-            if (this.currentAccessLevel == AccessType.ADMIN) {
+            if (this.currentAccessLevel == AccessLevels.ADMIN) {
                 this.statusService
                     .changeActiveStatusAsAdmin(id, status)
                     .subscribe((result: boolean) => {
@@ -41,7 +41,7 @@ export class ChangeActiveStatusComponent implements OnInit {
                             this.statusChangedEvent.emit(); //Emit to refresh accounts list
                         }
                     });
-            } else if (this.currentAccessLevel == AccessType.MANAGER) {
+            } else if (this.currentAccessLevel == AccessLevels.MANAGER) {
                 this.statusService
                     .changeActiveStatusAsManager(id, status)
                     .subscribe((result: boolean) => {

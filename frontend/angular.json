@@ -58,7 +58,6 @@
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
-              "node_modules/flag-icon-css/css/flag-icons.css",
               "src/styles.css"
             ],
             "scripts": []

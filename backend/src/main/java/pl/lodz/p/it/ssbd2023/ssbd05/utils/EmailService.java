@@ -1,6 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
@@ -100,7 +104,7 @@ public class EmailService {
     }
 
     @Asynchronous
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void changeEmailAddress(String receiverAddress, String name, String link, String language) {
         this.sendMessageWithLink(
             receiverAddress,
@@ -151,7 +155,7 @@ public class EmailService {
     }
 
     @Asynchronous
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public void forcePasswordChangeEmail(String receiver, String name, String language, String link) {
         this.sendMessageWithLink(receiver, name,
             I18n.getMessage(I18n.EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_MESSAGE, language),
@@ -323,7 +327,7 @@ public class EmailService {
     }
 
     @Asynchronous
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public void notifyAboutNewAccessLevel(String receiver, String name, String language, AccessType accessType) {
         String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
         String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_MESSAGE, language)
@@ -339,7 +343,7 @@ public class EmailService {
     }
 
     @Asynchronous
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public void notifyAboutRevokedAccessLevel(String receiver, String name, String language, AccessType accessType) {
         String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
         String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_MESSAGE, language)

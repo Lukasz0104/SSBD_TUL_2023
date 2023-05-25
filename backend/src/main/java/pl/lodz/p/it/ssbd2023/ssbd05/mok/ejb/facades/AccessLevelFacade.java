@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
@@ -41,23 +44,25 @@ public class AccessLevelFacade extends AbstractFacade<AccessLevel> {
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public void create(AccessLevel entity) throws AppBaseException {
         super.create(entity);
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public void edit(AccessLevel entity) throws AppBaseException {
         super.edit(entity);
     }
 
+    @RolesAllowed({ADMIN, MANAGER})
     public List<AccessLevel> findByAccountId(Long accountId) {
         TypedQuery<AccessLevel> tq = em.createNamedQuery("AccessLevel.findByAccountId", AccessLevel.class);
         tq.setParameter("accountId", accountId);
         return tq.getResultList();
     }
 
+    @RolesAllowed({ADMIN, MANAGER})
     public List<AccessLevel> findActiveByAccountId(Long accountId) {
         TypedQuery<AccessLevel> tq = em.createNamedQuery("AccessLevel.findActiveByAccountId", AccessLevel.class);
         tq.setParameter("accountId", accountId);

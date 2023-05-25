@@ -1,5 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -26,6 +30,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.unauthorized.AuthenticationException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ConfirmLoginDTO;
@@ -149,7 +154,7 @@ public class AuthEndpoint {
     @DELETE
     @Path("logout")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response logout(@ValidUUID @QueryParam("token") String token)
         throws AppBaseException {
         String ip = IpUtils.getIpAddress(httpServletRequest);
@@ -184,7 +189,12 @@ public class AuthEndpoint {
     @Path("/confirm-login")
     @PermitAll
     public Response confirmLogin(@NotNull @Valid ConfirmLoginDTO dto) throws AppBaseException {
-        authManager.confirmLogin(dto.getLogin(), dto.getCode());
+        try {
+            authManager.confirmLogin(dto.getLogin(), dto.getCode());
+        } catch (TokenNotFoundException e) {
+            authManager.registerUnsuccessfulLogin(dto.getLogin(), IpUtils.getIpAddress(httpServletRequest));
+            throw e;
+        }
         JwtRefreshTokenDto jwtRefreshTokenDto = null;
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTX = false;

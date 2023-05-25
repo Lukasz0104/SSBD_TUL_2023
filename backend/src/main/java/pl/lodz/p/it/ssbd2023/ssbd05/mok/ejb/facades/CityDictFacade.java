@@ -1,7 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -58,11 +61,13 @@ public class CityDictFacade extends AbstractFacade<CityDict> {
     }
 
     @Override
+    @PermitAll
     public void edit(CityDict entity) throws AppBaseException {
         super.edit(entity);
     }
 
     @Override
+    @RolesAllowed(ADMIN)
     public void remove(CityDict entity) throws AppBaseException {
         super.remove(entity);
     }

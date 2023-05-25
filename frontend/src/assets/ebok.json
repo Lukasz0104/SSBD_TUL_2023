@@ -1,0 +1,15 @@
+{
+  "apiUrl": "https://localhost:8443/api",
+  "languages": [
+    "EN",
+    "PL"
+  ],
+  "recaptchaKey": "6LdN4w8mAAAAAPXtbn-6ZeUVhX1rQi_Ho4Ow9l7c",
+  "accessLevels": {
+    "NONE": "",
+    "OWNER": "OWNER",
+    "MANAGER": "MANAGER",
+    "ADMIN": "ADMIN",
+    "ALL": "ALL"
+  }
+}

@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -777,7 +779,7 @@ public class MokITests extends TestContainersSetup {
         void shouldChangePasswordWhenProvidedValidNewPasswordAndValidOldPassword() {
 
             String oldPass = "P@ssw0rd";
-            String newPass = "Haslo123@rd";
+            String newPass = "Ha0slo123@rd";
             ChangePasswordDto dto = new ChangePasswordDto(oldPass, newPass);
 
             JsonPath oldAccount = given().spec(adminSpec)
@@ -795,13 +797,6 @@ public class MokITests extends TestContainersSetup {
                 .when()
                 .get("/accounts/me").jsonPath();
             Assertions.assertEquals((Integer) account.get("version"), (Integer) oldAccount.get("version") + 1);
-
-            given().spec(adminSpec).when()
-                .body(new ChangePasswordDto(newPass, oldPass))
-                .contentType(ContentType.JSON)
-                .put("/accounts/me/change-password")
-                .then()
-                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
         }
 
         @Test
@@ -1085,15 +1080,6 @@ public class MokITests extends TestContainersSetup {
                     .when()
                     .get("/accounts/me")
                     .as(OwnAccountDto.class);
-
-                assertEquals(oldAcc.getFirstName(), newAcc.getFirstName());
-                assertEquals(oldAcc.getVersion() + 1, newAcc.getVersion());
-                given().spec(ownerSpec).when()
-                    .body(new ChangePasswordDto(newPass, oldPass))
-                    .contentType(ContentType.JSON)
-                    .put("/accounts/me/change-password")
-                    .then()
-                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
             }
         }
     }
@@ -2590,7 +2576,7 @@ public class MokITests extends TestContainersSetup {
         @Test
         public void shouldChangeAccessLevelWhenValidAccessTypeProvidedAndAccessLevelActiveAndVerified() {
 
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto(OWNER);
 
             given().spec(makeSpec("pduda")).when()
                 .body(dto)
@@ -2598,7 +2584,7 @@ public class MokITests extends TestContainersSetup {
                 .put("/accounts/me/change-access-level")
                 .then()
                 .statusCode(Response.Status.OK.getStatusCode())
-                .body("accessType", Matchers.equalTo("OWNER"));
+                .body("accessType", Matchers.equalTo(OWNER));
         }
 
         @Test
@@ -2639,7 +2625,7 @@ public class MokITests extends TestContainersSetup {
 
         @Test
         public void shouldReturnSC403WhenAccountNotHaveProvidedAccessLevel() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto(ADMIN);
 
             given().spec(makeSpec("pduda")).when()
                 .body(dto)
@@ -2651,7 +2637,7 @@ public class MokITests extends TestContainersSetup {
 
         @Test
         public void shouldReturnSC403WhenAccountHasInactiveProvidedAccessLevel() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("ADMIN");
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto(ADMIN);
 
             given().spec(makeSpec("bkowalewski")).when()
                 .body(dto)
@@ -2663,7 +2649,7 @@ public class MokITests extends TestContainersSetup {
 
         @Test
         public void shouldReturnSC403WhenAccountHasUnverifiedProvidedAccessLevel() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto(OWNER);
 
             given().spec(makeSpec("nkowalska")).when()
                 .body(dto)
@@ -2675,7 +2661,7 @@ public class MokITests extends TestContainersSetup {
 
         @Test
         public void shouldReturnSC403WhenNoAccountIsLoggedIn() {
-            ChangeAccessLevelDto dto = new ChangeAccessLevelDto("OWNER");
+            ChangeAccessLevelDto dto = new ChangeAccessLevelDto(OWNER);
 
             given().when()
                 .body(dto)

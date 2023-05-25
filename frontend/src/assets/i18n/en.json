@@ -232,7 +232,8 @@
       "revoke-access-level": "Are you sure, you want to revoke access level",
       "edit-account": "Are you sure, you want to edit account",
       "edit-account-danger": "This action cannot be undone!",
-      "change-password": "Are you sure, you want to change your password?"
+      "change-password": "Are you sure, you want to change your password?",
+      "verify-negative": "Confirm negative verification."
     }
   },
   "access-levels": {

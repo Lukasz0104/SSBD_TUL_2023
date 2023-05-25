@@ -1,5 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -16,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class ReadingFacade extends AbstractFacade<Reading> {
 
@@ -32,6 +38,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         super(Reading.class);
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByValue(BigDecimal value) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByValue", Reading.class);
@@ -42,6 +49,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByDate(LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByDate", Reading.class);
@@ -52,6 +60,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByDateAfter(LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByDateAfter", Reading.class);
@@ -62,6 +71,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByDateBefore(LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByDateBefore", Reading.class);
@@ -72,6 +82,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByDateBetween(LocalDateTime beginDate, LocalDateTime endDate) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByDateBetween", Reading.class);
@@ -83,6 +94,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByMeterId(Long meterId) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterId", Reading.class);
@@ -93,6 +105,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByMeterIdAndDate(Long meterId, LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterIdAndDate", Reading.class);
@@ -104,6 +117,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByMeterIdAndDateAfter(Long meterId, LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterIdAndDateAfter", Reading.class);
@@ -115,6 +129,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByMeterIdAndDateBefore(Long meterId, LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterIdAndDateBefore", Reading.class);
@@ -126,6 +141,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByMeterIdAndDateBetween(Long meterId, LocalDateTime beginDate, LocalDateTime endDate)
         throws AppDatabaseException {
         try {
@@ -139,6 +155,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByPlaceId() throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByPlaceId", Reading.class);
@@ -148,6 +165,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByPlaceIdAndDate(LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByPlaceIdAndDate", Reading.class);
@@ -158,6 +176,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByPlaceIdAndDateBetween(LocalDateTime beginDate, LocalDateTime endDate)
         throws AppDatabaseException {
         try {
@@ -170,6 +189,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByPlaceIdAndDateAfter(LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByPlaceIdAndDateAfter", Reading.class);
@@ -180,6 +200,7 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Reading> findByPlaceIdAndDateBefore(LocalDateTime date) throws AppDatabaseException {
         try {
             TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByPlaceIdAndDateBefore", Reading.class);

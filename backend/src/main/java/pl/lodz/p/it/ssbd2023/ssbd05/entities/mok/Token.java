@@ -21,7 +21,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.EntityControlListenerMOK;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Getter
@@ -108,29 +107,15 @@ public class Token extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private TokenType tokenType;
 
-    public Token(Account account, TokenType tokenType) {
-        this(UUID.randomUUID().toString(), account, tokenType);
+    public Token(Account account, TokenType tokenType, LocalDateTime expiresAt) {
+        this(UUID.randomUUID().toString(), account, tokenType, expiresAt);
     }
 
-    public Token(String token, Account account, TokenType tokenType) {
+    public Token(String token, Account account, TokenType tokenType, LocalDateTime expiresAt) {
         this.token = token;
         this.account = account;
         this.tokenType = tokenType;
-        this.expiresAt = switch (tokenType) {
-            case REFRESH_TOKEN -> LocalDateTime.now().plusHours(1);
-            case PASSWORD_RESET_TOKEN -> LocalDateTime.now().plusMinutes(15);
-            case BLOCKED_ACCOUNT_TOKEN -> LocalDateTime.now().plusHours(24);
-            case TWO_FACTOR_AUTH_TOKEN -> LocalDateTime.now().plusMinutes(5);
-            case UNLOCK_ACCOUNT_SELF_TOKEN -> LocalDateTime.now().plusYears(1000);
-            default -> LocalDateTime.now().plusHours(2);
-        };
-    }
-
-    public Token(Account account, long confirmationTime, TokenType tokenType) {
-        this.token = UUID.randomUUID().toString();
-        this.account = account;
-        this.expiresAt = LocalDateTime.now().plus(confirmationTime, ChronoUnit.MILLIS);
-        this.tokenType = tokenType;
+        this.expiresAt = expiresAt;
     }
 
     public void validateSelf(TokenType tokenType) throws AppBaseException {

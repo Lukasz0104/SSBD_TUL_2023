@@ -1,5 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -43,6 +47,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.TokenFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -84,6 +89,9 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     @Inject
     private AppProperties appProperties;
 
+    @Inject
+    private TokenFactory tokenFactory;
+
     @Override
     @PermitAll
     public void registerAccount(Account account) throws AppBaseException {
@@ -92,8 +100,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         accountFacade.create(account);
 
-        Token token =
-            new Token(account, appProperties.getAccountConfirmationTime(), TokenType.CONFIRM_REGISTRATION_TOKEN);
+        Token token = tokenFactory.createConfirmRegistrationToken(account);
 
         tokenFacade.create(token);
 
@@ -124,13 +131,13 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void changeEmail(String login)
         throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
-        Token token = new Token(account, TokenType.CONFIRM_EMAIL_TOKEN);
+        Token token = tokenFactory.createConfirmEmailToken(account);
         tokenFacade.create(token);
 
         String link = appProperties.getFrontendUrl() + "/confirm-email/" + token.getToken();
@@ -140,7 +147,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void confirmEmail(String email, String confirmToken, String login)
         throws AppBaseException {
 
@@ -165,7 +172,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"MANAGER"})
+    @RolesAllowed({MANAGER})
     public void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status)
         throws AppBaseException {
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
@@ -176,14 +183,14 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public void changeActiveStatusAsAdmin(String adminLogin, Long userId, boolean status)
         throws AppBaseException {
         Account account = accountFacade.find(userId).orElseThrow(AccountNotFoundException::new);
         changeActiveStatus(adminLogin, account, status);
     }
 
-    @RolesAllowed({"MANAGER", "ADMIN"})
+    @RolesAllowed({MANAGER, ADMIN})
     private void changeActiveStatus(String adminOrManagerLogin, Account account, boolean status)
         throws AppBaseException {
 
@@ -213,7 +220,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
             throw new InactiveAccountException();
         }
 
-        Token resetPasswordToken = new Token(account, TokenType.PASSWORD_RESET_TOKEN);
+        Token resetPasswordToken = tokenFactory.createPasswordResetToken(account);
         tokenFacade.create(resetPasswordToken);
         emailService.resetPasswordEmail(account.getEmail(), account.getFullName(),
             appProperties.getFrontendUrl() + "/reset-password-confirm/" + resetPasswordToken.getToken(),
@@ -236,7 +243,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void changePassword(String oldPass, String newPass, String login) throws AppBaseException {
 
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
@@ -252,19 +259,19 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
 
     @Override
-    @RolesAllowed("ADMIN")
+    @RolesAllowed(ADMIN)
     public Account getAccountDetails(Long id) throws AppBaseException {
         return accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Account getAccountDetails(String login) throws AppBaseException {
         return accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public AccessType changeAccessLevel(String login, AccessType accessType) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -277,7 +284,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void changeAccountLanguage(String login, String language) throws AppBaseException {
         Account account = accountFacade.findByLogin(login)
             .orElseThrow(AccountNotFoundException::new);
@@ -290,7 +297,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void changePreferredTheme(String login, boolean lightTheme) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
         account.setLightThemePreferred(lightTheme);
@@ -298,35 +305,35 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
                                         String login) {
         return accountFacade.findByActive(active, page, pageSize, asc, phrase, login);
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
                                           String login) {
         return accountFacade.findByActiveAccessLevel(AccessType.OWNER, active, page, pageSize, asc, phrase, login);
     }
 
     @Override
-    @RolesAllowed({"MANAGER"})
+    @RolesAllowed({MANAGER})
     public Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc, String phrase, String login) {
         return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.OWNER, page, pageSize, asc, phrase,
             login);
     }
 
     @Override
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
                                             String login) {
         return accountFacade.findByActiveAccessLevel(AccessType.MANAGER, active, page, pageSize, asc, phrase, login);
     }
 
     @Override
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc, String phrase,
                                                       String login) {
         return accountFacade.findAccountsThatNeedApprovalByAccessLevel(AccessType.MANAGER, page, pageSize, asc, phrase,
@@ -334,14 +341,14 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc, String phrase,
                                           String login) {
         return accountFacade.findByActiveAccessLevel(AccessType.ADMIN, active, page, pageSize, asc, phrase, login);
     }
 
     @Override
-    @RolesAllowed({"MANAGER", "ADMIN"})
+    @RolesAllowed({MANAGER, ADMIN})
     public List<String> getAccountsLogins(String login) {
         return accountFacade.findAccountsLoginsByLoginLike(login);
     }
@@ -416,7 +423,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
      * @throws AppBaseException When account was not found or adding access level failed.
      */
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException {
         Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
 
@@ -456,7 +463,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Account editPersonalData(Account newData, String login) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
         if (account.getVersion() != newData.getVersion()) {
@@ -470,7 +477,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         return account;
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     private void editAccessLevels(Set<AccessLevel> accessLevels, Account newData) throws AppBaseException {
         for (AccessLevel newAccessLevel : newData.getAccessLevels()) {
             Optional<AccessLevel> optAccessLevel =
@@ -509,7 +516,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Account editPersonalDataByAdmin(Account newData) throws AppBaseException {
 
         Account accountOrig = accountFacade.findByLogin(newData.getLogin()).orElseThrow(AccountNotFoundException::new);
@@ -529,7 +536,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public void forcePasswordChange(String login) throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
 
@@ -546,7 +553,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         account.setActive(false);
         accountFacade.edit(account);
 
-        Token passwordChangeToken = new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN);
+        Token passwordChangeToken = tokenFactory.createOverridePasswordChangeToken(account);
         tokenFacade.create(passwordChangeToken);
         String link = appProperties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
         emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
@@ -569,7 +576,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException {
         Account account = accountFacade.find(id).orElseThrow(AccountNotFoundException::new);
 
@@ -597,7 +604,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void changeTwoFactorAuthStatus(String login, Boolean status)
         throws AppBaseException {
         Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
@@ -614,7 +621,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         for (Account acc : accountsWithoutRecentLogin) {
             try {
-                Token unlockToken = new Token(acc, TokenType.UNLOCK_ACCOUNT_SELF_TOKEN);
+                Token unlockToken = tokenFactory.createUnlockAccountSelfToken(acc);
                 tokenFacade.create(unlockToken);
 
                 acc.setActive(false);
@@ -662,7 +669,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         }
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     private void setAccountPassword(Account account, char[] newPasswd) throws RepeatedPasswordException {
         if (account.getPastPasswords().stream().anyMatch((oldPass) -> hashGenerator.verify(newPasswd, oldPass))) {
             throw new RepeatedPasswordException();

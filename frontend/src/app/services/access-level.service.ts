@@ -1,11 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import { AccessLevel, Address } from '../model/account';
-import { AccessType } from '../model/access-type';
+import { AccessLevels, AccessType } from '../model/access-type';
 import { catchError, EMPTY, map, Observable, of } from 'rxjs';
 import { ResponseMessage } from '../common/response-message.enum';
 import { ToastService } from './toast.service';
+import { AppConfigService } from './app-config-service';
 
 type GrantAccessLevel =
     | AccessLevel
@@ -21,9 +21,13 @@ type MessageResponse = { message: ResponseMessage };
     providedIn: 'root'
 })
 export class AccessLevelService {
-    private readonly BASE_URL = `${environment.apiUrl}/accounts`;
+    private readonly BASE_URL = `${this.appConfig.apiUrl}/accounts`;
 
-    constructor(private http: HttpClient, private toastService: ToastService) {}
+    constructor(
+        private http: HttpClient,
+        private toastService: ToastService,
+        private appConfig: AppConfigService
+    ) {}
 
     grantAccessLevel(
         id: number,
@@ -58,11 +62,11 @@ export class AccessLevelService {
 
     private buildUrl(id: number, type: AccessType) {
         switch (type) {
-            case AccessType.ADMIN:
+            case AccessLevels.ADMIN:
                 return `${this.BASE_URL}/${id}/access-levels/administrator`;
-            case AccessType.MANAGER:
+            case AccessLevels.MANAGER:
                 return `${this.BASE_URL}/${id}/access-levels/manager`;
-            case AccessType.OWNER:
+            case AccessLevels.OWNER:
                 return `${this.BASE_URL}/${id}/access-levels/owner`;
             default:
                 return '';

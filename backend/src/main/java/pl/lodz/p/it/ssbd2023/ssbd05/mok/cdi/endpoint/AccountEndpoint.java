@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditOwnPersonalDataDto;
@@ -239,7 +242,7 @@ public class AccountEndpoint {
     @PUT
     @Path("/me/change-password")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -267,7 +270,7 @@ public class AccountEndpoint {
 
     @POST
     @Path("/me/change-email")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changeEmail() throws AppBaseException {
 
         int retryTXCounter = appProperties.getTransactionRepeatLimit();
@@ -295,7 +298,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/me/confirm-email/{token}")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto, @ValidUUID @PathParam("token") String token)
         throws AppBaseException {
 
@@ -325,7 +328,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/manager/change-active-status")
-    @RolesAllowed({"MANAGER"})
+    @RolesAllowed({MANAGER})
     public Response changeActiveStatusAsManager(@NotNull @Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String managerLogin = securityContext.getUserPrincipal().getName();
@@ -356,7 +359,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/admin/change-active-status")
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Response changeActiveStatusAsAdmin(@NotNull @Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String adminLogin = securityContext.getUserPrincipal().getName();
@@ -387,7 +390,7 @@ public class AccountEndpoint {
 
     @GET
     @Path("/me")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response getOwnAccountDetails() throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
 
@@ -414,7 +417,7 @@ public class AccountEndpoint {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed(ADMIN)
     public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -439,7 +442,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/me/change-access-level")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changeAccessLevel(@Valid @NotNull ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
         AccessType accessType = AccessType.valueOf(accessLevelDto.getAccessType());
 
@@ -463,7 +466,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/me/theme")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changePreferredTheme(@NotNull @QueryParam("light") boolean lightTheme) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollbackTx = false;
@@ -491,7 +494,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/me/change-language/{language}")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -518,7 +521,7 @@ public class AccountEndpoint {
     }
 
     @GET
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                    @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                    @QueryParam("page") int page,
@@ -547,7 +550,7 @@ public class AccountEndpoint {
 
     @GET
     @Path("/owners")
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                      @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                      @QueryParam("page") int page,
@@ -577,7 +580,7 @@ public class AccountEndpoint {
 
     @GET
     @Path("/owners/unapproved")
-    @RolesAllowed({"MANAGER"})
+    @RolesAllowed({MANAGER})
     public Response getUnapprovedOwnerAccounts(@DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                                @QueryParam("page") int page,
                                                @QueryParam("pageSize") int pageSize,
@@ -606,7 +609,7 @@ public class AccountEndpoint {
 
     @GET
     @Path("/managers")
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                        @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                        @QueryParam("page") int page,
@@ -636,7 +639,7 @@ public class AccountEndpoint {
 
     @GET
     @Path("/managers/unapproved")
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Response getUnapprovedManagerAccounts(@DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                                  @QueryParam("page") int page,
                                                  @QueryParam("pageSize") int pageSize,
@@ -665,7 +668,7 @@ public class AccountEndpoint {
 
     @GET
     @Path("/admins")
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
                                      @DefaultValue("true") @QueryParam("asc") Boolean ascending,
                                      @QueryParam("page") int page,
@@ -695,13 +698,13 @@ public class AccountEndpoint {
 
     @GET
     @Path("/logins")
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Response getAccountsLogins(@NotBlank @QueryParam("login") String login) {
         return Response.ok().entity(accountManager.getAccountsLogins(login)).build();
     }
 
     @PUT
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     @Path("/force-password-change/{login}")
     public Response forcePasswordChange(@NotBlank @PathParam("login") String login) throws AppBaseException {
         if (login.equals(securityContext.getUserPrincipal().getName())) {
@@ -761,7 +764,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/me")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response editPersonalData(
         @Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO,
         @NotNull @HeaderParam("If-Match") String ifMatch)
@@ -795,7 +798,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/admin/edit-other")
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Response editPersonalDataByAdmin(
         @Valid @NotNull EditAnotherPersonalDataDto dto,
         @NotNull @HeaderParam("If-Match") String ifMatch) throws AppBaseException {
@@ -831,7 +834,7 @@ public class AccountEndpoint {
 
     @PUT
     @Path("/me/change_two_factor_auth_status")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changeTwoFactorAuthStatus(@DefaultValue("true") @QueryParam("status") Boolean status)
         throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();

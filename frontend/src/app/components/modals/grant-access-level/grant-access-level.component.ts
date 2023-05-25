@@ -1,19 +1,19 @@
 import { Component, Input } from '@angular/core';
 import { AccessLevel } from '../../../model/account';
-import { AccessType } from '../../../model/access-type';
+import { AccessLevels, AccessType } from '../../../model/access-type';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormGroup, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { AccessLevelService } from '../../../services/access-level.service';
 import { ToastService } from '../../../services/toast.service';
 import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
-import { filter } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-grant-access-level',
     templateUrl: './grant-access-level.component.html'
 })
 export class GrantAccessLevelComponent {
-    protected readonly AccessTypeEnum = AccessType;
+    protected readonly AccessTypeEnum = AccessLevels;
     private _accessType!: AccessType;
 
     /**
@@ -45,13 +45,13 @@ export class GrantAccessLevelComponent {
         this._accessType = value;
         this.ownerOrManagerForm.enable();
         switch (value) {
-            case AccessType.ADMIN:
+            case AccessLevels.ADMIN:
                 this.ownerOrManagerForm.disable();
                 break;
-            case AccessType.MANAGER:
+            case AccessLevels.MANAGER:
                 this.licenseNumberControl.enable();
                 break;
-            case AccessType.OWNER:
+            case AccessLevels.OWNER:
                 this.licenseNumberControl.disable();
                 break;
         }
@@ -107,10 +107,10 @@ export class GrantAccessLevelComponent {
             let dto = undefined;
 
             switch (this._accessType) {
-                case AccessType.MANAGER:
+                case AccessLevels.MANAGER:
                     dto = this.ownerOrManagerForm.getRawValue();
                     break;
-                case AccessType.OWNER:
+                case AccessLevels.OWNER:
                     dto = {
                         address: this.ownerOrManagerForm.getRawValue().address
                     };
@@ -131,8 +131,18 @@ export class GrantAccessLevelComponent {
     }
 
     reject() {
-        this.accessLevelService
-            .reject(this.id, this.accessType)
+        const modal = this.modalService.open(ConfirmActionComponent);
+        const instance = modal.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'modal.confirm-action.verify-negative';
+
+        modal.closed
+            .pipe(
+                filter((res) => res),
+                switchMap(() =>
+                    this.accessLevelService.reject(this.id, this.accessType)
+                )
+            )
             .subscribe((success) => {
                 if (success) {
                     this.toastService.showSuccess(

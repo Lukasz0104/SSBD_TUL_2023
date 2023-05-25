@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -19,7 +21,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "manager_data")
-@DiscriminatorValue("MANAGER")
+@DiscriminatorValue(MANAGER)
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @NamedQueries({
