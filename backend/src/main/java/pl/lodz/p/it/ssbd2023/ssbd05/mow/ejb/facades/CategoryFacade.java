@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -27,6 +28,7 @@ public class CategoryFacade extends AbstractFacade<Category> {
         return em;
     }
 
+    @PermitAll
     public Category findByName(String name) throws AppDatabaseException {
         try {
             TypedQuery<Category> tq = em.createNamedQuery("Category.findByName", Category.class);

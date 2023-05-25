@@ -1,5 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -14,6 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import java.util.List;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class MeterFacade extends AbstractFacade<Meter> {
 
@@ -29,6 +35,8 @@ public class MeterFacade extends AbstractFacade<Meter> {
         super(Meter.class);
     }
 
+
+    @RolesAllowed({OWNER, MANAGER})
     public List<Meter> findByCategoryId(Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByCategoryId", Meter.class);
@@ -39,6 +47,7 @@ public class MeterFacade extends AbstractFacade<Meter> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Meter> findByCategoryName(String categoryName) throws AppDatabaseException {
         try {
             TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByCategoryName", Meter.class);
@@ -49,6 +58,7 @@ public class MeterFacade extends AbstractFacade<Meter> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Meter> findByPlaceId(Long placeId) throws AppDatabaseException {
         try {
             TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByPlaceId", Meter.class);
@@ -59,6 +69,7 @@ public class MeterFacade extends AbstractFacade<Meter> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Meter> findByPlaceNumberAndBuildingId(Integer placeNumber, Long buildingId) throws
         AppDatabaseException {
         try {
@@ -71,6 +82,7 @@ public class MeterFacade extends AbstractFacade<Meter> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public Meter findByCategoryIdAndPlaceId(Long categoryId, Long placeId) throws AppDatabaseException {
         try {
             TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByCategoryIdAndPlaceId", Meter.class);
@@ -82,6 +94,7 @@ public class MeterFacade extends AbstractFacade<Meter> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public Meter findByCategoryIdAndPlaceNumberAndBuildingId(Long categoryId, Integer placeNumber, Long buildingId)
         throws AppDatabaseException {
         try {
@@ -96,6 +109,7 @@ public class MeterFacade extends AbstractFacade<Meter> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public Meter findByCategoryNameAndPlaceId(String categoryName, Long placeId) throws AppDatabaseException {
         try {
             TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByCategoryNameAndPlaceId", Meter.class);
@@ -107,6 +121,7 @@ public class MeterFacade extends AbstractFacade<Meter> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public Meter findByCategoryNameAndPlaceNumberAndBuildingId(String categoryName, Integer placeNumber,
                                                                Long buildingId) throws AppDatabaseException {
         try {
