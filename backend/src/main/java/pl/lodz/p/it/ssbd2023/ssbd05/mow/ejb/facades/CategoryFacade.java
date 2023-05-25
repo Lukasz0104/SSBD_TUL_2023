@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -14,6 +15,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@DenyAll
 public class CategoryFacade extends AbstractFacade<Category> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
