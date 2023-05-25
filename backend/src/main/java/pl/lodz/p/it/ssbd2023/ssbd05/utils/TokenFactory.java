@@ -22,37 +22,37 @@ public class TokenFactory {
     }
 
     public Token createConfirmRegistrationToken(Account account) {
-        return new Token(account, TokenType.REFRESH_TOKEN,
+        return new Token(account, TokenType.CONFIRM_REGISTRATION_TOKEN,
             LocalDateTime.now().plusMinutes(appProperties.getTokenExpireConfirmRegister()));
     }
 
     public Token createPasswordResetToken(Account account) {
-        return new Token(account, TokenType.REFRESH_TOKEN,
+        return new Token(account, TokenType.PASSWORD_RESET_TOKEN,
             LocalDateTime.now().plusMinutes(appProperties.getTokenExpirePasswordReset()));
     }
 
     public Token createOverridePasswordChangeToken(Account account) {
-        return new Token(account, TokenType.REFRESH_TOKEN,
+        return new Token(account, TokenType.OVERRIDE_PASSWORD_CHANGE_TOKEN,
             LocalDateTime.now().plusMinutes(appProperties.getTokenExpireOverridePasswordChange()));
     }
 
     public Token createConfirmEmailToken(Account account) {
-        return new Token(account, TokenType.REFRESH_TOKEN,
+        return new Token(account, TokenType.CONFIRM_EMAIL_TOKEN,
             LocalDateTime.now().plusMinutes(appProperties.getTokenExpireConfirmEmail()));
     }
 
     public Token createBlockedAccountToken(Account account) {
-        return new Token(account, TokenType.REFRESH_TOKEN,
+        return new Token(account, TokenType.BLOCKED_ACCOUNT_TOKEN,
             LocalDateTime.now().plusMinutes(appProperties.getTokenExpireBlockedAccount()));
     }
 
     public Token createTwoFactorAuthToken(Account account, String token) {
-        return new Token(token, account, TokenType.REFRESH_TOKEN,
+        return new Token(token, account, TokenType.TWO_FACTOR_AUTH_TOKEN,
             LocalDateTime.now().plusMinutes(appProperties.getTokenExpireTwoFactorAuth()));
     }
 
     public Token createUnlockAccountSelfToken(Account account) {
-        return new Token(account, TokenType.REFRESH_TOKEN,
+        return new Token(account, TokenType.UNLOCK_ACCOUNT_SELF_TOKEN,
             LocalDateTime.now().plusMinutes(appProperties.getTokenExpireUnlockAccountSelf()));
     }
 }
