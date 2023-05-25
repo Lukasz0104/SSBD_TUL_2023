@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -31,13 +33,13 @@ public class RateManager extends AbstractManager implements RateManagerLocal, Se
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void createRate() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void removeFutureRate(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

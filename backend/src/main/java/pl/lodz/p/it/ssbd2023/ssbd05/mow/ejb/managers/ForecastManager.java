@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
@@ -21,7 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 @DenyAll
 public class ForecastManager extends AbstractManager implements ForecastManagerLocal, SessionSynchronization {
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void createOverdueForecast() throws AppBaseException {
         throw new UnsupportedOperationException();
     }

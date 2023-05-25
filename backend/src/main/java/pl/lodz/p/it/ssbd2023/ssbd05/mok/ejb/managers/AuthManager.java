@@ -1,5 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -27,12 +31,12 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.HashGenerator;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwtUtils;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.TokenFactory;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -63,6 +67,9 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
     private HashGenerator hashGenerator;
 
 
+    @Inject
+    private TokenFactory tokenFactory;
+
     @Override
     @PermitAll
     public JwtRefreshTokenDto registerSuccessfulLogin(String login, String ip, boolean confirmed)
@@ -77,7 +84,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
 
         account.registerSuccessfulLogin(ip);
 
-        Token refreshToken = new Token(UUID.randomUUID().toString(), account, TokenType.REFRESH_TOKEN);
+        Token refreshToken = tokenFactory.createRefreshToken(account);
 
         tokenFacade.create(refreshToken);
         accountFacade.edit(account);
@@ -111,7 +118,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
                 account.setActive(false);
                 account.getActivityTracker().setUnsuccessfulLoginChainCounter(0);
 
-                Token blockedAccountToken = new Token(account, TokenType.BLOCKED_ACCOUNT_TOKEN);
+                Token blockedAccountToken = tokenFactory.createBlockedAccountToken(account);
                 tokenFacade.create(blockedAccountToken);
 
                 emailService.notifyBlockedAccIncorrectLoginLimit(
@@ -134,7 +141,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
             throw new AuthenticationException();
         }
         String jwt = jwtUtils.generateJWT(account);
-        Token newRefreshToken = new Token(UUID.randomUUID().toString(), account, TokenType.REFRESH_TOKEN);
+        Token newRefreshToken = tokenFactory.createRefreshToken(account);
 
         tokenFacade.remove(refreshToken);
         tokenFacade.create(newRefreshToken);
@@ -143,7 +150,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
             jwt, newRefreshToken.getToken(), account.getLanguage().toString(), account.isLightThemePreferred());
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void logout(String token, String login) throws AppBaseException {
         Optional<Token> optionalToken =
             tokenFacade.findByTokenAndTokenType(token, TokenType.REFRESH_TOKEN);
@@ -191,7 +198,8 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         emailService.twoFactorAuthEmail(account.getEmail(), account.getFullName(), account.getLanguage().toString(),
             Integer.toString(code));
         tokenFacade.create(
-            new Token(hashGenerator.generate(Integer.toString(code).toCharArray()), account,
-                TokenType.TWO_FACTOR_AUTH_TOKEN));
+            tokenFactory.createTwoFactorAuthToken(account,
+                hashGenerator.generate(Integer.toString(code).toCharArray()))
+        );
     }
 }

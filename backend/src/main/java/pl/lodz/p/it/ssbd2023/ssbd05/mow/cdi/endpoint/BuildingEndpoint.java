@@ -1,5 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -24,7 +28,7 @@ public class BuildingEndpoint {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response getAllBuildings() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -32,7 +36,7 @@ public class BuildingEndpoint {
     @GET
     @Path("/{id}/reports")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response getBuildingReports(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -40,7 +44,7 @@ public class BuildingEndpoint {
     @GET
     @Path("/{id}/places")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response getBuildingPlaces(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -48,7 +52,7 @@ public class BuildingEndpoint {
     @GET
     @Path("/{id}/reports/{year}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"MANAGER", "OWNER"})
+    @RolesAllowed({MANAGER, OWNER})
     public Response getBuildingReportByYear(@PathParam("id") Long id, @PathParam("year") Long year)
         throws AppBaseException {
         throw new UnsupportedOperationException();
@@ -56,7 +60,7 @@ public class BuildingEndpoint {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response createBuilding()
         throws AppBaseException {
         throw new UnsupportedOperationException();

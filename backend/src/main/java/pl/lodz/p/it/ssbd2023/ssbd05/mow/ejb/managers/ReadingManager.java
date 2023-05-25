@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
@@ -21,7 +24,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 @DenyAll
 public class ReadingManager extends AbstractManager implements ReadingManagerLocal, SessionSynchronization {
     @Override
-    @RolesAllowed({"MANAGER", "OWNER"})
+    @RolesAllowed({MANAGER, OWNER})
     public void createReading(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

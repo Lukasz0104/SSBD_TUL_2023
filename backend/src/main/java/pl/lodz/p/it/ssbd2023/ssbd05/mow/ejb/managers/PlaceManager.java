@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
@@ -29,79 +32,79 @@ import java.util.List;
 @DenyAll
 public class PlaceManager extends AbstractManager implements PlaceManagerLocal, SessionSynchronization {
     @Override
-    @RolesAllowed("OWNER")
+    @RolesAllowed(OWNER)
     public List<Place> getOwnPlaces() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed({"OWNER", "MANAGER"})
+    @RolesAllowed({OWNER, MANAGER})
     public Place getPlaceDetails(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("OWNER")
+    @RolesAllowed(OWNER)
     public List<Rate> getPlaceRates(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed({"OWNER", "MANAGER"})
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> getPlaceReports(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed({"OWNER", "MANAGER"})
+    @RolesAllowed({OWNER, MANAGER})
     public List<Meter> getPlaceMeters(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void createPlace() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public List<OwnerData> getPlaceOwners(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void addOwnerToPlace(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void removeOwnerFromPlace(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public List<Category> getPlaceCategories(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void addCategoryToPlace(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void removeCategoryFromPlace(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void editPlaceDetails(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

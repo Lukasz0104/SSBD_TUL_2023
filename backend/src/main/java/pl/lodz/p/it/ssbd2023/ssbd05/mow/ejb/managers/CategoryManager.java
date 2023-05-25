@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
@@ -25,13 +27,13 @@ import java.util.List;
 @DenyAll
 public class CategoryManager extends AbstractManager implements CategoryManagerLocal, SessionSynchronization {
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public List<Category> getAllCategories() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public List<Rate> getCategoryRates(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

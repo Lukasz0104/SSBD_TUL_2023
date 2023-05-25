@@ -1,5 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
@@ -26,31 +30,31 @@ import java.util.List;
 @DenyAll
 public class BuildingManager extends AbstractManager implements BuildingManagerLocal, SessionSynchronization {
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public List<Building> getAllBuildings() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public List<Report> getBuildingReports(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public List<Place> getBuildingPlaces(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed({"MANAGER", "OWNER"})
+    @RolesAllowed({MANAGER, OWNER})
     public Report getBuildingReportByYear(Long id, Long year) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void createBuilding() throws AppBaseException {
         throw new UnsupportedOperationException();
     }

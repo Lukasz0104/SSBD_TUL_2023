@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -16,7 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 public class ReadingEndpoint {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"MANAGER", "OWNER"})
+    @RolesAllowed({MANAGER, OWNER})
     public Response createReading() throws AppBaseException {
         throw new UnsupportedOperationException();
     }

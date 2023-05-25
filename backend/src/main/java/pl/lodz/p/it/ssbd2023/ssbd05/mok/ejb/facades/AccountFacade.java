@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -72,7 +75,7 @@ public class AccountFacade extends AbstractFacade<Account> {
     }
 
     @Override
-    @RolesAllowed({"MANAGER", "ADMIN"})
+    @RolesAllowed({MANAGER, ADMIN})
     public Optional<Account> find(Long id) {
         return super.find(id);
     }
@@ -106,7 +109,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Page<Account> findByActive(boolean active, int page, int pageSize, boolean asc, String phrase,
                                       String login) {
         TypedQuery<Account> tq;
@@ -127,7 +130,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Long countByActive(boolean active, String phrase, String login) {
         TypedQuery<Long> tq;
         tq = em.createNamedQuery("Account.countAllAccountsByActive", Long.class);
@@ -137,7 +140,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getSingleResult();
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Page<Account> findByActiveAccessLevel(AccessType accessType, boolean active, int page, int pageSize,
                                                  boolean asc, String phrase, String login) {
         TypedQuery<Account> tq;
@@ -159,7 +162,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Long countByActiveAccessLevel(boolean active, AccessType accessType, String phrase, String login) {
         TypedQuery<Long> tq;
         tq = em.createNamedQuery("Account.countAllAccountsByActiveAndAccessLevel", Long.class);
@@ -170,7 +173,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getSingleResult();
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Page<Account> findAccountsThatNeedApprovalByAccessLevel(AccessType accessType, int page, int pageSize,
                                                                    boolean asc, String phrase, String login) {
         TypedQuery<Account> tq;
@@ -191,7 +194,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public Long countAccountsThatNeedApprovalByAccessLevel(AccessType accessType, String phrase, String login) {
         TypedQuery<Long> tq =
             em.createNamedQuery("Account.countAccountsThatNeedApprovalByAccessLevel", Long.class);
@@ -201,7 +204,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getSingleResult();
     }
 
-    @RolesAllowed({"ADMIN", "MANAGER"})
+    @RolesAllowed({ADMIN, MANAGER})
     public List<String> findAccountsLoginsByLoginLike(String login) {
         TypedQuery<String> tq =
             em.createNamedQuery("Account.findAccountsLoginsByLoginLike", String.class);

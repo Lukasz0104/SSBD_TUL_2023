@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
@@ -24,25 +26,25 @@ import java.util.List;
 @DenyAll
 public class CostManager extends AbstractManager implements CostManagerLocal, SessionSynchronization {
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public List<Cost> getAllCosts() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void createCost() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Cost getCostDetails(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public void removeCost(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

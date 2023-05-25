@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -16,7 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 public class ForecastEndpoint {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response createOverdueForecast() throws AppBaseException {
         throw new UnsupportedOperationException();
     }

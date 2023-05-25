@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -21,7 +24,7 @@ public class PlaceEndpoint {
     @GET
     @Path("/me")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("OWNER")
+    @RolesAllowed(OWNER)
     public Response getOwnPlaces() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -29,7 +32,7 @@ public class PlaceEndpoint {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"OWNER", "MANAGER"})
+    @RolesAllowed({OWNER, MANAGER})
     public Response getPlaceDetails(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -37,7 +40,7 @@ public class PlaceEndpoint {
     @GET
     @Path("/{id}/rates")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("OWNER")
+    @RolesAllowed(OWNER)
     public Response getPlaceRates(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -45,7 +48,7 @@ public class PlaceEndpoint {
     @GET
     @Path("/{id}/reports")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"OWNER", "MANAGER"})
+    @RolesAllowed({OWNER, MANAGER})
     public Response getPlaceReports(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -53,14 +56,14 @@ public class PlaceEndpoint {
     @GET
     @Path("/{id}/meters")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"OWNER", "MANAGER"})
+    @RolesAllowed({OWNER, MANAGER})
     public Response getPlaceMeters(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response createPlace() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -68,7 +71,7 @@ public class PlaceEndpoint {
     @GET
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response getPlaceOwners(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -76,7 +79,7 @@ public class PlaceEndpoint {
     @POST
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response addOwnerToPlace(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -84,7 +87,7 @@ public class PlaceEndpoint {
     @DELETE
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response removeOwnerFromPlace(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -92,7 +95,7 @@ public class PlaceEndpoint {
     @GET
     @Path("/{id}/categories")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response getPlaceCategories(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -100,7 +103,7 @@ public class PlaceEndpoint {
     @POST
     @Path("/{id}/categories")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response addCategoryToPlace(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -108,7 +111,7 @@ public class PlaceEndpoint {
     @DELETE
     @Path("/{id}/categories")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response removeCategoryFromPlace(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -116,7 +119,7 @@ public class PlaceEndpoint {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response editPlaceDetails(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

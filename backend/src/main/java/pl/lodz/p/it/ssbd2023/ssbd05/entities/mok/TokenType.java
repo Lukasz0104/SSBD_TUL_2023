@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
+import lombok.Getter;
+
+@Getter
 public enum TokenType {
     REFRESH_TOKEN,
     CONFIRM_REGISTRATION_TOKEN,

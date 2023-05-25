@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -18,7 +21,7 @@ public class ReportEndpoint {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"MANAGER", "OWNER"})
+    @RolesAllowed({MANAGER, OWNER})
     public Response getReportDetails(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -26,7 +29,7 @@ public class ReportEndpoint {
     @GET
     @Path("/community")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response getAllCommunityReports() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -34,7 +37,7 @@ public class ReportEndpoint {
     @GET
     @Path("/community/{year}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response getCommunityReportByYear(@PathParam("year") Long year) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

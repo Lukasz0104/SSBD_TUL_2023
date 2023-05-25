@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -19,14 +21,14 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 public class CostEndpoint {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response getAllCosts() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response createCost() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -34,7 +36,7 @@ public class CostEndpoint {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response getCostDetails(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -42,7 +44,7 @@ public class CostEndpoint {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public Response removeCost(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }

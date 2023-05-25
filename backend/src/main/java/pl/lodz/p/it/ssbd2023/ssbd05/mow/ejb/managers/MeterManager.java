@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
@@ -24,7 +26,7 @@ import java.util.List;
 @DenyAll
 public class MeterManager extends AbstractManager implements MeterManagerLocal, SessionSynchronization {
     @Override
-    @RolesAllowed("MANAGER")
+    @RolesAllowed(MANAGER)
     public List<Reading> getMeterReadings(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
