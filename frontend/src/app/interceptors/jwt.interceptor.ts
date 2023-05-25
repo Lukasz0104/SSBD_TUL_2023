@@ -7,16 +7,17 @@ import {
 } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { ToastService } from '../services/toast.service';
+import { AppConfigService } from '../services/app-config-service';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
     constructor(
         private authService: AuthService,
         private router: Router,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private appConfig: AppConfigService
     ) {}
 
     intercept(
@@ -24,7 +25,7 @@ export class JwtInterceptor implements HttpInterceptor {
         next: HttpHandler
     ): Observable<HttpEvent<unknown>> {
         if (
-            request.url.startsWith(environment.apiUrl) &&
+            request.url.startsWith(this.appConfig.apiUrl) &&
             this.authService.isAuthenticated()
         ) {
             const cloned = request.clone({

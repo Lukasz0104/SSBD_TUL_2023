@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import {
     HttpClient,
     HttpErrorResponse,
@@ -25,6 +24,7 @@ import {
     RegisterOwnerDto
 } from '../model/registration.dto';
 import { AccountPage } from '../model/account-page';
+import { AppConfigService } from './app-config-service';
 
 type MessageResponse = { message: ResponseMessage };
 
@@ -33,15 +33,16 @@ type MessageResponse = { message: ResponseMessage };
 })
 export class AccountService {
     ifMatch = '';
-    private readonly accountsUrl = `${environment.apiUrl}/accounts`;
-    private readonly cityDictUrl = `${environment.apiUrl}/city-dict`;
+    private readonly accountsUrl = `${this.appConfig.apiUrl}/accounts`;
+    private readonly cityDictUrl = `${this.appConfig.apiUrl}/city-dict`;
 
     constructor(
         private http: HttpClient,
         private router: Router,
         private toastService: ToastService,
         private authService: AuthService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private appConfig: AppConfigService
     ) {}
 
     resetPassword(email: string) {
@@ -314,7 +315,7 @@ export class AccountService {
                 break;
         }
         return this.http.get<AccountPage>(
-            `${environment.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
+            `${this.appConfig.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
         );
     }
 

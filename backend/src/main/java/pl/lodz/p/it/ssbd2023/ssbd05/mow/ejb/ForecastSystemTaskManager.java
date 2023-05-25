@@ -1,12 +1,12 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb;
 
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.DenyAll;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
 @Startup
 @Singleton
-@PermitAll
+@DenyAll
 public class ForecastSystemTaskManager {
     private void createForecasts() {
         throw new UnsupportedOperationException();

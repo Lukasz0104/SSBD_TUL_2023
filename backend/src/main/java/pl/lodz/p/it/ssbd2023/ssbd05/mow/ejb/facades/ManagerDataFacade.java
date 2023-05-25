@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -10,6 +12,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class ManagerDataFacade extends AbstractFacade<ManagerData> {
 
@@ -25,6 +28,7 @@ public class ManagerDataFacade extends AbstractFacade<ManagerData> {
         return em;
     }
 
+    @PermitAll
     public ManagerData findByLicenseNumber(String licenseNumber) {
         TypedQuery<ManagerData> tq =
             em.createNamedQuery("ManagerData.findManagerDataByLicenseNumber", ManagerData.class);

@@ -57,7 +57,7 @@ import { GuestNavbarComponent } from './components/guest-navbar/guest-navbar.com
 import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
 import { ThemeSwitchComponent } from './components/theme-switch/theme-switch.component';
 import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
-import config from '../assets/ebok.json';
+import { AppConfigService } from './services/app-config-service';
 
 @NgModule({
     declarations: [
@@ -123,7 +123,7 @@ import config from '../assets/ebok.json';
         {
             provide: RECAPTCHA_SETTINGS,
             useValue: {
-                siteKey: config.recaptchaKey
+                siteKey: new AppConfigService().recaptchaKey
             } as RecaptchaSettings
         },
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

@@ -1,5 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -16,6 +21,7 @@ import java.time.Year;
 import java.util.List;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class CostFacade extends AbstractFacade<Cost> {
 
@@ -31,6 +37,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         super(Cost.class);
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByYear(Year year) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYear", Cost.class);
@@ -41,6 +48,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByMonth(Month month) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByMonth", Cost.class);
@@ -51,6 +59,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByCategoryId(Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByCategoryId", Cost.class);
@@ -61,6 +70,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByCategoryName(String categoryName) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByCategoryName", Cost.class);
@@ -71,6 +81,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByYearAndMonth(Year year, Month month) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYearAndMonth", Cost.class);
@@ -82,6 +93,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByYearAndCategoryId(Year year, Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYearAndCategoryId", Cost.class);
@@ -93,6 +105,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByYearAndCategoryName(Year year, String categoryName) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYearAndCategoryName", Cost.class);
@@ -104,6 +117,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByMonthAndCategoryId(Month month, Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByMonthAndCategoryId", Cost.class);
@@ -115,6 +129,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByMonthAndCategoryName(Month month, String categoryName) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByMonthAndCategoryName", Cost.class);
@@ -126,6 +141,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByYearAndMonthAndCategoryId(Year year, Month month, Long categoryId)
         throws AppDatabaseException {
         try {
@@ -139,6 +155,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
+    @RolesAllowed({OWNER, MANAGER})
     public List<Cost> findByYearAndMonthAndCategoryName(Year year, Month month, String categoryName)
         throws AppDatabaseException {
         try {

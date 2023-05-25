@@ -13,8 +13,8 @@ import {
     OperatorFunction,
     switchMap
 } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
+import { AppConfigService } from '../../../services/app-config-service';
 
 @Component({
     selector: 'app-edit-personal-data-as-admin',
@@ -90,7 +90,8 @@ export class EditPersonalDataAsAdminComponent {
     constructor(
         public activeModal: NgbActiveModal,
         private accountService: AccountService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        protected appConfig: AppConfigService
     ) {}
 
     setAccount(acc: Account) {
@@ -403,6 +404,5 @@ export class EditPersonalDataAsAdminComponent {
     //endregion
 
     protected readonly AccessType = AccessLevels;
-    protected readonly environment = environment;
     protected readonly AccessLevels = AccessLevels;
 }

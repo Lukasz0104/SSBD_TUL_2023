@@ -1,5 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@DenyAll
 public class BuildingFacade extends AbstractFacade<Building> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -28,12 +31,14 @@ public class BuildingFacade extends AbstractFacade<Building> {
         return em;
     }
 
+    @PermitAll
     public Building findByAddress(Address address) {
         TypedQuery<Building> tq = em.createNamedQuery("Building.findByAddress", Building.class);
         tq.setParameter("address", address);
         return tq.getSingleResult();
     }
 
+    @PermitAll
     public List<Building> findByBuildingNumber(Integer buildingNumber) {
         TypedQuery<Building> tq = em.createNamedQuery("Building.findByBuildingNumber", Building.class);
         tq.setParameter("buildingNumber", buildingNumber);

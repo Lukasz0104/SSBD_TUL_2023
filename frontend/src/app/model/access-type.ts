@@ -1,6 +1,6 @@
-import config from '../../assets/ebok.json';
+import { AppConfigService } from '../services/app-config-service';
 
-export const AccessLevels = config.accessLevels;
+export const AccessLevels = new AppConfigService().accessLevels;
 
 export type AccessType = string;
 
