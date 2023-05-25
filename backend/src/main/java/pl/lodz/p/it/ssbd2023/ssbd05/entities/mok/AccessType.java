@@ -1,7 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
+import lombok.Getter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
+@Getter
 public enum AccessType {
     OWNER(I18n.ACCESS_LEVEL_OWNER),
     ADMIN(I18n.ACCESS_LEVEL_ADMINISTRATOR),
