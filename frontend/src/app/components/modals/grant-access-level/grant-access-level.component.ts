@@ -6,7 +6,7 @@ import { FormGroup, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { AccessLevelService } from '../../../services/access-level.service';
 import { ToastService } from '../../../services/toast.service';
 import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
-import { filter } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-grant-access-level',
@@ -131,8 +131,18 @@ export class GrantAccessLevelComponent {
     }
 
     reject() {
-        this.accessLevelService
-            .reject(this.id, this.accessType)
+        const modal = this.modalService.open(ConfirmActionComponent);
+        const instance = modal.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'modal.confirm-action.verify-negative';
+
+        modal.closed
+            .pipe(
+                filter((res) => res),
+                switchMap(() =>
+                    this.accessLevelService.reject(this.id, this.accessType)
+                )
+            )
             .subscribe((success) => {
                 if (success) {
                     this.toastService.showSuccess(
