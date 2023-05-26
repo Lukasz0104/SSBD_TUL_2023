@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers;
+package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.impl;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
@@ -26,6 +26,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.JwtRefreshTokenDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades.TokenFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.EmailService;

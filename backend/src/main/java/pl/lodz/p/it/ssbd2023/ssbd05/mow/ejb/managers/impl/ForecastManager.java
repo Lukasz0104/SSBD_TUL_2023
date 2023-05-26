@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
+package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.impl;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 
@@ -8,15 +8,14 @@ import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ForecastManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
-
-import java.util.List;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -25,16 +24,14 @@ import java.util.List;
     LoggerInterceptor.class,
 })
 @DenyAll
-public class CategoryManager extends AbstractManager implements CategoryManagerLocal, SessionSynchronization {
-    @Override
-    @RolesAllowed(MANAGER)
-    public List<Category> getAllCategories() throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
+public class ForecastManager extends AbstractManager implements ForecastManagerLocal, SessionSynchronization {
+
+    @Inject
+    private ForecastFacade forecastFacade;
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<Rate> getCategoryRates(Long id) throws AppBaseException {
+    public void createOverdueForecast() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 }

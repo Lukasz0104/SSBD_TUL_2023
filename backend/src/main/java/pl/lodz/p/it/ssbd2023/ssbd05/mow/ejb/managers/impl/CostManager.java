@@ -1,8 +1,6 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
+package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.impl;
 
-import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
-import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -10,13 +8,14 @@ import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CostFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CostManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
 import java.util.List;
@@ -28,34 +27,32 @@ import java.util.List;
     LoggerInterceptor.class,
 })
 @DenyAll
-public class BuildingManager extends AbstractManager implements BuildingManagerLocal, SessionSynchronization {
-    @Override
-    @RolesAllowed({ADMIN, MANAGER, OWNER})
-    public List<Building> getAllBuildings() throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
+public class CostManager extends AbstractManager implements CostManagerLocal, SessionSynchronization {
+
+    @Inject
+    private CostFacade costFacade;
 
     @Override
-    @RolesAllowed({ADMIN, MANAGER, OWNER})
-    public List<Report> getBuildingReports(Long id) throws AppBaseException {
+    @RolesAllowed(MANAGER)
+    public List<Cost> getAllCosts() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<Place> getBuildingPlaces(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    @RolesAllowed({MANAGER, OWNER})
-    public Report getBuildingReportByYear(Long id, Long year) throws AppBaseException {
+    public void createCost() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     @RolesAllowed(MANAGER)
-    public void createBuilding() throws AppBaseException {
+    public Cost getCostDetails(Long id) throws AppBaseException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void removeCost(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 }

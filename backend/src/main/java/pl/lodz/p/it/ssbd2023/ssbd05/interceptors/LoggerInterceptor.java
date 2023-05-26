@@ -1,16 +1,16 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.interceptors;
 
-import jakarta.annotation.Resource;
-import jakarta.ejb.SessionContext;
+import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.InvocationContext;
+import jakarta.security.enterprise.SecurityContext;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class LoggerInterceptor {
-    @Resource
-    private SessionContext sctx;
+    @Inject
+    private SecurityContext sctx;
     private static final Logger LOGGER = Logger.getLogger(LoggerInterceptor.class.getName());
 
     @AroundInvoke
@@ -19,8 +19,14 @@ public class LoggerInterceptor {
         Object result;
         try {
             try {
+                String login = "anonymous";
+                if (sctx != null && sctx.getCallerPrincipal() != null) {
+                    login = sctx.getCallerPrincipal().getName();
+                    login = (login != null) ? login : "anonymous";
+                }
+
                 message.append(ictx.getMethod().toString());
-                message.append(" user: ").append(sctx.getCallerPrincipal().getName());
+                message.append(" user: ").append(login);
                 message.append(" parameter values: ");
                 if (null != ictx.getParameters()) {
                     for (Object param : ictx.getParameters()) {

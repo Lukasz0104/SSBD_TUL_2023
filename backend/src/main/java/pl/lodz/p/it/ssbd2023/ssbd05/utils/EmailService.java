@@ -11,7 +11,10 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -21,6 +24,7 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,6 +41,8 @@ import java.util.logging.Logger;
 
 @Stateless
 @DenyAll
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Interceptors(LoggerInterceptor.class)
 public class EmailService {
 
     protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
