@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AccountService } from '../../shared/services/account.service';
+import { AccountService } from '../../../shared/services/account.service';
 
 @Component({
     selector: 'app-unlock-account',

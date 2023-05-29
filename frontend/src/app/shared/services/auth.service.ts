@@ -1,17 +1,17 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, catchError, EMPTY, map, of, tap } from 'rxjs';
-import { LoginResponse } from '../model/login-response';
-import jwtDecode from 'jwt-decode';
-import { AccessLevels, AccessType } from '../model/access-type';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { RefreshSessionComponent } from '../components/refresh-session/refresh-session.component';
-import { ChooseAccessLevelComponent } from '../../components/modals/choose-access-level/choose-access-level.component';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastService } from './toast.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { TwoFactorAuthComponent } from '../../components/modals/two-factor-auth/two-factor-auth.component';
+import jwtDecode from 'jwt-decode';
+import { BehaviorSubject, EMPTY, catchError, map, of, tap } from 'rxjs';
+import { ChooseAccessLevelComponent } from '../../components/modals/choose-access-level/choose-access-level.component';
+import { RefreshSessionComponent } from '../components/refresh-session/refresh-session.component';
+import { TwoFactorAuthComponent } from '../components/two-factor-auth/two-factor-auth.component';
+import { AccessLevels, AccessType } from '../model/access-type';
+import { LoginResponse } from '../model/login-response';
 import { AppConfigService } from './app-config.service';
+import { ToastService } from './toast.service';
 
 @Injectable({
     providedIn: 'root'
