@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AccountService } from '../../shared/services/account.service';
-import { ToastService } from '../../shared/services/toast.service';
-import { strongPasswordValidator } from '../../shared/validators/strong-password.validator';
-import { repeatPasswordValidator } from '../../shared/validators/repeat-password.validator';
+import { AccountService } from '../../../shared/services/account.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { strongPasswordValidator } from '../../../shared/validators/strong-password.validator';
+import { repeatPasswordValidator } from '../../../shared/validators/repeat-password.validator';
 import { diffPasswordValidator } from '../../validators/new-password.validator';
-import { ConfirmActionComponent } from '../../shared/components/confirm-action/confirm-action.component';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({

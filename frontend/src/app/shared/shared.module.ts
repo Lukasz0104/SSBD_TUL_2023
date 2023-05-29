@@ -7,13 +7,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RefreshSessionComponent } from './components/refresh-session/refresh-session.component';
 import { TwoFactorAuthComponent } from './components/two-factor-auth/two-factor-auth.component';
 import { CodeInputModule } from 'angular-code-input';
+import { ChooseAccessLevelComponent } from './components/choose-access-level/choose-access-level.component';
 
 @NgModule({
     declarations: [
         TruncatePipe,
         ConfirmActionComponent,
         RefreshSessionComponent,
-        TwoFactorAuthComponent
+        TwoFactorAuthComponent,
+        ChooseAccessLevelComponent
     ],
     imports: [CommonModule, NgbModule, TranslateModule, CodeInputModule],
     exports: [TruncatePipe, ConfirmActionComponent, TranslateModule, NgbModule]

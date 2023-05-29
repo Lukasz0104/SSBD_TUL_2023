@@ -15,7 +15,7 @@ import {
     ChangeAccessLevelDto
 } from '../model/access-type';
 import { AuthService } from './auth.service';
-import { ChooseAccessLevelComponent } from '../../components/modals/choose-access-level/choose-access-level.component';
+import { ChooseAccessLevelComponent } from '../components//choose-access-level/choose-access-level.component';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ChangeEmailForm } from '../model/email-form';
 import { ActiveStatusDto } from '../model/active-status-dto';

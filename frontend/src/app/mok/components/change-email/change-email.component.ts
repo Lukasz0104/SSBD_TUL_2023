@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AccountService } from '../../shared/services/account.service';
+import { AccountService } from '../../../shared/services/account.service';
 
 @Component({
     selector: 'app-change-email',

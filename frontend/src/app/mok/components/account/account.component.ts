@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { catchError, EMPTY, map, Observable } from 'rxjs';
-import { Account } from '../../shared/model/account';
-import { AccountService } from '../../shared/services/account.service';
+import { Account } from '../../../shared/model/account';
+import { AccountService } from '../../../shared/services/account.service';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { EditPersonalDataAsAdminComponent } from '../edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 
 @Component({
     selector: 'app-account',

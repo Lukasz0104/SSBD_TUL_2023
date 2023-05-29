@@ -13,16 +13,16 @@ import {
     OperatorFunction,
     switchMap
 } from 'rxjs';
-import { AccessLevels, AccessType } from '../../shared/model/access-type';
-import { Account } from '../../shared/model/account';
+import { AccessLevels, AccessType } from '../../../shared/model/access-type';
+import { Account } from '../../../shared/model/account';
 import { AccessLevelService } from '../../services/access-level.service';
-import { AccountService } from '../../shared/services/account.service';
-import { AuthService } from '../../shared/services/auth.service';
-import { ToastService } from '../../shared/services/toast.service';
-import { ConfirmActionComponent } from '../../shared/components/confirm-action/confirm-action.component';
-import { EditPersonalDataAsAdminComponent } from '../modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
-import { GrantAccessLevelComponent } from '../modals/grant-access-level/grant-access-level.component';
-import { AccountPage } from '../../shared/model/account-page';
+import { AccountService } from '../../../shared/services/account.service';
+import { AuthService } from '../../../shared/services/auth.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
+import { EditPersonalDataAsAdminComponent } from '../edit-personal-data-as-admin/edit-personal-data-as-admin.component';
+import { GrantAccessLevelComponent } from '../grant-access-level/grant-access-level.component';
+import { AccountPage } from '../../../shared/model/account-page';
 import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({

@@ -1,14 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Route, RouterModule, Routes } from '@angular/router';
-import { AccountComponent } from './components/account/account.component';
-import { AccountsComponent } from './components/accounts/accounts.component';
-import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { canActivateAdmin } from './shared/guards/admin.guard';
 import { canActivateAuthenticated } from './shared/guards/authentication.guard';
-import { canActivateManagerAdmin } from './shared/guards/manager-admin.guard';
 
 const routes: Routes = [
     {
@@ -27,42 +21,7 @@ const routes: Routes = [
             title: 'Dashboard'
         },
         canActivate: [canActivateAuthenticated],
-        children: [
-            {
-                path: 'profile',
-                component: ProfileComponent,
-                data: {
-                    title: 'My profile'
-                },
-                canActivate: [canActivateAuthenticated],
-                children: [
-                    {
-                        path: 'change-password',
-                        component: ChangePasswordComponent,
-                        data: {
-                            title: 'Change password'
-                        },
-                        canActivate: [canActivateAuthenticated]
-                    }
-                ]
-            },
-            {
-                path: 'accounts/account',
-                component: AccountComponent,
-                data: {
-                    title: 'Account'
-                },
-                canActivate: [canActivateAdmin]
-            },
-            {
-                path: 'accounts',
-                component: AccountsComponent,
-                data: {
-                    title: 'Accounts'
-                },
-                canActivate: [canActivateManagerAdmin]
-            }
-        ]
+        loadChildren: () => import('./mok/mok.module').then((m) => m.MokModule)
     }
 ];
 
