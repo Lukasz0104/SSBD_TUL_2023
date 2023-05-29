@@ -5,13 +5,13 @@ import { LoginResponse } from '../model/login-response';
 import jwtDecode from 'jwt-decode';
 import { AccessLevels, AccessType } from '../model/access-type';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { RefreshSessionComponent } from '../components/modals/refresh-session/refresh-session.component';
-import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
+import { RefreshSessionComponent } from '../components/refresh-session/refresh-session.component';
+import { ChooseAccessLevelComponent } from '../../components/modals/choose-access-level/choose-access-level.component';
 import { Router } from '@angular/router';
 import { ToastService } from './toast.service';
 import { TranslateService } from '@ngx-translate/core';
-import { TwoFactorAuthComponent } from '../components/modals/two-factor-auth/two-factor-auth.component';
-import { AppConfigService } from './app-config-service';
+import { TwoFactorAuthComponent } from '../../components/modals/two-factor-auth/two-factor-auth.component';
+import { AppConfigService } from './app-config.service';
 
 @Injectable({
     providedIn: 'root'

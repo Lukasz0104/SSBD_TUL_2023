@@ -5,10 +5,10 @@ import {
     NonNullableFormBuilder,
     Validators
 } from '@angular/forms';
-import { AccountService } from '../../services/account.service';
-import { ToastService } from '../../services/toast.service';
-import { repeatPasswordValidator } from '../../validators/repeat-password.validator';
-import { strongPasswordValidator } from '../../validators/strong-password.validator';
+import { AccountService } from '../../shared/services/account.service';
+import { ToastService } from '../../shared/services/toast.service';
+import { repeatPasswordValidator } from '../../shared/validators/repeat-password.validator';
+import { strongPasswordValidator } from '../../shared/validators/strong-password.validator';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -17,7 +17,7 @@ import {
     OperatorFunction,
     switchMap
 } from 'rxjs';
-import { AppConfigService } from '../../services/app-config-service';
+import { AppConfigService } from '../../shared/services/app-config.service';
 
 @Component({
     selector: 'app-register',

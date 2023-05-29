@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { AccessLevel } from '../../../model/account';
-import { AccessLevels, AccessType } from '../../../model/access-type';
+import { AccessLevel } from '../../../shared/model/account';
+import { AccessLevels, AccessType } from '../../../shared/model/access-type';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormGroup, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { AccessLevelService } from '../../../services/access-level.service';
-import { ToastService } from '../../../services/toast.service';
-import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
+import { ToastService } from '../../../shared/services/toast.service';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { filter, switchMap } from 'rxjs';
 
 @Component({

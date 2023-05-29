@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { AccountService } from '../../services/account.service';
-import { OwnAccount } from '../../model/account';
+import { AccountService } from '../../shared/services/account.service';
+import { OwnAccount } from '../../shared/model/account';
 import { Observable } from 'rxjs';
 import { EditPersonalDataComponent } from '../modals/edit-personal-data/edit-personal-data.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';

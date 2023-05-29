@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AccountService } from '../../services/account.service';
-import { ToastService } from '../../services/toast.service';
-import { AuthService } from '../../services/auth.service';
-import { AccessLevels, AccessType } from '../../model/access-type';
+import { AccountService } from '../../shared/services/account.service';
+import { ToastService } from '../../shared/services/toast.service';
+import { AuthService } from '../../shared/services/auth.service';
+import { AccessLevels, AccessType } from '../../shared/model/access-type';
 
 @Component({
     selector: 'app-change-active-status',

@@ -7,15 +7,15 @@ import {
 import { Router } from '@angular/router';
 import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { Account, EditPersonalData, OwnAccount } from '../model/account';
-import { ToastService } from './toast.service';
-import { ResponseMessage } from '../common/response-message.enum';
+import { ToastService } from '../services/toast.service';
+import { ResponseMessage } from '../model/response-message.enum';
 import {
     AccessLevels,
     AccessType,
     ChangeAccessLevelDto
 } from '../model/access-type';
 import { AuthService } from './auth.service';
-import { ChooseAccessLevelComponent } from '../components/modals/choose-access-level/choose-access-level.component';
+import { ChooseAccessLevelComponent } from '../../components/modals/choose-access-level/choose-access-level.component';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ChangeEmailForm } from '../model/email-form';
 import { ActiveStatusDto } from '../model/active-status-dto';
@@ -24,7 +24,7 @@ import {
     RegisterOwnerDto
 } from '../model/registration.dto';
 import { AccountPage } from '../model/account-page';
-import { AppConfigService } from './app-config-service';
+import { AppConfigService } from '../services/app-config.service';
 
 type MessageResponse = { message: ResponseMessage };
 

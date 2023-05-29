@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { EditPersonalData, OwnAccount } from '../../../model/account';
-import { AccountService } from '../../../services/account.service';
+import { EditPersonalData, OwnAccount } from '../../../shared/model/account';
+import { AccountService } from '../../../shared/services/account.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     debounceTime,
@@ -12,8 +12,8 @@ import {
     switchMap,
     tap
 } from 'rxjs';
-import { AccessLevels } from '../../../model/access-type';
-import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
+import { AccessLevels } from '../../../shared/model/access-type';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({

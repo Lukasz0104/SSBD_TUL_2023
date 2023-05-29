@@ -1,11 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AccessLevel, Address } from '../model/account';
-import { AccessLevels, AccessType } from '../model/access-type';
+import { AccessLevel, Address } from '../shared/model/account';
+import { AccessLevels, AccessType } from '../shared/model/access-type';
 import { catchError, EMPTY, map, Observable, of } from 'rxjs';
-import { ResponseMessage } from '../common/response-message.enum';
-import { ToastService } from './toast.service';
-import { AppConfigService } from './app-config-service';
+import { ResponseMessage } from '../shared/model/response-message.enum';
+import { ToastService } from '../shared/services/toast.service';
+import { AppConfigService } from '../shared/services/app-config.service';
 
 type GrantAccessLevel =
     | AccessLevel

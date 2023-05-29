@@ -1,4 +1,4 @@
-import { AppConfigService } from '../services/app-config-service';
+import { AppConfigService } from '../services/app-config.service';
 
 export const AccessLevels = new AppConfigService().accessLevels;
 

@@ -4,21 +4,21 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
-import { canActivateAuthenticated } from './guards/authentication.guard';
-import { canActivateLoginOrRegister } from './guards/guest.guard';
+import { canActivateAuthenticated } from './shared/guards/authentication.guard';
+import { canActivateLoginOrRegister } from './shared/guards/guest.guard';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AccountComponent } from './components/account/account.component';
-import { canActivateAdmin } from './guards/admin.guard';
+import { canActivateAdmin } from './shared/guards/admin.guard';
 import { AccountsComponent } from './components/accounts/accounts.component';
-import { canActivateManagerAdmin } from './guards/manager-admin.guard';
+import { canActivateManagerAdmin } from './shared/guards/manager-admin.guard';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
-import { canActivateGuestWithRedirect } from './guards/redirecting-guest.guard';
+import { canActivateGuestWithRedirect } from './shared/guards/redirecting-guest.guard';
 import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
 
 const routes: Routes = [

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { AccessLevel } from '../model/account';
+import { AccessLevel } from '../shared/model/account';
 
 @Pipe({
     name: 'activeAccessLevels'

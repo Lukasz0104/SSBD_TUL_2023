@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { of, switchMap } from 'rxjs';
-import { AccountService } from '../../services/account.service';
+import { AccountService } from '../../shared/services/account.service';
 
 @Component({
     selector: 'app-confirm-registration',

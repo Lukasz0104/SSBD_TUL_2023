@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import config from '../../assets/ebok.json';
+import * as config from '../../../assets/ebok.json';
 
 @Injectable({
     providedIn: 'root'

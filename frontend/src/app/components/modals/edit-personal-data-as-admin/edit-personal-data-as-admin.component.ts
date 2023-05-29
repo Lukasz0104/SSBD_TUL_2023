@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AccountService } from '../../../services/account.service';
-import { AccessLevels } from '../../../model/access-type';
-import { Account } from '../../../model/account';
+import { AccountService } from '../../../shared/services/account.service';
+import { AccessLevels } from '../../../shared/model/access-type';
+import { Account } from '../../../shared/model/account';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -13,8 +13,8 @@ import {
     OperatorFunction,
     switchMap
 } from 'rxjs';
-import { ConfirmActionComponent } from '../confirm-action/confirm-action.component';
-import { AppConfigService } from '../../../services/app-config-service';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
+import { AppConfigService } from '../../../shared/services/app-config.service';
 
 @Component({
     selector: 'app-edit-personal-data-as-admin',

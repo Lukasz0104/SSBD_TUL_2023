@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AccessLevels, AccessType } from '../../../model/access-type';
+import { AccessLevels, AccessType } from '../../../shared/model/access-type';
 
 @Component({
     selector: 'app-choose-access-level',
