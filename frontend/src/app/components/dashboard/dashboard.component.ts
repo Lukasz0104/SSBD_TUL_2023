@@ -10,6 +10,14 @@ export class DashboardComponent {
 
     getBreadCrumbs() {
         const url = this.router.url.split('/');
+
+        if (url.includes('profile')) {
+            return [
+                new Breadcrumb('/', 'dashboard'),
+                new Breadcrumb('', 'profile')
+            ];
+        }
+
         url.shift();
         const breadcrumbs: Breadcrumb[] = [];
 
