@@ -493,7 +493,9 @@ export class AccountService {
                             this.toastService.showSuccess(
                                 'toast.account.change-access-level'
                             );
-                            this.router.navigate([this.router.url]);
+                            this.router.navigateByUrl(this.router.url, {
+                                onSameUrlNavigation: 'reload'
+                            });
                         }),
                         catchError((err: HttpErrorResponse) => {
                             this.handleError(

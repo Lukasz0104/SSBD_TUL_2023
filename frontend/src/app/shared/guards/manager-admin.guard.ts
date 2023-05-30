@@ -1,9 +1,9 @@
-import { CanActivateFn, Router } from '@angular/router';
+import { CanMatchFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
 
-export const canActivateManagerAdmin: CanActivateFn = () => {
+export const canMatchManagerAdmin: CanMatchFn = () => {
     const authService = inject(AuthService);
     const router = inject(Router);
     const toastService = inject(ToastService);

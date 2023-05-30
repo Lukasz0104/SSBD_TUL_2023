@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { canActivateAdmin } from '../shared/guards/admin.guard';
+import { canMatchAdmin } from '../shared/guards/admin.guard';
 import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
-import { canActivateManagerAdmin } from '../shared/guards/manager-admin.guard';
+import { canMatchManagerAdmin } from '../shared/guards/manager-admin.guard';
 import { AccountComponent } from './components/account/account.component';
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { ProfileComponent } from './components/profile/profile.component';
@@ -22,7 +22,7 @@ const routes: Routes = [
         data: {
             title: 'Account'
         },
-        canActivate: [canActivateAdmin]
+        canMatch: [canMatchAdmin]
     },
     {
         path: '',
@@ -30,7 +30,7 @@ const routes: Routes = [
         data: {
             title: 'Accounts'
         },
-        canActivate: [canActivateManagerAdmin]
+        canMatch: [canMatchManagerAdmin]
     }
 ];
 
