@@ -44,6 +44,16 @@
                 <i class="bi bi-people"></i> {{ 'nav.accounts' | translate }}
             </a>
         </li>
+        <li *ngIf="authService.isManager()">
+            <a
+                routerLink="/dashboard/categories"
+                href="#"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-tags"></i> {{ 'nav.categories' | translate }}
+            </a>
+        </li>
     </ul>
     <hr />
     <div class="d-flex justify-content-center">
@@ -106,6 +116,14 @@
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard/accounts">
             <i class="bi bi-people fs-2"></i>
+        </button>
+        <button
+            *ngIf="authService.isManager()"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/categories">
+            <i class="bi bi-tags fs-2"></i>
         </button>
         <button
             class="nav-link mx-auto p-2 m-2"
