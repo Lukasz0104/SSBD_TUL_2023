@@ -29,7 +29,6 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AddressDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AdminDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.ManagerDataDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.OwnerDataDto;
@@ -46,6 +45,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ResetPasswordDt
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.dto.AddressDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.util.ArrayList;
@@ -2113,8 +2113,8 @@ public class MokITests extends TestContainersSetup {
                 );
                 assertEquals(addressDto, editedAddressDto);
                 assertEquals(response.body().jsonPath()
-                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() +
-                        1,
+                                 .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() +
+                             1,
                     editedOwnerDataDto.getVersion());
             }
 
@@ -2200,8 +2200,8 @@ public class MokITests extends TestContainersSetup {
                 assertEquals(newLicenseNumber, editedManagerDataDto.getLicenseNumber());
 
                 assertEquals(response.body().jsonPath()
-                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class)
-                        .getVersion() + 1,
+                                 .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class)
+                                 .getVersion() + 1,
                     editedManagerDataDto.getVersion());
             }
 
@@ -2553,23 +2553,23 @@ public class MokITests extends TestContainersSetup {
 
         private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
             .addHeader("Authorization", "Bearer "
-                + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/login")
-                .jsonPath()
-                .get("jwt"))
+                                        + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
+                                            .contentType(ContentType.JSON)
+                                            .when()
+                                            .post("/login")
+                                            .jsonPath()
+                                            .get("jwt"))
             .build();
 
         private RequestSpecification makeSpec(String login) {
             return new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer "
-                    + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
-                    .contentType(ContentType.JSON)
-                    .when()
-                    .post("/login")
-                    .jsonPath()
-                    .get("jwt"))
+                                            + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
+                                                .contentType(ContentType.JSON)
+                                                .when()
+                                                .post("/login")
+                                                .jsonPath()
+                                                .get("jwt"))
                 .build();
         }
 

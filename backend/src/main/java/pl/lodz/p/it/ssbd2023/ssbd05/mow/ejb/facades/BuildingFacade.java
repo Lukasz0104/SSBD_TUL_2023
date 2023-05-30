@@ -1,7 +1,12 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -45,4 +50,9 @@ public class BuildingFacade extends AbstractFacade<Building> {
         return tq.getResultList();
     }
 
+    @Override
+    @RolesAllowed({OWNER, MANAGER, ADMIN})
+    public List<Building> findAll() {
+        return super.findAll();
+    }
 }

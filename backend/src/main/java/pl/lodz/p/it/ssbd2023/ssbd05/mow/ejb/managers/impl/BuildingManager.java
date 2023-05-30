@@ -39,7 +39,7 @@ public class BuildingManager extends AbstractManager implements BuildingManagerL
     @Override
     @RolesAllowed({ADMIN, MANAGER, OWNER})
     public List<Building> getAllBuildings() throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return buildingFacade.findAll();
     }
 
     @Override
