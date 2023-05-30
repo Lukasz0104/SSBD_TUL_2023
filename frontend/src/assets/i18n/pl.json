@@ -199,6 +199,10 @@
       "verified-true": "tak",
       "verified-false": "nie"
     },
+    "categories": {
+      "loading": "Ładowanie kategorii...",
+      "name": "Nazwa kategorii opłat"
+    },
     "fields": {
       "login": "Login",
       "first-name": "Imię",
@@ -250,7 +254,8 @@
     "logout": "Wyloguj się",
     "account": "Konto",
     "profile": "Profil",
-    "change-access-level": "Zmień poziom dostępu"
+    "change-access-level": "Zmień poziom dostępu",
+    "categories": "Kategorie opłat"
   },
   "toast": {
     "auth": {
@@ -305,7 +310,6 @@
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie",
         "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
-
       }
     }
   },
