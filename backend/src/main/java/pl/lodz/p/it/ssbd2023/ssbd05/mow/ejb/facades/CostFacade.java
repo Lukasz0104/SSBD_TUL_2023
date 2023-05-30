@@ -168,4 +168,10 @@ public class CostFacade extends AbstractFacade<Cost> {
             throw new AppDatabaseException("Cost.findByYearAndMonthAndCategoryName, Database Exception", e);
         }
     }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public List<Cost> findAll() {
+        return super.findAll();
+    }
 }

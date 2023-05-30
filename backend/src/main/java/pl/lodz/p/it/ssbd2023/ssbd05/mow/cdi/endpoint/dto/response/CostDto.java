@@ -1,0 +1,73 @@
+package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Year;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+public class CostDto {
+
+    @NotNull
+    private Long id;
+
+    @NotNull
+    private Long version;
+
+    @NotNull
+    private Year year;
+
+    @NotNull
+    private Month month;
+
+    @PositiveOrZero
+    private BigDecimal totalConsumption;
+
+    @NotNull
+    @PositiveOrZero
+    private BigDecimal realRate;
+
+    @NotNull
+    @Valid
+    private String category;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private LocalDateTime createdTime;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Account createdBy;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private LocalDateTime updatedTime;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Account updatedBy;
+
+    public CostDto(Long id, Long version, Year year, Month month,
+                   BigDecimal totalConsumption, BigDecimal realRate, String category) {
+        this.id = id;
+        this.version = version;
+        this.year = year;
+        this.month = month;
+        this.totalConsumption = totalConsumption;
+        this.realRate = realRate;
+        this.category = category;
+    }
+}

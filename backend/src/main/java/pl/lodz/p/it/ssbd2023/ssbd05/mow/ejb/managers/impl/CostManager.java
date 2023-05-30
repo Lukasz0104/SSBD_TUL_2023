@@ -35,7 +35,7 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
     @Override
     @RolesAllowed(MANAGER)
     public List<Cost> getAllCosts() throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return costFacade.findAll();
     }
 
     @Override
