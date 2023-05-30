@@ -6,10 +6,10 @@ import {
     HttpRequest
 } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../shared/services/auth.service';
 import { Router } from '@angular/router';
-import { ToastService } from '../services/toast.service';
-import { AppConfigService } from '../services/app-config-service';
+import { ToastService } from '../shared/services/toast.service';
+import { AppConfigService } from '../shared/services/app-config.service';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {

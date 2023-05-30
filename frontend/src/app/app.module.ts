@@ -1,131 +1,57 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 import {
     HTTP_INTERCEPTORS,
     HttpClient,
     HttpClientModule
 } from '@angular/common/http';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import {
-    NgbAccordionModule,
-    NgbModule,
-    NgbTypeaheadModule
-} from '@ng-bootstrap/ng-bootstrap';
-import { LoginComponent } from './components/login/login.component';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { ChooseAccessLevelComponent } from './components/modals/choose-access-level/choose-access-level.component';
-import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ToastSectionComponent } from './components/toast-section/toast-section.component';
-import { RefreshSessionComponent } from './components/modals/refresh-session/refresh-session.component';
-import { NavbarComponent } from './components/navbar/navbar.component';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { HomeComponent } from './components/home/home.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { AccountComponent } from './components/account/account.component';
-import { EditPersonalDataComponent } from './components/modals/edit-personal-data/edit-personal-data.component';
-import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
-import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
-import { ChangeLanguageComponent } from './components/change-language/change-language.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { ConfirmActionComponent } from './components/modals/confirm-action/confirm-action.component';
-import { AccountsComponent } from './components/accounts/accounts.component';
-import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
-import { RegisterComponent } from './components/register/register.component';
-import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
-import { ChangeEmailComponent } from './components/change-email/change-email.component';
-import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
-import { ChangeActiveStatusComponent } from './components/change-active-status/change-active-status.component';
-import { ChangePasswordComponent } from './components/change-password/change-password.component';
-import { EditPersonalDataAsAdminComponent } from './components/modals/edit-personal-data-as-admin/edit-personal-data-as-admin.component';
-import { RecaptchaComponent } from './components/recaptcha/recaptcha.component';
-import {
-    RECAPTCHA_SETTINGS,
-    RecaptchaFormsModule,
-    RecaptchaModule,
-    RecaptchaSettings
-} from 'ng-recaptcha';
-import { GrantAccessLevelComponent } from './components/modals/grant-access-level/grant-access-level.component';
-import { LandingPageComponent } from './components/landing-page/landing-page.component';
-import { TruncatePipe } from './pipes/truncate.pipe';
-import { TwoFactorAuthComponent } from './components/modals/two-factor-auth/two-factor-auth.component';
-import { CodeInputModule } from 'angular-code-input';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { ChangeLanguageComponent } from './components/change-language/change-language.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { GuestNavbarComponent } from './components/guest-navbar/guest-navbar.component';
-import { ActiveAccessLevelsPipe } from './pipes/active-access-levels.pipe';
+import { HomeComponent } from './components/home/home.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { ThemeSwitchComponent } from './components/theme-switch/theme-switch.component';
-import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
-import { AppConfigService } from './services/app-config-service';
+import { ToastSectionComponent } from './components/toast-section/toast-section.component';
+import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
     declarations: [
         AppComponent,
-        LoginComponent,
         DashboardComponent,
-        ChooseAccessLevelComponent,
         ToastSectionComponent,
-        RefreshSessionComponent,
-        RegisterComponent,
-        ResetPasswordComponent,
-        ResetPasswordConfirmComponent,
         NavbarComponent,
         SidebarComponent,
         ChangeLanguageComponent,
-        ConfirmActionComponent,
-        ForcePasswordChangeOverrideComponent,
-        AccountsComponent,
-        ProfileComponent,
-        AccountComponent,
-        ChangePasswordComponent,
-        EditPersonalDataAsAdminComponent,
-        ChangeEmailComponent,
-        ConfirmEmailComponent,
-        ChangeActiveStatusComponent,
-        EditPersonalDataComponent,
         HomeComponent,
-        ConfirmRegistrationComponent,
-        GrantAccessLevelComponent,
-        LandingPageComponent,
-        TruncatePipe,
-        TwoFactorAuthComponent,
-        ConfirmRegistrationComponent,
-        RecaptchaComponent,
-        ActiveAccessLevelsPipe,
         GuestNavbarComponent,
-        ThemeSwitchComponent,
-        UnlockAccountComponent
+        ThemeSwitchComponent
     ],
     imports: [
         BrowserModule,
         AppRoutingModule,
-        NgbModule,
-        NgbAccordionModule,
         HttpClientModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
+        BrowserAnimationsModule,
+        FormsModule,
+        SharedModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient]
             }
-        }),
-        BrowserAnimationsModule,
-        FormsModule,
-        RecaptchaFormsModule,
-        RecaptchaModule,
-        CodeInputModule,
-        NgbTypeaheadModule
+        })
     ],
     providers: [
-        {
-            provide: RECAPTCHA_SETTINGS,
-            useValue: {
-                siteKey: new AppConfigService().recaptchaKey
-            } as RecaptchaSettings
-        },
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
     ],
     bootstrap: [AppComponent]
