@@ -36,7 +36,7 @@
         </li>
         <li *ngIf="authService.isAdmin() || authService.isManager()">
             <a
-                routerLink="accounts"
+                routerLink="/dashboard/accounts"
                 href="#"
                 class="nav-link link-body-emphasis"
                 routerLinkActive="active"
@@ -49,7 +49,7 @@
     <div class="d-flex justify-content-center">
         <a
             class="d-flex align-items-center text-decoration-none link-body-emphasis"
-            routerLink="/dashboard/profile">
+            routerLink="/dashboard/accounts/profile">
             <i class="fs-2 bi bi-person"></i>
             <strong class="px-2 text-center"
                 >{{ authService.getLogin() | truncate : 20 }} ({{
@@ -104,14 +104,14 @@
             class="nav-link mx-auto p-2 m-2"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
-            routerLink="accounts">
+            routerLink="/dashboard/accounts">
             <i class="bi bi-people fs-2"></i>
         </button>
         <button
             class="nav-link mx-auto p-2 m-2"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
-            routerLink="/dashboard/profile">
+            routerLink="/dashboard/accounts/profile">
             <i class="bi bi-person fs-2"></i>
         </button>
     </span>

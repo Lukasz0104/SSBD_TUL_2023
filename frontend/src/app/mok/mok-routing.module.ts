@@ -17,7 +17,7 @@ const routes: Routes = [
         canActivate: [canActivateAuthenticated]
     },
     {
-        path: 'accounts/account',
+        path: 'account',
         component: AccountComponent,
         data: {
             title: 'Account'
@@ -25,7 +25,7 @@ const routes: Routes = [
         canActivate: [canActivateAdmin]
     },
     {
-        path: 'accounts',
+        path: '',
         component: AccountsComponent,
         data: {
             title: 'Accounts'

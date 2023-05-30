@@ -21,7 +21,18 @@ const routes: Routes = [
             title: 'Dashboard'
         },
         canActivate: [canActivateAuthenticated],
-        loadChildren: () => import('./mok/mok.module').then((m) => m.MokModule)
+        children: [
+            {
+                path: 'accounts',
+                loadChildren: () =>
+                    import('./mok/mok.module').then((m) => m.MokModule)
+            },
+            {
+                path: '',
+                loadChildren: () =>
+                    import('./mow/mow.module').then((m) => m.MowModule)
+            }
+        ]
     }
 ];
 
