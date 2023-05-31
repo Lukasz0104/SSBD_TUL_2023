@@ -7,6 +7,7 @@ import { PlaceCategoriesComponent } from './components/place-categories/place-ca
 import { PlaceDetailsComponent } from './components/place-details/place-details.component';
 import { OwnPlacesComponent } from './components/own-places/own-places.component';
 import { CategoriesComponent } from './components/categories/categories.component';
+import { MetersComponent } from './components/meters/meters.component';
 import { RatesByCategoryComponent } from './components/rates-by-category/rates-by-category.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WelcomeComponent } from './components/date/welcome.component';
@@ -18,7 +19,8 @@ import { WelcomeComponent } from './components/date/welcome.component';
         PlaceCategoriesComponent,
         PlaceDetailsComponent,
         OwnPlacesComponent,
-        WelcomeComponent
+        WelcomeComponent,
+        MetersComponent
     ],
     imports: [
         CommonModule,

@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -22,6 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @DenyAll
@@ -42,6 +44,12 @@ public class PlaceFacade extends AbstractFacade<Place> {
     @Override
     protected EntityManager getEntityManager() {
         return em;
+    }
+
+    @Override
+    @RolesAllowed({MANAGER, ADMIN})
+    public Optional<Place> find(Long id) {
+        return super.find(id);
     }
 
     @RolesAllowed({OWNER, MANAGER})

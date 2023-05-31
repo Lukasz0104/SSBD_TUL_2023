@@ -33,7 +33,12 @@ export class PlaceService {
             `${this.placesUrl}/${id}/categories`
         );
     }
+
     getOwnPlaces() {
         return this.http.get<OwnPlace[]>(`${this.placesUrl}/me`);
+    }
+
+    getPlaceMeters(id: number) {
+        return this.http.get<OwnPlace[]>(`${this.placesUrl}/${id}/meters`);
     }
 }
