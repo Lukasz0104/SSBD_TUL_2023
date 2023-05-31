@@ -15,6 +15,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -80,11 +81,30 @@ public class RateFacade extends AbstractFacade<Rate> {
 
     // Category
 
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Rate> findByCategory(Category category) {
+    @RolesAllowed({MANAGER})
+    public List<Rate> findByCategoryId(Category category) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByCategory", Rate.class);
         tq.setParameter("category", category);
         return tq.getResultList();
+    }
+
+    @RolesAllowed({MANAGER})
+    public Page<Rate> findByCategoryId(Long categoryId, int page, int pageSize) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByCategoryId", Rate.class);
+        tq.setParameter("categoryId", categoryId);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countByCategoryId(categoryId);
+        return new Page<>(tq.getResultList(), count, pageSize, page);
+    }
+
+    @RolesAllowed({MANAGER})
+    public Long countByCategoryId(Long categoryId) {
+        TypedQuery<Long> tq = em.createNamedQuery("Rate.countByCategoryId", Long.class);
+        tq.setParameter("categoryId", categoryId);
+        return tq.getSingleResult();
     }
 
     @RolesAllowed({OWNER, MANAGER})

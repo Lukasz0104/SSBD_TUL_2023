@@ -1,8 +1,6 @@
 import { Account } from './account';
+import { Page } from './page';
 
-export interface AccountPage {
-    currentPage: number;
+export interface AccountPage extends Page {
     data: Account[];
-    pageSize: number;
-    totalSize: number;
 }

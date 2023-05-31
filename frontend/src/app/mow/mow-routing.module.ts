@@ -5,8 +5,15 @@ import { canMatchManager } from '../shared/guards/manager.guard';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { OwnPlacesComponent } from './components/own-places/own-places.component';
 import { canMatchOwner } from '../shared/guards/owner.guard';
+import { WelcomeComponent } from './components/date/welcome.component';
+import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
 
 export const routes: Routes = [
+    {
+        path: '',
+        component: WelcomeComponent,
+        canActivate: [canActivateAuthenticated]
+    },
     {
         path: 'place-details',
         component: PlaceDetailsComponent,
