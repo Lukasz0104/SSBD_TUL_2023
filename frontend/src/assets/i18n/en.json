@@ -141,6 +141,17 @@
     }
   },
   "component": {
+    "own-places": {
+      "loading": "Loading your places..",
+      "place-number": "Place No.",
+      "details": "Details",
+      "meters": "Meters",
+      "reports": "Reports",
+      "rates": "Rates",
+      "no-places": "You don't have any places",
+      "show-place-details": "Show information",
+      "hide-place-details": "Hide information"
+    },
     "accounts": {
       "display": {
         "all": "All",
@@ -203,6 +214,19 @@
       "loading": "Loading categories...",
       "name": "Bill category name"
     },
+    "place": {
+      "categories": {
+        "edit": "Edit",
+        "save": "Save",
+        "pln": "pln",
+        "person": "pp",
+        "month": "pm",
+        "title": "Place payment categories",
+        "title-edit": "Edit place payment categories",
+        "action-confirm": "Are you sure, you want to remove chosen categories from this place?"
+      },
+      "show-categories": "Show payment categories"
+    },
     "fields": {
       "login": "Login",
       "first-name": "First name",
@@ -261,7 +285,8 @@
     "profile": "Profile",
     "change-access-level": "Change access level",
     "categories": "Bill categories",
-    "buildings": "Buildings"
+    "buildings": "Buildings",
+    "your-places": "Your places"
   },
   "toast": {
     "auth": {
