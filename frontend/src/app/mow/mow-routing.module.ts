@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { PlaceDetailsComponent } from './components/place-details/place-details.component';
 import { canMatchManager } from '../shared/guards/manager.guard';
 import { CategoriesComponent } from './components/categories/categories.component';
-import { canMatchManager } from '../shared/guards/manager.guard';
 
 export const routes: Routes = [
     {

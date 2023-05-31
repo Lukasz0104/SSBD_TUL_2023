@@ -9,6 +9,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -116,7 +117,7 @@ public class PlaceEndpoint {
     @Path("/{id}/categories")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER})
-    public Response getPlaceCategories(@PathParam("id") Long id) throws AppBaseException {
+    public Response getPlaceCategories(@NotNull @PathParam("id") Long id) throws AppBaseException {
         List<Rate> placeRates = new ArrayList<>();
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
