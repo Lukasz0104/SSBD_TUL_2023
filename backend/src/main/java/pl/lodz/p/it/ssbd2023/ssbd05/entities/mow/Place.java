@@ -84,7 +84,22 @@ import java.util.Set;
         query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = true"),
     @NamedQuery(
         name = "Place.findByAddressAndInactive",
-        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false")
+        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false"),
+    @NamedQuery(
+        name = "Place.findByLogin",
+        query = """
+            SELECT p FROM Place p
+            JOIN p.owners od
+            WHERE od.account.login = :login
+            ORDER BY p.id
+            """),
+    @NamedQuery(
+        name = "Place.findCurrentRateByPlaceId",
+        query = """
+            SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT MAX(r2.effectiveDate) FROM Rate r2
+            WHERE r2.effectiveDate < :now AND r.category = r2.category)
+            AND EXISTS (SELECT p FROM Place p JOIN p.currentRates cr 
+            WHERE p.id = :placeId AND cr.id = r.id) ORDER BY r.category.name ASC""")
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {
@@ -163,20 +178,5 @@ public class Place extends AbstractEntity implements Serializable {
         this.residentsNumber = residentsNumber;
         this.active = active;
         this.building = building;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Place{");
-        sb.append("placeNumber=").append(placeNumber);
-        sb.append(", squareFootage=").append(squareFootage);
-        sb.append(", residentsNumber=").append(residentsNumber);
-        sb.append(", active=").append(active);
-        sb.append(", building=").append(building);
-        sb.append(", owners=").append(owners);
-        sb.append(", currentRates=").append(currentRates);
-        sb.append(", meters=").append(meters);
-        sb.append('}');
-        return sb.toString();
     }
 }

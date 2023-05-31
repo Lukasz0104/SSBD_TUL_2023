@@ -12,7 +12,6 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
@@ -106,9 +105,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     }
 
     @Override
-    @RolesAllowed(MANAGER)
-    public List<Category> getPlaceCategories(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed({MANAGER})
+    public List<Rate> getCurrentRatesFromPlace(Long id) throws AppBaseException {
+        return placeFacade.findCurrentRateByPlaceId(id);
     }
 
     @Override

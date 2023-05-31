@@ -2,7 +2,6 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
 import jakarta.ejb.Local;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
@@ -36,7 +35,7 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     void removeOwnerFromPlace(Long id) throws AppBaseException;
 
-    List<Category> getPlaceCategories(Long id) throws AppBaseException;
+    List<Rate> getCurrentRatesFromPlace(Long id) throws AppBaseException;
 
     void addCategoryToPlace(Long id) throws AppBaseException;
 

@@ -330,16 +330,27 @@ INSERT INTO public.category (name, version) VALUES ('Parking', 1);
 
 --region rates
 -- Rates
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('UNIT', '2023-01-01', 100, 1, 1);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('UNIT', '2023-01-01', 50, 1, 2);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('SURFACE', '2023-01-01', 5, 1, 3);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('METER', '2023-01-01', 7, 1, 4);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('METER', '2023-01-01', 4, 1, 5);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('UNIT', '2023-01-01', 20, 1, 6);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('PERSON', '2023-01-01', 28, 1, 7);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('PERSON', '2023-01-01', 5, 1, 8);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('UNIT', '2023-01-01', 9, 1, 9);
-insert into public.rate (accounting_rule, effective_date, value, version, category_id) values ('UNIT', '2023-01-01', 250, 1, 10);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-01-01', 100, 1, 1, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-01-01', 50, 1, 2, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('SURFACE', '2023-01-01', 5, 1, 3, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('METER', '2023-01-01', 7, 1, 4, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('METER', '2023-01-01', 4, 1, 5, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-01-01', 20, 1, 6, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('PERSON', '2023-01-01', 28, 1, 7, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('PERSON', '2023-01-01', 5, 1, 8, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-01-01', 9, 1, 9, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-01-01', 250, 1, 10, CURRENT_TIMESTAMP, -7);
+
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-07-01', 110, 1, 1, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-07-01', 60, 1, 2, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('SURFACE', '2023-07-01', 6, 1, 3, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('METER', '2023-07-01', 8, 1, 4, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('METER', '2023-07-01', 5, 1, 5, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-07-01', 25, 1, 6, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('PERSON', '2023-07-01', 34, 1, 7, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('PERSON', '2023-07-01', 7, 1, 8, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-07-01', 11, 1, 9, CURRENT_TIMESTAMP, -7);
+insert into public.rate (accounting_rule, effective_date, value, version, category_id, created_time, created_by) values ('UNIT', '2023-07-01', 265, 1, 10, CURRENT_TIMESTAMP, -7);
 --endregion
 
 --region place_rate
