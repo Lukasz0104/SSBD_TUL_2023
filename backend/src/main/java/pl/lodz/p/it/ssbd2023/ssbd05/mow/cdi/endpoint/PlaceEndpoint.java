@@ -22,7 +22,11 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.MeterDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
@@ -106,7 +110,24 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({OWNER, MANAGER})
     public Response getPlaceMeters(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<MeterDto> meters = null;
+        do {
+            try {
+                meters = MeterDtoConverter.createMeterDtoListFromMeterList(
+                    placeManager.getPlaceMeters(id));
+                rollBackTX = placeManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(meters).build();
     }
 
     @PUT

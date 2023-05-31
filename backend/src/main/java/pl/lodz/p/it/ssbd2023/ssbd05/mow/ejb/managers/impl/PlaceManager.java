@@ -20,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -37,6 +38,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private PlaceFacade placeFacade;
+
+    @Inject
+    private MeterFacade meterFacade;
 
     @Override
     @RolesAllowed(MANAGER)
@@ -77,7 +81,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Override
     @RolesAllowed({OWNER, MANAGER})
     public List<Meter> getPlaceMeters(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return meterFacade.findByPlaceId(id);
     }
 
     @Override

@@ -62,4 +62,8 @@ export class PlaceService {
             `${this.BASE_URL}/${id}/categories`
         );
     }
+
+    getPlaceMeters(id: number) {
+        return this.http.get<OwnPlace[]>(`${this.BASE_URL}/${id}/meters`);
+    }
 }
