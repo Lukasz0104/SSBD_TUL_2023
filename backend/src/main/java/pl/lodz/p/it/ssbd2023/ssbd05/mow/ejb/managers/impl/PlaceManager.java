@@ -52,8 +52,14 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     }
 
     @Override
-    @RolesAllowed({OWNER, MANAGER})
-    public Place getPlaceDetails(Long id) throws AppBaseException {
+    @RolesAllowed({OWNER})
+    public Place getPlaceDetailsAsOwner(Long id, String login) throws AppBaseException {
+        return placeFacade.findByIdAndOwnerLogin(id, login).orElseThrow(PlaceNotFoundException::new);
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public Place getPlaceDetailsAsManager(Long id) throws AppBaseException {
         return placeFacade.findById(id).orElseThrow(PlaceNotFoundException::new);
     }
 

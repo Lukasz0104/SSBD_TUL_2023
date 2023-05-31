@@ -1,27 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Place } from '../../../shared/model/place';
+import { Place } from '../../model/place';
 import { PlaceService } from '../../services/place.service';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-place',
     templateUrl: './place.component.html'
 })
-export class PlaceComponent {
+export class PlaceComponent implements OnInit {
     place$: Observable<Place | null> | undefined;
-    id: number | undefined;
+    @Input() id: number | undefined;
     loading = true;
 
     constructor(
         private placeService: PlaceService,
-        private route: ActivatedRoute
-    ) {
-        this.route.queryParams.subscribe((params: Params): void => {
-            this.id = params['id'];
-            if (this.id !== undefined) {
-                this.place$ = this.placeService.get(this.id);
-            }
-        });
+        private toastService: ToastService
+    ) {}
+
+    ngOnInit(): void {
+        if (this.id === undefined) {
+            this.loading = true;
+            this.toastService.showDanger('toast.place.not-found');
+        } else {
+            this.place$ = this.placeService.get(this.id);
+            this.loading = false;
+        }
     }
 }

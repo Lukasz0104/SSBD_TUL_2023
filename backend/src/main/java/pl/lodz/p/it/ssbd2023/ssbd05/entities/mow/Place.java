@@ -40,6 +40,13 @@ import java.util.Set;
         name = "Place.findById",
         query = "SELECT p FROM Place p WHERE p.id = :id"),
     @NamedQuery(
+        name = "Place.findByIdAndOwnerLogin",
+        query = """
+            SELECT p FROM Place AS p
+                WHERE p.id = :id
+                AND :login IN (SELECT o.account.login FROM p.owners o)
+            """),
+    @NamedQuery(
         name = "Place.findByPlaceNumber",
         query = "SELECT p FROM Place p WHERE p.placeNumber = :placeNumber"),
     @NamedQuery(
@@ -77,15 +84,7 @@ import java.util.Set;
         query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = true"),
     @NamedQuery(
         name = "Place.findByAddressAndInactive",
-        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false"),
-    @NamedQuery(
-        name = "Place.findByLogin",
-        query = """
-            SELECT p FROM Place p
-            JOIN p.owners od
-            WHERE od.account.login = :login
-            ORDER BY p.id
-            """)
+        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false")
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {
@@ -164,5 +163,20 @@ public class Place extends AbstractEntity implements Serializable {
         this.residentsNumber = residentsNumber;
         this.active = active;
         this.building = building;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Place{");
+        sb.append("placeNumber=").append(placeNumber);
+        sb.append(", squareFootage=").append(squareFootage);
+        sb.append(", residentsNumber=").append(residentsNumber);
+        sb.append(", active=").append(active);
+        sb.append(", building=").append(building);
+        sb.append(", owners=").append(owners);
+        sb.append(", currentRates=").append(currentRates);
+        sb.append(", meters=").append(meters);
+        sb.append('}');
+        return sb.toString();
     }
 }

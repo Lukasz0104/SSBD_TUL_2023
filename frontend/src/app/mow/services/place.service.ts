@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { OwnPlace } from '../model/own-place';
 import { map, Observable } from 'rxjs';
-import { Place } from '../../shared/model/place';
+import { Place } from '../model/place';
 
 @Injectable({
     providedIn: 'root'
@@ -28,6 +27,6 @@ export class PlaceService {
     }
 
     getOwnPlaces() {
-        return this.http.get<OwnPlace[]>(`${this.BASE_URL}/me`);
+        return this.http.get<Place[]>(`${this.BASE_URL}/me`);
     }
 }

@@ -51,10 +51,22 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed(MANAGER)
+    @RolesAllowed({MANAGER})
     public Optional<Place> findById(Long id) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findById", Place.class);
         tq.setParameter("id", id);
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException nre) {
+            return Optional.empty();
+        }
+    }
+
+    @RolesAllowed({OWNER})
+    public Optional<Place> findByIdAndOwnerLogin(Long id, String login) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findByIdAndOwnerLogin", Place.class);
+        tq.setParameter("id", id);
+        tq.setParameter("login", login);
         try {
             return Optional.of(tq.getSingleResult());
         } catch (NoResultException nre) {
@@ -69,8 +81,8 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getSingleResult();
     }
 
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Place> findByOwnerLogin(String login) {
+    @RolesAllowed(OWNER)
+    public List<Place> findByLogin(String login) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByOwnerLogin", Place.class);
         tq.setParameter("login", login);
         return tq.getResultList();
@@ -144,13 +156,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
             tq = em.createNamedQuery("Place.findByAddressAndInactive", Place.class);
             tq.setParameter("address", address);
         }
-        return tq.getResultList();
-    }
-
-    @RolesAllowed(OWNER)
-    public List<Place> findByLogin(String login) {
-        TypedQuery<Place> tq = em.createNamedQuery("Place.findByLogin", Place.class);
-        tq.setParameter("login", login);
         return tq.getResultList();
     }
 }

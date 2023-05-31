@@ -162,6 +162,7 @@ insert into public.access_level (id, level, version, account_id, active, verifie
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-20, 'OWNER', 0, -15, TRUE, TRUE, CURRENT_TIMESTAMP);
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-21, 'MANAGER', 0, -16, TRUE, TRUE, CURRENT_TIMESTAMP);
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-22, 'ADMIN', 0, -17, TRUE, TRUE, CURRENT_TIMESTAMP);
+insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-60, 'OWNER', 0, -17, TRUE, TRUE, CURRENT_TIMESTAMP);
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-23, 'OWNER', 0, -19, FALSE, FALSE, CURRENT_TIMESTAMP);
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-24, 'MANAGER', 0, -19, FALSE, FALSE, CURRENT_TIMESTAMP);
 insert into public.access_level (id, level, version, account_id, active, verified, created_time) values (-25, 'ADMIN', 0, -19, FALSE, FALSE, CURRENT_TIMESTAMP);
@@ -241,6 +242,7 @@ insert into public.owner_data (id, building_number, city, postal_code, street) v
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-51, 14, 'Łódź', '99-150', 'Smutna');
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-53, 26, 'Białystok', '15-057', 'Chrobrego');
 insert into public.owner_data (id, building_number, city, postal_code, street) values (-54, 81, 'Chorzów', '41-500', 'Pocztowa');
+insert into public.owner_data (id, building_number, city, postal_code, street) values (-60, 2, 'Warszawa', '19-320', 'Niepodległości');
 
 -- Manager Data
 insert into public.manager_data (id, license_number, building_number, city, postal_code, street) values (-5, '4738543', 110, 'Bydgoszcz', '85-609', 'Chodkiewicza');
@@ -294,6 +296,8 @@ insert into public.place (active, place_number, residents_number, square_footage
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 1, 5, 117, 1, 2);
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 2, 2, 68, 1, 2);
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 3, 3, 97, 1, 2);
+
+insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 4, 10, 180, 1, 2);
 --endregion
 
 --region place_owner
@@ -305,6 +309,9 @@ insert into public.place_owner (place_id, owner_id) values (3, -3);
 insert into public.place_owner (place_id, owner_id) values (4, -3);
 insert into public.place_owner (place_id, owner_id) values (5, -4);
 insert into public.place_owner (place_id, owner_id) values (6, -4);
+
+insert into public.place_owner (place_id, owner_id) values (7, -20);
+insert into public.place_owner (place_id, owner_id) values (7, -60);
 --endregion
 
 --region categories

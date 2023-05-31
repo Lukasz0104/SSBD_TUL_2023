@@ -5,6 +5,8 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.AccessLocalException;
+import jakarta.ejb.EJBAccessException;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
@@ -19,10 +21,13 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.PlaceEndpointExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
@@ -33,7 +38,10 @@ import java.util.List;
 @RequestScoped
 @Path("/places")
 @DenyAll
-@Interceptors(LoggerInterceptor.class)
+@Interceptors({
+    LoggerInterceptor.class,
+    PlaceEndpointExceptionsInterceptor.class
+})
 public class PlaceEndpoint {
 
     @Inject
@@ -55,10 +63,7 @@ public class PlaceEndpoint {
         List<PlaceDto> places = null;
         do {
             try {
-                places = placeManager.getAllPlaces()
-                    .stream()
-                    .map(PlaceDtoConverter::createPlaceDtoFromPlace)
-                    .toList();
+                places = PlaceDtoConverter.createPlaceDtoList(placeManager.getAllPlaces());
                 rollBackTX = placeManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -104,10 +109,17 @@ public class PlaceEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX;
 
-        PlaceDto place = null;
+        Place place;
+        PlaceDto placeDto = null;
+        String login = securityContext.getUserPrincipal().getName();
         do {
             try {
-                place = PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetails(id));
+                try {
+                    place = placeManager.getPlaceDetailsAsOwner(id, login);
+                } catch (AccessLocalException | EJBAccessException | PlaceNotFoundException b) {
+                    place = placeManager.getPlaceDetailsAsManager(id);
+                }
+                placeDto = PlaceDtoConverter.createPlaceDtoFromPlace(place);
                 rollBackTX = placeManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -118,13 +130,13 @@ public class PlaceEndpoint {
             throw new AppRollbackLimitExceededException();
         }
 
-        return Response.ok(place).build();
+        return Response.ok(placeDto).build();
     }
 
     @GET
     @Path("/{id}/rates")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(OWNER)
+    @RolesAllowed({OWNER, MANAGER})
     public Response getPlaceRates(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
