@@ -6,13 +6,13 @@ import { CategoriesComponent } from './components/categories/categories.componen
 import { OwnPlacesComponent } from './components/own-places/own-places.component';
 import { canMatchOwner } from '../shared/guards/owner.guard';
 import { WelcomeComponent } from './components/date/welcome.component';
-import { canMatchManagerAdmin } from '../shared/guards/manager-admin.guard';
+import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
 
 export const routes: Routes = [
     {
         path: '',
         component: WelcomeComponent,
-        canActivate: [canMatchManagerAdmin]
+        canActivate: [canActivateAuthenticated]
     },
     {
         path: 'place-details',
