@@ -203,6 +203,19 @@
       "loading": "Ładowanie kategorii...",
       "name": "Nazwa kategorii opłat"
     },
+    "place": {
+      "categories": {
+        "edit": "Edytuj",
+        "save": "Zapisz",
+        "pln": "zł",
+        "person": "os",
+        "month": "mies",
+        "title": "Kategorie opłat lokalu",
+        "title-edit": "Edycja kategorii opłat lokalu",
+        "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
+      },
+      "show-categories": "Wyświetl kategorie opłat"
+    },
     "fields": {
       "login": "Login",
       "first-name": "Imię",
@@ -465,21 +478,6 @@
         "token_not_found": "Podano błędny kod",
         "invalid_token_type": "Podano błędny kod"
       }
-    }
-  },
-  "mow": {
-    "place": {
-      "categories": {
-        "edit": "Edytuj",
-        "save": "Zapisz",
-        "pln": "zł",
-        "person": "os",
-        "month": "mies",
-        "title": "Kategorie opłat lokalu",
-        "title-edit": "Edycja kategorii opłat lokalu",
-        "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
-      },
-      "show-categories": "Wyświetl kategorie opłat"
     }
   }
 }

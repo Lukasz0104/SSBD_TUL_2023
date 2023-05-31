@@ -3,10 +3,10 @@
         class="modal-title w-100"
         id="modal-basic-title">
         <span *ngIf="!editing">{{
-            'mow.place.categories.title' | translate
+            'component.place.categories.title' | translate
         }}</span>
         <span *ngIf="editing">{{
-            'mow.place.categories.title-edit' | translate
+            'component.place.categories.title-edit' | translate
         }}</span>
     </h2>
     <i
@@ -42,22 +42,26 @@
                         </h5>
                         <span class="card-text">{{ category.rate }}</span>
                         <span *ngIf="category.accountingRule === RULE.UNIT">
-                            {{ 'mow.place.categories.pln' | translate }}/{{
-                                'mow.place.categories.month' | translate
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/{{
+                                'component.place.categories.month' | translate
                             }}
                         </span>
                         <span *ngIf="category.accountingRule === RULE.METER">
-                            {{ 'mow.place.categories.pln' | translate }}/m<sup
-                                >3</sup
-                            >
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/m<sup>3</sup>
                         </span>
                         <span *ngIf="category.accountingRule === RULE.PERSON">
-                            {{ 'mow.place.categories.pln' | translate }}/{{
-                                'mow.place.categories.person' | translate
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/{{
+                                'component.place.categories.person' | translate
                             }}
                         </span>
                         <span *ngIf="category.accountingRule === RULE.SURFACE">
-                            {{ 'mow.place.categories.pln' | translate }}
+                            {{ 'component.place.categories.pln' | translate }}
                             /m<sup>2</sup>
                         </span>
                     </div>
@@ -72,13 +76,13 @@
         type="button"
         class="btn btn-outline-success"
         (click)="editing = true">
-        {{ 'mow.place.categories.edit' | translate }}
+        {{ 'component.place.categories.edit' | translate }}
     </button>
     <button
         *ngIf="editing"
         type="button"
         class="btn btn-outline-danger"
         (click)="onSave()">
-        {{ 'mow.place.categories.save' | translate }}
+        {{ 'component.place.categories.save' | translate }}
     </button>
 </div>
