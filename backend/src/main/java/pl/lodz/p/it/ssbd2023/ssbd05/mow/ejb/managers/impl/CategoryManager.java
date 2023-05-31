@@ -36,7 +36,7 @@ public class CategoryManager extends AbstractManager implements CategoryManagerL
     @Override
     @RolesAllowed(MANAGER)
     public List<Category> getAllCategories() throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return categoryFacade.findAll();
     }
 
     @Override

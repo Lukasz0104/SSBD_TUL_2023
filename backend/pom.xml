@@ -266,6 +266,7 @@
                         <configuration>
                             <includes>
                                 <include>MokITests.java</include>
+                                <include>MowITests.java</include>
                             </includes>
                         </configuration>
                     </execution>

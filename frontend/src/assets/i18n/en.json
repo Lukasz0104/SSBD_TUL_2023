@@ -199,6 +199,10 @@
       "verified-true": "yes",
       "verified-false": "no"
     },
+    "categories": {
+      "loading": "Loading categories...",
+      "name": "Bill category name"
+    },
     "fields": {
       "login": "Login",
       "first-name": "First name",
@@ -250,7 +254,8 @@
     "logout": "Log out",
     "account": "Account",
     "profile": "Profile",
-    "change-access-level": "Change access level"
+    "change-access-level": "Change access level",
+    "categories": "Bill categories"
   },
   "toast": {
     "auth": {

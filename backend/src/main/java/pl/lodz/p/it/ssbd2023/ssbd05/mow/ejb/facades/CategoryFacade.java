@@ -1,21 +1,33 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+
+import java.util.List;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @DenyAll
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class CategoryFacade extends AbstractFacade<Category> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -39,5 +51,11 @@ public class CategoryFacade extends AbstractFacade<Category> {
         } catch (PersistenceException e) {
             throw new AppDatabaseException("Category.findByName", e);
         }
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public List<Category> findAll() {
+        return super.findAll();
     }
 }
