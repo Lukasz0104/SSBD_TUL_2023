@@ -36,7 +36,7 @@ public class RateManager extends AbstractManager implements RateManagerLocal, Se
     @Override
     @PermitAll
     public List<Rate> getCurrentRates() throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return rateFacade.findCurrentRates();
     }
 
     @Override
