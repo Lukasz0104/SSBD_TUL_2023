@@ -8,12 +8,16 @@ import java.util.List;
 
 public class RateDtoConverter {
     public static RateDTO createRateDtoFromRate(Rate rate) {
-        return new RateDTO(rate.getValue(), rate.getEffectiveDate(), rate.getAccountingRule().toString());
+        return new RateDTO(rate.getId(),
+            rate.getCreatedTime(),
+            (rate.getCreatedBy() != null) ? rate.getCreatedBy().getLogin() : "anonymous", rate.getUpdatedTime(),
+            (rate.getUpdatedBy() != null) ? rate.getUpdatedBy().getLogin() : "anonymous",
+            rate.getValue(), rate.getEffectiveDate(), rate.getAccountingRule().toString());
     }
 
     public static Page<RateDTO> createRateDTOPage(Page<Rate> rates) {
         List<RateDTO> dtos = rates.getData().stream().map(RateDtoConverter::createRateDtoFromRate).toList();
-        
+
         return new Page<>(dtos, rates.getTotalSize(), rates.getPageSize(), rates.getCurrentPage());
     }
 

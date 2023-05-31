@@ -203,6 +203,19 @@
       "loading": "Ładowanie kategorii...",
       "name": "Nazwa kategorii opłat"
     },
+    "place": {
+      "categories": {
+        "edit": "Edytuj",
+        "save": "Zapisz",
+        "pln": "zł",
+        "person": "os",
+        "month": "mies",
+        "title": "Kategorie opłat lokalu",
+        "title-edit": "Edycja kategori opłat lokalu",
+        "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
+      },
+      "show-categories": "Wyświetl kategorie opłat"
+    },
     "fields": {
       "login": "Login",
       "first-name": "Imię",
@@ -219,6 +232,13 @@
     "landing-page": {
       "title": "Zmień oblicze swojej wspólnoty z eBok!",
       "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę."
+    },
+    "ratesByCategory": {
+      "ratesFor": "Stawki dla",
+      "value": "Wysokość stawki",
+      "effectiveDate": "Obowiązuje od",
+      "created": "Utworzona",
+      "modified": "Zmodyfikowana"
     }
   },
   "modal": {

@@ -1,0 +1,127 @@
+<ng-container *ngIf="rates$ | async as rates; else loadingRates">
+    <h3 class="text-center">
+        {{ 'component.ratesByCategory.ratesFor' | translate }}:
+        {{ category?.name }}
+    </h3>
+    <div
+        class="d-flex flex-column justify-content-between table-responsive border rounded w-100"
+        style="min-height: 300px">
+        <table class="table table-hover">
+            <thead>
+                <tr class="bg-light-subtle">
+                    <th
+                        class="text-nowrap text-center"
+                        scope="col">
+                        {{ 'component.ratesByCategory.value' | translate }}
+                    </th>
+                    <th
+                        class="text-nowrap text-center"
+                        scope="col">
+                        {{
+                            'component.ratesByCategory.effectiveDate'
+                                | translate
+                        }}
+                    </th>
+                    <th
+                        class="text-nowrap text-center"
+                        scope="col">
+                        {{ 'component.ratesByCategory.created' | translate }}
+                    </th>
+                    <th
+                        class="text-nowrap text-center"
+                        scope="col">
+                        {{ 'component.ratesByCategory.modified' | translate }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let rate of rates.data"
+                    [ngClass]="
+                        this.currentRateId === rate.id ? 'table-warning' : ''
+                    "
+                    class="cursor-pointer text-center align-middle">
+                    <td>
+                        {{ rate.value }}
+                        <span
+                            *ngIf="rate.accountingRule === AccountingRule.UNIT">
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/{{
+                                'component.place.categories.month' | translate
+                            }}
+                        </span>
+                        <span
+                            *ngIf="
+                                rate.accountingRule === AccountingRule.METER
+                            ">
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/m<sup>3</sup>
+                        </span>
+                        <span
+                            *ngIf="
+                                rate.accountingRule === AccountingRule.PERSON
+                            ">
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/{{
+                                'component.place.categories.person' | translate
+                            }}
+                        </span>
+                        <span
+                            *ngIf="
+                                rate.accountingRule === AccountingRule.SURFACE
+                            ">
+                            {{ 'component.place.categories.pln' | translate }}
+                            /m<sup>2</sup>
+                        </span>
+                    </td>
+                    <td>{{ rate.effectiveDate }}</td>
+                    <td>{{ getCreated(rate) }}</td>
+                    <td>{{ getUpdated(rate) }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="d-sm-flex justify-content-between m-2">
+            <div>
+                <ngb-pagination
+                    [(page)]="page"
+                    [collectionSize]="rates.totalSize"
+                    [pageSize]="pageSize"
+                    (pageChange)="getRatesByCategory()">
+                </ngb-pagination>
+            </div>
+
+            <div>
+                <select
+                    [(ngModel)]="pageSize"
+                    (ngModelChange)="getRatesByCategory()"
+                    class="form-select w-auto">
+                    <option [ngValue]="5">
+                        {{
+                            'component.accounts.display.five-items' | translate
+                        }}
+                    </option>
+                    <option [ngValue]="10">
+                        {{ 'component.accounts.display.ten-items' | translate }}
+                    </option>
+                    <option [ngValue]="15">
+                        {{
+                            'component.accounts.display.fifteen-items'
+                                | translate
+                        }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+</ng-container>
+<ng-template #loadingRates>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">{{
+            'component.ratesByCategory.loading' | translate
+        }}</span>
+    </div>
+</ng-template>

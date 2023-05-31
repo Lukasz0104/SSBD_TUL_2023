@@ -60,7 +60,7 @@ import java.time.LocalDate;
         query = "SELECT r FROM Rate r WHERE r.category = :category"),
     @NamedQuery(
         name = "Rate.findByCategoryId",
-        query = "SELECT r FROM Rate r WHERE r.category.id = :categoryId ORDER BY r.effectiveDate"),
+        query = "SELECT r FROM Rate r WHERE r.category.id = :categoryId ORDER BY r.effectiveDate DESC"),
     @NamedQuery(
         name = "Rate.countByCategoryId",
         query = "SELECT count(r.id) FROM Rate r WHERE r.category.id = :categoryId"),

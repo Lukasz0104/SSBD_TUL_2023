@@ -1,25 +1,38 @@
 <ng-container *ngIf="categories$ | async as categories; else loadingCategories">
-    <div
-        class="d-flex flex-column justify-content-between table-responsive border rounded w-100"
-        style="min-height: 300px">
-        <table class="table table-hover">
-            <thead>
-                <tr class="bg-light-subtle">
-                    <th
-                        class="text-nowrap text-center"
-                        scope="col">
-                        {{ 'component.categories.name' | translate }}
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    *ngFor="let category of categories"
-                    class="cursor-pointer align-middle">
-                    <td>{{ category.name }}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="row">
+        <div class="col-md-3">
+            <div
+                class="d-flex flex-column justify-content-between table-responsive border rounded w-100"
+                style="min-height: 300px">
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="bg-light-subtle">
+                            <th
+                                class="text-nowrap text-center"
+                                scope="col">
+                                {{ 'component.categories.name' | translate }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            *ngFor="let category of categories"
+                            class="cursor-pointer align-middle"
+                            (click)="
+                                toggleRates(category);
+                                scroll(document.getElementById('rates'))
+                            ">
+                            <td>{{ category.name }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <app-rates-by-category
+            id="rates"
+            class="mt-2 mt-md-0 col-md-9"
+            *ngIf="toggled"
+            [category$]="category.asObservable()"></app-rates-by-category>
     </div>
 </ng-container>
 
