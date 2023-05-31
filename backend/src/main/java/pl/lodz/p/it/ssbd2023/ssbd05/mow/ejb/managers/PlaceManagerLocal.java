@@ -13,7 +13,7 @@ import java.util.List;
 
 @Local
 public interface PlaceManagerLocal extends CommonManagerInterface {
-    List<Place> getOwnPlaces() throws AppBaseException;
+    List<Place> getOwnPlaces(String login) throws AppBaseException;
 
     Place getPlaceDetails(Long id) throws AppBaseException;
 

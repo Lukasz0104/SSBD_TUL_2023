@@ -141,6 +141,17 @@
     }
   },
   "component": {
+    "own-places": {
+      "loading": "Ładowanie twoich lokali..",
+      "place-number": "Lokal nr",
+      "details": "Szczegóły",
+      "meters": "Liczniki",
+      "reports": "Raporty",
+      "rates": "Stawki",
+      "no-places": "Nie posiadasz żadnych lokali",
+      "show-place-details": "Wyświetl informacje",
+      "hide-place-details": "Ukryj informacje"
+    },
     "accounts": {
       "display": {
         "all": "Wszyscy",
@@ -268,6 +279,7 @@
     "account": "Konto",
     "profile": "Profil",
     "change-access-level": "Zmień poziom dostępu",
+    "your-places": "Twoje lokale",
     "categories": "Kategorie opłat"
   },
   "toast": {

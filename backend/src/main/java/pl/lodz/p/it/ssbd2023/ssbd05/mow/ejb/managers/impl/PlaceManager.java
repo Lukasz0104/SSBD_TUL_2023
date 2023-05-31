@@ -39,8 +39,8 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(OWNER)
-    public List<Place> getOwnPlaces() throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public List<Place> getOwnPlaces(String login) throws AppBaseException {
+        return placeFacade.findByLogin(login);
     }
 
     @Override

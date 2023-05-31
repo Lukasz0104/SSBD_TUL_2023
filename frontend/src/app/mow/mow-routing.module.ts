@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { PlaceDetailsComponent } from './components/place-details/place-details.component';
 import { canMatchManager } from '../shared/guards/manager.guard';
 import { CategoriesComponent } from './components/categories/categories.component';
+import { OwnPlacesComponent } from './components/own-places/own-places.component';
+import { canMatchOwner } from '../shared/guards/owner.guard';
 
 export const routes: Routes = [
     {
@@ -20,6 +22,14 @@ export const routes: Routes = [
             title: 'Categories'
         },
         canMatch: [canMatchManager]
+    },
+    {
+        path: 'your-places',
+        component: OwnPlacesComponent,
+        data: {
+            title: 'Your places'
+        },
+        canMatch: [canMatchOwner]
     }
 ];
 

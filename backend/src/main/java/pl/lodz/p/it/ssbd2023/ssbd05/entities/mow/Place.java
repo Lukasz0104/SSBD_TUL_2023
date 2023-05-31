@@ -76,6 +76,14 @@ import java.util.Set;
         name = "Place.findByAddressAndInactive",
         query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false"),
     @NamedQuery(
+        name = "Place.findByLogin",
+        query = """
+            SELECT p FROM Place p
+            JOIN p.owners od
+            WHERE od.account.login = :login
+            ORDER BY p.id
+            """),
+    @NamedQuery(
         name = "Place.findCurrentRateByPlaceId",
         query = """
             SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT MAX(r2.effectiveDate) FROM Rate r2

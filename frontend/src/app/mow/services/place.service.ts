@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
 import { PlaceCategory } from '../model/place-category';
+import { OwnPlace } from '../model/own-place';
 
 @Injectable({
     providedIn: 'root'
@@ -31,5 +32,8 @@ export class PlaceService {
         return this.http.get<PlaceCategory[]>(
             `${this.placesUrl}/${id}/categories`
         );
+    }
+    getOwnPlaces() {
+        return this.http.get<OwnPlace[]>(`${this.placesUrl}/me`);
     }
 }
