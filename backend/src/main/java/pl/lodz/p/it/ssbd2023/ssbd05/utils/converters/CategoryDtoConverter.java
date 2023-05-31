@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CategoryDtoConverter {
     public static CategoryDTO createCategoryDtoFromCategory(Category category) {
-        return new CategoryDTO(category.getName());
+        return new CategoryDTO(category.getId(), category.getName());
     }
 
     public static List<CategoryDTO> createCategoryDtoListFromCategoryList(List<Category> categories) {

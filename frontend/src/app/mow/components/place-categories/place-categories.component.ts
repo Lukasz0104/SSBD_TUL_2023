@@ -62,7 +62,7 @@ export class PlaceCategoriesComponent implements OnInit {
                 { centered: true }
             );
             modalRef.componentInstance.message =
-                'mow.place.categories.action-confirm';
+                'component.place.categories.action-confirm';
             modalRef.componentInstance.danger = '';
             modalRef.closed.subscribe((result) => {
                 if (result) {

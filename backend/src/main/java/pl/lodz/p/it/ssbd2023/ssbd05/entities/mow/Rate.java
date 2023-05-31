@@ -59,6 +59,12 @@ import java.time.LocalDate;
         name = "Rate.findByCategory",
         query = "SELECT r FROM Rate r WHERE r.category = :category"),
     @NamedQuery(
+        name = "Rate.findByCategoryId",
+        query = "SELECT r FROM Rate r WHERE r.category.id = :categoryId ORDER BY r.effectiveDate DESC"),
+    @NamedQuery(
+        name = "Rate.countByCategoryId",
+        query = "SELECT count(r.id) FROM Rate r WHERE r.category.id = :categoryId"),
+    @NamedQuery(
         name = "Rate.findByEffectiveDateAndCategory",
         query = "SELECT r FROM Rate r WHERE r.effectiveDate = :effectiveDate AND r.category = :category"),
     @NamedQuery(
