@@ -250,7 +250,8 @@
     "logout": "Wyloguj się",
     "account": "Konto",
     "profile": "Profil",
-    "change-access-level": "Zmień poziom dostępu"
+    "change-access-level": "Zmień poziom dostępu",
+    "buildings": "Budynki"
   },
   "toast": {
     "auth": {
@@ -462,5 +463,10 @@
         "invalid_token_type": "Podano błędny kod"
       }
     }
+  },
+  "buildings": {
+    "places": "Lokale",
+    "reports": "Raporty",
+    "loading": "Ładowanie budynków..."
   }
 }

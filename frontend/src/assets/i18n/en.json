@@ -250,7 +250,8 @@
     "logout": "Log out",
     "account": "Account",
     "profile": "Profile",
-    "change-access-level": "Change access level"
+    "change-access-level": "Change access level",
+    "buildings": "Buildings"
   },
   "toast": {
     "auth": {
@@ -461,5 +462,10 @@
         "invalid_token_type": "Invalid token"
       }
     }
+  },
+  "buildings": {
+    "places": "Places",
+    "reports": "Reports",
+    "loading": "Loading buildings..."
   }
 }
