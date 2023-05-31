@@ -17,7 +17,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CategoryManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.CategoryDtoConverter;
@@ -43,7 +43,7 @@ public class CategoryEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<CategoryDTO> categories = null;
+        List<CategoryDto> categories = null;
         do {
             try {
                 categories =

@@ -18,6 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
@@ -39,15 +40,21 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     private PlaceFacade placeFacade;
 
     @Override
-    @RolesAllowed(OWNER)
-    public List<Place> getOwnPlaces() throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed(MANAGER)
+    public  List<Place> getAllPlaces() throws AppBaseException {
+        return placeFacade.findAll();
     }
 
     @Override
-    @RolesAllowed({OWNER, MANAGER})
+    @RolesAllowed({OWNER})
+    public List<Place> getOwnPlaces(String login) throws AppBaseException {
+        return placeFacade.findByOwnerLogin(login);
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
     public Place getPlaceDetails(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return placeFacade.findById(id).orElseThrow(PlaceNotFoundException::new);
     }
 
     @Override

@@ -9,6 +9,7 @@ import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
@@ -17,6 +18,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @DenyAll
@@ -35,11 +37,36 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+
+    @RolesAllowed(MANAGER)
+    public List<Place> findAll() {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findAll", Place.class);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public Optional<Place> findById(Long id) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findById", Place.class);
+        tq.setParameter("id", id);
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException nre) {
+            return Optional.empty();
+        }
+    }
+
     @RolesAllowed({OWNER, MANAGER})
     public Place findByAddress(Address address) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByAddress", Place.class);
         tq.setParameter("address", address);
         return tq.getSingleResult();
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Place> findByOwnerLogin(String login) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findByOwnerLogin", Place.class);
+        tq.setParameter("login", login);
+        return tq.getResultList();
     }
 
     @RolesAllowed({OWNER, MANAGER})

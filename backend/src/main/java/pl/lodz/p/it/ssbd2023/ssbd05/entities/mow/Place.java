@@ -52,6 +52,9 @@ import java.util.Set;
         name = "Place.findByResidentsNumber",
         query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber"),
     @NamedQuery(
+        name = "Place.findByOwnerLogin",
+        query = "SELECT p FROM Place p WHERE :login IN (SELECT ow.account.login FROM p.owners ow)"),
+    @NamedQuery(
         name = "Place.findByResidentsNumberAndActive",
         query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber AND p.active = true"),
     @NamedQuery(

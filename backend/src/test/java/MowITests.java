@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDto;
 
 import java.util.List;
 
@@ -39,8 +39,8 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldPassGettingAllCategories() {
             io.restassured.response.Response response = given().spec(testSpec).when().get(categoriesURL);
-            List<CategoryDTO> categories =
-                List.of(response.getBody().as(CategoryDTO[].class));
+            List<CategoryDto> categories =
+                List.of(response.getBody().as(CategoryDto[].class));
 
             response.then().statusCode(Response.Status.OK.getStatusCode());
             assertNotNull(categories);
