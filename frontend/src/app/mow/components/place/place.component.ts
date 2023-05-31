@@ -5,6 +5,7 @@ import { PlaceService } from '../../services/place.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { PlaceCategoriesComponent } from '../place-categories/place-categories.component';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
     selector: 'app-place',
@@ -18,7 +19,8 @@ export class PlaceComponent implements OnInit {
     constructor(
         private placeService: PlaceService,
         private toastService: ToastService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        protected authService: AuthService
     ) {}
 
     ngOnInit(): void {
