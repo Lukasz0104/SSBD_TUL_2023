@@ -214,11 +214,17 @@
       "street": "Street",
       "building-number": "Building number",
       "postal-code": "Postal code",
-      "city": "City"
+      "city": "City",
+      "place-number": "Place number",
+      "residents-number": "Number of residents",
+      "square-footage": "Square footage"
     },
     "landing-page": {
       "title": "Improve your community with eBok!",
       "description": "The application aims to support the management of a residential community in the process of settling accounts for the units belonging to it. Each unit has an individual allocation of fee categories that are part of the settlement, and each category has a current rate and settlement principle. One of the main tasks of the system is to forecast the amount of future advances and assist the community manager in adjusting rates to minimize the difference between the projected costs incurred by unit owners and the actual costs incurred by the community."
+    },
+    "place": {
+      "data": "Place"
     }
   },
   "modal": {
@@ -255,7 +261,8 @@
     "account": "Account",
     "profile": "Profile",
     "change-access-level": "Change access level",
-    "categories": "Bill categories"
+    "categories": "Bill categories",
+    "place": "Place"
   },
   "toast": {
     "auth": {
