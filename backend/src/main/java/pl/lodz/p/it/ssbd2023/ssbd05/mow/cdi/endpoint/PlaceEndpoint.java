@@ -2,7 +2,6 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter.createPlaceDtoFromPlace;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -77,17 +76,14 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(OWNER)
     public Response getOwnPlaces() throws AppBaseException {
-        String login = securityContext.getUserPrincipal().getName();
         int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollBackTX;
+        boolean rollBackTX = false;
 
         List<PlaceDto> places = null;
         do {
             try {
-                places = placeManager.getOwnPlaces(login)
-                    .stream()
-                    .map(PlaceDtoConverter::createPlaceDtoFromPlace)
-                    .toList();
+                places = PlaceDtoConverter.createPlaceDtoList(
+                    placeManager.getOwnPlaces(securityContext.getUserPrincipal().getName()));
                 rollBackTX = placeManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -97,14 +93,13 @@ public class PlaceEndpoint {
         if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
-
         return Response.ok(places).build();
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(MANAGER)
+    @RolesAllowed({OWNER, MANAGER})
     public Response getPlaceDetails(@PathParam("id") Long id) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX;
@@ -112,7 +107,7 @@ public class PlaceEndpoint {
         PlaceDto place = null;
         do {
             try {
-                place = createPlaceDtoFromPlace(placeManager.getPlaceDetails(id));
+                place = PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetails(id));
                 rollBackTX = placeManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;

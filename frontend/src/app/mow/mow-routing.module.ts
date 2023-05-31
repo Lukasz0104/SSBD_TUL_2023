@@ -4,6 +4,8 @@ import { CategoriesComponent } from './components/categories/categories.componen
 import { canMatchManager } from '../shared/guards/manager.guard';
 import { canMatchOwnerManager } from '../shared/guards/owner-manager.guard';
 import { PlaceComponent } from './components/place/place.component';
+import { OwnPlacesComponent } from './components/own-places/own-places.component';
+import { canMatchOwner } from '../shared/guards/owner.guard';
 
 export const routes: Routes = [
     {
@@ -15,12 +17,22 @@ export const routes: Routes = [
         canMatch: [canMatchManager]
     },
     {
-        path: 'place',
-        component: PlaceComponent,
+        path: 'your-places',
+        component: OwnPlacesComponent,
         data: {
-            title: 'Place'
+            title: 'Your places'
         },
-        canMatch: [canMatchOwnerManager]
+        canMatch: [canMatchOwner],
+        children: [
+            {
+                path: 'place',
+                component: PlaceComponent,
+                data: {
+                    title: 'Place'
+                },
+                canMatch: [canMatchOwnerManager]
+            }
+        ]
     }
 ];
 

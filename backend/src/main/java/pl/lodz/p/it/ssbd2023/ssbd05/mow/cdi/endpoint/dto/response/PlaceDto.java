@@ -14,6 +14,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PlaceDto {
 
+    @NotNull
+    private Long id;
+
     @NotNull @Positive
     private Integer placeNumber;
 

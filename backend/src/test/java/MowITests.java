@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDto;
 
 import java.util.List;
@@ -63,6 +64,57 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldReturnSC403WhenGettingAllCategoriesAsGuest() {
             given().when().get(categoriesURL).then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    @Nested
+    class MOW4 {
+        private static final String ownPlacesURL = "/places/me";
+
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("dchmielewski", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassGettingOwnPlaces() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get(ownPlacesURL);
+            List<PlaceDto> places =
+                List.of(response.getBody().as(PlaceDto[].class));
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(places);
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnPlacesAsAdmin() {
+            given().spec(adminSpec).when().get(ownPlacesURL).then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnPlacesAsManager() {
+            given().spec(onlyManagerSpec).when().get(ownPlacesURL).then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingOwnPlacesAsGuest() {
+            given().when().get(ownPlacesURL).then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
     }

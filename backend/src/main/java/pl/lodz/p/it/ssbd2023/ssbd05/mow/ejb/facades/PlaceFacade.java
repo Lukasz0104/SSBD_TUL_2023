@@ -8,12 +8,15 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
@@ -23,6 +26,10 @@ import java.util.Optional;
 @Stateless
 @DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class PlaceFacade extends AbstractFacade<Place> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -137,6 +144,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
             tq = em.createNamedQuery("Place.findByAddressAndInactive", Place.class);
             tq.setParameter("address", address);
         }
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(OWNER)
+    public List<Place> findByLogin(String login) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findByLogin", Place.class);
+        tq.setParameter("login", login);
         return tq.getResultList();
     }
 }

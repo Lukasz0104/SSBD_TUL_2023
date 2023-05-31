@@ -141,6 +141,17 @@
     }
   },
   "component": {
+    "own-places": {
+      "loading": "Loading your places..",
+      "place-number": "Place No.",
+      "details": "Details",
+      "meters": "Meters",
+      "reports": "Reports",
+      "rates": "Rates",
+      "no-places": "You don't have any places",
+      "show-place-details": "Show information",
+      "hide-place-details": "Hide information"
+    },
     "accounts": {
       "display": {
         "all": "All",
@@ -261,8 +272,9 @@
     "account": "Account",
     "profile": "Profile",
     "change-access-level": "Change access level",
-    "categories": "Bill categories",
-    "place": "Place"
+    "place": "Place",
+    "your-places": "Your places",
+    "categories": "Bill categories"
   },
   "toast": {
     "auth": {
