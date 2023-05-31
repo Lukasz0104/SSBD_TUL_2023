@@ -13,9 +13,11 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Stateless
@@ -110,6 +112,14 @@ public class PlaceFacade extends AbstractFacade<Place> {
             tq = em.createNamedQuery("Place.findByAddressAndInactive", Place.class);
             tq.setParameter("address", address);
         }
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({MANAGER, OWNER})
+    public List<Rate> findCurrentRateByPlaceId(Long id) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceId", Rate.class);
+        tq.setParameter("placeId", id);
+        tq.setParameter("now", LocalDate.now());
         return tq.getResultList();
     }
 }

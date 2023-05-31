@@ -2,6 +2,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter.createPlaceCategoryDtoList;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -17,9 +18,16 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequestScoped
 @Path("/places")
@@ -29,6 +37,9 @@ public class PlaceEndpoint {
 
     @Inject
     private PlaceManagerLocal placeManager;
+
+    @Inject
+    private AppProperties appProperties;
 
     @GET
     @Path("/me")
@@ -104,9 +115,24 @@ public class PlaceEndpoint {
     @GET
     @Path("/{id}/categories")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(MANAGER)
+    @RolesAllowed({MANAGER})
     public Response getPlaceCategories(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        List<Rate> placeRates = new ArrayList<>();
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+        do {
+            try {
+                placeRates = placeManager.getCurrentRatesFromPlace(id);
+                rollBackTX = placeManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(createPlaceCategoryDtoList(placeRates)).build();
     }
 
     @POST

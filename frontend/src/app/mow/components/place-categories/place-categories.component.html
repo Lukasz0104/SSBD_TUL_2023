@@ -1,0 +1,84 @@
+<div class="modal-header text-center">
+    <h2
+        class="modal-title w-100"
+        id="modal-basic-title">
+        <span *ngIf="!editing">{{
+            'mow.place.categories.title' | translate
+        }}</span>
+        <span *ngIf="editing">{{
+            'mow.place.categories.title-edit' | translate
+        }}</span>
+    </h2>
+    <i
+        class="bi bi-x-lg cursor-pointer"
+        (click)="this.activeModal.close()"></i>
+</div>
+<div class="modal-body px-4 py-2">
+    <div *ngIf="placeCategories$ | async as categories">
+        <div class="row card-group">
+            <div
+                class="col-sm-3"
+                *ngFor="let category of categories; let i = index">
+                <div
+                    class="card m-3 rounded-3 shadow text-center"
+                    [ngClass]="{
+                        'text-danger cursor-pointer':
+                            editing && chosen.includes(category.rateId),
+                        'text-success cursor-pointer':
+                            editing && !chosen.includes(category.rateId)
+                    }"
+                    (click)="addNumbers(category.rateId)">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i
+                                class="bi {{
+                                    getIcon(category.categoryName)
+                                }} fs-1 mt-1"></i>
+                        </li>
+                    </ul>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">
+                            {{ category.categoryName }}
+                        </h5>
+                        <span class="card-text">{{ category.rate }}</span>
+                        <span *ngIf="category.accountingRule === RULE.UNIT">
+                            {{ 'mow.place.categories.pln' | translate }}/{{
+                                'mow.place.categories.month' | translate
+                            }}
+                        </span>
+                        <span *ngIf="category.accountingRule === RULE.METER">
+                            {{ 'mow.place.categories.pln' | translate }}/m<sup
+                                >3</sup
+                            >
+                        </span>
+                        <span *ngIf="category.accountingRule === RULE.PERSON">
+                            {{ 'mow.place.categories.pln' | translate }}/{{
+                                'mow.place.categories.person' | translate
+                            }}
+                        </span>
+                        <span *ngIf="category.accountingRule === RULE.SURFACE">
+                            {{ 'mow.place.categories.pln' | translate }}
+                            /m<sup>2</sup>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button
+        *ngIf="!editing"
+        type="button"
+        class="btn btn-outline-success"
+        (click)="editing = true">
+        {{ 'mow.place.categories.edit' | translate }}
+    </button>
+    <button
+        *ngIf="editing"
+        type="button"
+        class="btn btn-outline-danger"
+        (click)="onSave()">
+        {{ 'mow.place.categories.save' | translate }}
+    </button>
+</div>

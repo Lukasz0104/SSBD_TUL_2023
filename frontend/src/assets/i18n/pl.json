@@ -305,7 +305,6 @@
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie",
         "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
-
       }
     }
   },
@@ -462,5 +461,20 @@
         "invalid_token_type": "Podano błędny kod"
       }
     }
+  },
+  "mow": {
+    "place": {
+      "categories": {
+        "edit": "Edytuj",
+        "save": "Zapisz",
+        "pln": "zł",
+        "person": "os",
+        "month": "mies",
+        "title": "Kategorie opłat lokalu",
+        "title-edit": "Edycja kategori opłat lokalu",
+        "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
+      }
+    }
   }
 }
+
