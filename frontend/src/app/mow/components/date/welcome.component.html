@@ -1,0 +1,10 @@
+<div class="text-start">
+    <h1>
+        {{ 'component.welcome.welcome' | translate }},
+        {{ authService.getLogin() }}!
+    </h1>
+    <h2>
+        {{ 'component.welcome.date' | translate }}:
+        {{ date | date : 'dd / MM / yyyy' }}
+    </h2>
+</div>

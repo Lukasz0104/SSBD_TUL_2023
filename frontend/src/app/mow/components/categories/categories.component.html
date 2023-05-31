@@ -4,7 +4,7 @@
             <div
                 class="d-flex flex-column justify-content-between table-responsive border rounded w-100"
                 style="min-height: 300px">
-                <table class="table table-hover">
+                <table class="table table-hover text-center">
                     <thead>
                         <tr class="bg-light-subtle">
                             <th
@@ -22,7 +22,15 @@
                                 toggleRates(category);
                                 scroll(document.getElementById('rates'))
                             ">
-                            <td>{{ category.name }}</td>
+                            <td>
+                                <i
+                                    class="bi {{
+                                        placeService.pictureMap.get(
+                                            category.name
+                                        )
+                                    }}"></i>
+                                {{ category.name }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>

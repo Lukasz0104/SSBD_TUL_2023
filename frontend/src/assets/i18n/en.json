@@ -249,7 +249,12 @@
       "value": "Rate value",
       "effectiveDate": "Effective from",
       "created": "Created",
-      "modified": "Modified"
+      "modified": "Modified",
+      "loading": "Loading rates"
+    },
+    "welcome": {
+      "welcome": "Welcome",
+      "date": "Today's date"
     }
   },
   "modal": {

@@ -249,7 +249,12 @@
       "value": "Wysokość stawki",
       "effectiveDate": "Obowiązuje od",
       "created": "Utworzona",
-      "modified": "Zmodyfikowana"
+      "modified": "Zmodyfikowana",
+      "loading": "Wczytywanie stawek"
+    },
+    "welcome": {
+      "welcome": "Witaj",
+      "date": "Dzisiejsza data"
     }
   },
   "modal": {

@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from '../../../shared/services/auth.service';
 import { CategoriesService } from '../../services/categories.service';
 import { Category } from '../../../shared/model/category';
+import { PlaceService } from '../../services/place.service';
 
 @Component({
     selector: 'app-categories',
@@ -16,7 +17,8 @@ export class CategoriesComponent implements OnInit {
 
     constructor(
         private categoriesService: CategoriesService,
-        protected authService: AuthService
+        protected authService: AuthService,
+        protected placeService: PlaceService
     ) {}
 
     getCategories() {
