@@ -74,7 +74,15 @@ import java.util.Set;
         query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = true"),
     @NamedQuery(
         name = "Place.findByAddressAndInactive",
-        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false")
+        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false"),
+    @NamedQuery(
+        name = "Place.findByLogin",
+        query = """
+            SELECT p FROM Place p
+            JOIN p.owners od
+            WHERE od.account.login = :login
+            ORDER BY p.id
+            """)
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {
