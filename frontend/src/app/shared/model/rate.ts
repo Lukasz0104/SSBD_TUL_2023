@@ -7,3 +7,9 @@ export interface Rate extends ControlledEntity {
     accountingRule: AccountingRule;
     value: number;
 }
+
+export interface PublicRate {
+    categoryName: string;
+    accountingRule: AccountingRule;
+    value: number;
+}

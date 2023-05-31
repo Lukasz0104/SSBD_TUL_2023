@@ -9,7 +9,7 @@ import { OwnPlacesComponent } from './components/own-places/own-places.component
 import { CategoriesComponent } from './components/categories/categories.component';
 import { RatesByCategoryComponent } from './components/rates-by-category/rates-by-category.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { WelcomeComponent } from './components/date/welcome.component';
+import { WelcomeComponent } from './components/welcome/welcome.component';
 
 @NgModule({
     declarations: [
