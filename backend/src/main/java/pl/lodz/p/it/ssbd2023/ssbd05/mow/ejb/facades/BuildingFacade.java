@@ -10,11 +10,14 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.util.List;
@@ -22,6 +25,10 @@ import java.util.List;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @DenyAll
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class BuildingFacade extends AbstractFacade<Building> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")

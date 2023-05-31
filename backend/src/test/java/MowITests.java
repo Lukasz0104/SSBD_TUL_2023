@@ -1,4 +1,7 @@
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,6 +18,59 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import java.util.List;
 
 public class MowITests extends TestContainersSetup {
+
+    @Nested
+    class MOW2 {
+        private static final String URL = "/buildings";
+
+        @Nested
+        class GetAllBuildingsPositiveTest {
+            @Test
+            void shouldGetAllBuildingsAsOwnerWithStatusCode200Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(URL)
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThan(0)));
+            }
+
+            @Test
+            void shouldGetAllBuildingsAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(URL)
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThan(0)));
+            }
+
+            @Test
+            void shouldGetAllBuildingsAsAdminWithStatusCode200Test() {
+                given(adminSpec)
+                    .when()
+                    .get(URL)
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThan(0)));
+            }
+        }
+
+        @Nested
+        class GetAllBuildingsAccessForbiddenTest {
+            @Test
+            void shouldFailToGetAllBuildingsAsGuestWithStatusCode403Test() {
+                when()
+                    .get(URL)
+                    .then()
+                    .statusCode(403);
+            }
+        }
+    }
+
     @Nested
     class MOW11 {
         private static final String categoriesURL = "/categories";
