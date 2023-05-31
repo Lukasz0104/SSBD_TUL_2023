@@ -255,6 +255,11 @@
     "welcome": {
       "welcome": "Welcome",
       "date": "Today's date"
+    },
+    "buildings": {
+      "places": "Places",
+      "reports": "Reports",
+      "loading": "Loading buildings..."
     }
   },
   "modal": {
@@ -291,8 +296,9 @@
     "account": "Account",
     "profile": "Profile",
     "change-access-level": "Change access level",
-    "your-places": "Your places",
-    "categories": "Bill categories"
+    "categories": "Bill categories",
+    "buildings": "Buildings",
+    "your-places": "Your places"
   },
   "toast": {
     "auth": {

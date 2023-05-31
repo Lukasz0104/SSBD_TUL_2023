@@ -255,6 +255,11 @@
     "welcome": {
       "welcome": "Witaj",
       "date": "Dzisiejsza data"
+    },
+    "buildings": {
+      "places": "Lokale",
+      "reports": "Raporty",
+      "loading": "Ładowanie budynków..."
     }
   },
   "modal": {
@@ -292,7 +297,8 @@
     "profile": "Profil",
     "change-access-level": "Zmień poziom dostępu",
     "your-places": "Twoje lokale",
-    "categories": "Kategorie opłat"
+    "categories": "Kategorie opłat",
+    "buildings": "Budynki"
   },
   "toast": {
     "auth": {
@@ -505,4 +511,3 @@
     }
   }
 }
-

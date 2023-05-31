@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Language;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.AccountSignableDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.dto.AccountSignableDto;
 
 @Data
 @NoArgsConstructor
