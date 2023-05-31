@@ -8,11 +8,13 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -21,11 +23,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CostManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.CostDtoConverter;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequestScoped
 @Path("/costs")
@@ -42,15 +42,23 @@ public class CostEndpoint {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response getAllCosts() throws AppBaseException {
+    public Response getAllCosts(
+        @QueryParam("page") int page,
+        @QueryParam("pageSize") int pageSize,
+        @DefaultValue("true") @QueryParam("asc") Boolean ascending,
+        @DefaultValue("") @QueryParam("year") String year,
+        @DefaultValue("") @QueryParam("month") String month,
+        @DefaultValue("") @QueryParam("category") String category
+    ) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<CostDto> costDtoList = null;
+        Page<CostDto> costDtoPage = null;
         do {
             try {
-                costDtoList = costManager.getAllCosts().stream()
-                    .map(CostDtoConverter::createCostListDto).collect(Collectors.toList());
+                costDtoPage = CostDtoConverter.createCostDtoPage(
+                    costManager.getAllCostsPage(page, pageSize, ascending, year, month, category)
+                );
                 rollBackTX = costManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
                 rollBackTX = true;
@@ -60,7 +68,7 @@ public class CostEndpoint {
         if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
-        return Response.ok(costDtoList).build();
+        return Response.ok(costDtoPage).build();
     }
 
     @POST

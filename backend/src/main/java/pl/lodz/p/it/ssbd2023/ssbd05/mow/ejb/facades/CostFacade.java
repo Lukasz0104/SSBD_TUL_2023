@@ -8,13 +8,17 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.Month;
 import java.time.Year;
@@ -23,6 +27,10 @@ import java.util.List;
 @Stateless
 @DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class CostFacade extends AbstractFacade<Cost> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -167,6 +175,41 @@ public class CostFacade extends AbstractFacade<Cost> {
         } catch (PersistenceException e) {
             throw new AppDatabaseException("Cost.findByYearAndMonthAndCategoryName, Database Exception", e);
         }
+    }
+
+    @RolesAllowed({MANAGER})
+    public Page<Cost> findByYearAndMonthAndCategoryName(int page, int pageSize, boolean order, String year,
+                                                        String month,
+                                                        String categoryName) {
+        TypedQuery<Cost> tq;
+
+        if (order) {
+            tq = em.createNamedQuery("Cost.findByYearAndMonthAndCategoryNameAsc", Cost.class);
+        } else {
+            tq = em.createNamedQuery("Cost.findByYearAndMonthAndCategoryNameDesc", Cost.class);
+        }
+
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+        tq.setParameter("categoryName", categoryName);
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countCostsByYearAndMonthAndCategoryName(year, month, categoryName);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
+
+    }
+
+    @RolesAllowed({MANAGER})
+    public Long countCostsByYearAndMonthAndCategoryName(String year,
+                                                        String month,
+                                                        String categoryName) {
+        TypedQuery<Long> tq = em.createNamedQuery("Cost.countByYearAndMonthAndCategoryName", Long.class);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+        tq.setParameter("categoryName", categoryName);
+        return tq.getSingleResult();
     }
 
     @Override

@@ -8,12 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.Year;
 
 @Data
 @AllArgsConstructor
@@ -28,7 +26,7 @@ public class CostDto {
     private Long version;
 
     @NotNull
-    private Year year;
+    private Integer year;
 
     @NotNull
     private Month month;
@@ -50,7 +48,7 @@ public class CostDto {
 
     @EqualsAndHashCode.Exclude
     @JsonIgnore
-    private Account createdBy;
+    private String createdBy;
 
     @EqualsAndHashCode.Exclude
     @JsonIgnore
@@ -58,10 +56,10 @@ public class CostDto {
 
     @EqualsAndHashCode.Exclude
     @JsonIgnore
-    private Account updatedBy;
+    private String updatedBy;
 
-    public CostDto(Long id, Long version, Year year, Month month,
-                   BigDecimal totalConsumption, BigDecimal realRate, String category) {
+    public CostDto(Long id, Long version, Integer year,
+                   Month month, BigDecimal totalConsumption, BigDecimal realRate, String category) {
         this.id = id;
         this.version = version;
         this.year = year;

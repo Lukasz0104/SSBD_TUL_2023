@@ -87,7 +87,31 @@ import java.time.Year;
             SELECT c FROM Cost c
             WHERE c.year = :year
                   AND c.month = :month
+                  AND c.category.name = :categoryName"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndMonthAndCategoryNameAsc",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND c.month = :month
+                  AND c.category.name = :categoryName
+                  ORDER BY c.month ASC"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndMonthAndCategoryNameDesc",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND c.month = :month
+                  AND c.category.name = :categoryName
+                  ORDER BY c.month DESC"""),
+    @NamedQuery(
+        name = "Cost.countByYearAndMonthAndCategoryName",
+        query = """
+            SELECT COUNT(c) FROM Cost c
+            WHERE c.year = :year
+                  AND c.month = :month
                   AND c.category.name = :categoryName""")
+
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})
