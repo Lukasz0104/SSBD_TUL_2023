@@ -20,8 +20,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import jakarta.ws.rs.core.SecurityContext;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
@@ -29,12 +29,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
-
-import java.util.ArrayList;
-import java.util.List;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestScoped
@@ -70,7 +67,7 @@ public class PlaceEndpoint {
                 rollBackTX = true;
             }
         } while (rollBackTX && --txLimit > 0);
-
+ 
         if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }

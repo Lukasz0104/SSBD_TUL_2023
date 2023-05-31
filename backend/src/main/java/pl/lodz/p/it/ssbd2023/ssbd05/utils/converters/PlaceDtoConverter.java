@@ -3,11 +3,9 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDto;
-
-import java.util.ArrayList;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlaceDtoConverter {

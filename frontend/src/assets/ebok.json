@@ -1,5 +1,5 @@
 {
-  "apiUrl": "http://localhost:8080/eBok",
+  "apiUrl": "https://team-5.proj-sum.it.p.lodz.pl/api",
   "languages": [
     "EN",
     "PL"
