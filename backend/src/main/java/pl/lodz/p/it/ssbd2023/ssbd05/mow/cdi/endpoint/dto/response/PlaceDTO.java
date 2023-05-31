@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaceDto {
+public class PlaceDTO {
 
     @NotNull
     private Long id;
@@ -30,7 +30,7 @@ public class PlaceDto {
     private boolean active;
 
     @NotNull @Valid
-    private BuildingDto building;
+    private BuildingDTO building;
 
 }
 

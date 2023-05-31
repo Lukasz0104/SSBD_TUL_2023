@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 import { Place } from '../../model/place';
 import { PlaceService } from '../../services/place.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { PlaceCategoriesComponent } from '../place-categories/place-categories.component';
 
 @Component({
     selector: 'app-place',
@@ -15,7 +17,8 @@ export class PlaceComponent implements OnInit {
 
     constructor(
         private placeService: PlaceService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit(): void {
@@ -26,5 +29,16 @@ export class PlaceComponent implements OnInit {
             this.place$ = this.placeService.get(this.id);
             this.loading = false;
         }
+    }
+
+    placeCategories(id: number) {
+        const modalRef: NgbModalRef = this.modalService.open(
+            PlaceCategoriesComponent,
+            {
+                centered: true,
+                size: 'xl'
+            }
+        );
+        modalRef.componentInstance.id = id;
     }
 }

@@ -31,7 +31,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.PlaceEndpointExceptionsInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
@@ -64,7 +64,7 @@ public class PlaceEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX;
 
-        List<PlaceDto> places = null;
+        List<PlaceDTO> places = null;
         do {
             try {
                 places = PlaceDtoConverter.createPlaceDtoList(placeManager.getAllPlaces());
@@ -88,7 +88,7 @@ public class PlaceEndpoint {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
 
-        List<PlaceDto> places = null;
+        List<PlaceDTO> places = null;
         do {
             try {
                 places = PlaceDtoConverter.createPlaceDtoList(
@@ -114,7 +114,7 @@ public class PlaceEndpoint {
         boolean rollBackTX;
 
         Place place;
-        PlaceDto placeDto = null;
+        PlaceDTO placeDto = null;
         String login = securityContext.getUserPrincipal().getName();
         do {
             try {

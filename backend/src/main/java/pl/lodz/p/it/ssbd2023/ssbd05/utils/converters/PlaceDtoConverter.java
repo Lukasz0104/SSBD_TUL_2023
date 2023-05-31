@@ -4,29 +4,29 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter
 
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlaceDtoConverter {
 
-    public static PlaceCategoryDto createPlaceCategoryDto(Rate rate) {
-        return new PlaceCategoryDto(rate.getId(), rate.getCategory().getName(), rate.getAccountingRule().toString(),
+    public static PlaceCategoryDTO createPlaceCategoryDto(Rate rate) {
+        return new PlaceCategoryDTO(rate.getId(), rate.getCategory().getName(), rate.getAccountingRule().toString(),
             rate.getValue());
     }
 
-    public static List<PlaceCategoryDto> createPlaceCategoryDtoList(List<Rate> rateList) {
-        List<PlaceCategoryDto> placeCategoryDtosList = new ArrayList<>();
+    public static List<PlaceCategoryDTO> createPlaceCategoryDtoList(List<Rate> rateList) {
+        List<PlaceCategoryDTO> placeCategoryDtosList = new ArrayList<>();
         for (Rate r : rateList) {
             placeCategoryDtosList.add(createPlaceCategoryDto(r));
         }
         return placeCategoryDtosList;
     }
 
-    public static PlaceDto createPlaceDtoFromPlace(Place place) {
-        return new PlaceDto(
+    public static PlaceDTO createPlaceDtoFromPlace(Place place) {
+        return new PlaceDTO(
             place.getId(),
             place.getPlaceNumber(),
             place.getSquareFootage(),
@@ -37,7 +37,7 @@ public class PlaceDtoConverter {
     }
 
 
-    public static List<PlaceDto> createPlaceDtoList(List<Place> places) {
+    public static List<PlaceDTO> createPlaceDtoList(List<Place> places) {
         return places.stream()
             .map(PlaceDtoConverter::createPlaceDtoFromPlace)
             .toList();
