@@ -478,7 +478,8 @@
         "title": "Place payment categories",
         "title-edit": "Edit place payment categories",
         "action-confirm": "Are you sure, you want to remove chosen categories from this place?"
-      }
+      },
+      "show-categories": "Show payment categories"
     }
   }
 }

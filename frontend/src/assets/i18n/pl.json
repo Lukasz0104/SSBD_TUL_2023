@@ -476,9 +476,10 @@
         "person": "os",
         "month": "mies",
         "title": "Kategorie opłat lokalu",
-        "title-edit": "Edycja kategori opłat lokalu",
+        "title-edit": "Edycja kategorii opłat lokalu",
         "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
-      }
+      },
+      "show-categories": "Wyświetl kategorie opłat"
     }
   }
 }
