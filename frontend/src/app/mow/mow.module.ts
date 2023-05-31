@@ -3,12 +3,21 @@ import { NgModule } from '@angular/core';
 
 import { MowRoutingModule } from './mow-routing.module';
 import { SharedModule } from '../shared/shared.module';
+import { PlaceCategoriesComponent } from './components/place-categories/place-categories.component';
+import { PlaceDetailsComponent } from './components/place-details/place-details.component';
+import { OwnPlacesComponent } from './components/own-places/own-places.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { RatesByCategoryComponent } from './components/rates-by-category/rates-by-category.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-    declarations: [CategoriesComponent, RatesByCategoryComponent],
+    declarations: [
+        CategoriesComponent,
+        RatesByCategoryComponent,
+        PlaceCategoriesComponent,
+        PlaceDetailsComponent,
+        OwnPlacesComponent
+    ],
     imports: [
         CommonModule,
         MowRoutingModule,

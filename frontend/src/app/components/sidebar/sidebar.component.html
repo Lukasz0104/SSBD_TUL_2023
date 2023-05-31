@@ -37,11 +37,20 @@
         <li *ngIf="authService.isAdmin() || authService.isManager()">
             <a
                 routerLink="/dashboard/accounts"
-                href="#"
                 class="nav-link link-body-emphasis"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }">
                 <i class="bi bi-people"></i> {{ 'nav.accounts' | translate }}
+            </a>
+        </li>
+        <li *ngIf="authService.isOwner()">
+            <a
+                routerLink="/dashboard/your-places"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-door-open"></i>
+                {{ 'nav.your-places' | translate }}
             </a>
         </li>
         <li *ngIf="authService.isManager()">
@@ -124,6 +133,14 @@
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard/categories">
             <i class="bi bi-tags fs-2"></i>
+        </button>
+        <button
+            *ngIf="authService.isOwner()"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/your-places">
+            <i class="bi bi-door-open fs-2"></i>
         </button>
         <button
             class="nav-link mx-auto p-2 m-2"
