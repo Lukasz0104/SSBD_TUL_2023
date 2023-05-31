@@ -1,0 +1,155 @@
+<ng-container *ngIf="ownPlaces$ | async as places; else loadingPlaces">
+    <ng-container *ngIf="places.length > 0; else noPlaces">
+        <div class="d-lg-flex">
+            <div class="col col-lg-12">
+                <div *ngFor="let place of places">
+                    <div
+                        class="card mb-4 shadow-sm"
+                        style="border-radius: 15px">
+                        <div class="card-body p-4">
+                            <h3 class="mb-3">
+                                {{
+                                    'component.own-places.place-number'
+                                        | translate
+                                }}
+                                {{ place.placeNumber }},
+                                {{ place.addressDto.street }}
+                                {{ place.addressDto.buildingNumber }},
+                                {{ place.addressDto.city }}
+                                {{ place.addressDto.postalCode }}
+                            </h3>
+                            <hr class="mt-3" />
+                            <button
+                                *ngIf="chosenId !== place.id"
+                                class="btn btn-success"
+                                (click)="showPlaceDetails(place.id)">
+                                {{
+                                    'component.own-places.show-place-details'
+                                        | translate
+                                }}
+                            </button>
+                            <button
+                                *ngIf="chosenId === place.id"
+                                class="btn btn-secondary"
+                                (click)="hidePlaceDetails()">
+                                {{
+                                    'component.own-places.hide-place-details'
+                                        | translate
+                                }}
+                            </button>
+                        </div>
+                        <div
+                            class="col col-lg-12"
+                            *ngIf="toggled && chosenId === place.id">
+                            <div class="mb-lg-4">
+                                <div class="px-lg-4 pb-lg-4">
+                                    <div ngbAccordion>
+                                        <div
+                                            ngbAccordionItem="details"
+                                            [collapsed]="false">
+                                            <h2 ngbAccordionHeader>
+                                                <button
+                                                    ngbAccordionButton
+                                                    class="fs-5 place-accordion-title">
+                                                    {{
+                                                        'component.own-places.details'
+                                                            | translate
+                                                    }}
+                                                </button>
+                                            </h2>
+                                            <div ngbAccordionCollapse>
+                                                <div ngbAccordionBody>
+                                                    <ng-template
+                                                        >Component
+                                                    </ng-template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            ngbAccordionItem="auth"
+                                            [collapsed]="true">
+                                            <h2 ngbAccordionHeader>
+                                                <button
+                                                    ngbAccordionButton
+                                                    class="fs-5 place-accordion-title">
+                                                    {{
+                                                        'component.own-places.meters'
+                                                            | translate
+                                                    }}
+                                                </button>
+                                            </h2>
+                                            <div ngbAccordionCollapse>
+                                                <div ngbAccordionBody>
+                                                    <ng-template
+                                                        >Component
+                                                    </ng-template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            ngbAccordionItem="accessLevels"
+                                            [collapsed]="true">
+                                            <h2 ngbAccordionHeader>
+                                                <button
+                                                    ngbAccordionButton
+                                                    class="fs-5 place-accordion-title">
+                                                    {{
+                                                        'component.own-places.reports'
+                                                            | translate
+                                                    }}
+                                                </button>
+                                            </h2>
+                                            <div ngbAccordionCollapse>
+                                                <div ngbAccordionBody>
+                                                    <ng-template
+                                                        >Component
+                                                    </ng-template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            ngbAccordionItem="stawki"
+                                            [collapsed]="true">
+                                            <h2 ngbAccordionHeader>
+                                                <button
+                                                    ngbAccordionButton
+                                                    class="fs-5 place-accordion-title">
+                                                    {{
+                                                        'component.own-places.rates'
+                                                            | translate
+                                                    }}
+                                                </button>
+                                            </h2>
+                                            <div ngbAccordionCollapse>
+                                                <div ngbAccordionBody>
+                                                    <ng-template
+                                                        >Component
+                                                    </ng-template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>
+
+<ng-template #loadingPlaces>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">{{
+            'component.own-places.loading' | translate
+        }}</span>
+    </div>
+</ng-template>
+
+<ng-template #noPlaces>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <h2 class="m-3">{{ 'component.own-places.no-places' | translate }}</h2>
+    </div>
+</ng-template>
