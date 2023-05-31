@@ -14,6 +14,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.util.List;
 
@@ -65,6 +67,76 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldReturnSC403WhenGettingAllCategoriesAsGuest() {
             given().when().get(categoriesURL).then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    @Nested
+    class MOW12 {
+        private static final String ratesFromCategoryUrl = "/categories/%d/rates";
+        private static RequestSpecification testSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("kgraczyk", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassGettingAllRatesFromCategory() {
+            io.restassured.response.Response response =
+                given().spec(testSpec).when().get(ratesFromCategoryUrl.formatted(1));
+            Page<RateDTO> ratePage =
+                response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(ratePage);
+            assertTrue(ratePage.getTotalSize() >= 0);
+            assertTrue(ratePage.getCurrentPage() >= 0);
+            assertTrue(ratePage.getPageSize() >= 0);
+            assertTrue(ratePage.getData().size() > 0);
+        }
+
+        @Test
+        void shouldReturnEmptyPageDataWhenGettingAllRatesFromCategoryThatDoesntExist() {
+            io.restassured.response.Response response =
+                given().spec(testSpec).when().get(ratesFromCategoryUrl.formatted(-2137));
+            Page<RateDTO> ratePage =
+                response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(ratePage);
+            assertEquals(0, (long) ratePage.getTotalSize());
+            assertEquals(0, ratePage.getCurrentPage());
+            assertEquals(0, ratePage.getPageSize());
+            assertEquals(0, ratePage.getData().size());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllCategoriesAsAdmin() {
+            given().spec(adminSpec).when().get(ratesFromCategoryUrl.formatted(1)).then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllCategoriesAsOwner() {
+            given().spec(ownerSpec).when().get(ratesFromCategoryUrl.formatted(1)).then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllCategoriesAsGuest() {
+            given().when().get(ratesFromCategoryUrl.formatted(1)).then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
     }
