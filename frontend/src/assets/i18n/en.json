@@ -266,6 +266,28 @@
       "places": "Places",
       "reports": "Reports",
       "loading": "Loading buildings..."
+    },
+    "costs": {
+      "month":  "Month",
+      "realRate":  "Real rate ",
+      "totalConsumption": "Total consumption",
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "loading": "Choose year and category, to see the costs table",
+      "chooseYear": "Choose year",
+      "chooseCategory": "Choose category"
     }
   },
   "modal": {
@@ -305,7 +327,8 @@
     "categories": "Bill categories",
     "buildings": "Buildings",
     "your-places": "Your places",
-    "place": "Place"
+    "place": "Place",
+    "costs": "Costs"
   },
   "toast": {
     "auth": {

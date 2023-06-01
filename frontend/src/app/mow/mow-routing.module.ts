@@ -7,6 +7,7 @@ import { OwnPlacesComponent } from './components/own-places/own-places.component
 import { canMatchOwner } from '../shared/guards/owner.guard';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
+import { CostsComponent } from './components/costs/costs.component';
 
 export const routes: Routes = [
     { path: 'buildings', component: BuildingsComponent },
@@ -30,6 +31,14 @@ export const routes: Routes = [
             title: 'Your places'
         },
         canMatch: [canMatchOwner]
+    },
+    {
+        path: 'costs',
+        component: CostsComponent,
+        data: {
+            title: 'Costs'
+        },
+        canMatch: [canMatchManager]
     }
 ];
 

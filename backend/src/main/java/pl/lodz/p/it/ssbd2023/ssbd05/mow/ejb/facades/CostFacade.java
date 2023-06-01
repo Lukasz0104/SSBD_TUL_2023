@@ -8,13 +8,17 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.Month;
 import java.time.Year;
@@ -23,6 +27,10 @@ import java.util.List;
 @Stateless
 @DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class CostFacade extends AbstractFacade<Cost> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -168,4 +176,55 @@ public class CostFacade extends AbstractFacade<Cost> {
             throw new AppDatabaseException("Cost.findByYearAndMonthAndCategoryName, Database Exception", e);
         }
     }
+
+    @RolesAllowed({MANAGER})
+    public Page<Cost> findByYearAndMonthAndCategoryName(int page, int pageSize, boolean order, Year year,
+                                                        String categoryName) {
+        TypedQuery<Cost> tq;
+
+        if (order) {
+            tq = em.createNamedQuery("Cost.findByYearAndCategoryNameAsc", Cost.class);
+        } else {
+            tq = em.createNamedQuery("Cost.findByYearAndCategoryNameDesc", Cost.class);
+        }
+
+        tq.setParameter("year", year);
+        tq.setParameter("categoryName", categoryName);
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+        List<Cost> list = tq.getResultList();
+
+        Long count = countCostsByYearAndMonthAndCategoryName(year, categoryName);
+        return new Page<>(list, count, pageSize, page);
+
+    }
+
+    @RolesAllowed({MANAGER})
+    public Long countCostsByYearAndMonthAndCategoryName(Year year,
+                                                        String categoryName) {
+        TypedQuery<Long> tq = em.createNamedQuery("Cost.countByYearAndCategoryName", Long.class);
+        tq.setParameter("year", year);
+        tq.setParameter("categoryName", categoryName);
+        return tq.getSingleResult();
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public List<Cost> findAll() {
+        return super.findAll();
+    }
+
+    @RolesAllowed({MANAGER})
+    public List<Year> findDistinctYears() {
+        TypedQuery<Year> tq = em.createNamedQuery("Cost.findDistinctYears", Year.class);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({MANAGER})
+    public List<String> findDistinctCategoryNamesFromCosts() {
+        TypedQuery<String> tq = em.createNamedQuery("Cost.findDistinctCategoryNames", String.class);
+        return tq.getResultList();
+    }
+
+
 }

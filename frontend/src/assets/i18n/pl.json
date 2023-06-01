@@ -266,6 +266,28 @@
       "places": "Lokale",
       "reports": "Raporty",
       "loading": "Ładowanie budynków..."
+    },
+    "costs": {
+      "month": "Miesiąc",
+      "realRate": "Stawka",
+      "totalConsumption": "Łączne zużycie",
+      "months": {
+        "january": "Styczeń",
+        "february": "Luty",
+        "march": "Marzec",
+        "april": "Kwiecień",
+        "may": "Maj",
+        "june": "Czerwiec",
+        "july": "Lipiec",
+        "august": "Sierpień",
+        "september": "Wrzesień",
+        "october": "Październik",
+        "november": "Listopad",
+        "december": "Grudzień"
+      },
+      "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
+      "chooseYear": "Wybierz rok",
+      "chooseCategory": "Wybierz kategorię"
     }
   },
   "modal": {
@@ -305,7 +327,8 @@
     "your-places": "Twoje lokale",
     "place": "Lokal",
     "categories": "Kategorie opłat",
-    "buildings": "Budynki"
+    "buildings": "Budynki",
+    "costs": "Koszty"
   },
   "toast": {
     "auth": {
