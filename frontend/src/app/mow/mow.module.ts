@@ -3,9 +3,11 @@ import { NgModule } from '@angular/core';
 
 import { MowRoutingModule } from './mow-routing.module';
 import { SharedModule } from '../shared/shared.module';
+import { CostsComponent } from './components/costs/costs.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
-    declarations: [],
-    imports: [CommonModule, MowRoutingModule, SharedModule]
+    declarations: [CostsComponent],
+    imports: [CommonModule, MowRoutingModule, SharedModule, FormsModule]
 })
 export class MowModule {}

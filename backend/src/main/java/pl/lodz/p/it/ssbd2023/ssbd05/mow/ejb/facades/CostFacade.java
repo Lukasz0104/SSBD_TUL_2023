@@ -178,36 +178,32 @@ public class CostFacade extends AbstractFacade<Cost> {
     }
 
     @RolesAllowed({MANAGER})
-    public Page<Cost> findByYearAndMonthAndCategoryName(int page, int pageSize, boolean order, String year,
-                                                        String month,
+    public Page<Cost> findByYearAndMonthAndCategoryName(int page, int pageSize, boolean order, Year year,
                                                         String categoryName) {
         TypedQuery<Cost> tq;
 
         if (order) {
-            tq = em.createNamedQuery("Cost.findByYearAndMonthAndCategoryNameAsc", Cost.class);
+            tq = em.createNamedQuery("Cost.findByYearAndCategoryNameAsc", Cost.class);
         } else {
-            tq = em.createNamedQuery("Cost.findByYearAndMonthAndCategoryNameDesc", Cost.class);
+            tq = em.createNamedQuery("Cost.findByYearAndCategoryNameDesc", Cost.class);
         }
 
         tq.setParameter("year", year);
-        tq.setParameter("month", month);
         tq.setParameter("categoryName", categoryName);
         tq.setFirstResult(page * pageSize);
         tq.setMaxResults(pageSize);
+        List<Cost> list = tq.getResultList();
 
-        Long count = countCostsByYearAndMonthAndCategoryName(year, month, categoryName);
-
-        return new Page<>(tq.getResultList(), count, pageSize, page);
+        Long count = countCostsByYearAndMonthAndCategoryName(year, categoryName);
+        return new Page<>(list, count, pageSize, page);
 
     }
 
     @RolesAllowed({MANAGER})
-    public Long countCostsByYearAndMonthAndCategoryName(String year,
-                                                        String month,
+    public Long countCostsByYearAndMonthAndCategoryName(Year year,
                                                         String categoryName) {
-        TypedQuery<Long> tq = em.createNamedQuery("Cost.countByYearAndMonthAndCategoryName", Long.class);
+        TypedQuery<Long> tq = em.createNamedQuery("Cost.countByYearAndCategoryName", Long.class);
         tq.setParameter("year", year);
-        tq.setParameter("month", month);
         tq.setParameter("categoryName", categoryName);
         return tq.getSingleResult();
     }
@@ -217,4 +213,18 @@ public class CostFacade extends AbstractFacade<Cost> {
     public List<Cost> findAll() {
         return super.findAll();
     }
+
+    @RolesAllowed({MANAGER})
+    public List<Year> findDistinctYears() {
+        TypedQuery<Year> tq = em.createNamedQuery("Cost.findDistinctYears", Year.class);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({MANAGER})
+    public List<String> findDistinctCategoryNamesFromCosts() {
+        TypedQuery<String> tq = em.createNamedQuery("Cost.findDistinctCategoryNames", String.class);
+        return tq.getResultList();
+    }
+
+
 }

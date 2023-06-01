@@ -7,6 +7,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -27,6 +28,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.CostDtoConverter;
 
+import java.util.List;
+
 @RequestScoped
 @Path("/costs")
 @DenyAll
@@ -41,14 +44,13 @@ public class CostEndpoint {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(MANAGER)
+    @RolesAllowed({MANAGER})
     public Response getAllCosts(
         @QueryParam("page") int page,
         @QueryParam("pageSize") int pageSize,
         @DefaultValue("true") @QueryParam("asc") Boolean ascending,
-        @DefaultValue("") @QueryParam("year") String year,
-        @DefaultValue("") @QueryParam("month") String month,
-        @DefaultValue("") @QueryParam("category") String category
+        @NotNull @DefaultValue("-1") @QueryParam("year") Integer year,
+        @DefaultValue("") @QueryParam("categoryName") String categoryName
     ) throws AppBaseException {
         int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
@@ -57,7 +59,7 @@ public class CostEndpoint {
         do {
             try {
                 costDtoPage = CostDtoConverter.createCostDtoPage(
-                    costManager.getAllCostsPage(page, pageSize, ascending, year, month, category)
+                    costManager.getAllCostsPage(page, pageSize, ascending, year, categoryName)
                 );
                 rollBackTX = costManager.isLastTransactionRollback();
             } catch (AppTransactionRolledBackException atrbe) {
@@ -69,6 +71,54 @@ public class CostEndpoint {
             throw new AppRollbackLimitExceededException();
         }
         return Response.ok(costDtoPage).build();
+    }
+
+    @GET
+    @Path("/years")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({MANAGER})
+    public Response getYearsFromCosts() throws AppBaseException {
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<String> yearList = null;
+        do {
+            try {
+                yearList = costManager.getDistinctYearsFromCosts();
+                rollBackTX = costManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(yearList).build();
+    }
+
+    @GET
+    @Path("/categories")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({MANAGER})
+    public Response getCategoryNamesFromCosts() throws AppBaseException {
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX = false;
+
+        List<String> categoryNameList = null;
+        do {
+            try {
+                categoryNameList = costManager.getDistinctCategoryNamesFromCosts();
+                rollBackTX = costManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+        return Response.ok(categoryNameList).build();
     }
 
     @POST

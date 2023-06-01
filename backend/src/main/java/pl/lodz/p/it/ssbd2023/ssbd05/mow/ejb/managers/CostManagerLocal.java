@@ -18,6 +18,11 @@ public interface CostManagerLocal extends CommonManagerInterface {
 
     void removeCost(Long id) throws AppBaseException;
 
-    Page<Cost> getAllCostsPage(int page, int pageSize, Boolean order, String year, String month,
+    Page<Cost> getAllCostsPage(int page, int pageSize, boolean order, Integer year,
                                String categoryName) throws AppBaseException;
+
+    List<String> getDistinctYearsFromCosts() throws AppBaseException;
+
+    List<String> getDistinctCategoryNamesFromCosts() throws AppBaseException;
+
 }
