@@ -28,7 +28,14 @@ export class PlaceComponent implements OnInit {
             this.loading = true;
             this.toastService.showDanger('toast.place.not-found');
         } else {
-            this.place$ = this.placeService.get(this.id);
+            if (this.authService.isOwner()) {
+                this.place$ = this.placeService.getAsOwner(this.id);
+            } else if (this.authService.isManager()) {
+                this.place$ = this.placeService.getAsManager(this.id);
+            } else {
+                this.toastService.showDanger('toast.guard.access-denied');
+                return;
+            }
             this.loading = false;
         }
     }

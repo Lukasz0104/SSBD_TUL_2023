@@ -14,7 +14,20 @@ export class PlaceService {
 
     constructor(private http: HttpClient, private config: AppConfigService) {}
 
-    get(id: number): Observable<Place | null> {
+    getAsOwner(id: number): Observable<Place | null> {
+        return this.http
+            .get<Place>(`${this.BASE_URL}/me/${id}`, {
+                observe: 'response'
+            })
+            .pipe(
+                map((response) => {
+                    this.ifMatch = response.headers.get('ETag') ?? '';
+                    return response.body;
+                })
+            );
+    }
+
+    getAsManager(id: number): Observable<Place | null> {
         return this.http
             .get<Place>(`${this.BASE_URL}/${id}`, {
                 observe: 'response'

@@ -251,8 +251,8 @@ public class MowITests extends TestContainersSetup {
         private static RequestSpecification onlyManagerSpec;
         private static RequestSpecification onlyAdminSpec;
         private static RequestSpecification adminOwnerSpec;
-
         private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification managerOwnerSpec;
 
         @BeforeAll
         static void generateTestSpec() {
@@ -288,6 +288,7 @@ public class MowITests extends TestContainersSetup {
             onlyAdminSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
+
             loginDto = new LoginDto("asrebrna", "P@ssw0rd");
             jwt = given().body(loginDto)
                 .contentType(ContentType.JSON)
@@ -298,13 +299,24 @@ public class MowITests extends TestContainersSetup {
             adminOwnerSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
+
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            managerOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
         }
 
         @Nested
         class PositiveCases {
             @Test
             void shouldPassOwnerGettingOwnPlaces() {
-                io.restassured.response.Response response = given().spec(onlyOwnerSpec).when().get("/places/" + 7);
+                io.restassured.response.Response response = given().spec(onlyOwnerSpec).when().get("/places/me/" + 7);
                 PlaceDTO place = response.getBody().as(PlaceDTO.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
                 Assertions.assertNotNull(place);
@@ -316,14 +328,14 @@ public class MowITests extends TestContainersSetup {
 
             @Test
             void shouldPassManagerGettingOwnPlaces() {
-                io.restassured.response.Response response = given().spec(adminOwnerSpec).when().get("/places/" + 7);
+                io.restassured.response.Response response = given().spec(managerOwnerSpec).when().get("/places/me/" + 5);
                 PlaceDTO place = response.getBody().as(PlaceDTO.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
                 Assertions.assertNotNull(place);
-                Assertions.assertEquals(place.getId(), 7);
-                Assertions.assertEquals(place.getPlaceNumber(), 4);
-                Assertions.assertEquals(place.getResidentsNumber(), 10);
-                Assertions.assertEquals(place.getSquareFootage().toPlainString(), "180.000");
+                Assertions.assertEquals(place.getId(), 5);
+                Assertions.assertEquals(place.getPlaceNumber(), 2);
+                Assertions.assertEquals(place.getResidentsNumber(), 2);
+                Assertions.assertEquals(place.getSquareFootage().toPlainString(), "68.000");
             }
 
             @ParameterizedTest
@@ -342,7 +354,17 @@ public class MowITests extends TestContainersSetup {
 
             @ParameterizedTest
             @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
-            void shouldReturnSC403WhenGettingPlaceAsAdmin(int id) {
+            void shouldReturnSC403WhenGettingOwnPlaceAsAdmin(int id) {
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/places/me/" + id)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingAnyPlaceAsAdmin(int id) {
                 given().spec(onlyAdminSpec)
                     .when()
                     .get("/places/" + id)
@@ -354,7 +376,18 @@ public class MowITests extends TestContainersSetup {
             void shouldReturnSC403WhenGettingNotOwnPlaceAsOwner() {
                 given().spec(adminOwnerSpec)
                     .when()
-                    .get("/places/" + 1)
+                    .get("/places/me/" + 1)
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingAnyPlaceAsOwner(int id) {
+                given().spec(adminOwnerSpec)
+                    .when()
+                    .get("/places/" + id)
                     .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
