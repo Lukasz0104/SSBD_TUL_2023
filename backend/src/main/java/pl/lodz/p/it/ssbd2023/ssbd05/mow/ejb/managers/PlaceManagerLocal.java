@@ -13,9 +13,13 @@ import java.util.List;
 
 @Local
 public interface PlaceManagerLocal extends CommonManagerInterface {
+    List<Place> getAllPlaces() throws AppBaseException;
+
     List<Place> getOwnPlaces(String login) throws AppBaseException;
 
-    Place getPlaceDetails(Long id) throws AppBaseException;
+    Place getPlaceDetailsAsOwner(Long id, String login) throws AppBaseException;
+
+    Place getPlaceDetailsAsManager(Long id) throws AppBaseException;
 
     List<Rate> getPlaceRates(Long id) throws AppBaseException;
 
