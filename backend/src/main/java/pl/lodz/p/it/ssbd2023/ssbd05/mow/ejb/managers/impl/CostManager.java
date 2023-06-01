@@ -36,7 +36,7 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
 
     @Override
     public List<Cost> getAllCosts() throws AppBaseException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
