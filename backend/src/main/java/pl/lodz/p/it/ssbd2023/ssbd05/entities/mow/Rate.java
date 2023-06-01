@@ -37,7 +37,9 @@ import java.time.LocalDate;
         name = "Rate.findCurrentRates",
         query = """
             SELECT r FROM Rate r
-            WHERE r.effectiveDate = (SELECT max(r1.effectiveDate) FROM Rate r1 WHERE r1.category = r.category)
+            WHERE r.effectiveDate = 
+                (SELECT max(r1.effectiveDate) 
+                 FROM Rate r1 WHERE r1.effectiveDate <= CURRENT_DATE AND r1.category = r.category)
             """),
 
     // accounting_rule queries
@@ -58,6 +60,12 @@ import java.time.LocalDate;
     @NamedQuery(
         name = "Rate.findByCategory",
         query = "SELECT r FROM Rate r WHERE r.category = :category"),
+    @NamedQuery(
+        name = "Rate.findByCategoryId",
+        query = "SELECT r FROM Rate r WHERE r.category.id = :categoryId ORDER BY r.effectiveDate DESC"),
+    @NamedQuery(
+        name = "Rate.countByCategoryId",
+        query = "SELECT count(r.id) FROM Rate r WHERE r.category.id = :categoryId"),
     @NamedQuery(
         name = "Rate.findByEffectiveDateAndCategory",
         query = "SELECT r FROM Rate r WHERE r.effectiveDate = :effectiveDate AND r.category = :category"),

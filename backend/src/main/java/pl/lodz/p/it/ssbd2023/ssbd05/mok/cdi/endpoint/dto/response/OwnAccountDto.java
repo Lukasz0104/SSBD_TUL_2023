@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.AccountSignableDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.dto.AccountSignableDto;
 
 import java.time.LocalDateTime;
 import java.util.Set;

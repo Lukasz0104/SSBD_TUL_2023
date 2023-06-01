@@ -16,8 +16,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CategoryManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.util.List;
 
@@ -33,15 +35,18 @@ public class CategoryManager extends AbstractManager implements CategoryManagerL
     @Inject
     private CategoryFacade categoryFacade;
 
+    @Inject
+    private RateFacade rateFacade;
+
     @Override
     @RolesAllowed(MANAGER)
     public List<Category> getAllCategories() throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return categoryFacade.findAll();
     }
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<Rate> getCategoryRates(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Page<Rate> getCategoryRates(Long categoryId, int page, int pageSize) throws AppBaseException {
+        return rateFacade.findByCategoryId(categoryId, page, pageSize);
     }
 }

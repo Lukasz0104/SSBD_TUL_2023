@@ -141,6 +141,17 @@
     }
   },
   "component": {
+    "own-places": {
+      "loading": "Ładowanie twoich lokali..",
+      "place-number": "Lokal nr",
+      "details": "Szczegóły",
+      "meters": "Liczniki",
+      "reports": "Raporty",
+      "rates": "Stawki",
+      "no-places": "Nie posiadasz żadnych lokali",
+      "show-place-details": "Wyświetl informacje",
+      "hide-place-details": "Ukryj informacje"
+    },
     "accounts": {
       "display": {
         "all": "Wszyscy",
@@ -199,6 +210,23 @@
       "verified-true": "tak",
       "verified-false": "nie"
     },
+    "categories": {
+      "loading": "Ładowanie kategorii...",
+      "name": "Nazwa kategorii opłat"
+    },
+    "place": {
+      "categories": {
+        "edit": "Edytuj",
+        "save": "Zapisz",
+        "pln": "zł",
+        "person": "os",
+        "month": "mies",
+        "title": "Kategorie opłat lokalu",
+        "title-edit": "Edycja kategorii opłat lokalu",
+        "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
+      },
+      "show-categories": "Wyświetl kategorie opłat"
+    },
     "fields": {
       "login": "Login",
       "first-name": "Imię",
@@ -214,7 +242,25 @@
     },
     "landing-page": {
       "title": "Zmień oblicze swojej wspólnoty z eBok!",
-      "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę."
+      "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę.",
+      "rates": "Aktualne stawki"
+    },
+    "ratesByCategory": {
+      "ratesFor": "Stawki dla",
+      "value": "Wysokość stawki",
+      "effectiveDate": "Obowiązuje od",
+      "created": "Utworzona",
+      "modified": "Zmodyfikowana",
+      "loading": "Wczytywanie stawek"
+    },
+    "welcome": {
+      "welcome": "Witaj",
+      "date": "Dzisiejsza data"
+    },
+    "buildings": {
+      "places": "Lokale",
+      "reports": "Raporty",
+      "loading": "Ładowanie budynków..."
     }
   },
   "modal": {
@@ -250,7 +296,10 @@
     "logout": "Wyloguj się",
     "account": "Konto",
     "profile": "Profil",
-    "change-access-level": "Zmień poziom dostępu"
+    "change-access-level": "Zmień poziom dostępu",
+    "your-places": "Twoje lokale",
+    "categories": "Kategorie opłat",
+    "buildings": "Budynki"
   },
   "toast": {
     "auth": {
@@ -305,7 +354,6 @@
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie",
         "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
-
       }
     }
   },
