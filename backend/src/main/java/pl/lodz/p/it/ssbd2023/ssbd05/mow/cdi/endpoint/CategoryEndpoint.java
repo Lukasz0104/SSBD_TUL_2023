@@ -17,18 +17,13 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CategoryManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.RollbackUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.CategoryDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.RateDtoConverter;
 
-import java.util.List;
 
 @RequestScoped
 @Path("/categories")
@@ -42,28 +37,18 @@ public class CategoryEndpoint {
     @Inject
     private CategoryManagerLocal categoryManager;
 
+
+    @Inject
+    private RollbackUtils rollbackUtils;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response getAllCategories() throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        List<CategoryDTO> categories = null;
-        do {
-            try {
-                categories =
-                    CategoryDtoConverter.createCategoryDtoListFromCategoryList(categoryManager.getAllCategories());
-                rollBackTX = categoryManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollBackTX = true;
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(categories).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> CategoryDtoConverter.createCategoryDtoListFromCategoryList(categoryManager.getAllCategories()),
+            categoryManager
+        );
     }
 
     @GET
@@ -74,23 +59,10 @@ public class CategoryEndpoint {
                                      @QueryParam("page") @NotNull @PositiveOrZero int page,
                                      @QueryParam("pageSize") @NotNull @PositiveOrZero int pageSize)
         throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        Page<RateDTO> rates = null;
-        do {
-            try {
-                rates = RateDtoConverter.createRateDTOPage(
-                    categoryManager.getCategoryRates(categoryId, page, pageSize));
-                rollBackTX = categoryManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollBackTX = true;
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(rates).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> RateDtoConverter.createRateDTOPage(categoryManager.getCategoryRates(categoryId, page, pageSize)),
+            categoryManager
+        );
     }
+
 }

@@ -17,16 +17,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.RollbackUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RequestScoped
 @Path("/buildings")
@@ -40,31 +35,17 @@ public class BuildingEndpoint {
     @Inject
     private BuildingManagerLocal buildingManager;
 
+    @Inject
+    private RollbackUtils rollbackUtils;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response getAllBuildings() throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollback = false;
-        List<BuildingDto> buildings = new ArrayList<>();
-
-        do {
-            try {
-                buildings = buildingManager.getAllBuildings()
-                    .stream()
-                    .map(BuildingDtoConverter::mapBuildingToDto)
-                    .toList();
-                rollback = buildingManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollback = true;
-            }
-        } while (rollback && --txLimit > 0);
-
-        if (rollback && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.ok(buildings).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(() -> buildingManager.getAllBuildings()
+            .stream()
+            .map(BuildingDtoConverter::mapBuildingToDto)
+            .toList(), buildingManager);
     }
 
     @GET
