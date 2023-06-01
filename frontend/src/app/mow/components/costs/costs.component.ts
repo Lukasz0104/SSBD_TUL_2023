@@ -14,25 +14,26 @@ export class CostsComponent implements OnInit {
     toggledName = false;
     years: string[] | undefined;
     categoryNames: string[] | undefined;
-    months: string[] = [
-        'months.january',
-        'months.february',
-        'months.march',
-        'months.april',
-        'months.may',
-        'months.june',
-        'months.july',
-        'months.august',
-        'months.september',
-        'months.october',
-        'months.november',
-        'months.december'
-    ]; //FIXME TEMPORARY
     page = 1;
     pageSize = 10;
     sortDirection = 1;
     categoryName: string | undefined;
     year: string | undefined;
+
+    monthMap = new Map([
+        ['JANUARY', 'component.costs.months.january'],
+        ['FEBRUARY', 'component.costs.months.february'],
+        ['MARCH', 'component.costs.months.march'],
+        ['APRIL', 'component.costs.months.april'],
+        ['MAY', 'component.costs.months.may'],
+        ['JUNE', 'component.costs.months.june'],
+        ['JULY', 'component.costs.months.july'],
+        ['AUGUST', 'component.costs.months.august'],
+        ['SEPTEMBER', 'component.costs.months.september'],
+        ['OCTOBER', 'component.costs.months.october'],
+        ['NOVEMBER', 'component.costs.months.november'],
+        ['DECEMBER', 'component.costs.months.december']
+    ]);
 
     constructor(
         private costsService: CostsService,
@@ -48,6 +49,10 @@ export class CostsComponent implements OnInit {
         });
     }
     getCosts() {
+        if (this.year === undefined || this.categoryName === undefined) {
+            this._costs$ = undefined;
+            return;
+        }
         this._costs$ = this.costsService.getAllCosts(
             this.page - 1,
             this.pageSize,
@@ -66,6 +71,14 @@ export class CostsComponent implements OnInit {
             this.toggledName = true;
         }
     }
+
+    resetToggleName() {
+        this.toggledName = false;
+    }
+
+    resetToggleYear() {
+        this.toggledYear = false;
+    }
     reload() {
         if (this.toggledName && this.toggledYear) {
             this.getCosts();
@@ -79,7 +92,6 @@ export class CostsComponent implements OnInit {
 
     changeCategoryName(name: string) {
         this.categoryName = name;
-        console.log(this.toggledYear);
         if (this.toggledYear) {
             this.getCosts();
         }
@@ -87,7 +99,6 @@ export class CostsComponent implements OnInit {
 
     changeYear(year: string) {
         this.year = year;
-        console.log(this.toggledName);
         if (this.toggledName) {
             this.getCosts();
         }

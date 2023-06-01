@@ -145,7 +145,7 @@ public class Cost extends AbstractEntity implements Serializable {
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "real_rate", nullable = false, scale = 3, precision = 38)
+    @Column(name = "real_rate", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal realRate;

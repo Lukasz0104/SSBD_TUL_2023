@@ -8,6 +8,9 @@
                 class="form-select w-auto"
                 [(ngModel)]="year"
                 (ngModelChange)="changeYear($event)">
+                <option [ngValue]="undefined">
+                    {{ 'component.costs.chooseYear' | translate }}
+                </option>
                 <option
                     *ngFor="let year of years"
                     [ngValue]="year"
@@ -18,9 +21,12 @@
         </div>
         <div>
             <select
-                class="form-select w-auto"
+                class="form-select w-auto mx-md-auto"
                 [(ngModel)]="categoryName"
                 (ngModelChange)="changeCategoryName($event)">
+                <option [ngValue]="undefined">
+                    {{ 'component.costs.chooseCategory' | translate }}
+                </option>
                 <option
                     *ngFor="let name of categoryNames"
                     [ngValue]="name"
@@ -29,29 +35,30 @@
                 </option>
             </select>
         </div>
-
-        <span
+        <div
             (click)="reload()"
             class="btn btn-primary flex-grow-0 d-flex justify-content-center align-items-center">
             <i class="bi bi-arrow-clockwise"></i>
-        </span>
+        </div>
     </div>
 </div>
 <ng-container *ngIf="costs$ | async as costs; else loadingCosts">
     <div
         class="d-flex flex-column justify-content-between table-responsive border rounded"
         style="min-height: 300px">
-        <table class="table text-center table-hover">
+        <table
+            class="table text-center table-hover"
+            *ngIf="costs.data?.length">
             <thead>
                 <tr class="bg-light-subtle">
                     <th scope="col">
-                        {{ 'component.fields.month' | translate }}
+                        {{ 'component.costs.month' | translate }}
                     </th>
                     <th scope="col">
-                        {{ 'component.fields.realRate' | translate }}
+                        {{ 'component.costs.realRate' | translate }}
                     </th>
                     <th scope="col">
-                        {{ 'component.fields.totalConsumption' | translate }}
+                        {{ 'component.costs.totalConsumption' | translate }}
                     </th>
                 </tr>
             </thead>
@@ -59,13 +66,19 @@
                 <tr
                     *ngFor="let cost of costs.data"
                     class="cursor-pointer align-middle">
-                    <td>{{ cost.month | translate }}</td>
-                    <td>{{ cost.realRate }}</td>
+                    <td>{{ monthMap.get(cost.month) ?? '' | translate }}</td>
+                    <td>
+                        {{ cost.realRate | number : '.2-2' }}
+                        {{ ' ' }}
+                        {{ 'component.place.categories.pln' | translate }}
+                    </td>
                     <td>{{ cost.totalConsumption }}</td>
                 </tr>
             </tbody>
         </table>
-        <div class="d-sm-flex justify-content-between m-2">
+        <div
+            class="d-sm-flex justify-content-between m-2"
+            *ngIf="costs.data?.length">
             <div>
                 <ngb-pagination
                     [(page)]="page"
@@ -74,20 +87,28 @@
                     (pageChange)="getCosts()">
                 </ngb-pagination>
             </div>
-
-            <div>
+            <div *ngIf="costs.data?.length">
                 <select
                     [(ngModel)]="pageSize"
                     class="form-select w-auto">
-                    <option [ngValue]="5">
-                        {{ 'component.costs.display.five-items' | translate }}
-                    </option>
-                    <option [ngValue]="10">
-                        {{ 'component.costs.display.ten-items' | translate }}
-                    </option>
-                    <option [ngValue]="15">
+                    <option
+                        (click)="reload()"
+                        [ngValue]="5">
                         {{
-                            'component.costs.display.fifteen-items' | translate
+                            'component.accounts.display.five-items' | translate
+                        }}
+                    </option>
+                    <option
+                        (click)="reload()"
+                        [ngValue]="10">
+                        {{ 'component.accounts.display.ten-items' | translate }}
+                    </option>
+                    <option
+                        (click)="reload()"
+                        [ngValue]="15">
+                        {{
+                            'component.accounts.display.fifteen-items'
+                                | translate
                         }}
                     </option>
                 </select>
@@ -98,7 +119,8 @@
 
 <ng-template #loadingCosts>
     <div class="d-flex flex-column justify-content-center align-items-center">
-        <span class="spinner-border"></span>
-        <span class="mt-3">{{ 'component.costs.loading' | translate }}</span>
+        <span class="mt-3 fw-bold fs-4">{{
+            'component.costs.loading' | translate
+        }}</span>
     </div>
 </ng-template>

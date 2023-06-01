@@ -261,6 +261,28 @@
       "places": "Lokale",
       "reports": "Raporty",
       "loading": "Ładowanie budynków..."
+    },
+    "costs": {
+      "month": "Miesiąc",
+      "realRate": "Stawka",
+      "totalConsumption": "Łączne zużycie",
+      "months": {
+        "january": "Styczeń",
+        "february": "Luty",
+        "march": "Marzec",
+        "april": "Kwiecień",
+        "may": "Maj",
+        "june": "Czerwiec",
+        "july": "Lipiec",
+        "august": "Sierpień",
+        "september": "Wrzesień",
+        "october": "Październik",
+        "november": "Listopad",
+        "december": "Grudzień"
+      },
+      "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
+      "chooseYear": "Wybierz rok",
+      "chooseCategory": "Wybierz kategorię"
     }
   },
   "modal": {
@@ -299,7 +321,8 @@
     "change-access-level": "Zmień poziom dostępu",
     "your-places": "Twoje lokale",
     "categories": "Kategorie opłat",
-    "buildings": "Budynki"
+    "buildings": "Budynki",
+    "costs": "Koszty"
   },
   "toast": {
     "auth": {
@@ -510,20 +533,5 @@
         "invalid_token_type": "Podano błędny kod"
       }
     }
-  },
-  "months": {
-    "january": "Styczeń",
-    "february": "Luty",
-    "march": "Marzec",
-    "april": "Kwiecień",
-    "may": "Maj",
-    "june": "Czerwiec",
-    "july": "Lipiec",
-    "august": "Sierpień",
-    "september": "Wrzesień",
-    "october": "Październik",
-    "november": "Listopad",
-    "december": "Grudzień"
   }
-
 }

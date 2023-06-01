@@ -63,6 +63,16 @@
                 <i class="bi bi-tags"></i> {{ 'nav.categories' | translate }}
             </a>
         </li>
+        <li *ngIf="authService.isManager()">
+            <a
+                routerLink="/dashboard/costs"
+                href="#"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-piggy-bank"></i> {{ 'nav.costs' | translate }}
+            </a>
+        </li>
         <li>
             <a
                 routerLink="/dashboard/buildings"
@@ -143,6 +153,14 @@
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard/categories">
             <i class="bi bi-tags fs-2"></i>
+        </button>
+        <button
+            *ngIf="authService.isManager()"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/costs">
+            <i class="bi bi-piggy-bank fs-2"></i>
         </button>
         <button
             *ngIf="authService.isOwner()"
