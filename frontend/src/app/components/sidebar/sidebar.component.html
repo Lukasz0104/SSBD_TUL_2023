@@ -63,6 +63,16 @@
                 <i class="bi bi-tags"></i> {{ 'nav.categories' | translate }}
             </a>
         </li>
+        <li>
+            <a
+                routerLink="/dashboard/buildings"
+                href="#"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-building"></i> {{ 'nav.buildings' | translate }}
+            </a>
+        </li>
     </ul>
     <hr />
     <div class="d-flex justify-content-center">
@@ -141,6 +151,13 @@
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard/your-places">
             <i class="bi bi-door-open fs-2"></i>
+        </button>
+        <button
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/buildings">
+            <i class="bi bi-building fs-2"></i>
         </button>
         <button
             class="nav-link mx-auto p-2 m-2"
