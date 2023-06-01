@@ -22,6 +22,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
+import { CurrentRatesComponent } from './components/current-rates/current-rates.component';
 
 @NgModule({
     declarations: [
@@ -34,7 +35,8 @@ import { UnlockAccountComponent } from './components/unlock-account/unlock-accou
         ForcePasswordChangeOverrideComponent,
         LandingPageComponent,
         LoginComponent,
-        UnlockAccountComponent
+        UnlockAccountComponent,
+        CurrentRatesComponent
     ],
     imports: [
         CommonModule,

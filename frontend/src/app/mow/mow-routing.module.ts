@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { canMatchManager } from '../shared/guards/manager.guard';
-import { canMatchOwnerManager } from '../shared/guards/owner-manager.guard';
-import { PlaceComponent } from './components/place/place.component';
+import { BuildingsComponent } from './components/buildings/buildings.component';
 import { CategoriesComponent } from './components/categories/categories.component';
 import { OwnPlacesComponent } from './components/own-places/own-places.component';
 import { canMatchOwner } from '../shared/guards/owner.guard';
-import { WelcomeComponent } from './components/date/welcome.component';
+import { WelcomeComponent } from './components/welcome/welcome.component';
 import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
 
 export const routes: Routes = [
+    { path: 'buildings', component: BuildingsComponent },
     {
         path: '',
         component: WelcomeComponent,
@@ -29,17 +29,7 @@ export const routes: Routes = [
         data: {
             title: 'Your places'
         },
-        canMatch: [canMatchOwner],
-        children: [
-            {
-                path: 'place',
-                component: PlaceComponent,
-                data: {
-                    title: 'Place'
-                },
-                canMatch: [canMatchOwnerManager]
-            }
-        ]
+        canMatch: [canMatchOwner]
     }
 ];
 

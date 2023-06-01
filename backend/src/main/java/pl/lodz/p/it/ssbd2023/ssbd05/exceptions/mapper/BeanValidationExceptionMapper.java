@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.MessageDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.dto.MessageDTO;
 
 @Provider
 public class BeanValidationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {

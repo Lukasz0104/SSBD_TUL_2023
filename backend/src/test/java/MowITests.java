@@ -1,5 +1,8 @@
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,11 +21,128 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.util.List;
 
 public class MowITests extends TestContainersSetup {
+
+    @Nested
+    class MOW1 {
+        private static final String ratesUrl = "/rates";
+
+        private static final String categoriesURL = "/categories";
+
+        private static int categoriesNumber;
+
+        @BeforeAll
+        static void init() {
+            io.restassured.response.Response response = given().spec(managerSpec).when().get(categoriesURL);
+            categoriesNumber = List.of(response.getBody().as(CategoryDTO[].class)).size();
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+        }
+
+        @Test
+        void shouldPassGettingCurrentRatesAsOwner() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get(ratesUrl);
+            List<RatePublicDTO> rates =
+                List.of(response.getBody().as(RatePublicDTO[].class));
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(rates);
+            assertEquals(categoriesNumber, rates.size());
+        }
+
+        @Test
+        void shouldPassGettingCurrentRatesAsManager() {
+            io.restassured.response.Response response = given().spec(managerSpec).when().get(ratesUrl);
+            List<RatePublicDTO> rates =
+                List.of(response.getBody().as(RatePublicDTO[].class));
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(rates);
+            assertEquals(categoriesNumber, rates.size());
+        }
+
+        @Test
+        void shouldPassGettingCurrentRatesAsAdmin() {
+            io.restassured.response.Response response = given().spec(adminSpec).when().get(ratesUrl);
+            List<RatePublicDTO> rates =
+                List.of(response.getBody().as(RatePublicDTO[].class));
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(rates);
+            assertEquals(categoriesNumber, rates.size());
+        }
+
+        @Test
+        void shouldPassGettingCurrentRatesAsGuest() {
+            io.restassured.response.Response response = given().when().get(ratesUrl);
+            List<RatePublicDTO> rates =
+                List.of(response.getBody().as(RatePublicDTO[].class));
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(rates);
+            assertEquals(categoriesNumber, rates.size());
+        }
+
+    }
+
+
+    @Nested
+    class MOW2 {
+        private static final String URL = "/buildings";
+
+        @Nested
+        class GetAllBuildingsPositiveTest {
+            @Test
+            void shouldGetAllBuildingsAsOwnerWithStatusCode200Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(URL)
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThan(0)));
+            }
+
+            @Test
+            void shouldGetAllBuildingsAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(URL)
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThan(0)));
+            }
+
+            @Test
+            void shouldGetAllBuildingsAsAdminWithStatusCode200Test() {
+                given(adminSpec)
+                    .when()
+                    .get(URL)
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThan(0)));
+            }
+        }
+
+        @Nested
+        class GetAllBuildingsAccessForbiddenTest {
+            @Test
+            void shouldFailToGetAllBuildingsAsGuestWithStatusCode403Test() {
+                when()
+                    .get(URL)
+                    .then()
+                    .statusCode(403);
+            }
+        }
+    }
+
     @Nested
     class MOW11 {
         private static final String categoriesURL = "/categories";

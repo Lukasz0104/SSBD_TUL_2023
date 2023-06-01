@@ -49,8 +49,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
 
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
-        TypedQuery<Place> tq = em.createNamedQuery("Place.findAll", Place.class);
-        return tq.getResultList();
+        return super.findAll();
     }
 
     @RolesAllowed({MANAGER})

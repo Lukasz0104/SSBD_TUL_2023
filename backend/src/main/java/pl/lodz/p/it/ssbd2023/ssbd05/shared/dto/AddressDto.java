@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto;
+package pl.lodz.p.it.ssbd2023.ssbd05.shared.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

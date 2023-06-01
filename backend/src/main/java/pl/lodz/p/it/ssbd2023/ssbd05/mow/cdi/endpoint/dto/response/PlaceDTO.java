@@ -30,7 +30,7 @@ public class PlaceDTO {
     private boolean active;
 
     @NotNull @Valid
-    private BuildingDTO building;
+    private BuildingDto building;
 
 }
 
