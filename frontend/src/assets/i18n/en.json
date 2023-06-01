@@ -225,7 +225,9 @@
         "title-edit": "Edit place payment categories",
         "action-confirm": "Are you sure, you want to remove chosen categories from this place?"
       },
-      "show-categories": "Show payment categories"
+      "show-categories": "Show payment categories",
+      "loading": "Loading ...",
+      "data": "Place"
     },
     "fields": {
       "login": "Login",
@@ -238,7 +240,10 @@
       "street": "Street",
       "building-number": "Building number",
       "postal-code": "Postal code",
-      "city": "City"
+      "city": "City",
+      "place-number": "Place number",
+      "residents-number": "Number of residents",
+      "square-footage": "Square footage"
     },
     "landing-page": {
       "title": "Improve your community with eBok!",
@@ -299,7 +304,8 @@
     "change-access-level": "Change access level",
     "categories": "Bill categories",
     "buildings": "Buildings",
-    "your-places": "Your places"
+    "your-places": "Your places",
+    "place": "Place"
   },
   "toast": {
     "auth": {
@@ -343,6 +349,9 @@
     },
     "guard": {
       "access-denied": "Access denied"
+    },
+    "place": {
+      "not-found": "Place not found"
     }
   },
   "password-change": {

@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { PlaceService } from '../../services/place.service';
 import { Observable } from 'rxjs';
-import { OwnPlace } from '../../model/own-place';
+import { Place } from '../../model/place';
 
 @Component({
     selector: 'app-own-places',
     templateUrl: './own-places.component.html'
 })
 export class OwnPlacesComponent {
-    ownPlaces$: Observable<OwnPlace[]>;
+    ownPlaces$: Observable<Place[]>;
 
     toggled = false;
     chosenId: number | undefined;

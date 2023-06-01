@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PlaceDetailsComponent } from './components/place-details/place-details.component';
 import { canMatchManager } from '../shared/guards/manager.guard';
 import { BuildingsComponent } from './components/buildings/buildings.component';
 import { CategoriesComponent } from './components/categories/categories.component';
@@ -15,14 +14,6 @@ export const routes: Routes = [
         path: '',
         component: WelcomeComponent,
         canActivate: [canActivateAuthenticated]
-    },
-    {
-        path: 'place-details',
-        component: PlaceDetailsComponent,
-        data: {
-            title: 'Place details'
-        },
-        canActivate: [canMatchManager]
     },
     {
         path: 'categories',

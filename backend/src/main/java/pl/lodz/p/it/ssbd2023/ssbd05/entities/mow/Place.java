@@ -40,6 +40,13 @@ import java.util.Set;
         name = "Place.findById",
         query = "SELECT p FROM Place p WHERE p.id = :id"),
     @NamedQuery(
+        name = "Place.findByIdAndOwnerLogin",
+        query = """
+            SELECT p FROM Place AS p
+                WHERE p.id = :id
+                AND :login IN (SELECT o.account.login FROM p.owners o)
+            """),
+    @NamedQuery(
         name = "Place.findByPlaceNumber",
         query = "SELECT p FROM Place p WHERE p.placeNumber = :placeNumber"),
     @NamedQuery(
@@ -51,6 +58,9 @@ import java.util.Set;
     @NamedQuery(
         name = "Place.findByResidentsNumber",
         query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber"),
+    @NamedQuery(
+        name = "Place.findByOwnerLogin",
+        query = "SELECT p FROM Place p WHERE :login IN (SELECT ow.account.login FROM p.owners ow)"),
     @NamedQuery(
         name = "Place.findByResidentsNumberAndActive",
         query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber AND p.active = true"),

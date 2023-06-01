@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { Building } from '../../model/building';
 import { Observable } from 'rxjs';
 import { BuildingService } from '../../services/building.service';
 import { AuthService } from '../../../shared/services/auth.service';
+import { Building } from '../../model/building';
 
 @Component({
     selector: 'app-buildings',
