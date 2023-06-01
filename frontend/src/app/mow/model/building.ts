@@ -1,4 +1,4 @@
-import { Address } from './account';
+import { Address } from '../../shared/model/account';
 
 export interface Building {
     id: number;

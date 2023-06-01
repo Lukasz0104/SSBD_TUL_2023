@@ -1,4 +1,4 @@
-import { Building } from '../../shared/model/building';
+import { Building } from './building';
 
 export interface Place {
     id: number;
