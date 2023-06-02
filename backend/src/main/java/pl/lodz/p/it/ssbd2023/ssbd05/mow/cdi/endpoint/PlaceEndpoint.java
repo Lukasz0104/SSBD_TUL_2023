@@ -2,7 +2,6 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter.createPlaceCategoryDtoList;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -21,18 +20,11 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.FunctionThrows;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
-
-import java.util.ArrayList;
-import java.util.List;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
 @Path("/places")
@@ -47,13 +39,16 @@ public class PlaceEndpoint {
     private SecurityContext securityContext;
 
     @Inject
-    private AppProperties appProperties;
+    private RollbackUtils rollbackUtils;
 
     @GET
     @RolesAllowed(MANAGER)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllPlaces() throws AppBaseException {
-        return rollBackTXBasicWithOkStatus(() -> PlaceDtoConverter.createPlaceDtoList(placeManager.getAllPlaces()));
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceDtoList(placeManager.getAllPlaces()),
+            placeManager
+        ).build();
     }
 
     @GET
@@ -61,8 +56,10 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(OWNER)
     public Response getOwnPlaces() throws AppBaseException {
-        return rollBackTXBasicWithOkStatus(() -> PlaceDtoConverter.createPlaceDtoList(
-            placeManager.getOwnPlaces(securityContext.getUserPrincipal().getName())));
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceDtoList(placeManager.getOwnPlaces(login)),
+            placeManager).build();
     }
 
     @GET
@@ -71,9 +68,10 @@ public class PlaceEndpoint {
     @RolesAllowed({OWNER})
     public Response getPlaceDetailsAsOwner(@PathParam("id") Long id) throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        return this.rollBackTXBasicWithOkStatus(
-            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsOwner(id, login))
-        );
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsOwner(id, login)),
+            placeManager
+        ).build();
     }
 
     @GET
@@ -81,32 +79,11 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER})
     public Response getPlaceDetailsAsManager(@PathParam("id") Long id) throws AppBaseException {
-        return rollBackTXBasicWithOkStatus(
-            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsManager(id))
-        );
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsManager(id)),
+            placeManager
+        ).build();
     }
-
-    private <T> Response rollBackTXBasicWithOkStatus(FunctionThrows<T> func) throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollBackTX;
-
-        T dto = null;
-        do {
-            try {
-                dto = func.apply();
-                rollBackTX = placeManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollBackTX = true;
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.ok(dto).build();
-    }
-
 
     @GET
     @Path("/{id}/rates")
@@ -168,22 +145,10 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER})
     public Response getPlaceCategories(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        List<Rate> placeRates = new ArrayList<>();
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-        do {
-            try {
-                placeRates = placeManager.getCurrentRatesFromPlace(id);
-                rollBackTX = placeManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollBackTX = true;
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(createPlaceCategoryDtoList(placeRates)).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceCategoryDtoList(placeManager.getCurrentRatesFromPlace(id)),
+            placeManager
+        ).build();
     }
 
     @POST
