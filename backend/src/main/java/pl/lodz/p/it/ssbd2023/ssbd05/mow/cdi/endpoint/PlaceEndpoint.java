@@ -21,15 +21,19 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.FunctionThrows;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
 @Path("/places")
 @DenyAll
-@Interceptors(LoggerInterceptor.class)
+@Interceptors({LoggerInterceptor.class})
 public class PlaceEndpoint {
 
     @Inject
@@ -39,7 +43,20 @@ public class PlaceEndpoint {
     private SecurityContext securityContext;
 
     @Inject
+    private AppProperties appProperties;
+
+    @Context
+    private SecurityContext securityContext;
+
+    @Inject
     private RollbackUtils rollbackUtils;
+
+    @GET
+    @RolesAllowed(MANAGER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllPlaces() throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(() -> PlaceDtoConverter.createPlaceDtoList(placeManager.getAllPlaces()));
+    }
 
     @GET
     @Path("/me")
@@ -53,17 +70,52 @@ public class PlaceEndpoint {
     }
 
     @GET
+    @Path("/me/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({OWNER})
+    public Response getPlaceDetailsAsOwner(@PathParam("id") Long id) throws AppBaseException {
+        String login = securityContext.getUserPrincipal().getName();
+        return this.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsOwner(id, login))
+        );
+    }
+
+    @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER, MANAGER})
-    public Response getPlaceDetails(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed({MANAGER})
+    public Response getPlaceDetailsAsManager(@PathParam("id") Long id) throws AppBaseException {
+        return rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsManager(id))
+        );
     }
+
+    private <T> Response rollBackTXBasicWithOkStatus(FunctionThrows<T> func) throws AppBaseException {
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX;
+
+        T dto = null;
+        do {
+            try {
+                dto = func.apply();
+                rollBackTX = placeManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            }
+        } while (rollBackTX && --txLimit > 0);
+
+        if (rollBackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return Response.ok(dto).build();
+    }
+
 
     @GET
     @Path("/{id}/rates")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(OWNER)
+    @RolesAllowed({OWNER, MANAGER})
     public Response getPlaceRates(@PathParam("id") Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -84,7 +136,7 @@ public class PlaceEndpoint {
         throw new UnsupportedOperationException();
     }
 
-    @POST
+    @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response createPlace() throws AppBaseException {
@@ -142,7 +194,7 @@ public class PlaceEndpoint {
         throw new UnsupportedOperationException();
     }
 
-    @PUT
+    @POST
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)

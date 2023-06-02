@@ -63,6 +63,7 @@
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.Address</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.utils.YearJpaConverter</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>

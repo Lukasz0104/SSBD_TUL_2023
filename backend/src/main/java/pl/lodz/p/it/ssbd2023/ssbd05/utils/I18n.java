@@ -134,6 +134,11 @@ public class I18n {
     public static final String NO_ACCESS_LEVEL = "response.message.no_access_level";
     public static final String ACCESS_LEVEL_ALREADY_GRANTED = "response.message.access-level-already-granted";
 
+    // MOW
+    public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
+
+
+
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);
         ResourceBundle resourceBundle = ResourceBundle.getBundle("messages", locale);

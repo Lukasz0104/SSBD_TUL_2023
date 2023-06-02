@@ -10,6 +10,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
@@ -22,6 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @DenyAll
@@ -44,11 +46,47 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+
+    @RolesAllowed(MANAGER)
+    public List<Place> findAll() {
+        return super.findAll();
+    }
+
+    @RolesAllowed({MANAGER})
+    public Optional<Place> findById(Long id) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findById", Place.class);
+        tq.setParameter("id", id);
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException nre) {
+            return Optional.empty();
+        }
+    }
+
+    @RolesAllowed({OWNER})
+    public Optional<Place> findByIdAndOwnerLogin(Long id, String login) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findByIdAndOwnerLogin", Place.class);
+        tq.setParameter("id", id);
+        tq.setParameter("login", login);
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException nre) {
+            return Optional.empty();
+        }
+    }
+
     @RolesAllowed({OWNER, MANAGER})
     public Place findByAddress(Address address) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByAddress", Place.class);
         tq.setParameter("address", address);
         return tq.getSingleResult();
+    }
+
+    @RolesAllowed(OWNER)
+    public List<Place> findByLogin(String login) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findByOwnerLogin", Place.class);
+        tq.setParameter("login", login);
+        return tq.getResultList();
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -119,13 +157,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
             tq = em.createNamedQuery("Place.findByAddressAndInactive", Place.class);
             tq.setParameter("address", address);
         }
-        return tq.getResultList();
-    }
-
-    @RolesAllowed(OWNER)
-    public List<Place> findByLogin(String login) {
-        TypedQuery<Place> tq = em.createNamedQuery("Place.findByLogin", Place.class);
-        tq.setParameter("login", login);
         return tq.getResultList();
     }
 

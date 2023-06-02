@@ -10,13 +10,16 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
@@ -267,7 +270,8 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldReturnPlaceCategoryDtoForAllCategoriesForPlace() {
             io.restassured.response.Response response = given().spec(managerSpec).when().get("/places/1/categories");
-            List<PlaceCategoryDto> categories = List.of(response.getBody().as(PlaceCategoryDto[].class));
+            List<PlaceCategoryDTO> categories =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
 
             response.then().statusCode(Response.Status.OK.getStatusCode());
             assertNotNull(categories);
@@ -277,8 +281,8 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldReturnEmptyWhenPlaceNotFound() {
             io.restassured.response.Response response = given().spec(managerSpec).when().get("/places/-1/categories");
-            List<PlaceCategoryDto> categories =
-                List.of(response.getBody().as(PlaceCategoryDto[].class));
+            List<PlaceCategoryDTO> categories =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
 
             response.then().statusCode(Response.Status.OK.getStatusCode());
             assertNotNull(categories);
@@ -335,8 +339,8 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldPassGettingOwnPlaces() {
             io.restassured.response.Response response = given().spec(ownerSpec).when().get(ownPlacesURL);
-            List<PlaceDto> places =
-                List.of(response.getBody().as(PlaceDto[].class));
+            List<PlaceDTO> places =
+                List.of(response.getBody().as(PlaceDTO[].class));
 
             response.then().statusCode(Response.Status.OK.getStatusCode());
             assertNotNull(places);
@@ -358,6 +362,156 @@ public class MowITests extends TestContainersSetup {
         void shouldReturnSC403WhenGettingOwnPlacesAsGuest() {
             given().when().get(ownPlacesURL).then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    @Nested
+    class MOW5 {
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification adminOwnerSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification managerOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("asrebrna", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            adminOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            managerOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldPassOwnerGettingOwnPlaces() {
+                io.restassured.response.Response response = given().spec(onlyOwnerSpec).when().get("/places/me/" + 7);
+                PlaceDTO place = response.getBody().as(PlaceDTO.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                Assertions.assertNotNull(place);
+                Assertions.assertEquals(place.getId(), 7);
+                Assertions.assertEquals(place.getPlaceNumber(), 4);
+                Assertions.assertEquals(place.getResidentsNumber(), 10);
+                Assertions.assertEquals(place.getSquareFootage().toPlainString(), "180.000");
+            }
+
+            @Test
+            void shouldPassManagerGettingOwnPlaces() {
+                io.restassured.response.Response response = given().spec(managerOwnerSpec).when().get("/places/me/" + 5);
+                PlaceDTO place = response.getBody().as(PlaceDTO.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                Assertions.assertNotNull(place);
+                Assertions.assertEquals(place.getId(), 5);
+                Assertions.assertEquals(place.getPlaceNumber(), 2);
+                Assertions.assertEquals(place.getResidentsNumber(), 2);
+                Assertions.assertEquals(place.getSquareFootage().toPlainString(), "68.000");
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldPassManagerGettingAnyPlaces(int id) {
+                io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("/places/" + id);
+                PlaceDTO place = response.getBody().as(PlaceDTO.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                Assertions.assertNotNull(place);
+            }
+
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingOwnPlaceAsAdmin(int id) {
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/places/me/" + id)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingAnyPlaceAsAdmin(int id) {
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/places/" + id)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingNotOwnPlaceAsOwner() {
+                given().spec(adminOwnerSpec)
+                    .when()
+                    .get("/places/me/" + 1)
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingAnyPlaceAsOwner(int id) {
+                given().spec(adminOwnerSpec)
+                    .when()
+                    .get("/places/" + id)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
         }
     }
 }

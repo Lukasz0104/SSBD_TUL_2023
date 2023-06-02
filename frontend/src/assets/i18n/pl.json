@@ -225,7 +225,9 @@
         "title-edit": "Edycja kategorii opłat lokalu",
         "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
       },
-      "show-categories": "Wyświetl kategorie opłat"
+      "show-categories": "Wyświetl kategorie opłat",
+      "loading": "Ładowanie ...",
+      "data": "Lokal"
     },
     "fields": {
       "login": "Login",
@@ -238,7 +240,10 @@
       "street": "Ulica",
       "building-number": "Numer budynku",
       "postal-code": "Kod pocztowy",
-      "city": "Miasto"
+      "city": "Miasto",
+      "place-number": "Numer lokalu",
+      "residents-number": "Ilość lokatorów",
+      "square-footage": "Powierzchnia"
     },
     "landing-page": {
       "title": "Zmień oblicze swojej wspólnoty z eBok!",
@@ -261,6 +266,28 @@
       "places": "Lokale",
       "reports": "Raporty",
       "loading": "Ładowanie budynków..."
+    },
+    "costs": {
+      "month": "Miesiąc",
+      "realRate": "Stawka",
+      "totalConsumption": "Łączne zużycie",
+      "months": {
+        "january": "Styczeń",
+        "february": "Luty",
+        "march": "Marzec",
+        "april": "Kwiecień",
+        "may": "Maj",
+        "june": "Czerwiec",
+        "july": "Lipiec",
+        "august": "Sierpień",
+        "september": "Wrzesień",
+        "october": "Październik",
+        "november": "Listopad",
+        "december": "Grudzień"
+      },
+      "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
+      "chooseYear": "Wybierz rok",
+      "chooseCategory": "Wybierz kategorię"
     }
   },
   "modal": {
@@ -298,8 +325,10 @@
     "profile": "Profil",
     "change-access-level": "Zmień poziom dostępu",
     "your-places": "Twoje lokale",
+    "place": "Lokal",
     "categories": "Kategorie opłat",
-    "buildings": "Budynki"
+    "buildings": "Budynki",
+    "costs": "Koszty"
   },
   "toast": {
     "auth": {
@@ -343,6 +372,9 @@
     },
     "guard": {
       "access-denied": "Odmowa dostępu"
+    },
+    "place": {
+      "not-found": "Nie znaleziono lokalu"
     }
   },
   "password-change": {
