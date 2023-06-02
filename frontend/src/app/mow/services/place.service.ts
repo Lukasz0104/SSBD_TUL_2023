@@ -1,19 +1,49 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
+import { map, Observable } from 'rxjs';
+import { Place } from '../model/place';
 import { PlaceCategory } from '../model/place-category';
-import { OwnPlace } from '../model/own-place';
+import { Meter } from '../model/meter';
 
 @Injectable({
     providedIn: 'root'
 })
 export class PlaceService {
-    constructor(
-        private http: HttpClient,
-        private appConfig: AppConfigService
-    ) {}
+    ifMatch = '';
+    private readonly BASE_URL = `${this.config.apiUrl}/places`;
 
-    private readonly placesUrl = `${this.appConfig.apiUrl}/places`;
+    constructor(private http: HttpClient, private config: AppConfigService) {}
+
+    getAsOwner(id: number): Observable<Place | null> {
+        return this.http
+            .get<Place>(`${this.BASE_URL}/me/${id}`, {
+                observe: 'response'
+            })
+            .pipe(
+                map((response) => {
+                    this.ifMatch = response.headers.get('ETag') ?? '';
+                    return response.body;
+                })
+            );
+    }
+
+    getAsManager(id: number): Observable<Place | null> {
+        return this.http
+            .get<Place>(`${this.BASE_URL}/${id}`, {
+                observe: 'response'
+            })
+            .pipe(
+                map((response) => {
+                    this.ifMatch = response.headers.get('ETag') ?? '';
+                    return response.body;
+                })
+            );
+    }
+
+    getOwnPlaces() {
+        return this.http.get<Place[]>(`${this.BASE_URL}/me`);
+    }
 
     public pictureMap = new Map<string, string>([
         ['Winda', 'bi-chevron-bar-expand'],
@@ -30,15 +60,15 @@ export class PlaceService {
 
     getPlaceCategories(id: number) {
         return this.http.get<PlaceCategory[]>(
-            `${this.placesUrl}/${id}/categories`
+            `${this.BASE_URL}/${id}/categories`
         );
     }
 
-    getOwnPlaces() {
-        return this.http.get<OwnPlace[]>(`${this.placesUrl}/me`);
+    getPlaceMetersAsOwner(id: number) {
+        return this.http.get<Meter[]>(`${this.BASE_URL}/me/${id}/meters`);
     }
 
-    getPlaceMeters(id: number) {
-        return this.http.get<OwnPlace[]>(`${this.placesUrl}/${id}/meters`);
+    getPlaceMetersAsManager(id: number) {
+        return this.http.get<Meter[]>(`${this.BASE_URL}/${id}/meters`);
     }
 }

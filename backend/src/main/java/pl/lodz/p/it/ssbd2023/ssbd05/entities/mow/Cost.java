@@ -87,7 +87,36 @@ import java.time.Year;
             SELECT c FROM Cost c
             WHERE c.year = :year
                   AND c.month = :month
-                  AND c.category.name = :categoryName""")
+                  AND c.category.name = :categoryName"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndCategoryNameAsc",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND LOWER(c.category.name) LIKE LOWER(CONCAT('%', :categoryName, '%'))
+                  ORDER BY c.month ASC"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndCategoryNameDesc",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND LOWER(c.category.name) LIKE LOWER(CONCAT('%', :categoryName, '%'))
+                  ORDER BY c.month DESC"""),
+    @NamedQuery(
+        name = "Cost.countByYearAndCategoryName",
+        query = """
+            SELECT COUNT(c) FROM Cost c
+            WHERE c.year = :year
+                  AND LOWER(c.category.name) LIKE LOWER(CONCAT('%', :categoryName, '%'))"""),
+    @NamedQuery(
+        name = "Cost.findDistinctYears",
+        query = """
+            SELECT DISTINCT c.year FROM Cost c ORDER BY c.year"""),
+    @NamedQuery(
+        name = "Cost.findDistinctCategoryNames",
+        query = """
+            SELECT DISTINCT c.category.name FROM Cost c""")
+
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})
@@ -116,7 +145,7 @@ public class Cost extends AbstractEntity implements Serializable {
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "real_rate", nullable = false, scale = 3, precision = 38)
+    @Column(name = "real_rate", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal realRate;

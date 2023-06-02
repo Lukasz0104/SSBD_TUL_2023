@@ -1,0 +1,62 @@
+<div
+    *ngIf="buildings$ | async as buildings; else loading"
+    class="table-responsive">
+    <table class="table text-center table-hover align-middle">
+        <thead>
+            <tr class="bg-light-subtle">
+                <th scope="col">#</th>
+                <th
+                    scope="col"
+                    class="col-3">
+                    {{ 'component.fields.street' | translate }}
+                </th>
+                <th
+                    scope="col"
+                    class="col-2">
+                    {{ 'component.fields.building-number' | translate }}
+                </th>
+                <th
+                    scope="col"
+                    class="col-2">
+                    {{ 'component.fields.city' | translate }}
+                </th>
+                <th
+                    scope="col"
+                    class="col-2">
+                    {{ 'component.fields.postal-code' | translate }}
+                </th>
+                <th scope="col"></th>
+                <th
+                    *ngIf="auth.isManager()"
+                    scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let building of buildings; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ building.address.street }}</td>
+                <td>{{ building.address.buildingNumber }}</td>
+                <td>{{ building.address.city }}</td>
+                <td>{{ building.address.postalCode }}</td>
+                <td *ngIf="auth.isManager()">
+                    <button class="btn btn-primary">
+                        {{ 'component.buildings.places' | translate }}
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-primary">
+                        {{ 'component.buildings.reports' | translate }}
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<ng-template #loading>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">{{
+            'component.buildings.loading' | translate
+        }}</span>
+    </div>
+</ng-template>

@@ -1,13 +1,39 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { PlaceService } from '../../services/place.service';
+import { Observable } from 'rxjs';
+import { Meter } from '../../model/meter';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
     selector: 'app-meters',
     templateUrl: './meters.component.html',
     styleUrls: ['./meters.component.css']
 })
-export class MetersComponent {
+export class MetersComponent implements OnInit {
     @Input() placeId: number | undefined;
 
-    constructor(private placeService: PlaceService) {}
+    meters$: Observable<Meter[]> | undefined;
+
+    constructor(
+        private placeService: PlaceService,
+        private authService: AuthService
+    ) {}
+
+    ngOnInit() {
+        if (this.placeId) {
+            if (this.authService.isOwner()) {
+                this.meters$ = this.placeService.getPlaceMetersAsOwner(
+                    this.placeId
+                );
+            } else {
+                this.meters$ = this.placeService.getPlaceMetersAsManager(
+                    this.placeId
+                );
+            }
+        }
+    }
+
+    public getIcon(category: string): string {
+        return this.placeService.pictureMap.get(category) ?? 'bi-coin';
+    }
 }

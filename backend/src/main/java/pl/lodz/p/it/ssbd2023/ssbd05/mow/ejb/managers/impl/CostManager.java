@@ -17,7 +17,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CostFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CostManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
+import java.time.Year;
 import java.util.List;
 
 @Stateful
@@ -33,7 +35,6 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
     private CostFacade costFacade;
 
     @Override
-    @RolesAllowed(MANAGER)
     public List<Cost> getAllCosts() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
@@ -54,5 +55,25 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
     @RolesAllowed(MANAGER)
     public void removeCost(Long id) throws AppBaseException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public Page<Cost> getAllCostsPage(int page, int pageSize, boolean order, Integer year,
+                                      String categoryName) {
+        return costFacade.findByYearAndMonthAndCategoryName(page,
+            pageSize, order, Year.of(year), categoryName);
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public List<String> getDistinctYearsFromCosts() {
+        return costFacade.findDistinctYears().stream().map(Year::toString).toList();
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public List<String> getDistinctCategoryNamesFromCosts() {
+        return costFacade.findDistinctCategoryNamesFromCosts();
     }
 }

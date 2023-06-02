@@ -66,14 +66,6 @@ public class MeterFacade extends AbstractFacade<Meter> {
     }
 
     @RolesAllowed({OWNER, MANAGER})
-    public List<Meter> findByPlaceId(Long placeId) throws AppDatabaseException {
-        TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByPlaceId", Meter.class);
-        tq.setParameter("placeId", placeId);
-        return tq.getResultList();
-
-    }
-
-    @RolesAllowed({OWNER, MANAGER})
     public List<Meter> findByPlaceNumberAndBuildingId(Integer placeNumber, Long buildingId) throws
         AppDatabaseException {
         try {

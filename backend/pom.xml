@@ -4,7 +4,7 @@
     <groupId>pl.lodz.p.it.ssbd2023</groupId>
     <artifactId>ssbd05</artifactId>
     <packaging>war</packaging>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <name>eBok</name>
 
     <!--  DEVELOPERS INFO -->

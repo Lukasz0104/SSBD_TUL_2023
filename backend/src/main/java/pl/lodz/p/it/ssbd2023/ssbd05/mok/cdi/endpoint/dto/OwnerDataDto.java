@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.dto.AddressDto;
 
 import java.time.LocalDateTime;
 
