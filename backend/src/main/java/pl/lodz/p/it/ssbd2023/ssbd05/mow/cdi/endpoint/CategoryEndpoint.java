@@ -19,10 +19,9 @@ import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CategoryManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.RollbackUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.CategoryDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.RateDtoConverter;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 
 @RequestScoped
@@ -30,9 +29,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.RateDtoConverter;
 @DenyAll
 @Interceptors(LoggerInterceptor.class)
 public class CategoryEndpoint {
-
-    @Inject
-    private AppProperties appProperties;
 
     @Inject
     private CategoryManagerLocal categoryManager;
@@ -48,7 +44,7 @@ public class CategoryEndpoint {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
             () -> CategoryDtoConverter.createCategoryDtoListFromCategoryList(categoryManager.getAllCategories()),
             categoryManager
-        );
+        ).build();
     }
 
     @GET
@@ -62,7 +58,7 @@ public class CategoryEndpoint {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
             () -> RateDtoConverter.createRateDTOPage(categoryManager.getCategoryRates(categoryId, page, pageSize)),
             categoryManager
-        );
+        ).build();
     }
 
 }

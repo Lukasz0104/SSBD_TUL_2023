@@ -267,8 +267,7 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldReturnPlaceCategoryDtoForAllCategoriesForPlace() {
             io.restassured.response.Response response = given().spec(managerSpec).when().get("/places/1/categories");
-            List<PlaceCategoryDto> categories =
-                List.of(response.getBody().as(PlaceCategoryDto[].class));
+            List<PlaceCategoryDto> categories = List.of(response.getBody().as(PlaceCategoryDto[].class));
 
             response.then().statusCode(Response.Status.OK.getStatusCode());
             assertNotNull(categories);

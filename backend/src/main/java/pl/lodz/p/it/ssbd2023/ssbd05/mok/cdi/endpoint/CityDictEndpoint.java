@@ -12,14 +12,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.CityDictManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
-
-import java.util.ArrayList;
-import java.util.List;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
 @Path("/city-dict")
@@ -28,7 +23,7 @@ import java.util.List;
 public class CityDictEndpoint {
 
     @Inject
-    private AppProperties appProperties;
+    private RollbackUtils rollbackUtils;
 
     @Inject
     private CityDictManagerLocal addressDictManager;
@@ -39,22 +34,9 @@ public class CityDictEndpoint {
     public Response getCitiesStartingWith(@NotBlank @Pattern(regexp = "[A-ZĄĆĘŁÓŚŹŻ]+.*")
                                           @QueryParam(value = "pattern") String pattern)
         throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        List<String> cityList = new ArrayList<>();
-        do {
-            try {
-                cityList = addressDictManager.getCitiesStartingWith(pattern);
-                rollBackTX = addressDictManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollBackTX = true;
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(cityList).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> addressDictManager.getCitiesStartingWith(pattern),
+            addressDictManager
+        ).build();
     }
 }

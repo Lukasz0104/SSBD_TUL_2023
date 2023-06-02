@@ -19,18 +19,14 @@ import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.RollbackUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
 @Path("/buildings")
 @DenyAll
 @Interceptors(LoggerInterceptor.class)
 public class BuildingEndpoint {
-
-    @Inject
-    private AppProperties appProperties;
 
     @Inject
     private BuildingManagerLocal buildingManager;
@@ -45,7 +41,7 @@ public class BuildingEndpoint {
         return rollbackUtils.rollBackTXBasicWithOkStatus(() -> buildingManager.getAllBuildings()
             .stream()
             .map(BuildingDtoConverter::mapBuildingToDto)
-            .toList(), buildingManager);
+            .toList(), buildingManager).build();
     }
 
     @GET
