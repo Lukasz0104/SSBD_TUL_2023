@@ -96,4 +96,32 @@ public class RollbackUtils {
         return dto;
     }
 
+
+    public <T, M extends  CommonManagerInterface> T
+        rollBackTXWithOptimisticLockReturnTypeT(FunctionReturnRWithThrows<T> func, M manager) throws AppBaseException {
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollbackTX;
+        T dto = null;
+        do {
+            try {
+                dto = func.apply();
+                rollbackTX = manager.isLastTransactionRollback();
+            } catch (AppOptimisticLockException aole) {
+                rollbackTX = true;
+                if (txLimit < 2) {
+                    throw aole;
+                }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollbackTX = true;
+            }
+        } while (rollbackTX && --txLimit > 0);
+
+        if (rollbackTX && txLimit == 0) {
+            throw new AppRollbackLimitExceededException();
+        }
+
+        return dto;
+    }
+
+
 }
