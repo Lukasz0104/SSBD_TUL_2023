@@ -1,8 +1,8 @@
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -10,13 +10,18 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
@@ -24,7 +29,13 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MowITests extends TestContainersSetup {
 
@@ -265,6 +276,249 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
+    class MOW13 {
+        private static final String createRateUrl = "/rates";
+        private static final String ratesFromCategoryUrl = "/categories/%d/rates";
+        private static RequestSpecification testSpec;
+        private static Long ratesNumber;
+        private static String testDto;
+
+        static Long getRatesNumber() {
+            return given().spec(testSpec).when().get(ratesFromCategoryUrl.formatted(1)).getBody().as(Page.class)
+                .getTotalSize();
+        }
+
+        static void checkRatesNumber(Long expected) {
+            Long ratesNumberAfter = getRatesNumber();
+            assertEquals(expected, ratesNumberAfter);
+            ratesNumber = ratesNumberAfter;
+        }
+
+        static String convertDtoToString(CreateRateDto createRateDto) {
+            JSONObject dto = new JSONObject();
+            dto.put("accountingRule", createRateDto.getAccountingRule());
+            dto.put("effectiveDate", createRateDto.getEffectiveDate().toString());
+            dto.put("value", createRateDto.getValue().toString());
+            dto.put("categoryId", createRateDto.getCategoryId());
+            return dto.toString();
+        }
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("kgraczyk", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            ratesNumber = getRatesNumber();
+
+            testDto = convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+                BigDecimal.valueOf(123.51), 1L));
+        }
+
+        @Test
+        void shouldPassCreatingNewRate() {
+            given().spec(testSpec)
+                .contentType(ContentType.JSON)
+                .body(testDto)
+                .when()
+                .post(createRateUrl)
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            checkRatesNumber(ratesNumber + 1);
+        }
+
+        @Test
+        void shouldReturnSC400WhenCreatingRateWithCategoryIdThatDoesNotExist() {
+            String localTestDto =
+                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+                    BigDecimal.valueOf(123.51), -1L));
+            given().spec(testSpec)
+                .contentType(ContentType.JSON)
+                .body(localTestDto)
+                .when()
+                .post(createRateUrl)
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            checkRatesNumber(ratesNumber);
+        }
+
+        @Nested
+        class AuthTest {
+            @Test
+            void shouldReturnSC403WhenCreatingNewRateAsAdmin() {
+                given().spec(adminSpec).body(testDto).when().post(createRateUrl).then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingNewRateAsOwner() {
+                given().spec(ownerSpec).body(testDto).when().post(createRateUrl).then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingNewRateAsGuest() {
+                given().body(testDto).when().post(createRateUrl).then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+        }
+
+        @Test
+        void shouldCreateOnlyOneRateWhenConcurrent() throws BrokenBarrierException, InterruptedException {
+            String localTestDto =
+                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusYears(3),
+                    BigDecimal.valueOf(123.51), 1L));
+
+            int threadNumber = 50;
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+            List<Thread> threads = new ArrayList<>(threadNumber);
+            AtomicInteger numberFinished = new AtomicInteger();
+            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+            for (int i = 0; i < threadNumber; i++) {
+                threads.add(new Thread(() -> {
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    int statusCode = given().spec(testSpec)
+                        .contentType(ContentType.JSON)
+                        .body(localTestDto)
+                        .when()
+                        .post(createRateUrl)
+                        .getStatusCode();
+
+                    if (statusCode == Response.Status.NO_CONTENT.getStatusCode()) {
+                        numberOfSuccessfulAttempts.getAndIncrement();
+                    }
+                    numberFinished.getAndIncrement();
+                }));
+            }
+            threads.forEach(Thread::start);
+            cyclicBarrier.await();
+            while (numberFinished.get() != threadNumber) {
+            }
+
+            assertEquals(1, numberOfSuccessfulAttempts.get());
+
+            checkRatesNumber(ratesNumber + 1);
+        }
+
+        @Nested
+        class Constraints {
+            @Test
+            void shouldReturnSC409WhenCreatingNotUniqueNewRate() {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusYears(1),
+                        BigDecimal.valueOf(123.51), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+                checkRatesNumber(ratesNumber + 1);
+
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {
+                "1999-09-01"
+            })
+            void shouldReturnSC400WhenCreatingRateWithInvalidEffectiveDate(String date) {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.parse(date),
+                        BigDecimal.valueOf(123.51), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @ValueSource(doubles = {
+                -1.0
+            })
+            void shouldReturnSC400WhenCreatingRateWithInvalidValue(Double value) {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+                        BigDecimal.valueOf(value), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @NullAndEmptySource
+            @ValueSource(strings = {
+                "INVALID"
+            })
+            void shouldReturnSC400WhenCreatingRateWithInvalidAccountingRule(String accountingRule) {
+                String localTestDto = convertDtoToString(new CreateRateDto(accountingRule, LocalDate.now().plusDays(1),
+                    BigDecimal.valueOf(123.51), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @NullSource
+            void shouldReturnSC400WhenCreatingRateWithInvalidCategoryId(Long categoryId) {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+                        BigDecimal.valueOf(123.51), categoryId));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+        }
+
+
+    }
+
+    @Nested
     class MOW25 {
 
         @Test
@@ -448,7 +702,8 @@ public class MowITests extends TestContainersSetup {
 
             @Test
             void shouldPassManagerGettingOwnPlaces() {
-                io.restassured.response.Response response = given().spec(managerOwnerSpec).when().get("/places/me/" + 5);
+                io.restassured.response.Response response =
+                    given().spec(managerOwnerSpec).when().get("/places/me/" + 5);
                 PlaceDTO place = response.getBody().as(PlaceDTO.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
                 Assertions.assertNotNull(place);

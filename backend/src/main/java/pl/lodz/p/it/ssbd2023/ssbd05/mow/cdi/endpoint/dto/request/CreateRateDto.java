@@ -34,6 +34,10 @@ public class CreateRateDto {
 
     @AssertTrue
     public boolean isValid() {
+        if (this.accountingRule == null) {
+            return false;
+        }
+
         try {
             AccountingRule ar = AccountingRule.valueOf(this.getAccountingRule());
         } catch (IllegalArgumentException e) {
