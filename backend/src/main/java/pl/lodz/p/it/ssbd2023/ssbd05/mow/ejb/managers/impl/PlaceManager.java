@@ -20,11 +20,13 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
 import java.util.List;
+import java.util.Set;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -38,9 +40,12 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Inject
     private PlaceFacade placeFacade;
 
+    @Inject
+    private MeterFacade meterFacade;
+
     @Override
     @RolesAllowed(MANAGER)
-    public  List<Place> getAllPlaces() throws AppBaseException {
+    public List<Place> getAllPlaces() throws AppBaseException {
         return placeFacade.findAll();
     }
 
@@ -59,7 +64,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Override
     @RolesAllowed({MANAGER})
     public Place getPlaceDetailsAsManager(Long id) throws AppBaseException {
-        return placeFacade.findById(id).orElseThrow(PlaceNotFoundException::new);
+        return placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
     }
 
     @Override
@@ -75,9 +80,17 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     }
 
     @Override
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Meter> getPlaceMeters(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed({MANAGER})
+    public Set<Meter> getPlaceMetersAsManager(Long id) throws AppBaseException {
+        Place place = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
+        return place.getMeters();
+    }
+
+    @Override
+    @RolesAllowed({OWNER})
+    public Set<Meter> getPlaceMetersAsOwner(Long id, String login) throws AppBaseException {
+        Place place = placeFacade.findByIdAndOwnerLogin(id, login).orElseThrow(PlaceNotFoundException::new);
+        return place.getMeters();
     }
 
     @Override

@@ -8,12 +8,15 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.util.List;
@@ -21,6 +24,10 @@ import java.util.List;
 @Stateless
 @DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class MeterFacade extends AbstractFacade<Meter> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -55,17 +62,6 @@ public class MeterFacade extends AbstractFacade<Meter> {
             return tq.getResultList();
         } catch (PersistenceException e) {
             throw new AppDatabaseException("Meter.findByCategoryName , Database Exception", e);
-        }
-    }
-
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Meter> findByPlaceId(Long placeId) throws AppDatabaseException {
-        try {
-            TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByPlaceId", Meter.class);
-            tq.setParameter("placeId", placeId);
-            return tq.getResultList();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Meter.findByPlaceId , Database Exception", e);
         }
     }
 
