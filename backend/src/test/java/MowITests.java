@@ -514,4 +514,93 @@ public class MowITests extends TestContainersSetup {
 
         }
     }
+
+    @Nested
+    class MOW9 {
+        private static final String ownerURL = "/places/me/";
+        private static final String managerURL = "/places/";
+
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("dchmielewski", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetPlaceMetersPositiveTest {
+            @Test
+            void shouldGetPlaceMetersAsOwnerWithStatusCode200Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(ownerURL + "3/meters")
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThanOrEqualTo(0)));
+            }
+
+            @Test
+            void shouldGetPlaceMetersAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(managerURL + "2/meters")
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThanOrEqualTo(0)));
+            }
+        }
+
+        @Nested
+        class GetPlaceMetersNegativeTest {
+            @Test
+            void shouldFailToGetPlaceMetersAsGuestWithStatusCode403Test() {
+                when()
+                    .get(ownerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+
+                when()
+                    .get(managerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceMetersAsOwnerWithStatusCode403Test() {
+                given().spec(ownerSpec).when()
+                    .get(managerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceMetersAsManagerWithStatusCode403Test() {
+                given().spec(onlyManagerSpec).when()
+                    .get(ownerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceMetersAsOwnerNotOwningPlaceWithStatusCode404Test() {
+                given().spec(ownerSpec).when()
+                    .get(ownerURL + "/7/meters")
+                    .then()
+                    .statusCode(404);
+            }
+        }
+    }
 }
