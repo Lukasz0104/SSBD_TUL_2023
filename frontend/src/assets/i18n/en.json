@@ -268,8 +268,8 @@
       "loading": "Loading buildings..."
     },
     "costs": {
-      "month":  "Month",
-      "realRate":  "Real rate ",
+      "month": "Month",
+      "realRate": "Real rate ",
       "totalConsumption": "Total consumption",
       "months": {
         "january": "January",
@@ -288,6 +288,11 @@
       "loading": "Choose year and category, to see the costs table",
       "chooseYear": "Choose year",
       "chooseCategory": "Choose category"
+    },
+    "meters": {
+      "add-reading": "Choose a meter to add reading",
+      "loading": "Loading meters..",
+      "no-meters": "There are no meters in this place"
     }
   },
   "modal": {

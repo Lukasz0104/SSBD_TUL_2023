@@ -23,6 +23,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.MeterDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
@@ -102,11 +103,27 @@ public class PlaceEndpoint {
     }
 
     @GET
+    @Path("/me/{id}/meters")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({OWNER})
+    public Response getPlaceMetersAsOwner(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> MeterDtoConverter.createMeterDtoListFromMeterList(
+                placeManager.getPlaceMetersAsOwner(id, securityContext.getUserPrincipal().getName())),
+            placeManager
+        ).build();
+    }
+
+    @GET
     @Path("/{id}/meters")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER, MANAGER})
-    public Response getPlaceMeters(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed({MANAGER})
+    public Response getPlaceMetersAsManager(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> MeterDtoConverter.createMeterDtoListFromMeterList(
+                placeManager.getPlaceMetersAsManager(id)),
+            placeManager
+        ).build();
     }
 
     @PUT

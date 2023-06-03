@@ -37,9 +37,6 @@ import java.util.Set;
         name = "Place.findAll",
         query = "SELECT p FROM Place p"),
     @NamedQuery(
-        name = "Place.findById",
-        query = "SELECT p FROM Place p WHERE p.id = :id"),
-    @NamedQuery(
         name = "Place.findByIdAndOwnerLogin",
         query = """
             SELECT p FROM Place AS p
