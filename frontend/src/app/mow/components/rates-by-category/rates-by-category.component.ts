@@ -1,11 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CategoriesService } from '../../services/categories.service';
-import { Observable, tap } from 'rxjs';
+import { EMPTY, Observable, tap } from 'rxjs';
 import { Category } from '../../../shared/model/category';
 import { RatePage } from '../../../shared/model/rate-page';
 import { AccountingRule } from '../../../shared/model/accounting-rule';
 import { Rate } from '../../../shared/model/rate';
 import { DatePipe } from '@angular/common';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AddRateComponent } from '../add-rate/add-rate.component';
 
 @Component({
     selector: 'app-rates-by-category',
@@ -21,7 +23,8 @@ export class RatesByCategoryComponent implements OnInit {
 
     constructor(
         private categoriesService: CategoriesService,
-        private datePipe: DatePipe
+        private datePipe: DatePipe,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit(): void {
@@ -82,6 +85,23 @@ export class RatesByCategoryComponent implements OnInit {
             rate.updatedTime.toLocaleString(),
             'dd/MM/yy HH:mm:ss'
         )}, ${rate.updatedBy}`;
+    }
+
+    addRate(rate: Rate): void {
+        const modalRef: NgbModalRef = this.modalService.open(AddRateComponent, {
+            centered: true,
+            scrollable: true
+        });
+        modalRef.componentInstance.categoryId = this.category?.id;
+        modalRef.componentInstance.accountingRule = rate.accountingRule;
+        modalRef.result
+            .then((): void => {
+                this.getRatesByCategory();
+            })
+            .catch(() => {
+                this.modalService.dismissAll();
+                return EMPTY;
+            });
     }
 
     protected readonly AccountingRule = AccountingRule;

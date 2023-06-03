@@ -13,3 +13,10 @@ export interface PublicRate {
     accountingRule: AccountingRule;
     value: number;
 }
+
+export interface AddRate {
+    accountingRule: string;
+    effectiveDate: string;
+    value: number;
+    categoryId: number;
+}

@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -120,7 +120,7 @@ public class Rate extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Positive
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
     @Column(name = "value", nullable = false, scale = 3, precision = 38)
