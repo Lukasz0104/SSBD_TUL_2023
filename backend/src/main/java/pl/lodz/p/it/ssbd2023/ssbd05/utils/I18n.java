@@ -136,7 +136,7 @@ public class I18n {
 
     // MOW
     public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
-
+    public static final String METER_NOT_FOUND = "response.message.meter_not_found";
 
 
     public static String getMessage(String key, String language) {

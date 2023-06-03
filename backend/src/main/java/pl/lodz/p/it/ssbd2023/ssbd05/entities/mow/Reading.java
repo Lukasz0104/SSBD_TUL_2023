@@ -55,7 +55,15 @@ import java.time.LocalDateTime;
         name = "Reading.findByMeterId",
         query = """
             SELECT r FROM Reading r
-            WHERE r.meter.id = :meterId"""),
+            WHERE r.meter.id = :meterId
+            ORDER BY r.date DESC
+            """),
+    @NamedQuery(
+        name = "Reading.countByMeterId",
+        query = """
+            SELECT count(r) FROM Reading r
+            WHERE r.meter.id = :meterId
+            """),
     @NamedQuery(
         name = "Reading.findByMeterIdAndDate",
         query = """
