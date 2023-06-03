@@ -7,4 +7,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 @Local
 public interface ForecastManagerLocal extends CommonManagerInterface {
     void createOverdueForecast() throws AppBaseException;
+
+
 }

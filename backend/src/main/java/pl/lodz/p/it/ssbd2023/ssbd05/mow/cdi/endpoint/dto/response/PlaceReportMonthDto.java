@@ -1,0 +1,19 @@
+package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.Month;
+import java.util.List;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class PlaceReportMonthDto {
+    private Integer year;
+    private Month month;
+    private BigDecimal totalValue;
+    private List<PlaceCategoryReportMonthDto> placeCategoryReportMonthDtoList;
+}

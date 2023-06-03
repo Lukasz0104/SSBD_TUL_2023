@@ -168,5 +168,4 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.setParameter("rate", rateId);
         return tq.getResultList();
     }
-
 }

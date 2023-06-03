@@ -141,7 +141,11 @@ import java.time.Year;
             WHERE r.place.placeNumber = :placeNumber
                   AND r.place.building.id = :buildingId
                   AND r.category.name = :categoryName
-                  AND r.year = :year""")
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findReportYearsByPlaceId",
+        query = "SELECT DISTINCT r.year FROM Report r WHERE r.place.id = :id"
+    )
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Report extends AbstractEntity implements Serializable {

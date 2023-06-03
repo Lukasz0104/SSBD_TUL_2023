@@ -13,6 +13,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
@@ -281,6 +282,18 @@ public class ReportFacade extends AbstractFacade<Report> {
         } catch (PersistenceException e) {
             throw new AppDatabaseException(
                 "Report.findByPlaceNumberAndBuildingIdAndCategoryNameAndYear, Database Exception", e);
+        }
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Year> findReportYearsByPlaceId(Long id) throws AppBaseException {
+        try {
+            TypedQuery<Year> tq = em.createNamedQuery("Report.findReportYearsByPlaceId", Year.class);
+            tq.setParameter("id", id);
+            return tq.getResultList();
+        } catch (PersistenceException e) {
+            throw new AppDatabaseException(
+                "Report.findReportYearsByPlaceId, Database Exception", e);
         }
     }
 }
