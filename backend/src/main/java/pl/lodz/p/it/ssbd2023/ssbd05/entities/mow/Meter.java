@@ -29,8 +29,11 @@ import java.util.Set;
         name = "Meter.findAll",
         query = "SELECT m FROM Meter m"),
     @NamedQuery(
-        name = "Meter.findById",
-        query = "SELECT m FROM Meter m WHERE m.id = :id"),
+        name = "Meter.findByIdAndOwnerLogin",
+        query = """
+            SELECT m FROM Meter m WHERE m.id = :id
+            AND :login IN (SELECT o.account.login FROM m.place.owners o)
+            """),
     @NamedQuery(
         name = "Meter.findByCategoryId",
         query = "SELECT m FROM Meter m WHERE m.category.id = :categoryId"),
@@ -71,7 +74,7 @@ import java.util.Set;
             SELECT m FROM Meter m
             WHERE m.category.name = :categoryName
                   AND m.place.placeNumber = :placeNumber
-                  AND m.place.building.id = :buildingId""")
+                  AND m.place.building.id = :buildingId"""),
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})

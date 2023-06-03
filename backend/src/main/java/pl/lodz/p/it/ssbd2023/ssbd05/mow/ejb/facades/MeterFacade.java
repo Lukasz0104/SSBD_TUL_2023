@@ -10,6 +10,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
@@ -20,6 +21,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @DenyAll
@@ -40,6 +42,31 @@ public class MeterFacade extends AbstractFacade<Meter> {
 
     public MeterFacade() {
         super(Meter.class);
+    }
+
+    @RolesAllowed({MANAGER})
+    public Optional<Meter> find(Long id) {
+        return super.find(id);
+    }
+    
+
+    @RolesAllowed({OWNER})
+    public boolean existsByIdAndOwnerLogin(Long id, String login) {
+        TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByIdAndOwnerLogin", Meter.class);
+        tq.setParameter("id", id);
+        tq.setParameter("login", login);
+
+        try {
+            tq.getSingleResult();
+            return true;
+        } catch (NoResultException nre) {
+            return false;
+        }
+    }
+
+    @RolesAllowed({MANAGER})
+    public boolean existsById(Long id) {
+        return find(id).isPresent();
     }
 
 

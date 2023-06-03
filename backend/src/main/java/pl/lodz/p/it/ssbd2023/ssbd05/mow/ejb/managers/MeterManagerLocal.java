@@ -4,10 +4,11 @@ import jakarta.ejb.Local;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
-
-import java.util.List;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 @Local
 public interface MeterManagerLocal extends CommonManagerInterface {
-    List<Reading> getMeterReadings(Long id) throws AppBaseException;
+    Page<Reading> getMeterReadingsAsOwner(Long id, String login, int page, int pageSize) throws AppBaseException;
+
+    Page<Reading> getMeterReadingsAsManager(Long id, int page, int pageSize) throws AppBaseException;
 }

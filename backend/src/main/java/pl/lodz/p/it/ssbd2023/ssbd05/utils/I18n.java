@@ -136,6 +136,7 @@ public class I18n {
 
     // MOW
     public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
+    public static final String METER_NOT_FOUND = "response.message.meter_not_found";
     public static final String UNACCESSIBLE_REPORT = "response.message.unaccessible_report";
     public static final String UNACCESSIBLE_FORECAST = "response.message.unaccessible_forecast";
     public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
