@@ -4,6 +4,7 @@ import { AppConfigService } from '../../shared/services/app-config.service';
 import { map, Observable } from 'rxjs';
 import { Place } from '../model/place';
 import { PlaceCategory } from '../model/place-category';
+import { Meter } from '../model/meter';
 
 @Injectable({
     providedIn: 'root'
@@ -61,5 +62,13 @@ export class PlaceService {
         return this.http.get<PlaceCategory[]>(
             `${this.BASE_URL}/${id}/categories`
         );
+    }
+
+    getPlaceMetersAsOwner(id: number) {
+        return this.http.get<Meter[]>(`${this.BASE_URL}/me/${id}/meters`);
+    }
+
+    getPlaceMetersAsManager(id: number) {
+        return this.http.get<Meter[]>(`${this.BASE_URL}/${id}/meters`);
     }
 }

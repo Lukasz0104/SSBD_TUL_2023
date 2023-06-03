@@ -297,6 +297,11 @@
       "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
       "chooseYear": "Wybierz rok",
       "chooseCategory": "Wybierz kategorię"
+    },
+    "meters": {
+      "add-reading": "Wybierz licznik, aby dodać odczyt",
+      "loading": "Ładowanie liczników..",
+      "no-meters": "W tym lokalu nie ma żadnych liczników"
     }
   },
   "modal": {
