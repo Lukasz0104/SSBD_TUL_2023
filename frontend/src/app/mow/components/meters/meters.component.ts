@@ -6,8 +6,7 @@ import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
     selector: 'app-meters',
-    templateUrl: './meters.component.html',
-    styleUrls: ['./meters.component.css']
+    templateUrl: './meters.component.html'
 })
 export class MetersComponent implements OnInit {
     @Input() placeId: number | undefined;
