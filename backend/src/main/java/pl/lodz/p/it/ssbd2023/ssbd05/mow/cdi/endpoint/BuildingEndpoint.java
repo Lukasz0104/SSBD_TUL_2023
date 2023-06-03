@@ -9,22 +9,29 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +46,9 @@ public class BuildingEndpoint {
 
     @Inject
     private BuildingManagerLocal buildingManager;
+
+    @Inject
+    private ReportManagerLocal reportManager;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -68,14 +78,6 @@ public class BuildingEndpoint {
     }
 
     @GET
-    @Path("/{id}/reports")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({ADMIN, MANAGER, OWNER})
-    public Response getBuildingReports(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @GET
     @Path("/{id}/places")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
@@ -84,19 +86,31 @@ public class BuildingEndpoint {
     }
 
     @GET
+    @Path("/{id}/reports")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
+    public Response getBuildingReports(@PathParam("id") Long id) throws AppBaseException {
+        throw new UnsupportedOperationException();
+    }
+
+    @GET
     @Path("/{id}/reports/{year}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER, OWNER})
-    public Response getBuildingReportByYear(@PathParam("id") Long id, @PathParam("year") Long year)
-        throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response getBuildingReportByYear(
+        @PathParam("id") Long id,
+        @PathParam("year") Long yearNum,
+        @DefaultValue("all") @NotBlank @QueryParam("category") String category) throws AppBaseException {
+        Year year = Year.of(Math.toIntExact(yearNum));
+        Report report = reportManager.getBuildingReportByYear(id, year, category);
+
+        return Response.ok(report).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response createBuilding()
-        throws AppBaseException {
+    public Response createBuilding() throws AppBaseException {
         throw new UnsupportedOperationException();
     }
 }
