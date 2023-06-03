@@ -10,8 +10,12 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.Month;
@@ -35,7 +39,6 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
     }
 
     // Date
-
     @RolesAllowed({OWNER, MANAGER})
     public List<Forecast> findByYear(Year year) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByYear", Forecast.class);
@@ -167,6 +170,18 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.setParameter("year", year);
         tq.setParameter("rate", rateId);
         return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Forecast> findByBuildingIdAndYear(Long id, Year year) throws AppBaseException {
+        try {
+            TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYear", Forecast.class);
+            tq.setParameter("buildingId", id);
+            tq.setParameter("year", year);
+            return tq.getResultList();
+        } catch (PersistenceException e) {
+            throw new AppDatabaseException("Forecast.findByBuildingIdAndYear, Database Exception", e);
+        }
     }
 
 }

@@ -78,6 +78,7 @@ public class BuildingEndpoint {
         @PathParam("id") Long id,
         @PathParam("year") Long yearNum,
         @DefaultValue("all") @NotBlank @QueryParam("category") String category) throws AppBaseException {
+
         Year year = Year.of(Math.toIntExact(yearNum));
         Report report = reportManager.getBuildingReportByYear(id, year, category);
 

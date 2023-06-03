@@ -12,12 +12,14 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -39,6 +41,9 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Inject
     private CategoryFacade categoryFacade;
+
+    @Inject
+    private ForecastFacade forecastFacade;
 
     @Override
     @RolesAllowed({MANAGER, OWNER})
@@ -69,6 +74,8 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     public Report getBuildingReportByYear(Long id, Year year, String chosenCategory) throws AppBaseException {
         if (chosenCategory.equals("all")) {
             List<Report> reports = reportFacade.findByBuildingIdAndYear(id, year);
+            List<Forecast> forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
+
         } else {
             Category category = categoryFacade.findByName(chosenCategory);
         }
