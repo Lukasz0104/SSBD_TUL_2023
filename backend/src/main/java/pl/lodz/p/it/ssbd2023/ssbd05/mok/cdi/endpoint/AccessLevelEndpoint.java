@@ -22,14 +22,11 @@ import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddManagerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.AddOwnerAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
 @Path("/accounts/{id}/access-levels")
@@ -40,38 +37,21 @@ public class AccessLevelEndpoint {
     @Inject
     private AccountManagerLocal accountManager;
 
-    @Inject
-    private AppProperties appProperties;
-
     @Context
     private SecurityContext securityContext;
+
+    @Inject
+    private RollbackUtils rollbackUtils;
 
     @PUT
     @RolesAllowed({ADMIN})
     @Path("/administrator")
     public Response grantAdminAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
-
-        do {
-            try {
-                accountManager.grantAccessLevel(id, new AdminData(), securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollbackTx = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTx = true;
-            }
-        } while (rollbackTx && --txLimit > 0);
-
-        if (rollbackTx && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.grantAccessLevel(id, new AdminData(), login),
+            accountManager
+        ).build();
     }
 
     @PUT
@@ -80,134 +60,56 @@ public class AccessLevelEndpoint {
     public Response grantManagerAccessLevel(@NotNull @PathParam("id") Long id,
                                             @NotNull @Valid AddManagerAccessLevelDto dto)
         throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
-
-        do {
-            try {
-                accountManager.grantAccessLevel(
-                    id, createManagerAccessLevelFromDto(dto),
-                    securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTx = true;
-            }
-        } while (rollbackTx && --txLimit > 0);
-
-        if (rollbackTx && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> accountManager.grantAccessLevel(id, createManagerAccessLevelFromDto(dto), login),
+            accountManager
+        ).build();
     }
 
     @PUT
     @RolesAllowed({MANAGER})
     @Path("/owner")
-    public Response grantOwnerAccessLevel(@NotNull @PathParam("id") Long id, @NotNull @Valid AddOwnerAccessLevelDto dto)
+    public Response grantOwnerAccessLevel(@NotNull @PathParam("id") Long id,
+                                          @NotNull @Valid AddOwnerAccessLevelDto dto)
         throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
-
-        do {
-            try {
-                accountManager.grantAccessLevel(
-                    id, createOwnerAccessLevelFromDto(dto),
-                    securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTx = true;
-            }
-        } while (rollbackTx && --txLimit > 0);
-
-        if (rollbackTx && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> accountManager.grantAccessLevel(id, createOwnerAccessLevelFromDto(dto), login),
+            accountManager
+        ).build();
     }
 
     @DELETE
     @RolesAllowed({ADMIN})
     @Path("/administrator")
     public Response revokeAdminAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
-
-        do {
-            try {
-                accountManager.revokeAccessLevel(id, AccessType.ADMIN, securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException e) {
-                rollbackTx = true;
-                if (txLimit < 2) {
-                    throw e;
-                }
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTx = true;
-            }
-        } while (rollbackTx && txLimit-- > 0);
-
-        if (rollbackTx && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.revokeAccessLevel(id, AccessType.ADMIN, login),
+            accountManager
+        ).build();
     }
 
     @DELETE
     @RolesAllowed({ADMIN})
     @Path("/manager")
     public Response revokeManagerAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
-
-        do {
-            try {
-                accountManager.revokeAccessLevel(id, AccessType.MANAGER, securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException e) {
-                rollbackTx = true;
-                if (txLimit < 2) {
-                    throw e;
-                }
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTx = true;
-            }
-        } while (rollbackTx && txLimit-- > 0);
-
-        if (rollbackTx && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.revokeAccessLevel(id, AccessType.MANAGER, login),
+            accountManager
+        ).build();
     }
 
     @DELETE
     @RolesAllowed({MANAGER})
     @Path("/owner")
     public Response revokeOwnerAccessLevel(@NotNull @PathParam("id") Long id) throws AppBaseException {
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTx = false;
-
-        do {
-            try {
-                accountManager.revokeAccessLevel(id, AccessType.OWNER, securityContext.getUserPrincipal().getName());
-                rollbackTx = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException e) {
-                rollbackTx = true;
-                if (txLimit < 2) {
-                    throw e;
-                }
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTx = true;
-            }
-        } while (rollbackTx && txLimit-- > 0);
-
-        if (rollbackTx && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.revokeAccessLevel(id, AccessType.OWNER, login),
+            accountManager
+        ).build();
     }
 }

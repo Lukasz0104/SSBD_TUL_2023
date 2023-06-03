@@ -43,6 +43,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AuthManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.IpUtils;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 import java.time.Instant;
 import java.util.logging.Level;
@@ -72,6 +73,9 @@ public class AuthEndpoint {
 
     @Inject
     private AppProperties appProperties;
+
+    @Inject
+    private RollbackUtils rollbackUtils;
 
     @POST
     @Path("login")
@@ -128,27 +132,8 @@ public class AuthEndpoint {
     @PermitAll
     public Response refreshJwt(@NotNull @Valid RefreshJwtDto dto) throws AppBaseException {
         String ip = IpUtils.getIpAddress(httpServletRequest);
-
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-        JwtRefreshTokenDto jwtRefreshTokenDto = null;
-        do {
-            try {
-                jwtRefreshTokenDto = authManager.refreshJwt(dto.getRefreshToken(), dto.getLogin());
-                rollbackTX = authManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
-            }
-        } while (rollbackTX && --txLimit > 0);
-
-        if (rollbackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
+        JwtRefreshTokenDto jwtRefreshTokenDto = rollbackUtils.rollBackTXWithOptimisticLockReturnTypeT(
+            () -> authManager.refreshJwt(dto.getRefreshToken(), dto.getLogin()), authManager);
         LOGGER.log(Level.INFO, "User={0} has renewed his session at {1} from address {2}.",
             new Object[] {dto.getLogin(), Instant.now(), ip});
         return Response.ok(jwtRefreshTokenDto).build();
@@ -163,29 +148,14 @@ public class AuthEndpoint {
         String ip = IpUtils.getIpAddress(httpServletRequest);
         String login = securityContext.getUserPrincipal().getName();
 
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-        do {
-            try {
-                authManager.logout(token, login);
-                rollbackTX = authManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
-            }
-        } while (rollbackTX && --txLimit > 0);
-
-        if (rollbackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
+        Response.ResponseBuilder responseBuilder = rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> authManager.logout(token, login),
+            authManager
+        );
 
         LOGGER.log(Level.INFO, "User={0} has ended his session at {1} from address {2}.",
             new Object[] {login, Instant.now(), ip});
-        return Response.noContent().build();
+        return responseBuilder.build();
     }
 
     @POST
@@ -198,27 +168,12 @@ public class AuthEndpoint {
             authManager.registerUnsuccessfulLogin(dto.getLogin(), IpUtils.getIpAddress(httpServletRequest));
             throw e;
         }
-        JwtRefreshTokenDto jwtRefreshTokenDto = null;
-        int txLimit = appProperties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-        do {
-            try {
-                String ip = IpUtils.getIpAddress(httpServletRequest);
-                jwtRefreshTokenDto = authManager.registerSuccessfulLogin(dto.getLogin(), ip, true);
-                rollbackTX = authManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            } catch (AppTransactionRolledBackException atrbe) {
-                rollbackTX = true;
-            }
-        } while (rollbackTX && --txLimit > 0);
 
-        if (rollbackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
+        String ip = IpUtils.getIpAddress(httpServletRequest);
+        JwtRefreshTokenDto jwtRefreshTokenDto = rollbackUtils.rollBackTXWithOptimisticLockReturnTypeT(
+            () -> authManager.registerSuccessfulLogin(dto.getLogin(), ip, true),
+            authManager
+        );
         return Response.ok(jwtRefreshTokenDto).build();
     }
 }
