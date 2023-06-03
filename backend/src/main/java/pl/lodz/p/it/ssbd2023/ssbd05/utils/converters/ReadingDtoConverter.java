@@ -13,7 +13,7 @@ public class ReadingDtoConverter {
             (reading.getCreatedBy() != null) ? reading.getCreatedBy().getLogin() : "anonymous",
             reading.getUpdatedTime(),
             (reading.getUpdatedBy() != null) ? reading.getUpdatedBy().getLogin() : "anonymous", reading.getId(),
-            reading.getDate(), reading.getValue());
+            reading.getDate(), reading.getValue(), reading.isReliable());
     }
 
     public static Page<ReadingDto> createReadingDtoPage(Page<Reading> readings) {

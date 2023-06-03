@@ -25,11 +25,15 @@ public class ReadingDto extends ControlledEntityDTO {
     @NotNull
     private BigDecimal value;
 
+    @NotNull
+    private boolean reliable;
+
     public ReadingDto(LocalDateTime createdTime, String createdBy, LocalDateTime updatedTime, String updatedBy, Long id,
-                      LocalDateTime date, BigDecimal value) {
+                      LocalDateTime date, BigDecimal value, boolean reliable) {
         super(createdTime, createdBy, updatedTime, updatedBy);
         this.id = id;
         this.date = date;
         this.value = value;
+        this.reliable = reliable;
     }
 }

@@ -13,6 +13,7 @@ import { CostsComponent } from './components/costs/costs.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { PlaceComponent } from './components/place/place.component';
+import { MeterComponent } from './components/meter/meter.component';
 
 @NgModule({
     declarations: [
@@ -24,7 +25,8 @@ import { PlaceComponent } from './components/place/place.component';
         MetersComponent,
         PlaceComponent,
         BuildingsComponent,
-        CostsComponent
+        CostsComponent,
+        MeterComponent
     ],
     imports: [
         CommonModule,

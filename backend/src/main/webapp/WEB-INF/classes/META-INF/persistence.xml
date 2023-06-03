@@ -68,6 +68,7 @@
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.canonicalmodel.prefix" value="mow"/>
+            <property name="eclipselink.cache.shared.default" value="false"/>
         </properties>
     </persistence-unit>
 </persistence>

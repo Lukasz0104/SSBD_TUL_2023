@@ -292,7 +292,18 @@
     "meters": {
       "add-reading": "Wybierz licznik, aby dodać odczyt",
       "loading": "Ładowanie liczników..",
-      "no-meters": "W tym lokalu nie ma żadnych liczników"
+      "no-meters": "W tym lokalu nie ma żadnych liczników.",
+      "reading-needed": "Nie wprowadzono żadnych odczytów tego licznika w ciągu ostatnich 30 dni. Dodaj odczyt, by zwiększyć dokładność prognoz."
+    },
+    "meter": {
+      "loading": "Ładowanie odczytów..",
+      "no-readings": "Nie ma żadnych odczytów tego licznika. Dodaj pierwszy odczyt.",
+      "date": "Data odczytu",
+      "value": "Wartość",
+      "created": "Utworzony",
+      "modified": "Zmodyfikowany",
+      "readings": "Odczyty licznika: ",
+      "add-reading": "Dodaj odczyt"
     }
   },
   "modal": {

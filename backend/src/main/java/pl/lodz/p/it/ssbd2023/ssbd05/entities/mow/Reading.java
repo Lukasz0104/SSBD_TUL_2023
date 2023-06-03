@@ -159,6 +159,13 @@ public class Reading extends AbstractEntity implements Serializable {
     @Setter
     private Meter meter;
 
+    @NotNull
+    @Basic(optional = false)
+    @Column(name = "reliable", nullable = false)
+    @Getter
+    @Setter
+    private boolean reliable = true;
+
     public Reading(LocalDateTime date, BigDecimal value, Meter meter) {
         this.date = date;
         this.value = value;
