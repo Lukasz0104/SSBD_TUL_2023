@@ -292,6 +292,18 @@
     "meters": {
       "add-reading": "Choose a meter to add reading",
       "loading": "Loading meters..",
+      "no-meters": "There are no meters in this place.",
+      "reading-needed": "There was no reading in the last 30 days. Add reading to improve forecasts accuracy."
+    },
+    "meter": {
+      "loading": "Loading readings..",
+      "no-readings": "There are no readings. Add first reading.",
+      "date": "Date",
+      "value": "Value",
+      "created": "Created",
+      "modified": "Modified",
+      "readings": "Readings of: ",
+      "add-reading": "Add reading"
       "no-meters": "There are no meters in this place"
     },
     "report": {
