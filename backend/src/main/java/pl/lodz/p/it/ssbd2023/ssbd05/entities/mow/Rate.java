@@ -11,6 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
@@ -24,7 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "rate")
+@Table(name = "rate", uniqueConstraints = {@UniqueConstraint(columnNames = {"effective_date", "category_id"})})
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -135,6 +137,7 @@ public class Rate extends AbstractEntity implements Serializable {
     private AccountingRule accountingRule;
 
     @NotNull
+    @Future
     @Basic(optional = false)
     @Column(name = "effective_date", nullable = false)
     @Getter

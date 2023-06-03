@@ -11,7 +11,7 @@ import java.util.List;
 public interface RateManagerLocal extends CommonManagerInterface {
     List<Rate> getCurrentRates() throws AppBaseException;
 
-    void createRate() throws AppBaseException;
+    void createRate(Rate newRate, Long categoryId) throws AppBaseException;
 
     void removeFutureRate(Long id) throws AppBaseException;
 }
