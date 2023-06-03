@@ -1,7 +1,7 @@
 <ng-container *ngIf="rates$ | async as rates; else loadingRates">
     <h3 class="text-center">
         {{ 'component.ratesByCategory.ratesFor' | translate }}:
-        {{ category?.name }}
+        {{ category?.name ?? '' | translate }}
     </h3>
     <div
         class="d-flex flex-column justify-content-between table-responsive border rounded w-100"

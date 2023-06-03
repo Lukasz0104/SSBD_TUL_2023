@@ -316,16 +316,16 @@ insert into public.place_owner (place_id, owner_id) values (7, -60);
 
 --region categories
 -- Categories
-INSERT INTO public.category (name, version) VALUES ('Opłata eksploatacyjna', 1);
-INSERT INTO public.category (name, version) VALUES ('Opłata remontowa', 1);
-INSERT INTO public.category (name, version) VALUES ('Ogrzewanie', 1);
-INSERT INTO public.category (name, version) VALUES ('Woda ciepła', 1);
-INSERT INTO public.category (name, version) VALUES ('Woda zimna', 1);
-INSERT INTO public.category (name, version) VALUES ('Domofon', 1);
-INSERT INTO public.category (name, version) VALUES ('Śmieci', 1);
-INSERT INTO public.category (name, version) VALUES ('Winda', 1);
-INSERT INTO public.category (name, version) VALUES ('Telewizja satelitarna', 1);
-INSERT INTO public.category (name, version) VALUES ('Parking', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.maintenance', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.repair', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.heating', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.hot_water', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.cold_water', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.intercom', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.garbage', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.elevator', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.satellite_tv', 1);
+INSERT INTO public.category (name, version) VALUES ('categories.parking', 1);
 --endregion
 
 --region rates

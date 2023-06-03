@@ -45,16 +45,16 @@ export class PlaceService {
     }
 
     public pictureMap = new Map<string, string>([
-        ['Winda', 'bi-chevron-bar-expand'],
-        ['Telewizja satelitarna', 'bi-tv-fill'],
-        ['Śmieci', 'bi-trash3-fill text-secondary'],
-        ['Opłata eksploatacyjna', 'bi-cash-stack text-success'],
-        ['Ogrzewanie', 'bi-thermometer-sun text-danger'],
-        ['Opłata remontowa', 'bi-tools text-secondary'],
-        ['Woda ciepła', 'bi-droplet text-danger'],
-        ['Woda zimna', 'bi-droplet text-primary'],
-        ['Parking', 'bi-car-front-fill text-warning'],
-        ['Domofon', 'bi-telephone']
+        ['categories.elevator', 'bi-chevron-bar-expand'],
+        ['categories.satellite_tv', 'bi-tv-fill'],
+        ['categories.garbage', 'bi-trash3-fill text-secondary'],
+        ['categories.maintenance', 'bi-cash-stack text-success'],
+        ['categories.heating', 'bi-thermometer-sun text-danger'],
+        ['categories.repair', 'bi-tools text-secondary'],
+        ['categories.hot_water', 'bi-droplet text-danger'],
+        ['categories.cold_water', 'bi-droplet text-primary'],
+        ['categories.parking', 'bi-car-front-fill text-warning'],
+        ['categories.intercom', 'bi-telephone']
     ]);
 
     getPlaceCategories(id: number) {

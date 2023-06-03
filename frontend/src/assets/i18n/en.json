@@ -268,8 +268,8 @@
       "loading": "Loading buildings..."
     },
     "costs": {
-      "month":  "Month",
-      "realRate":  "Real rate ",
+      "month": "Month",
+      "realRate": "Real rate ",
       "totalConsumption": "Total consumption",
       "months": {
         "january": "January",
@@ -542,5 +542,17 @@
         "invalid_token_type": "Invalid token"
       }
     }
+  },
+  "categories": {
+    "maintenance": "Maintenance fee",
+    "repair": "Repair fee",
+    "heating": "Heating fee",
+    "hot_water": "Hot water fee",
+    "cold_water": "Cold water fee",
+    "intercom": "Intercom fee",
+    "garbage": "Garbage fee",
+    "elevator": "Elevator fee",
+    "satellite_tv": "Satellite TV fee",
+    "parking": "Parking fee"
   }
 }

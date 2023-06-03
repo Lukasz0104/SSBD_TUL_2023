@@ -542,5 +542,17 @@
         "invalid_token_type": "Podano błędny kod"
       }
     }
+  },
+  "categories": {
+    "maintenance": "Opłata eksploatacyjna",
+    "repair": "Opłata remontowa",
+    "heating": "Ogrzewanie",
+    "hot_water": "Woda ciepła",
+    "cold_water": "Woda zimna",
+    "intercom": "Domofon",
+    "garbage": "Śmieci",
+    "elevator": "Winda",
+    "satellite_tv": "Telewizja satelitarna",
+    "parking": "Parking"
   }
 }
