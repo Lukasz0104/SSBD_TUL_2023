@@ -256,7 +256,8 @@
       "effectiveDate": "Obowiązuje od",
       "created": "Utworzona",
       "modified": "Zmodyfikowana",
-      "loading": "Wczytywanie stawek"
+      "loading": "Wczytywanie stawek",
+      "remove": "Usuń"
     },
     "welcome": {
       "welcome": "Witaj",
@@ -322,7 +323,9 @@
       "edit-account": "Czy na pewno chcesz edytować konto",
       "edit-account-danger": "Tej akcji nie można cofnąć!",
       "change-password": "Czy na pewno chcesz zmienić swoje hasło?",
-      "verify-negative": "Potwierdź negatywną weryfikację."
+      "verify-negative": "Potwierdź negatywną weryfikację.",
+      "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
+      "remove-rate-danger": "Tej akcji nie można cofnąć!"
     }
   },
   "access-levels": {
@@ -391,6 +394,14 @@
     },
     "place": {
       "not-found": "Nie znaleziono lokalu"
+    },
+    "rate": {
+      "remove-success": "Pomyślnie usunięto stawkę",
+      "response": {
+        "message": {
+          "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!"
+        }
+      }
     }
   },
   "password-change": {

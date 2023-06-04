@@ -32,6 +32,11 @@
                         scope="col">
                         {{ 'component.ratesByCategory.modified' | translate }}
                     </th>
+                    <th
+                        class="text-nowrap text-center"
+                        scope="col">
+                        {{ 'component.ratesByCategory.remove' | translate }}
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -80,6 +85,14 @@
                     <td>{{ rate.effectiveDate }}</td>
                     <td>{{ getCreated(rate) }}</td>
                     <td>{{ getUpdated(rate) }}</td>
+                    <td>
+                        <button
+                            *ngIf="isFuture(rate.effectiveDate)"
+                            class="btn btn-danger"
+                            (click)="confirmRemoveRate(rate.id)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>

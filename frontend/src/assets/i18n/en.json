@@ -256,7 +256,8 @@
       "effectiveDate": "Effective from",
       "created": "Created",
       "modified": "Modified",
-      "loading": "Loading rates"
+      "loading": "Loading rates",
+      "remove": "Remove"
     },
     "welcome": {
       "welcome": "Welcome",
@@ -322,7 +323,9 @@
       "edit-account": "Are you sure, you want to edit account",
       "edit-account-danger": "This action cannot be undone!",
       "change-password": "Are you sure, you want to change your password?",
-      "verify-negative": "Confirm negative verification."
+      "verify-negative": "Confirm negative verification.",
+      "remove-rate": "Are you sure you want to remove this rate?",
+      "remove-rate-danger": "This action cannot be undone!"
     }
   },
   "access-levels": {
@@ -391,6 +394,14 @@
     },
     "place": {
       "not-found": "Place not found"
+    },
+    "rate": {
+      "remove-success": "Successfully removed the rate",
+      "response": {
+        "message": {
+          "rate_already-effective": "Can't remove this rate, because it's already effective!"
+        }
+      }
     }
   },
   "password-change": {
