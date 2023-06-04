@@ -18,10 +18,10 @@ public class ReportYearEntry {
     private String categoryName;
 
     public ReportYearEntry(AccountingRule accountingRule, String categoryName) {
-        predValue = new BigDecimal(0);
-        predAmount = new BigDecimal(0);
-        realValue = new BigDecimal(0);
-        realAmount = new BigDecimal(0);
+        predValue = BigDecimal.ZERO;
+        predAmount = BigDecimal.ZERO;
+        realValue = BigDecimal.ZERO;
+        realAmount = BigDecimal.ZERO;
         this.accountingRule = accountingRule;
         this.categoryName = categoryName;
     }

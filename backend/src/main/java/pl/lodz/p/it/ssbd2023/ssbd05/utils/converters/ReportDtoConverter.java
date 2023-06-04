@@ -11,8 +11,8 @@ import java.util.Map;
 public class ReportDtoConverter {
 
     public static BuildingReportYearlyDto mapToBuildingReportYearlyDto(Map<String, ReportYearEntry> categories) {
-        BigDecimal sumPredValue = new BigDecimal(0);
-        BigDecimal sumRealValue = new BigDecimal(0);
+        BigDecimal sumPredValue = BigDecimal.ZERO;
+        BigDecimal sumRealValue = BigDecimal.ZERO;
         for (Map.Entry<String,ReportYearEntry> entry: categories.entrySet()) {
             sumPredValue = sumRealValue.add(entry.getValue().getPredValue());
             sumRealValue = sumRealValue.add(entry.getValue().getRealValue());

@@ -25,6 +25,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
+import java.math.BigDecimal;
 import java.time.Month;
 import java.time.Year;
 import java.util.HashMap;
@@ -124,9 +125,13 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
         for (Forecast forecast: forecasts) {
             String cat = forecast.getRate().getCategory().getName();
+            BigDecimal realValue = forecast.getRealValue();
+            if (realValue == null) {
+                realValue = BigDecimal.ZERO;
+            }
             result.put(cat,
                 result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getAccountingRule(), cat))
-                    .addMonth(forecast.getValue(), forecast.getAmount(), forecast.getRealValue())
+                    .addMonth(forecast.getValue(), forecast.getAmount(), realValue)
             );
         }
 
