@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +16,7 @@ import java.util.Map;
 public class BuildingReportYearlyDto {
 
     @NotNull
-    private Map<String, ReportYearEntry> categories;
+    private List<ReportYearEntry> categories;
 
     @PositiveOrZero
     private BigDecimal sumPredValue;

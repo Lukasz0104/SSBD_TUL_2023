@@ -15,12 +15,15 @@ public class ReportYearEntry {
     private BigDecimal realAmount;
     private AccountingRule accountingRule;
 
-    public ReportYearEntry(AccountingRule accountingRule) {
+    private String categoryName;
+
+    public ReportYearEntry(AccountingRule accountingRule, String categoryName) {
         predValue = new BigDecimal(0);
         predAmount = new BigDecimal(0);
         realValue = new BigDecimal(0);
         realAmount = new BigDecimal(0);
         this.accountingRule = accountingRule;
+        this.categoryName = categoryName;
     }
 
     public ReportYearEntry addPred(BigDecimal predValue, BigDecimal predAmount) {
