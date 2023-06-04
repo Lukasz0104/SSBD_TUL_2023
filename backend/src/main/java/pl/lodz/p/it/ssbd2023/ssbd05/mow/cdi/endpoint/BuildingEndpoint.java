@@ -19,15 +19,16 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 import java.time.Year;
+import java.util.Map;
 
 @RequestScoped
 @Path("/buildings")
@@ -80,8 +81,7 @@ public class BuildingEndpoint {
         @DefaultValue("all") @NotBlank @QueryParam("category") String category) throws AppBaseException {
 
         Year year = Year.of(Math.toIntExact(yearNum));
-        Report report = reportManager.getBuildingReportByYear(id, year, category);
-
+        Map<String, ReportYearEntry> report = reportManager.getBuildingReportByYear(id, year, category);
         return Response.ok(report).build();
     }
 

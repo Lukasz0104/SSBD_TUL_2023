@@ -13,7 +13,6 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
@@ -178,6 +177,19 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
             TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYear", Forecast.class);
             tq.setParameter("buildingId", id);
             tq.setParameter("year", year);
+            return tq.getResultList();
+        } catch (PersistenceException e) {
+            throw new AppDatabaseException("Forecast.findByBuildingIdAndYear, Database Exception", e);
+        }
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Forecast> findByBuildingIdAndYearAndCategoryName(Long id, Year year, String cateogry) throws AppBaseException {
+        try {
+            TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYearAndCategoryName", Forecast.class);
+            tq.setParameter("buildingId", id);
+            tq.setParameter("year", year);
+            tq.setParameter("categoryName", cateogry);
             return tq.getResultList();
         } catch (PersistenceException e) {
             throw new AppDatabaseException("Forecast.findByBuildingIdAndYear, Database Exception", e);

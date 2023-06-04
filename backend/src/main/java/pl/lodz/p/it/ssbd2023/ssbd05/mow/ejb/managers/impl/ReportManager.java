@@ -11,21 +11,22 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
 import java.time.Year;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -71,14 +72,45 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed({MANAGER, OWNER})
-    public Report getBuildingReportByYear(Long id, Year year, String chosenCategory) throws AppBaseException {
-        if (chosenCategory.equals("all")) {
-            List<Report> reports = reportFacade.findByBuildingIdAndYear(id, year);
-            List<Forecast> forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
+    public Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year, String chosenCategory)
+        throws AppBaseException {
+        Map<String, ReportYearEntry> result = new HashMap<>();
+        List<Forecast> forecasts;
+        List<Report> reports;
 
+        if (chosenCategory.equals("all")) {
+            forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
+            reports = reportFacade.findByBuildingIdAndYear(id, year);
         } else {
-            Category category = categoryFacade.findByName(chosenCategory);
+            String categoryName = categoryFacade.findByName(chosenCategory).getName();
+            forecasts = forecastFacade.findByBuildingIdAndYearAndCategoryName(id, year, categoryName);
+            reports = reportFacade.findByBuildingIdAndYearAndCategoryName(id, year, categoryName);
         }
-        throw new UnsupportedOperationException();
+
+        for (Forecast forecast: forecasts) {
+            String cat = forecast.getRate().getCategory().getName();
+            result.put(cat,
+                result.getOrDefault(cat, new ReportYearEntry())
+                    .addPred(forecast.getValue(), forecast.getAmount())
+            );
+        }
+
+        for (Report report: reports) {
+            String cat = report.getCategory().getName();
+            result.put(cat,
+                result.getOrDefault(cat, new ReportYearEntry())
+                    .addReal(report.getTotalCost(), report.getTotalConsumption())
+            );
+        }
+        return result;
     }
+
+
+
+
 }
+
+
+
+
+

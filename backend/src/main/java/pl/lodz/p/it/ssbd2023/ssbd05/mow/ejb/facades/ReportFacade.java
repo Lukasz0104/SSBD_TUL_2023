@@ -208,6 +208,21 @@ public class ReportFacade extends AbstractFacade<Report> {
     }
 
     @RolesAllowed({OWNER, MANAGER})
+    public List<Report> findByBuildingIdAndYearAndCategoryName(Long buildingId, Year year, String categoryName) throws AppDatabaseException {
+        try {
+            TypedQuery<Report> tq = em.createNamedQuery("Report.findByBuildingIdAndYearAndCategoryName", Report.class);
+            tq.setParameter("buildingId", buildingId);
+            tq.setParameter("categoryName", categoryName);
+            tq.setParameter("year", year);
+            return tq.getResultList();
+        } catch (PersistenceException e) {
+            throw new AppDatabaseException("Report.findByBuildingIdAndYear, Database Exception", e);
+        }
+    }
+
+
+
+    @RolesAllowed({OWNER, MANAGER})
     public List<Report> findByCategoryIdAndYear(Long categoryId, Year year) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByCategoryIdAndYear", Report.class);

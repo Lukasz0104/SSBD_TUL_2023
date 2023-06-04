@@ -147,8 +147,15 @@ import java.time.Year;
         query = """
             SELECT r FROM Report r
             WHERE r.place.building.id = :buildingId
-                  AND r.category.name = :categoryName
                   AND r.year = :year
+            """),
+    @NamedQuery(
+        name = "Report.findByBuildingIdAndYearAndCategoryName",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.building.id = :buildingId
+                  AND r.year = :year
+                  AND r.category.name = :categoryName
             """)
 })
 @EntityListeners({EntityControlListenerMOW.class})
