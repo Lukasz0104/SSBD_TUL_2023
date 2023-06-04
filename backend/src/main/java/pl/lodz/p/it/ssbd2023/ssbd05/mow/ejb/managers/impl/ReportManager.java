@@ -25,10 +25,12 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
+import java.time.Month;
 import java.time.Year;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Stateful
@@ -70,14 +72,14 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
     public Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException {
-        Map<Integer, List<Integer>> result = new HashMap<>();
-        Map<Year, Integer> yearsMonths = forecastFacade.findYearsAndMonthsByBuildingId(id);
-        for (Map.Entry<Year, Integer> entry: yearsMonths.entrySet()) {
-            result.put(
-                entry.getKey().getValue(),
-                IntStream.rangeClosed(1, entry.getValue()).boxed().toList());
-        }
-        return result;
+        return forecastFacade
+            .findYearsAndMonthsByBuildingId(id)
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> IntStream.rangeClosed(1, e.getValue()).boxed().toList()
+            ));
     }
 
     @Override
@@ -112,7 +114,24 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         return result;
     }
 
+    @Override
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Map<String, ReportYearEntry> getBuildingReportByYearAndMonth(Long id, Year year, Month month)
+        throws AppBaseException {
 
+        Map<String, ReportYearEntry> result = new HashMap<>();
+        List<Forecast> forecasts = forecastFacade.findByBuildingIdAndYearAndMonth(id, year, month);
+
+        for (Forecast forecast: forecasts) {
+            String cat = forecast.getRate().getCategory().getName();
+            result.put(cat,
+                result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getAccountingRule()))
+                    .addMonth(forecast.getValue(), forecast.getAmount(), forecast.getRealValue())
+            );
+        }
+
+        return result;
+    }
 
 
 }

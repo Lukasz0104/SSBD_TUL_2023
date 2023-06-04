@@ -104,6 +104,13 @@ import java.time.Year;
                 GROUP BY f.year
                 ORDER BY f.year
             """),
+    @NamedQuery(
+        name = "Forecast.findByBuildingIdAndYearAndMonth",
+        query = """
+            SELECT f FROM Forecast f
+                WHERE f.month = :month AND f.year = :year
+                AND f.place.building.id = :id
+        """),
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {

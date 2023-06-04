@@ -6,6 +6,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.time.Month;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,9 @@ public interface ReportManagerLocal extends CommonManagerInterface {
     Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException;
 
     Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year)
+        throws AppBaseException;
+
+    Map<String, ReportYearEntry> getBuildingReportByYearAndMonth(Long id, Year year, Month month)
         throws AppBaseException;
 
     Report getCommunityReportByYear(Long year) throws AppBaseException;

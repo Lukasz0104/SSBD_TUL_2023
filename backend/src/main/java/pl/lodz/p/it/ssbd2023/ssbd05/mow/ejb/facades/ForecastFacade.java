@@ -188,14 +188,22 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
     }
 
     @RolesAllowed({OWNER, MANAGER, ADMIN})
-    public Map<Year, Integer> findYearsAndMonthsByBuildingId(Long id) {
+    public Map<Integer, Integer> findYearsAndMonthsByBuildingId(Long id) {
         TypedQuery<Object[]> tq = em.createNamedQuery("Forecast.findYearsAndMonthsByBuildingId", Object[].class);
         tq.setParameter("id", id);
-        List<Object[]> res = tq.getResultList();
-        return res.stream().collect(Collectors.toMap(
-            obj -> ((Year)obj[0]),
+        return tq.getResultStream().collect(Collectors.toMap(
+            obj -> ((Year)obj[0]).getValue(),
             obj -> ((Long)obj[1]).intValue()
         ));
+    }
+
+    @RolesAllowed({OWNER, MANAGER, ADMIN})
+    public List<Forecast> findByBuildingIdAndYearAndMonth(Long id, Year year, Month month) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYearAndMonth", Forecast.class);
+        tq.setParameter("id", id);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+        return tq.getResultList();
     }
 
 }

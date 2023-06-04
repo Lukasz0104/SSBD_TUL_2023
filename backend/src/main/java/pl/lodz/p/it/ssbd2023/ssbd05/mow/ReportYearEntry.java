@@ -35,4 +35,11 @@ public class ReportYearEntry {
         return this;
     }
 
+    public ReportYearEntry addMonth(BigDecimal predValue, BigDecimal predAmount, BigDecimal realValue) {
+        this.predValue = this.predValue.add(predValue);
+        this.predAmount = this.predAmount.add(predAmount);
+        this.realValue = this.realValue.add(realValue);
+        return this;
+    }
+
 }
