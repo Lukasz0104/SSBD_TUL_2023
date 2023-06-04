@@ -285,6 +285,8 @@ public class MowITests extends TestContainersSetup {
         private static Long ratesNumber;
         private static String testDto;
 
+        private static LocalDate testDate;
+
         static Long getRatesNumber() {
             return given().spec(testSpec).when().get(ratesFromCategoryUrl.formatted(1)).getBody().as(Page.class)
                 .getTotalSize();
@@ -322,7 +324,8 @@ public class MowITests extends TestContainersSetup {
 
             ratesNumber = getRatesNumber();
 
-            testDto = convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+            testDate = LocalDate.of(LocalDate.now().getYear() + 1, LocalDate.now().getMonth().getValue() + 1, 1);
+            testDto = convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
                 BigDecimal.valueOf(123.51), 1L));
         }
 
@@ -341,7 +344,7 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldReturnSC400WhenCreatingRateWithCategoryIdThatDoesNotExist() {
             String localTestDto =
-                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
                     BigDecimal.valueOf(123.51), -1L));
             given().spec(testSpec)
                 .contentType(ContentType.JSON)
@@ -380,7 +383,7 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldCreateOnlyOneRateWhenConcurrent() throws BrokenBarrierException, InterruptedException {
             String localTestDto =
-                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusYears(3),
+                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate.plusYears(3),
                     BigDecimal.valueOf(123.51), 1L));
 
             int threadNumber = 50;
@@ -425,7 +428,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC409WhenCreatingNotUniqueNewRate() {
                 String localTestDto =
-                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusYears(1),
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate.plusYears(1),
                         BigDecimal.valueOf(123.51), 1L));
                 given().spec(testSpec)
                     .contentType(ContentType.JSON)
@@ -448,7 +451,8 @@ public class MowITests extends TestContainersSetup {
 
             @ParameterizedTest
             @ValueSource(strings = {
-                "1999-09-01"
+                "1999-09-01",
+                "2200-09-02"
             })
             void shouldReturnSC400WhenCreatingRateWithInvalidEffectiveDate(String date) {
                 String localTestDto =
@@ -470,7 +474,7 @@ public class MowITests extends TestContainersSetup {
             })
             void shouldReturnSC400WhenCreatingRateWithInvalidValue(Double value) {
                 String localTestDto =
-                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
                         BigDecimal.valueOf(value), 1L));
                 given().spec(testSpec)
                     .contentType(ContentType.JSON)
@@ -488,7 +492,7 @@ public class MowITests extends TestContainersSetup {
                 "INVALID"
             })
             void shouldReturnSC400WhenCreatingRateWithInvalidAccountingRule(String accountingRule) {
-                String localTestDto = convertDtoToString(new CreateRateDto(accountingRule, LocalDate.now().plusDays(1),
+                String localTestDto = convertDtoToString(new CreateRateDto(accountingRule, testDate,
                     BigDecimal.valueOf(123.51), 1L));
                 given().spec(testSpec)
                     .contentType(ContentType.JSON)
@@ -504,7 +508,7 @@ public class MowITests extends TestContainersSetup {
             @NullSource
             void shouldReturnSC400WhenCreatingRateWithInvalidCategoryId(Long categoryId) {
                 String localTestDto =
-                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.now().plusDays(1),
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
                         BigDecimal.valueOf(123.51), categoryId));
                 given().spec(testSpec)
                     .contentType(ContentType.JSON)

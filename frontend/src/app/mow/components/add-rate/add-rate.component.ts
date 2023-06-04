@@ -6,6 +6,7 @@ import { ConfirmActionComponent } from '../../../shared/components/confirm-actio
 import { AccountingRule } from '../../../shared/model/accounting-rule';
 import { DatePipe } from '@angular/common';
 import { twoDecimalPlacesValidator } from '../../../shared/validators/two-decimal-places.validator';
+import { effectiveDateValidator } from '../../../shared/validators/effective-date.validator';
 
 @Component({
     selector: 'app-add-rate',
@@ -24,7 +25,9 @@ export class AddRateComponent {
                 twoDecimalPlacesValidator
             ]
         }),
-        effectiveDate: new FormControl(new Date(), [Validators.required])
+        effectiveDate: new FormControl(new Date(), {
+            validators: [Validators.required, effectiveDateValidator]
+        })
     });
 
     constructor(
@@ -36,13 +39,13 @@ export class AddRateComponent {
         const today = new Date();
         this.today = new NgbDate(
             today.getFullYear(),
-            today.getMonth() + 1,
-            today.getDate() + 1
+            ((today.getMonth() + 1) % 12) + 1,
+            1
         );
         this.initial = new NgbDate(
             today.getFullYear(),
-            today.getMonth() + 1,
-            today.getDate() + 1
+            ((today.getMonth() + 1) % 12) + 1,
+            1
         );
     }
 

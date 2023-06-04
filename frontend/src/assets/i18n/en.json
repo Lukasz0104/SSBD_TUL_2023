@@ -69,6 +69,10 @@
       "required": "Rate value is required.",
       "length": "Rate value must be greater or equal to 0.",
       "decimal-places": "Rate value can have only up to 2 decimal places"
+    },
+    "effective-date": {
+      "required": "Effective date is required.",
+      "invalid-date": "Effective date should be the first day of month"
     }
   },
   "form": {

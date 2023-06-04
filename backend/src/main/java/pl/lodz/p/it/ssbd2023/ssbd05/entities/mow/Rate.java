@@ -26,7 +26,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "rate", uniqueConstraints = {@UniqueConstraint(columnNames = {"effective_date", "category_id"})})
+@Table(name = "rate", uniqueConstraints = {
+    @UniqueConstraint(name = "unq_rate_0", columnNames = {"effective_date", "category_id"})})
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(

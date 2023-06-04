@@ -64,6 +64,26 @@
                                 [(ngModel)]="initial"
                                 [minDate]="today"></ngb-datepicker>
                         </div>
+                        <div
+                            *ngIf="effectiveDate.errors as dateErrors"
+                            class="date-validation-message">
+                            <p
+                                *ngIf="dateErrors['required']"
+                                class="mb-0">
+                                {{
+                                    'validation.effective-date.required'
+                                        | translate
+                                }}
+                            </p>
+                            <p
+                                *ngIf="dateErrors['invalidDate']"
+                                class="mb-0">
+                                {{
+                                    'validation.effective-date.invalid-date'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
                     </div>
                 </form>
             </div>

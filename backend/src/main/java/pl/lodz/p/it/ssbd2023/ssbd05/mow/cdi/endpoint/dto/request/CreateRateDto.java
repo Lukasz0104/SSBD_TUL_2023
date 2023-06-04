@@ -46,7 +46,7 @@ public class CreateRateDto {
 
     @AssertTrue
     public boolean isValid() {
-        if (this.accountingRule == null) {
+        if (this.accountingRule == null || this.effectiveDate.getDayOfMonth() != 1) {
             return false;
         }
 
@@ -55,6 +55,7 @@ public class CreateRateDto {
         } catch (IllegalArgumentException e) {
             return false;
         }
+
         return true;
     }
 }

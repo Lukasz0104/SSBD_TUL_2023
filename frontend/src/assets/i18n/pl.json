@@ -69,6 +69,10 @@
       "required": "Wysokość stawki jest wymagana.",
       "length": "Wysokość stawki musi być większa lub równa 0.",
       "decimal-places": "Wysokość stawki może mieć tylko do 2 miejsc po przecinku"
+    },
+    "effective-date": {
+      "required": "Data obowiżywania jest wymagana.",
+      "invalid-date": "Data obowiązywania stawki musi być pierwszym dniem miesiąca"
     }
   },
   "form": {

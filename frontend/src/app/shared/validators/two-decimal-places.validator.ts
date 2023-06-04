@@ -6,6 +6,5 @@ export const twoDecimalPlacesValidator: ValidatorFn = (
     decimalControl: AbstractControl
 ): ValidationErrors | null => {
     const number = decimalControl.getRawValue();
-    console.log(number + ' ' + decimalRegex.test(number));
     return decimalRegex.test(number) ? null : { invalidDecimal: true };
 };
