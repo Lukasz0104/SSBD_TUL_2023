@@ -87,7 +87,11 @@ public class CostEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response getCostDetails(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> CostDtoConverter.createDetailedCostDto(
+                costManager.getCostDetails(id)),
+            costManager
+        ).build();
     }
 
     @DELETE
