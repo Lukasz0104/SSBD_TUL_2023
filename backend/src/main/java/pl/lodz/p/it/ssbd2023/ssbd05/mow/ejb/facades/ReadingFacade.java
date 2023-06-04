@@ -15,6 +15,7 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -95,14 +96,24 @@ public class ReadingFacade extends AbstractFacade<Reading> {
     }
 
     @RolesAllowed({OWNER, MANAGER})
-    public List<Reading> findByMeterId(Long meterId) throws AppDatabaseException {
-        try {
-            TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterId", Reading.class);
-            tq.setParameter("meterId", meterId);
-            return tq.getResultList();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Reading.findByMeterId , Database Exception", e);
-        }
+    public Page<Reading> findByMeterId(Long meterId, int page, int pageSize) {
+        TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterId", Reading.class);
+        tq.setParameter("meterId", meterId);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countByMeterId(meterId);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public Long countByMeterId(Long meterId) {
+        TypedQuery<Long> tq = em.createNamedQuery("Reading.countByMeterId", Long.class);
+        tq.setParameter("meterId", meterId);
+
+        return tq.getSingleResult();
     }
 
     @RolesAllowed({OWNER, MANAGER})

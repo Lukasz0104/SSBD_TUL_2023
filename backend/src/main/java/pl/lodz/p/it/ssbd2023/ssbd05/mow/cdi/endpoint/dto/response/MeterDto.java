@@ -14,4 +14,7 @@ public class MeterDto {
 
     @NotNull
     private String category;
+
+    @NotNull
+    private boolean hasReadingInLast30Days;
 }
