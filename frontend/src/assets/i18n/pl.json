@@ -67,7 +67,8 @@
     },
     "rate": {
       "required": "Wysokość stawki jest wymagana.",
-      "length": "Wysokość stawki musi być większa lub równa 0."
+      "length": "Wysokość stawki musi być większa lub równa 0.",
+      "decimal-places": "Wysokość stawki może mieć tylko do 2 miejsc po przecinku"
     }
   },
   "form": {

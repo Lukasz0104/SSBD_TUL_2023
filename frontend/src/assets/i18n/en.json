@@ -67,7 +67,8 @@
     },
     "rate": {
       "required": "Rate value is required.",
-      "length": "Rate value must be greater or equal to 0."
+      "length": "Rate value must be greater or equal to 0.",
+      "decimal-places": "Rate value can have only up to 2 decimal places"
     }
   },
   "form": {
@@ -222,7 +223,7 @@
       "categories": {
         "edit": "Edit",
         "save": "Save",
-        "pln": "pln",
+        "pln": "PLN",
         "person": "pp",
         "month": "pm",
         "title": "Place payment categories",

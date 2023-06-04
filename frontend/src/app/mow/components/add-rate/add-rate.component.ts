@@ -5,6 +5,7 @@ import { RateService } from '../../services/rate.service';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { AccountingRule } from '../../../shared/model/accounting-rule';
 import { DatePipe } from '@angular/common';
+import { twoDecimalPlacesValidator } from '../../../shared/validators/two-decimal-places.validator';
 
 @Component({
     selector: 'app-add-rate',
@@ -17,7 +18,11 @@ export class AddRateComponent {
     initial: NgbDate;
     addRateForm = new FormGroup({
         rateValue: new FormControl(0.0, {
-            validators: [Validators.required, Validators.min(0)]
+            validators: [
+                Validators.required,
+                Validators.min(0),
+                twoDecimalPlacesValidator
+            ]
         }),
         effectiveDate: new FormControl(new Date(), [Validators.required])
     });

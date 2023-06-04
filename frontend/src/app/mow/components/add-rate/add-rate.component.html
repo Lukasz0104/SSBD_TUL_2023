@@ -15,6 +15,7 @@
                             for="rateValueInput"
                             class="form-label mb-0">
                             {{ 'component.fields.rate-value' | translate }}
+                            [{{ 'component.place.categories.pln' | translate }}]
                         </label>
                         <input
                             type="number"
@@ -43,6 +44,13 @@
                                 *ngIf="bnErrors['min']"
                                 class="mb-0">
                                 {{ 'validation.rate.length' | translate }}
+                            </p>
+                            <p
+                                *ngIf="bnErrors['invalidDecimal']"
+                                class="mb-0">
+                                {{
+                                    'validation.rate.decimal-places' | translate
+                                }}
                             </p>
                         </div>
                     </div>

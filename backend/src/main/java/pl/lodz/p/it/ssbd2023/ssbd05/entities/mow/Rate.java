@@ -123,7 +123,7 @@ public class Rate extends AbstractEntity implements Serializable {
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false, scale = 3, precision = 38)
+    @Column(name = "value", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
