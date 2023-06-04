@@ -14,7 +14,7 @@
                 <option
                     *ngFor="let year of years"
                     [ngValue]="year"
-                    (click)="toggleYear()">
+                    (click)="getCosts()">
                     {{ year }}
                 </option>
             </select>
@@ -30,7 +30,7 @@
                 <option
                     *ngFor="let name of categoryNames"
                     [ngValue]="name"
-                    (click)="toggleName()">
+                    (click)="getCosts()">
                     {{ name }}
                 </option>
             </select>
@@ -60,19 +60,34 @@
                     <th scope="col">
                         {{ 'component.costs.totalConsumption' | translate }}
                     </th>
+                    <th scope="col">
+                        {{ 'component.costs.details' | translate }}
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 <tr
                     *ngFor="let cost of costs.data"
                     class="cursor-pointer align-middle">
-                    <td>{{ monthMap.get(cost.month) ?? '' | translate }}</td>
+                    <td>
+                        {{
+                            'component.costs.months.' +
+                                cost.month.toLocaleLowerCase() | translate
+                        }}
+                    </td>
                     <td>
                         {{ cost.realRate | number : '.2-2' }}
-                        {{ ' ' }}
                         {{ 'component.place.categories.pln' | translate }}
                     </td>
                     <td>{{ cost.totalConsumption }}</td>
+                    <td>
+                        <button
+                            [routerLink]="['cost']"
+                            [queryParams]="{ id: cost?.id }"
+                            class="btn btn-outline-primary">
+                            {{ 'component.fields.details' | translate }}
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>

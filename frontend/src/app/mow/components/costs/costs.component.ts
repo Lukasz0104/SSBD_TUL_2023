@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CostPage } from '../../model/cost-page';
+import { CostPage } from '../../model/cost';
 import { CostsService } from '../../services/costs.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { Observable } from 'rxjs';
@@ -10,8 +10,6 @@ import { Observable } from 'rxjs';
 })
 export class CostsComponent implements OnInit {
     private _costs$: Observable<CostPage> | undefined;
-    toggledYear = false;
-    toggledName = false;
     years: string[] | undefined;
     categoryNames: string[] | undefined;
     page = 1;
@@ -19,21 +17,6 @@ export class CostsComponent implements OnInit {
     sortDirection = 1;
     categoryName: string | undefined;
     year: string | undefined;
-
-    monthMap = new Map([
-        ['JANUARY', 'component.costs.months.january'],
-        ['FEBRUARY', 'component.costs.months.february'],
-        ['MARCH', 'component.costs.months.march'],
-        ['APRIL', 'component.costs.months.april'],
-        ['MAY', 'component.costs.months.may'],
-        ['JUNE', 'component.costs.months.june'],
-        ['JULY', 'component.costs.months.july'],
-        ['AUGUST', 'component.costs.months.august'],
-        ['SEPTEMBER', 'component.costs.months.september'],
-        ['OCTOBER', 'component.costs.months.october'],
-        ['NOVEMBER', 'component.costs.months.november'],
-        ['DECEMBER', 'component.costs.months.december']
-    ]);
 
     constructor(
         private costsService: CostsService,
@@ -61,28 +44,9 @@ export class CostsComponent implements OnInit {
             this.categoryName
         );
     }
-    toggleYear() {
-        if (!this.toggledYear) {
-            this.toggledYear = true;
-        }
-    }
-    toggleName() {
-        if (!this.toggledName) {
-            this.toggledName = true;
-        }
-    }
 
-    resetToggleName() {
-        this.toggledName = false;
-    }
-
-    resetToggleYear() {
-        this.toggledYear = false;
-    }
     reload() {
-        if (this.toggledName && this.toggledYear) {
-            this.getCosts();
-        }
+        this.getCosts();
     }
 
     protected onSortChange() {
@@ -92,16 +56,14 @@ export class CostsComponent implements OnInit {
 
     changeCategoryName(name: string) {
         this.categoryName = name;
-        if (this.toggledYear) {
-            this.getCosts();
-        }
+
+        this.getCosts();
     }
 
     changeYear(year: string) {
         this.year = year;
-        if (this.toggledName) {
-            this.getCosts();
-        }
+
+        this.getCosts();
     }
 
     get costs$(): Observable<CostPage> | undefined {

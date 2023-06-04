@@ -83,7 +83,7 @@ public class CostEndpoint {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response getCostDetails(@PathParam("id") Long id) throws AppBaseException {
