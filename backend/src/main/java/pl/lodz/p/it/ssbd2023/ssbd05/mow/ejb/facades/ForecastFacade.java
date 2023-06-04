@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -20,6 +21,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Stateless
 @DenyAll
@@ -171,7 +174,8 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
     public List<Forecast> findByBuildingIdAndYear(Long id, Year year) throws AppBaseException {
         try {
             TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYear", Forecast.class);
@@ -183,17 +187,15 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         }
     }
 
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Forecast> findByBuildingIdAndYearAndCategoryName(Long id, Year year, String cateogry) throws AppBaseException {
-        try {
-            TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYearAndCategoryName", Forecast.class);
-            tq.setParameter("buildingId", id);
-            tq.setParameter("year", year);
-            tq.setParameter("categoryName", cateogry);
-            return tq.getResultList();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Forecast.findByBuildingIdAndYear, Database Exception", e);
-        }
+    @RolesAllowed({OWNER, MANAGER, ADMIN})
+    public Map<Year, Integer> findYearsAndMonthsByBuildingId(Long id) {
+        TypedQuery<Object[]> tq = em.createNamedQuery("Forecast.findYearsAndMonthsByBuildingId", Object[].class);
+        tq.setParameter("id", id);
+        List<Object[]> res = tq.getResultList();
+        return res.stream().collect(Collectors.toMap(
+            obj -> ((Year)obj[0]),
+            obj -> ((Long)obj[1]).intValue()
+        ));
     }
 
 }

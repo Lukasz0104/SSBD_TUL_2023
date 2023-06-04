@@ -93,14 +93,17 @@ import java.time.Year;
         name = "Forecast.findByBuildingIdAndYear",
         query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.place.building.id = :buildingId"),
     @NamedQuery(
-        name = "Forecast.findByBuildingIdAndYearAndCategoryName",
+        name = "Forecast.findDistinctYearsById",
+        query = "SELECT DISTINCT f.year FROM Forecast f WHERE f.place.building.id = :id ORDER BY f.year"),
+    @NamedQuery(
+        name = "Forecast.findYearsAndMonthsByBuildingId",
         query = """
-            SELECT f FROM Forecast f
-                WHERE f.year = :year
-                AND f.place.building.id = :buildingId
-                AND f.rate.category.name = :categoryName
-        """
-    )
+            SELECT f.year AS year, COUNT(DISTINCT f.month) AS months
+                FROM Forecast f
+                WHERE f.place.building.id = :id
+                GROUP BY f.year
+                ORDER BY f.year
+            """),
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {

@@ -9,26 +9,22 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.ReportDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 import java.time.Year;
-import java.util.Map;
 
 @RequestScoped
 @Path("/buildings")
@@ -66,23 +62,25 @@ public class BuildingEndpoint {
     @GET
     @Path("/{id}/reports")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({ADMIN, MANAGER, OWNER})
-    public Response getBuildingReports(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Response getYearsAndMonthsForReports(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> ReportDtoConverter.mapToListOfBuildingReports(reportManager.getYearsAndMonthsForReports(id)),
+            buildingManager
+        ).build();
     }
 
     @GET
     @Path("/{id}/reports/{year}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({MANAGER, OWNER})
-    public Response getBuildingReportByYear(
-        @PathParam("id") Long id,
-        @PathParam("year") Long yearNum,
-        @DefaultValue("all") @NotBlank @QueryParam("category") String category) throws AppBaseException {
-
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Response getBuildingReportByYear(@PathParam("id") Long id, @PathParam("year") Long yearNum)
+        throws AppBaseException {
         Year year = Year.of(Math.toIntExact(yearNum));
-        Map<String, ReportYearEntry> report = reportManager.getBuildingReportByYear(id, year, category);
-        return Response.ok(report).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> ReportDtoConverter.mapToBuildingReportYearlyDto(reportManager.getBuildingReportByYear(id, year)),
+            buildingManager
+        ).build();
     }
 
     @POST

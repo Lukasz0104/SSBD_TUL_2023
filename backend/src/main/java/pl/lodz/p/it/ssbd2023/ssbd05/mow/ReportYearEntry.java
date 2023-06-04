@@ -2,6 +2,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 
 import java.math.BigDecimal;
 
@@ -12,20 +13,14 @@ public class ReportYearEntry {
     private BigDecimal predAmount;
     private BigDecimal realValue;
     private BigDecimal realAmount;
+    private AccountingRule accountingRule;
 
-    public ReportYearEntry() {
+    public ReportYearEntry(AccountingRule accountingRule) {
         predValue = new BigDecimal(0);
         predAmount = new BigDecimal(0);
         realValue = new BigDecimal(0);
         realAmount = new BigDecimal(0);
-    }
-
-
-    public ReportYearEntry(BigDecimal value, BigDecimal amount) {
-        this.predValue = value;
-        this.predAmount = amount;
-        this.realValue = new BigDecimal(0);
-        this.realAmount = new BigDecimal(0);
+        this.accountingRule = accountingRule;
     }
 
     public ReportYearEntry addPred(BigDecimal predValue, BigDecimal predAmount) {

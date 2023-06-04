@@ -16,9 +16,9 @@ public interface ReportManagerLocal extends CommonManagerInterface {
 
     List<Report> getAllCommunityReports(Long id) throws AppBaseException;
 
-    List<Report> getAllBuildingReports(Long id) throws AppBaseException;
+    Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException;
 
-    Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year, String category)
+    Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year)
         throws AppBaseException;
 
     Report getCommunityReportByYear(Long year) throws AppBaseException;

@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -195,7 +196,7 @@ public class ReportFacade extends AbstractFacade<Report> {
         }
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
     public List<Report> findByBuildingIdAndYear(Long buildingId, Year year) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByBuildingIdAndYear", Report.class);
@@ -206,20 +207,6 @@ public class ReportFacade extends AbstractFacade<Report> {
             throw new AppDatabaseException("Report.findByBuildingIdAndYear, Database Exception", e);
         }
     }
-
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Report> findByBuildingIdAndYearAndCategoryName(Long buildingId, Year year, String categoryName) throws AppDatabaseException {
-        try {
-            TypedQuery<Report> tq = em.createNamedQuery("Report.findByBuildingIdAndYearAndCategoryName", Report.class);
-            tq.setParameter("buildingId", buildingId);
-            tq.setParameter("categoryName", categoryName);
-            tq.setParameter("year", year);
-            return tq.getResultList();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Report.findByBuildingIdAndYear, Database Exception", e);
-        }
-    }
-
 
 
     @RolesAllowed({OWNER, MANAGER})

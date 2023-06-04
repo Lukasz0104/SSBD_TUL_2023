@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.impl;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -14,6 +15,7 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppInternalServerErrorException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
@@ -27,6 +29,7 @@ import java.time.Year;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -65,43 +68,47 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     }
 
     @Override
-    @RolesAllowed(MANAGER)
-    public List<Report> getAllBuildingReports(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException {
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        Map<Year, Integer> yearsMonths = forecastFacade.findYearsAndMonthsByBuildingId(id);
+        for (Map.Entry<Year, Integer> entry: yearsMonths.entrySet()) {
+            result.put(
+                entry.getKey().getValue(),
+                IntStream.rangeClosed(1, entry.getValue()).boxed().toList());
+        }
+        return result;
     }
 
     @Override
-    @RolesAllowed({MANAGER, OWNER})
-    public Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year, String chosenCategory)
-        throws AppBaseException {
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year) throws AppBaseException {
         Map<String, ReportYearEntry> result = new HashMap<>();
         List<Forecast> forecasts;
         List<Report> reports;
 
-        if (chosenCategory.equals("all")) {
-            forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
-            reports = reportFacade.findByBuildingIdAndYear(id, year);
-        } else {
-            String categoryName = categoryFacade.findByName(chosenCategory).getName();
-            forecasts = forecastFacade.findByBuildingIdAndYearAndCategoryName(id, year, categoryName);
-            reports = reportFacade.findByBuildingIdAndYearAndCategoryName(id, year, categoryName);
-        }
+        forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
+        reports = reportFacade.findByBuildingIdAndYear(id, year);
 
         for (Forecast forecast: forecasts) {
             String cat = forecast.getRate().getCategory().getName();
             result.put(cat,
-                result.getOrDefault(cat, new ReportYearEntry())
+                result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getAccountingRule()))
                     .addPred(forecast.getValue(), forecast.getAmount())
             );
         }
 
         for (Report report: reports) {
             String cat = report.getCategory().getName();
-            result.put(cat,
-                result.getOrDefault(cat, new ReportYearEntry())
-                    .addReal(report.getTotalCost(), report.getTotalConsumption())
-            );
+            try {
+                result.put(cat,
+                    result.get(cat).addReal(report.getTotalCost(), report.getTotalConsumption())
+                );
+            } catch (NullPointerException e) {
+                throw new AppInternalServerErrorException();
+            }
         }
+
         return result;
     }
 
