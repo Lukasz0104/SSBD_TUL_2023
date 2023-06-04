@@ -267,6 +267,93 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
+    class MOW14 {
+        private static final String removeRateUrl = "/rates/%d";
+        private static final String ratesFromCategoryUrl = "/categories/%d/rates";
+        private static Long ratesNumber;
+
+        static Long getRatesNumber() {
+            return given().spec(managerSpec).when().get(ratesFromCategoryUrl.formatted(1)).getBody().as(Page.class)
+                .getTotalSize();
+        }
+
+        static void checkRatesNumber(Long expected) {
+            Long ratesNumberAfter = getRatesNumber();
+            assertEquals(expected, ratesNumberAfter);
+            ratesNumber = ratesNumberAfter;
+        }
+
+        @BeforeAll
+        static void init() {
+            ratesNumber = getRatesNumber();
+        }
+
+        @Test
+        void shouldPassRemovingFutureRate() {
+            given().spec(managerSpec)
+                .when()
+                .delete(removeRateUrl.formatted(11))
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            checkRatesNumber(ratesNumber - 1);
+        }
+
+        @Test
+        void shouldReturnSC204WhenRemovingRateThatDoesNotExist() {
+            given().spec(managerSpec)
+                .when()
+                .delete(removeRateUrl.formatted(-2137))
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            checkRatesNumber(ratesNumber);
+        }
+
+        @Test
+        void shouldReturnSC409WhenRemovingRateThatIsAlreadyEffective() {
+            given().spec(managerSpec)
+                .when()
+                .delete(removeRateUrl.formatted(1))
+                .then()
+                .statusCode(Response.Status.CONFLICT.getStatusCode());
+            checkRatesNumber(ratesNumber);
+        }
+
+        @Nested
+        class AuthTest {
+            @Test
+            void shouldReturnSC403WhenRemovingRateAsOwner() {
+                given().spec(ownerSpec)
+                    .when()
+                    .delete(removeRateUrl.formatted(1))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingRateAsAdmin() {
+                given().spec(adminSpec)
+                    .when()
+                    .delete(removeRateUrl.formatted(1))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingRateAsGuest() {
+                given()
+                    .when()
+                    .delete(removeRateUrl.formatted(1))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+        }
+
+    }
+
+    @Nested
     class MOW25 {
 
         @Test
