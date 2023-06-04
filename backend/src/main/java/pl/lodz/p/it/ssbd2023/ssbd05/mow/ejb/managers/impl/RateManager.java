@@ -13,13 +13,16 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RateAlreadyEffectiveException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.RateManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -48,6 +51,14 @@ public class RateManager extends AbstractManager implements RateManagerLocal, Se
     @Override
     @RolesAllowed(MANAGER)
     public void removeFutureRate(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        Optional<Rate> optionalRate = rateFacade.find(id);
+        if (optionalRate.isPresent()) {
+            Rate rate = optionalRate.get();
+            LocalDate now = LocalDate.now();
+            if (rate.getEffectiveDate().isBefore(now)) {
+                throw new RateAlreadyEffectiveException();
+            }
+            rateFacade.remove(rate);
+        }
     }
 }

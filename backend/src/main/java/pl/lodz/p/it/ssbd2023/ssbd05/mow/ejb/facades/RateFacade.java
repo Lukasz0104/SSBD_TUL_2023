@@ -15,11 +15,13 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @DenyAll
@@ -193,4 +195,15 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public Optional<Rate> find(Long id) {
+        return super.find(id);
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void remove(Rate entity) throws AppBaseException {
+        super.remove(entity);
+    }
 }

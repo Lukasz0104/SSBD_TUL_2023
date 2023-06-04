@@ -8,6 +8,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -56,7 +57,8 @@ public class RateEndpoint {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response removeFutureRate(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response removeFutureRate(@NotNull @PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> rateManager.removeFutureRate(id), rateManager).build();
     }
 }
