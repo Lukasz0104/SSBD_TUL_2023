@@ -13,6 +13,7 @@ import { CostsComponent } from './components/costs/costs.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { PlaceComponent } from './components/place/place.component';
+import { MeterComponent } from './components/meter/meter.component';
 import { AddRateComponent } from './components/add-rate/add-rate.component';
 
 @NgModule({
@@ -26,7 +27,8 @@ import { AddRateComponent } from './components/add-rate/add-rate.component';
         PlaceComponent,
         BuildingsComponent,
         CostsComponent,
-        AddRateComponent
+        AddRateComponent,
+        MeterComponent
     ],
     imports: [
         CommonModule,

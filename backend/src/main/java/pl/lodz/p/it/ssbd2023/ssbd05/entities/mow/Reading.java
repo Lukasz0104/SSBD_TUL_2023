@@ -55,7 +55,15 @@ import java.time.LocalDateTime;
         name = "Reading.findByMeterId",
         query = """
             SELECT r FROM Reading r
-            WHERE r.meter.id = :meterId"""),
+            WHERE r.meter.id = :meterId
+            ORDER BY r.date DESC
+            """),
+    @NamedQuery(
+        name = "Reading.countByMeterId",
+        query = """
+            SELECT count(r) FROM Reading r
+            WHERE r.meter.id = :meterId
+            """),
     @NamedQuery(
         name = "Reading.findByMeterIdAndDate",
         query = """
@@ -150,6 +158,13 @@ public class Reading extends AbstractEntity implements Serializable {
     @Getter
     @Setter
     private Meter meter;
+
+    @NotNull
+    @Basic(optional = false)
+    @Column(name = "reliable", nullable = false)
+    @Getter
+    @Setter
+    private boolean reliable = true;
 
     public Reading(LocalDateTime date, BigDecimal value, Meter meter) {
         this.date = date;

@@ -3,15 +3,30 @@
         <div class="row card-group">
             <h4>{{ 'component.meters.add-reading' | translate }}</h4>
             <div
+                (click)="showMeterReadings(meter)"
                 class="col-md-6 col-xl-4 col-xxl-3 cursor-pointer"
                 *ngFor="let meter of meters">
-                <div class="card m-3 rounded-3 shadow text-center">
+                <div
+                    class="card m-3 rounded-3 shadow text-center"
+                    [ngClass]="{
+                        'border-danger': !meter.hasReadingInLast30Days
+                    }">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
                             <i
                                 class="bi {{
                                     getIcon(meter.category)
-                                }} fs-2 mt-1"></i>
+                                }} fs-2 mt-1">
+                                <span
+                                    *ngIf="!meter.hasReadingInLast30Days"
+                                    class="bi bi-exclamation-diamond fs-2 text-danger position-absolute"
+                                    ngbTooltip="{{
+                                        'component.meters.reading-needed'
+                                            | translate
+                                    }}"
+                                    placement="top-end"
+                                    style="right: 10px; top: 0"></span>
+                            </i>
                         </li>
                     </ul>
                     <div class="card-body">

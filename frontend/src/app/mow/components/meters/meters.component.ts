@@ -3,6 +3,8 @@ import { PlaceService } from '../../services/place.service';
 import { Observable } from 'rxjs';
 import { Meter } from '../../model/meter';
 import { AuthService } from '../../../shared/services/auth.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MeterComponent } from '../meter/meter.component';
 
 @Component({
     selector: 'app-meters',
@@ -15,7 +17,8 @@ export class MetersComponent implements OnInit {
 
     constructor(
         private placeService: PlaceService,
-        private authService: AuthService
+        private authService: AuthService,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit() {
@@ -34,5 +37,14 @@ export class MetersComponent implements OnInit {
 
     public getIcon(category: string): string {
         return this.placeService.pictureMap.get(category) ?? 'bi-coin';
+    }
+
+    showMeterReadings(meter: Meter) {
+        const ref = this.modalService.open(MeterComponent, {
+            centered: true,
+            size: 'xl',
+            scrollable: true
+        });
+        ref.componentInstance.meter = meter;
     }
 }
