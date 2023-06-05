@@ -16,12 +16,12 @@ GRANT SELECT, INSERT, UPDATE ON TABLE building TO ssbd05mow;
 GRANT SELECT ON TABLE category TO ssbd05mow;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE cost TO ssbd05mow;
 GRANT SELECT, INSERT, UPDATE ON TABLE forecast TO ssbd05mow;
-GRANT SELECT, INSERT ON TABLE meter TO ssbd05mow;
+GRANT SELECT, INSERT, UPDATE ON TABLE meter TO ssbd05mow;
 GRANT SELECT, INSERT, UPDATE ON TABLE place TO ssbd05mow;
 GRANT SELECT, INSERT, DELETE ON TABLE place_owner TO ssbd05mow;
 GRANT SELECT, INSERT, DELETE ON TABLE place_rate TO ssbd05mow;
 GRANT SELECT, INSERT, DELETE ON TABLE rate TO ssbd05mow;
-GRANT SELECT, INSERT ON TABLE reading TO ssbd05mow;
+GRANT SELECT, INSERT, UPDATE ON TABLE reading TO ssbd05mow;
 GRANT SELECT, INSERT ON TABLE report TO ssbd05mow;
 
 GRANT SELECT ON TABLE account TO ssbd05mow;
@@ -29,6 +29,7 @@ GRANT SELECT ON TABLE account_data TO ssbd05mow;
 GRANT SELECT ON TABLE access_level TO ssbd05mow;
 GRANT SELECT ON TABLE owner_data TO ssbd05mow;
 GRANT SELECT ON TABLE manager_data TO ssbd05mow;
+GRANT SELECT ON TABLE admin_data TO ssbd05mow;
 
 GRANT SELECT, UPDATE ON SEQUENCE city_dict_id_seq TO ssbd05mok;
 GRANT SELECT, UPDATE ON SEQUENCE access_level_id_seq TO ssbd05mok;
@@ -410,16 +411,16 @@ insert into public.place_rate (place_id, rate_id) values (6, 9);
 
 --region meters
 -- Meters
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 4, 1);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 5, 1);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 4, 2);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 5, 2);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 5, 3);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 5, 4);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 4, 5);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 5, 5);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 4, 6);
-INSERT INTO public.meter (version, category_id, place_id) VALUES (1, 5, 6);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 1, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 1, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 2, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 2, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 3, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 4, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 5, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 5, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 6, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 6, '2021-12-01 12:22:03.000000', -4);
 --endregion
 
 --region reading
@@ -1140,6 +1141,20 @@ INSERT INTO public.forecast (amount, month, real_value, value, version, year, pl
 INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (3.000, 11, 15.163, 15.000, 2, 2022, 6, 8);
 INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (1.000, 11, 8.961, 9.000, 2, 2022, 6, 9);
 INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 11, 118.454, 119.536, 2, 2022, 6, 5);
+
+-- 2023
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 0, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 1, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 2, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 3, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 4, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 5, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 6, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 7, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 8, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 9, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 10, null, 119.536, 2, 2023, 5, 5);
+INSERT INTO public.forecast (amount, month, real_value, value, version, year, place_id, rate_id) VALUES (29.884, 11, null, 119.536, 2, 2023, 5, 5);
 
 --endregion
 

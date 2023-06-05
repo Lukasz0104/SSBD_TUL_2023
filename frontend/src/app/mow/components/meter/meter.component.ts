@@ -19,7 +19,7 @@ export class MeterComponent implements OnInit {
 
     constructor(
         private meterService: MeterService,
-        private authService: AuthService,
+        protected authService: AuthService,
         private datePipe: DatePipe
     ) {}
 
@@ -63,5 +63,16 @@ export class MeterComponent implements OnInit {
             reading.updatedTime.toLocaleString(),
             'dd/MM/yy HH:mm:ss'
         )}, ${reading.updatedBy}`;
+    }
+
+    isNextReadingBeforeNow() {
+        if (this.meter) {
+            return (
+                new Date(this.meter.dateOfNextReading).getTime() -
+                    new Date().getTime() <=
+                0
+            );
+        }
+        return false;
     }
 }

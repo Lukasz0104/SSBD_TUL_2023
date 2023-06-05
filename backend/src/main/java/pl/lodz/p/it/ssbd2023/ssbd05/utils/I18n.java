@@ -137,6 +137,12 @@ public class I18n {
     // MOW
     public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
     public static final String METER_NOT_FOUND = "response.message.meter_not_found";
+    public static final String READING_VALUE_SMALLER_THAN_PREVIOUS_EXCEPTION =
+        "response.message.reading_value_smaller_than_previous";
+    public static final String NOT_ENOUGH_DAYS_BETWEEN_RELIABLE_READINGS_EXCEPTION =
+        "response.message.not_enough_days_between_reliable_readings";
+    public static final String READING_VALUE_HIGHER_THAN_FUTURE_EXCEPTION =
+        "response.message.reading_value_higher_than_future";
 
 
     public static String getMessage(String key, String language) {

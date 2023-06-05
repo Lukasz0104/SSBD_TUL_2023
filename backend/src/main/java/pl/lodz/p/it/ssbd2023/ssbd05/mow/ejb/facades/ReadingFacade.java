@@ -13,6 +13,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
@@ -37,6 +38,11 @@ public class ReadingFacade extends AbstractFacade<Reading> {
 
     public ReadingFacade() {
         super(Reading.class);
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public void create(Reading reading) throws AppBaseException {
+        super.create(reading);
     }
 
     @RolesAllowed({OWNER, MANAGER})

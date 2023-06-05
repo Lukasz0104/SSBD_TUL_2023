@@ -303,7 +303,8 @@
       "created": "Utworzony",
       "modified": "Zmodyfikowany",
       "readings": "Odczyty licznika: ",
-      "add-reading": "Dodaj odczyt"
+      "add-reading": "Dodaj odczyt",
+      "next-reading-date": "Następny odczyt"
     }
   },
   "modal": {

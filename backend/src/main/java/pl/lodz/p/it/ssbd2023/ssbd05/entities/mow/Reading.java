@@ -14,6 +14,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
@@ -89,6 +90,13 @@ import java.time.LocalDateTime;
             WHERE r.meter.id = :meterId
                   AND r.date BETWEEN :beginDate AND :endDate"""),
     @NamedQuery(
+        name = "Reading.findReliableByMeterIdAndDateBetween",
+        query = """
+            SELECT r FROM Reading r
+            WHERE r.meter.id = :meterId
+                  AND r.reliable = TRUE
+                  AND r.date BETWEEN :beginDate AND :endDate"""),
+    @NamedQuery(
         name = "Reading.findByPlaceId",
         query = """
             SELECT r FROM Reading r
@@ -135,6 +143,7 @@ import java.time.LocalDateTime;
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})
+@ToString
 public class Reading extends AbstractEntity implements Serializable {
 
     @NotNull
@@ -170,5 +179,10 @@ public class Reading extends AbstractEntity implements Serializable {
         this.date = date;
         this.value = value;
         this.meter = meter;
+    }
+
+    public Reading(LocalDateTime date, BigDecimal value) {
+        this.date = date;
+        this.value = value;
     }
 }

@@ -45,6 +45,15 @@ import java.time.Year;
     @NamedQuery(
         name = "Forecast.findByPlaceIdAndCategoryId",
         query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.rate.category.id = :categoryId"),
+    @NamedQuery(
+        name = "Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterMonth",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.place.id = :place
+            AND f.rate.category.id = :categoryId
+            AND f.year = :year
+            AND f.month > :month
+            """),
 
     // place queries
     @NamedQuery(

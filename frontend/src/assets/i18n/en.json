@@ -303,7 +303,8 @@
       "created": "Created",
       "modified": "Modified",
       "readings": "Readings of: ",
-      "add-reading": "Add reading"
+      "add-reading": "Add reading",
+      "next-reading-date": "Next reading"
     }
   },
   "modal": {

@@ -121,4 +121,11 @@ public class AppProperties {
     @ConfigProperty(name = "token.expire.unlock.account.self", defaultValue = "1000000000")
     private long tokenExpireUnlockAccountSelf;
 
+    @Inject
+    @ConfigProperty(name = "forecast.months.for.reading.consideration", defaultValue = "4")
+    private int numberOfMonthsForReadingConsideration;
+
+    @Inject
+    @ConfigProperty(name = "readings.days.between.readings", defaultValue = "30")
+    private int daysBetweenReadingsForOwner;
 }

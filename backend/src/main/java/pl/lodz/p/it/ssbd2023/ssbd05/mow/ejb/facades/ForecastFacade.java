@@ -12,6 +12,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.Month;
@@ -35,6 +36,11 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
     }
 
     // Date
+
+    @RolesAllowed({OWNER, MANAGER})
+    public void edit(Forecast forecast) throws AppBaseException {
+        super.edit(forecast);
+    }
 
     @RolesAllowed({OWNER, MANAGER})
     public List<Forecast> findByYear(Year year) {
@@ -98,6 +104,17 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndCategoryId", Forecast.class);
         tq.setParameter("place", placeId);
         tq.setParameter("categoryId", categoryId);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Forecast> findFutureByPlaceIdAndCategoryAndYear(Long placeId, Long categoryId, Year year, Month month) {
+        TypedQuery<Forecast> tq =
+            em.createNamedQuery("Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterMonth", Forecast.class);
+        tq.setParameter("place", placeId);
+        tq.setParameter("categoryId", categoryId);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
         return tq.getResultList();
     }
 
