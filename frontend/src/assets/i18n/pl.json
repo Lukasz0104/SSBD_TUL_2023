@@ -321,7 +321,6 @@
       "add-reading": "Dodaj odczyt"
     },
     "building-report": {
-      "loading": "Ładowanie listy raportów ...",
       "year": "Rok",
       "chooseYear": "Wybierz rok",
       "yearly": "Raport roczny",
@@ -331,7 +330,7 @@
       "diff": "Różnica",
       "real-value": "Koszt rzeczywisty",
       "real-amount": "Zużycie rzeczywiste",
-      "rate": "Stawa",
+      "rate": "Stawka",
       "sum": "Suma",
       "loading-year": "Wybierz rok",
       "not-full-year": "Wybrany rok nie posiada jeszcze pełnego raportu",
