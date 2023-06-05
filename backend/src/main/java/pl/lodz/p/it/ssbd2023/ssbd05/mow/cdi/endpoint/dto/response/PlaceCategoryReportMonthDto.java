@@ -15,6 +15,7 @@ public class PlaceCategoryReportMonthDto {
     private AccountingRule accountingRule;
     private BigDecimal value;
     private BigDecimal realValue;
+    private BigDecimal valueDifferential;
     private BigDecimal amount;
     private BigDecimal rate_value;
 }

@@ -26,14 +26,15 @@ public class ReportForecastYear {
         List<Report> reports,
         List<Forecast> forecasts) {
         return reports.stream().map(e -> new ReportForecastYear(
-            e.getYear().getValue(),
-            e.getTotalCost(),
-            e.getTotalConsumption(),
-            e.getCategory().getName(),
-            e.getCategory().getRates().iterator().next().getAccountingRule(),
-            forecasts.stream().filter(element -> element.getRate().getCategory().equals(e.getCategory()))
-                .map(Forecast::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add),
-            forecasts.stream().filter(element -> element.getRate().getCategory().equals(e.getCategory()))
-                .map(Forecast::getValue).reduce(BigDecimal.ZERO, BigDecimal::add))).toList();
+                e.getYear().getValue(),
+                e.getTotalCost(),
+                e.getTotalConsumption(),
+                e.getCategory().getName(),
+                e.getCategory().getRates().iterator().next().getAccountingRule(),
+                forecasts.stream().filter(element -> element.getRate().getCategory().equals(e.getCategory()))
+                    .map(Forecast::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add),
+                forecasts.stream().filter(element -> element.getRate().getCategory().equals(e.getCategory()))
+                    .map(Forecast::getValue).reduce(BigDecimal.ZERO, BigDecimal::add)))
+            .toList();
     }
 }

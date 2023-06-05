@@ -19,8 +19,6 @@ public interface ReportManagerLocal extends CommonManagerInterface {
 
     Report getCommunityReportByYear(Long year) throws AppBaseException;
 
-    List<Integer> getReportYearsByPlaceId(Long id) throws AppBaseException;
-
     List<ReportForecastYear> getAllOwnReportsDataByPlaceAndYear(Long placeId, Year year, String login)
         throws AppBaseException;
 
@@ -30,4 +28,8 @@ public interface ReportManagerLocal extends CommonManagerInterface {
         throws AppBaseException;
 
     List<Forecast> getAllReportsDataByPlaceAndYearAndMonth(Long placeId, Year year, Month month);
+
+    boolean isReportForYear(Year year, Long placeId);
+
+    boolean isOwnReportForYear(Year year, Long placeId, String login) throws AppBaseException;
 }

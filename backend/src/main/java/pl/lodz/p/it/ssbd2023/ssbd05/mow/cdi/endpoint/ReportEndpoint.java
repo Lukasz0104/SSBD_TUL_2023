@@ -66,14 +66,6 @@ public class ReportEndpoint {
     }
 
     @GET
-    @Path("/place/{id}/years")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER, MANAGER})
-    public Response getReportYearsByPlaceId(@PathParam("id") Long id) throws AppBaseException {
-        return Response.ok(reportManager.getReportYearsByPlaceId(id)).build();
-    }
-
-    @GET
     @Path("/place/{id}/report/year")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
@@ -137,4 +129,21 @@ public class ReportEndpoint {
         ).build();
     }
 
+    @GET
+    @Path("/place/{id}/is-report")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({OWNER, MANAGER})
+    public Response isReportForPlace(@PathParam("id") Long id, @QueryParam("year") Integer year) {
+        return Response.ok(reportManager.isReportForYear(Year.of(year), id)).build();
+    }
+
+    @GET
+    @Path("/me/place/{id}/is-report")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({OWNER, MANAGER})
+    public Response isOwnReportForPlace(@PathParam("id") Long id, @QueryParam("year") Integer year)
+        throws AppBaseException {
+        return Response.ok(
+            reportManager.isOwnReportForYear(Year.of(year), id, securityContext.getUserPrincipal().getName())).build();
+    }
 }

@@ -4,7 +4,10 @@ export interface PlaceReportMonth {
     year: number;
     month: string;
     totalValue: number;
-    placeCategoryReport: PlaceCategoryReportMonth[];
+    totalRealValue: number;
+    differential: number;
+    completeMonth: boolean;
+    details: PlaceCategoryReportMonth[];
 }
 
 interface PlaceCategoryReportMonth {
@@ -12,6 +15,7 @@ interface PlaceCategoryReportMonth {
     accountingRule: AccountingRule;
     value: number;
     realValue: number;
+    valueDifferential: number;
     amount: number;
     rate_value: number;
 }

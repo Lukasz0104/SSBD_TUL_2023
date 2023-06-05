@@ -14,5 +14,6 @@ public class PlaceReportYearDto {
     private Integer year;
     private BigDecimal forecastedCostSum;
     private BigDecimal totalCostSum;
-    private List<PlaceCategoryReportYearDto> placeReportDtoList;
+    private BigDecimal differential;
+    private List<PlaceCategoryReportYearDto> details;
 }

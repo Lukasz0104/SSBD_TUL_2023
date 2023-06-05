@@ -17,4 +17,6 @@ public class PlaceCategoryReportYearDto {
     private AccountingRule accountingRule;
     private BigDecimal forecastAmountSum;
     private BigDecimal forecastValueSum;
+    private BigDecimal costDifferential;
+    private BigDecimal consumptionDifferential;
 }

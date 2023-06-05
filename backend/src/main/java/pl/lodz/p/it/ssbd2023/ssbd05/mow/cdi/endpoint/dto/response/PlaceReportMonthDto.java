@@ -15,5 +15,8 @@ public class PlaceReportMonthDto {
     private Integer year;
     private Month month;
     private BigDecimal totalValue;
-    private List<PlaceCategoryReportMonthDto> placeCategoryReportMonthDtoList;
+    private BigDecimal totalRealValue;
+    private BigDecimal differential;
+    private boolean completeMonth;
+    private List<PlaceCategoryReportMonthDto> details;
 }

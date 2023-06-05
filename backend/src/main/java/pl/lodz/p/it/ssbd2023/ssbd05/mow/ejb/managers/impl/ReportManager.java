@@ -79,9 +79,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @RolesAllowed(OWNER)
     public List<ReportForecastYear> getAllOwnReportsDataByPlaceAndYear(Long placeId, Year year, String login)
         throws AppBaseException {
-        if (placeFacade.findByLogin(login).stream().noneMatch((place) -> Objects.equals(place.getId(), placeId))) {
-            throw new UnaccessibleReportException();
-        }
+        checkUserPlace(placeId, login);
         return convertReportAndForecastListToReportForecastYearList(
             reportFacade.findByPlaceIdAndYear(placeId, year),
             forecastFacade.findByPlaceIdAndYear(placeId, year));
@@ -97,15 +95,29 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @RolesAllowed(OWNER)
     public List<Forecast> getAllOwnReportsDataByPlaceAndYearAndMonth(Long placeId, Year year, Month month, String login)
         throws AppBaseException {
-        if (placeFacade.findByLogin(login).stream().noneMatch((place) -> Objects.equals(place.getId(), placeId))) {
-            throw new UnaccessibleReportException();
-        }
+        checkUserPlace(placeId, login);
         return forecastFacade.findByPlaceIdAndYearAndMonth(placeId, year, month);
     }
 
     @Override
+    @RolesAllowed({MANAGER})
+    public boolean isReportForYear(Year year, Long placeId) {
+        return reportFacade.findReportYearsByPlaceId(placeId).stream()
+            .anyMatch((e) -> e.getValue() == year.getValue());
+    }
+
+    @Override
+    @RolesAllowed({OWNER})
+    public boolean isOwnReportForYear(Year year, Long placeId, String login) throws AppBaseException {
+        checkUserPlace(placeId, login);
+        return reportFacade.findReportYearsByPlaceId(placeId).stream()
+            .anyMatch((e) -> e.getValue() == year.getValue());
+    }
+
     @RolesAllowed({OWNER, MANAGER})
-    public List<Integer> getReportYearsByPlaceId(Long id) throws AppBaseException {
-        return reportFacade.findReportYearsByPlaceId(id).stream().map(Year::getValue).toList();
+    private void checkUserPlace(Long placeId, String login) throws AppBaseException {
+        if (placeFacade.findByLogin(login).stream().noneMatch((place) -> Objects.equals(place.getId(), placeId))) {
+            throw new UnaccessibleReportException();
+        }
     }
 }

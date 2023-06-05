@@ -17,11 +17,17 @@ public class ReportDtoConverter {
 
     public static PlaceReportYearDto createPlaceReportYearDtoFromListOfReportForecastYear(
         List<ReportForecastYear> reportForecastYear) throws AppBaseException {
+        BigDecimal forecasted = reportForecastYear.stream().map(ReportForecastYear::getForecastValueSum)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal actual = reportForecastYear.stream().map(ReportForecastYear::getTotalCost)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal differential = forecasted.subtract(actual);
+
         return new PlaceReportYearDto(
             reportForecastYear.stream().findFirst().orElseThrow(ReportNotFoundException::new).getYear(),
-            reportForecastYear.stream().map(ReportForecastYear::getForecastValueSum)
-                .reduce(BigDecimal.ZERO, BigDecimal::add),
-            reportForecastYear.stream().map(ReportForecastYear::getTotalCost).reduce(BigDecimal.ZERO, BigDecimal::add),
+            forecasted,
+            actual,
+            differential,
             createListOfPlaceCategoryReportYearDtoFromListOfReportForecastYear(reportForecastYear));
     }
 
@@ -33,7 +39,9 @@ public class ReportDtoConverter {
             reportForecastYear.getCategoryName(),
             reportForecastYear.getAccountingRule(),
             reportForecastYear.getForecastAmountSum(),
-            reportForecastYear.getForecastValueSum()
+            reportForecastYear.getForecastValueSum(),
+            reportForecastYear.getForecastValueSum().subtract(reportForecastYear.getTotalCost()),
+            reportForecastYear.getForecastAmountSum().subtract(reportForecastYear.getTotalConsumption())
         );
     }
 
@@ -45,10 +53,21 @@ public class ReportDtoConverter {
 
     public static PlaceReportMonthDto createPlaceReportMonthDtoFromListOfForecast(
         List<Forecast> forecasts) throws AppBaseException {
+
+        BigDecimal forecasted =
+            forecasts.stream().map((element) -> getValue(element.getValue())).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal actual = forecasts.stream().map((element) -> getValue(element.getRealValue()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal differential = forecasted.subtract(actual);
+        boolean validMonth = forecasts.stream().noneMatch((element) -> element.getRealValue() == null);
+
         return new PlaceReportMonthDto(
             forecasts.stream().findFirst().orElseThrow(ForecastNotFoundException::new).getYear().getValue(),
             forecasts.stream().findFirst().orElseThrow(ForecastNotFoundException::new).getMonth(),
-            forecasts.stream().map(Forecast::getValue).reduce(BigDecimal.ZERO, BigDecimal::add),
+            forecasted,
+            actual,
+            differential,
+            validMonth,
             createListOfPlaceCategoryReportMonthDtoFromListOfForecast(forecasts)
         );
     }
@@ -58,7 +77,8 @@ public class ReportDtoConverter {
             forecast.getRate().getCategory().getName(),
             forecast.getRate().getAccountingRule(),
             forecast.getValue(),
-            forecast.getRealValue(),
+            getValue(forecast.getRealValue()),
+            forecast.getValue().subtract(getValue(forecast.getRealValue())),
             forecast.getAmount(),
             forecast.getRate().getValue()
         );
@@ -68,5 +88,12 @@ public class ReportDtoConverter {
         List<Forecast> forecasts) {
         return forecasts.stream()
             .map(ReportDtoConverter::createPlaceCategoryReportMonthDtoFromForecast).toList();
+    }
+
+    public static BigDecimal getValue(BigDecimal value) {
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+        return value;
     }
 }

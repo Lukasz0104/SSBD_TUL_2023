@@ -39,98 +39,66 @@
                             </button>
                         </div>
                         <div
-                            class="col col-lg-12"
-                            *ngIf="toggled && chosenId === place.id">
-                            <div class="mb-lg-4">
-                                <div class="px-lg-4 pb-lg-4">
-                                    <div ngbAccordion>
-                                        <div
-                                            ngbAccordionItem="details"
-                                            [collapsed]="false">
-                                            <h2 ngbAccordionHeader>
-                                                <button
-                                                    ngbAccordionButton
-                                                    class="fs-5 place-accordion-title">
-                                                    {{
-                                                        'component.own-places.details'
-                                                            | translate
-                                                    }}
-                                                </button>
-                                            </h2>
-                                            <div ngbAccordionCollapse>
-                                                <div ngbAccordionBody>
-                                                    <ng-template>
-                                                        <app-place
-                                                            [id]="place.id" />
-                                                    </ng-template>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            ngbAccordionItem="auth"
-                                            [collapsed]="true">
-                                            <h2 ngbAccordionHeader>
-                                                <button
-                                                    ngbAccordionButton
-                                                    class="fs-5 place-accordion-title">
-                                                    {{
-                                                        'component.own-places.meters'
-                                                            | translate
-                                                    }}
-                                                </button>
-                                            </h2>
-                                            <div ngbAccordionCollapse>
-                                                <div ngbAccordionBody>
-                                                    <ng-template>
-                                                        Component
-                                                    </ng-template>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            ngbAccordionItem="accessLevels"
-                                            [collapsed]="true">
-                                            <h2 ngbAccordionHeader>
-                                                <button
-                                                    ngbAccordionButton
-                                                    class="fs-5 place-accordion-title">
-                                                    {{
-                                                        'component.own-places.reports'
-                                                            | translate
-                                                    }}
-                                                </button>
-                                            </h2>
-                                            <div ngbAccordionCollapse>
-                                                <div ngbAccordionBody>
-                                                    <ng-template>
-                                                        <app-place-reports></app-place-reports>
-                                                    </ng-template>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div
-                                            ngbAccordionItem="stawki"
-                                            [collapsed]="true">
-                                            <h2 ngbAccordionHeader>
-                                                <button
-                                                    ngbAccordionButton
-                                                    class="fs-5 place-accordion-title">
-                                                    {{
-                                                        'component.own-places.rates'
-                                                            | translate
-                                                    }}
-                                                </button>
-                                            </h2>
-                                            <div ngbAccordionCollapse>
-                                                <div ngbAccordionBody>
-                                                    <ng-template>
-                                                        Component
-                                                    </ng-template>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            *ngIf="toggled && chosenId === place.id"
+                            class="ms-4">
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item cursor-pointer">
+                                    <span
+                                        (click)="tab = 1"
+                                        [ngClass]="{ active: tab === 1 }"
+                                        class="nav-link"
+                                        aria-current="page"
+                                        >{{
+                                            'component.own-places.details'
+                                                | translate
+                                        }}</span
+                                    >
+                                </li>
+                                <li class="nav-item cursor-pointer">
+                                    <span
+                                        (click)="tab = 2"
+                                        [ngClass]="{ active: tab === 2 }"
+                                        class="nav-link"
+                                        >{{
+                                            'component.own-places.meters'
+                                                | translate
+                                        }}</span
+                                    >
+                                </li>
+                                <li class="nav-item cursor-pointer">
+                                    <span
+                                        (click)="tab = 3"
+                                        [ngClass]="{ active: tab === 3 }"
+                                        class="nav-link"
+                                        >{{
+                                            'component.own-places.reports'
+                                                | translate
+                                        }}</span
+                                    >
+                                </li>
+                                <li class="nav-item cursor-pointer">
+                                    <span
+                                        (click)="tab = 4"
+                                        [ngClass]="{ active: tab === 4 }"
+                                        class="nav-link"
+                                        >{{
+                                            'component.own-places.rates'
+                                                | translate
+                                        }}</span
+                                    >
+                                </li>
+                            </ul>
+
+                            <div class="m-3">
+                                <app-place
+                                    [id]="place.id"
+                                    *ngIf="tab === 1" />
+                                <app-meters
+                                    [placeId]="place.id"
+                                    *ngIf="tab === 2" />
+                                <app-place-reports
+                                    [id]="place.id"
+                                    *ngIf="tab === 3" />
                             </div>
                         </div>
                     </div>

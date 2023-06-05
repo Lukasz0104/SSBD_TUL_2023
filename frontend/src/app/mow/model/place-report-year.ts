@@ -4,15 +4,17 @@ export interface PlaceReportYear {
     year: number;
     forecastedCostSum: number;
     totalCostSum: number;
-    placeCategoryReport: PlaceCategoryReportYear[];
+    differential: number;
+    details: PlaceCategoryReportYear[];
 }
 
 interface PlaceCategoryReportYear {
-    year: number;
     totalCost: number;
     totalConsumption: number;
-    categoryName: number;
+    categoryName: string;
     accountingRule: AccountingRule;
     forecastAmountSum: number;
     forecastValueSum: number;
+    costDifferential: number;
+    consumptionDifferential: number;
 }

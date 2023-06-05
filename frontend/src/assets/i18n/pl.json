@@ -288,6 +288,28 @@
       "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
       "chooseYear": "Wybierz rok",
       "chooseCategory": "Wybierz kategorię"
+    },
+    "meters": {
+      "add-reading": "Wybierz licznik, aby dodać odczyt",
+      "loading": "Ładowanie liczników..",
+      "no-meters": "W tym lokalu nie ma żadnych liczników"
+    },
+    "report": {
+      "month": {
+        "0": "Całkowity",
+        "1": "Styczeń",
+        "2": "Luty",
+        "3": "Marzec",
+        "4": "Kwiecień",
+        "5": "Maj",
+        "6": "Czerwiec",
+        "7": "Lipiec",
+        "8": "Sierpień",
+        "9": "Wrzesień",
+        "10": "Październik",
+        "11": "Listopad",
+        "12": "Grudzień"
+      }
     }
   },
   "modal": {
