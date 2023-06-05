@@ -96,6 +96,8 @@ public class I18n {
     public static final String EXPIRED_TOKEN = "response.message.expired_token";
     public static final String INVALID_TOKEN_TYPE = "response.message.invalid_token_type";
     public static final String TOKEN_NOT_FOUND = "response.message.token_not_found";
+    public static final String CATEGORY_NOT_FOUND = "response.message.category_not_found";
+    public static final String RATE_NOT_UNIQUE = "response.message.rate_not_unique";
     public static final String PASSWORD_CONSTRAINT = "response.message.password_constraint";
     public static final String PASSWORD_NOT_MATCH = "response.message.password_not_match";
     public static final String REPEATED_PASSWORD = "response.message.repeated_password";
@@ -138,7 +140,6 @@ public class I18n {
     public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
     public static final String INVALID_DATE_FORMAT = "response.message.invalid-date-format";
     public static final String METER_NOT_FOUND = "response.message.meter_not_found";
-
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);
