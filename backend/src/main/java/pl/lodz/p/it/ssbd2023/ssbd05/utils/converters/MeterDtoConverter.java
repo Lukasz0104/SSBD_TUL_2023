@@ -16,7 +16,7 @@ public class MeterDtoConverter {
         return new MeterDto(meter.getId(), meter.getCategory().getName(), hasReadingInLast30Days);
     }
 
-    public static List<MeterDto> createMeterDtoListFromMeterList(List<Meter> meters) {
-        return meters.stream().map(MeterDtoConverter::createMeterDtoFromMeter).toList();
+    public static Set<MeterDto> createMeterDtoListFromMeterList(Set<Meter> meters) {
+        return meters.stream().map(MeterDtoConverter::createMeterDtoFromMeter).collect(Collectors.toSet());
     }
 }

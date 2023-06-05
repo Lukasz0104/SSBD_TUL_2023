@@ -53,17 +53,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return super.findAll();
     }
 
-    @RolesAllowed({MANAGER})
-    public Optional<Place> findById(Long id) {
-        TypedQuery<Place> tq = em.createNamedQuery("Place.findById", Place.class);
-        tq.setParameter("id", id);
-        try {
-            return Optional.of(tq.getSingleResult());
-        } catch (NoResultException nre) {
-            return Optional.empty();
-        }
-    }
-
     @RolesAllowed({OWNER})
     public Optional<Place> findByIdAndOwnerLogin(Long id, String login) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByIdAndOwnerLogin", Place.class);
@@ -74,6 +63,12 @@ public class PlaceFacade extends AbstractFacade<Place> {
         } catch (NoResultException nre) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public Optional<Place> find(Long id) {
+        return super.find(id);
     }
 
     @Override

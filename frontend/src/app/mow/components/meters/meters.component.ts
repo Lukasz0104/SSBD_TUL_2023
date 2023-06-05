@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { PlaceService } from '../../services/place.service';
 import { Observable } from 'rxjs';
 import { Meter } from '../../model/meter';
@@ -10,7 +10,7 @@ import { MeterComponent } from '../meter/meter.component';
     selector: 'app-meters',
     templateUrl: './meters.component.html'
 })
-export class MetersComponent {
+export class MetersComponent implements OnInit {
     @Input() placeId: number | undefined;
 
     meters$: Observable<Meter[]> | undefined;
@@ -47,5 +47,4 @@ export class MetersComponent {
         });
         ref.componentInstance.meter = meter;
     }
-    constructor(private placeService: PlaceService) {}
 }

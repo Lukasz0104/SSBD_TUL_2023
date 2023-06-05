@@ -6,12 +6,18 @@ import { PlaceReportYear } from '../model/place-report-year';
 import { PlaceReportMonth } from '../model/place-report-month';
 import { catchError, EMPTY } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
+import {
+    BuildingReport,
+    BuildingReportYearAndMonths
+} from '../model/building-report';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ReportService {
     private readonly reportUrl = `${this.config.apiUrl}/reports`;
+    private readonly BUILDING_URL = `${this.config.apiUrl}/buildings`;
 
     constructor(
         private http: HttpClient,
@@ -76,5 +82,32 @@ export class ReportService {
             return this.reportUrl + '/me';
         }
         return this.reportUrl;
+    }
+
+    getYearsAndMonths(
+        buildingId: number
+    ): Observable<BuildingReportYearAndMonths[] | null> {
+        return this.http.get<BuildingReportYearAndMonths[]>(
+            `${this.BUILDING_URL}/${buildingId}/reports`
+        );
+    }
+
+    getBuildingReportByYear(
+        buildingId: number,
+        year: number
+    ): Observable<BuildingReport | null> {
+        return this.http.get<BuildingReport>(
+            `${this.BUILDING_URL}/${buildingId}/reports/${year}`
+        );
+    }
+
+    getBuildingReportByYearAndMonth(
+        buildingId: number,
+        year: number,
+        month: number
+    ): Observable<BuildingReport | null> {
+        return this.http.get<BuildingReport>(
+            `${this.BUILDING_URL}/${buildingId}/reports/${year}/${month}`
+        );
     }
 }

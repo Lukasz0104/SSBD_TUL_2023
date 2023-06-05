@@ -13,11 +13,14 @@ export class OwnPlacesComponent {
     toggled = false;
     chosenId: number | undefined;
 
+    tab = 1;
+
     constructor(private placeService: PlaceService) {
         this.ownPlaces$ = this.placeService.getOwnPlaces();
     }
 
     showPlaceDetails(id: number) {
+        this.tab = 1;
         this.chosenId = id;
         this.toggled = true;
     }

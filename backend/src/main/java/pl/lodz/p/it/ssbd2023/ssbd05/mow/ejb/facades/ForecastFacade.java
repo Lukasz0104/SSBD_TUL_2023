@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -10,13 +11,18 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Stateless
 @DenyAll
@@ -35,7 +41,6 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
     }
 
     // Date
-
     @RolesAllowed({OWNER, MANAGER})
     public List<Forecast> findByYear(Year year) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByYear", Forecast.class);
@@ -166,6 +171,38 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.setParameter("month", month);
         tq.setParameter("year", year);
         tq.setParameter("rate", rateId);
+        return tq.getResultList();
+    }
+
+
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public List<Forecast> findByBuildingIdAndYear(Long id, Year year) throws AppBaseException {
+        try {
+            TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYear", Forecast.class);
+            tq.setParameter("buildingId", id);
+            tq.setParameter("year", year);
+            return tq.getResultList();
+        } catch (PersistenceException e) {
+            throw new AppDatabaseException("Forecast.findByBuildingIdAndYear, Database Exception", e);
+        }
+    }
+
+    @RolesAllowed({OWNER, MANAGER, ADMIN})
+    public Map<Integer, Integer> findYearsAndMonthsByBuildingId(Long id) {
+        TypedQuery<Object[]> tq = em.createNamedQuery("Forecast.findYearsAndMonthsByBuildingId", Object[].class);
+        tq.setParameter("id", id);
+        return tq.getResultStream().collect(Collectors.toMap(
+            obj -> ((Year)obj[0]).getValue(),
+            obj -> ((Long)obj[1]).intValue()
+        ));
+    }
+
+    @RolesAllowed({OWNER, MANAGER, ADMIN})
+    public List<Forecast> findByBuildingIdAndYearAndMonth(Long id, Year year, Month month) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByBuildingIdAndYearAndMonth", Forecast.class);
+        tq.setParameter("id", id);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
         return tq.getResultList();
     }
 

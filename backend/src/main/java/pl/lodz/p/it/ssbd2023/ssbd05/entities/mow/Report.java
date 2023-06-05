@@ -143,6 +143,13 @@ import java.time.Year;
                   AND r.category.name = :categoryName
                   AND r.year = :year"""),
     @NamedQuery(
+        name = "Report.findByBuildingIdAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.building.id = :buildingId
+                  AND r.year = :year
+            """),
+    @NamedQuery(
         name = "Report.findYearsByPlaceId",
         query = "SELECT DISTINCT r.year FROM Report r WHERE r.place.id = :placeId")
 })
