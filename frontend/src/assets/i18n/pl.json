@@ -64,6 +64,15 @@
     },
     "repeat-new-password": {
       "required": "Powtórzenie nowego hasła jest wymagane"
+    },
+    "rate": {
+      "required": "Wysokość stawki jest wymagana.",
+      "length": "Wysokość stawki musi być większa lub równa 0.",
+      "decimal-places": "Wysokość stawki może mieć tylko do 2 miejsc po przecinku"
+    },
+    "effective-date": {
+      "required": "Data obowiązywania jest wymagana.",
+      "invalid-date": "Data obowiązywania stawki musi być pierwszym dniem miesiąca"
     }
   },
   "form": {
@@ -243,7 +252,9 @@
       "city": "Miasto",
       "place-number": "Numer lokalu",
       "residents-number": "Ilość lokatorów",
-      "square-footage": "Powierzchnia"
+      "square-footage": "Powierzchnia",
+      "rate-value": "Wysokość stawki",
+      "effective-date": "Data obowiązywania"
     },
     "landing-page": {
       "title": "Zmień oblicze swojej wspólnoty z eBok!",
@@ -256,8 +267,11 @@
       "effectiveDate": "Obowiązuje od",
       "created": "Utworzona",
       "modified": "Zmodyfikowana",
+      "remove": "Usuń",
       "loading": "Wczytywanie stawek",
-      "remove": "Usuń"
+      "add": "Dodaj nową stawkę",
+      "cancel": "Anuluj",
+      "create": "Dodaj"
     },
     "welcome": {
       "welcome": "Witaj",
@@ -325,7 +339,8 @@
       "change-password": "Czy na pewno chcesz zmienić swoje hasło?",
       "verify-negative": "Potwierdź negatywną weryfikację.",
       "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
-      "remove-rate-danger": "Tej akcji nie można cofnąć!"
+      "remove-rate-danger": "Tej akcji nie można cofnąć!",
+      "add-rate": "Czy na pewno chcesz dodać tę stawkę?"
     }
   },
   "access-levels": {
@@ -397,12 +412,14 @@
     },
     "rate": {
       "remove-success": "Pomyślnie usunięto stawkę",
+      "add-success": "Pomyślnie dodano nową stawkę",
       "response": {
         "message": {
-          "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!"
+          "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!",
+          "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
         }
       }
-    }
+    },
   },
   "password-change": {
     "response": {
@@ -569,5 +586,17 @@
         "invalid_token_type": "Podano błędny kod"
       }
     }
+  },
+  "categories": {
+    "maintenance": "Opłata eksploatacyjna",
+    "repair": "Opłata remontowa",
+    "heating": "Ogrzewanie",
+    "hot_water": "Woda ciepła",
+    "cold_water": "Woda zimna",
+    "intercom": "Domofon",
+    "garbage": "Śmieci",
+    "elevator": "Winda",
+    "satellite_tv": "Telewizja satelitarna",
+    "parking": "Parking"
   }
 }
