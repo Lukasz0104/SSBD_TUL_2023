@@ -33,6 +33,7 @@ export enum ResponseMessage {
     BAD_ACCESS_LEVEL = 'response.message.bad-access-level',
     INVALID_CAPTCHA_CODE = 'response.message.invalid_captcha',
     ACCESS_LEVEL_ALREADY_GRANTED = 'response.message.access-level-already-granted',
+    RATE_ALREADY_EFFECTIVE = 'response.message.rate-already-effective',
     CATEGORY_NOT_FOUND = 'response.message.category_not_found',
     RATE_NOT_UNIQUE = 'response.message.rate_not_unique'
 }

@@ -270,7 +270,8 @@
       "loading": "Loading rates",
       "add": "Add a new rate",
       "cancel": "Cancel",
-      "create": "Add"
+      "create": "Add",
+      "remove": "Remove"
     },
     "welcome": {
       "welcome": "Welcome",
@@ -365,6 +366,8 @@
       "edit-account-danger": "This action cannot be undone!",
       "change-password": "Are you sure, you want to change your password?",
       "verify-negative": "Confirm negative verification.",
+      "remove-rate": "Are you sure you want to remove this rate?",
+      "remove-rate-danger": "This action cannot be undone!",
       "add-rate": "Are you sure, you want to add this rate?"
     }
   },
@@ -436,9 +439,12 @@
       "not-found": "Place not found"
     },
     "rate": {
+      "remove-success": "Successfully removed the rate",
       "add-success": "Rate added successfully",
+      "remove-fail": "Something went wrong while removing the rate!",
       "response": {
         "message": {
+          "rate_already-effective": "Can't remove this rate, because it's already effective!",
           "rate_not_unique": "Rate with same effective date within this category already exists!"
         }
       }

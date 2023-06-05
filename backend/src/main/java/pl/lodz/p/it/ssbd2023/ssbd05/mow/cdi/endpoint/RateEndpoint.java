@@ -62,7 +62,8 @@ public class RateEndpoint {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response removeFutureRate(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response removeFutureRate(@NotNull @PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> rateManager.removeFutureRate(id), rateManager).build();
     }
 }
