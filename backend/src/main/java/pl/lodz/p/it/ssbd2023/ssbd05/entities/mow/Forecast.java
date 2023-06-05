@@ -100,7 +100,7 @@ import java.time.Year;
         query = """
             SELECT f.year AS year, COUNT(DISTINCT f.month) AS months
                 FROM Forecast f
-                WHERE f.place.building.id = :id
+                WHERE f.place.building.id = :id AND f.realValue IS NOT NULL
                 GROUP BY f.year
                 ORDER BY f.year
             """),

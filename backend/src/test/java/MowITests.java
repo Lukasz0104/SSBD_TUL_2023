@@ -1,8 +1,9 @@
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,6 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryD
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.ReadingDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.util.List;
@@ -448,7 +450,8 @@ public class MowITests extends TestContainersSetup {
 
             @Test
             void shouldPassManagerGettingOwnPlaces() {
-                io.restassured.response.Response response = given().spec(managerOwnerSpec).when().get("/places/me/" + 5);
+                io.restassured.response.Response response =
+                    given().spec(managerOwnerSpec).when().get("/places/me/" + 5);
                 PlaceDTO place = response.getBody().as(PlaceDTO.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
                 Assertions.assertNotNull(place);
@@ -512,6 +515,244 @@ public class MowITests extends TestContainersSetup {
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
 
+        }
+    }
+
+    @Nested
+    class MOW9 {
+        private static final String ownerURL = "/places/me/";
+        private static final String managerURL = "/places/";
+
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("dchmielewski", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetPlaceMetersPositiveTest {
+            @Test
+            void shouldGetPlaceMetersAsOwnerWithStatusCode200Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(ownerURL + "3/meters")
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThanOrEqualTo(0)));
+            }
+
+            @Test
+            void shouldGetPlaceMetersAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(managerURL + "2/meters")
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThanOrEqualTo(0)));
+            }
+        }
+
+        @Nested
+        class GetPlaceMetersNegativeTest {
+            @Test
+            void shouldFailToGetPlaceMetersAsGuestWithStatusCode403Test() {
+                when()
+                    .get(ownerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+
+                when()
+                    .get(managerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceMetersAsOwnerWithStatusCode403Test() {
+                given().spec(ownerSpec).when()
+                    .get(managerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceMetersAsManagerWithStatusCode403Test() {
+                given().spec(onlyManagerSpec).when()
+                    .get(ownerURL + "/1/meters")
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceMetersAsOwnerNotOwningPlaceWithStatusCode404Test() {
+                given().spec(ownerSpec).when()
+                    .get(ownerURL + "/7/meters")
+                    .then()
+                    .statusCode(404);
+            }
+        }
+    }
+
+    @Nested
+    class MOW29 {
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("lnowicki", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldPassOwnerGettingOwnPlaceMeterReadings() {
+                io.restassured.response.Response response =
+                    given().spec(onlyOwnerSpec).when().get("/meters/me/" + 5 + "/readings");
+                Page<ReadingDto> readingDtoPage =
+                    response.getBody().as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(readingDtoPage);
+                assertTrue(readingDtoPage.getTotalSize() >= 0);
+                assertTrue(readingDtoPage.getCurrentPage() >= 0);
+                assertTrue(readingDtoPage.getPageSize() >= 0);
+                assertTrue(readingDtoPage.getData().size() > 0);
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldPassManagerGettingAnyMeterReadings(int id) {
+                io.restassured.response.Response response =
+                    given().spec(onlyManagerSpec).when().get("/meters/" + id + "/readings");
+                Page<ReadingDto> readingDtoPage =
+                    response.getBody().as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(readingDtoPage);
+                assertTrue(readingDtoPage.getTotalSize() >= 0);
+                assertTrue(readingDtoPage.getCurrentPage() >= 0);
+                assertTrue(readingDtoPage.getPageSize() >= 0);
+                assertTrue(readingDtoPage.getData().size() > 0);
+            }
+
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingMeterReadingsAsAdmin(int id) {
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/meters/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingOwnPlaceMeterReadingsAsAdmin(int id) {
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingOwnPlaceMeterReadingsAsManager(int id) {
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingAnyMeterReadingsAsOwner(int id) {
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .get("/meters/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 6, 7})
+            void shouldReturnSC404WhenGettingPlaceMeterReadingsAsOwnerNotOwningPlace(int id) {
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 6, 7})
+            void shouldReturnSC403WhenGettingAnyMeterReadingsAsGuest(int id) {
+                given()
+                    .when()
+                    .get("/meters/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
         }
     }
 }
