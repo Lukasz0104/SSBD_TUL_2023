@@ -44,7 +44,10 @@
                     </button>
                 </td>
                 <td>
-                    <button class="btn btn-primary">
+                    <button
+                        [queryParams]="{ id: building.id }"
+                        [routerLink]="['reports']"
+                        class="btn btn-outline-primary">
                         {{ 'component.buildings.reports' | translate }}
                     </button>
                 </td>

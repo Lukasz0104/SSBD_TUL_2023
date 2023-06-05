@@ -319,7 +319,40 @@
       "modified": "Zmodyfikowany",
       "readings": "Odczyty licznika: ",
       "add-reading": "Dodaj odczyt"
+    },
+    "building-report": {
+      "year": "Rok",
+      "chooseYear": "Wybierz rok",
+      "yearly": "Raport roczny",
+      "category": "Kategoria opłaty",
+      "pred-amount": "Przewidywane zużycie",
+      "pred-value": "Przewidywany koszt",
+      "diff": "Różnica",
+      "real-value": "Koszt rzeczywisty",
+      "real-amount": "Zużycie rzeczywiste",
+      "rate": "Stawka",
+      "sum": "Suma",
+      "loading-year": "Wybierz rok",
+      "loading": "Ładowanie raportu ...",
+      "not-full-year": "Wybrany rok nie posiada jeszcze pełnego raportu",
+      "month-1": "Styczeń",
+      "month-2": "Luty",
+      "month-3": "Marzec",
+      "month-4": "Kwiecień",
+      "month-5": "Maj",
+      "month-6": "Czerwiec",
+      "month-7": "Lipiec",
+      "month-8": "Sierpień",
+      "month-9": "Wrzesień",
+      "month-10": "Październik",
+      "month-11": "Listopad",
+      "month-12": "Grudzień"
     }
+  },
+  "accounting-rule": {
+    "pln": "zł",
+    "person": "os",
+    "month": "mies"
   },
   "modal": {
     "access-level": "Wybierz poziom dostępu",
@@ -359,7 +392,7 @@
     "profile": "Profil",
     "change-access-level": "Zmień poziom dostępu",
     "your-places": "Twoje lokale",
-    "place": "Lokal",
+    "reports": "Raporty",
     "categories": "Kategorie opłat",
     "buildings": "Budynki",
     "costs": "Koszty"
@@ -420,6 +453,9 @@
           "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
         }
       }
+    },
+    "report": {
+      "not-found": "Nie znaleziono raportu"
     }
   },
   "password-change": {

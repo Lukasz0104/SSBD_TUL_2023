@@ -15,6 +15,7 @@ import { WelcomeComponent } from './components/welcome/welcome.component';
 import { PlaceComponent } from './components/place/place.component';
 import { MeterComponent } from './components/meter/meter.component';
 import { AddRateComponent } from './components/add-rate/add-rate.component';
+import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
 
 @NgModule({
     declarations: [
@@ -27,8 +28,9 @@ import { AddRateComponent } from './components/add-rate/add-rate.component';
         PlaceComponent,
         BuildingsComponent,
         CostsComponent,
-        AddRateComponent,
-        MeterComponent
+        MeterComponent,
+        BuildingReportsComponent,
+        AddRateComponent
     ],
     imports: [
         CommonModule,
