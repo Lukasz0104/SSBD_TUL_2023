@@ -1,0 +1,105 @@
+<div class="modal-header">
+    <h2
+        class="modal-title"
+        id="modal-basic-title">
+        {{ 'component.ratesByCategory.add' | translate }}
+    </h2>
+</div>
+<div class="modal-body px-4 py-2">
+    <div>
+        <div class="row">
+            <div class="col-md">
+                <form [formGroup]="addRateForm">
+                    <div class="mb-2 has-validation">
+                        <label
+                            for="rateValueInput"
+                            class="form-label mb-0">
+                            {{ 'component.fields.rate-value' | translate }}
+                            [{{ 'component.place.categories.pln' | translate }}]
+                        </label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            value="0.00"
+                            id="rateValueInput"
+                            required
+                            class="form-control"
+                            formControlName="rateValue"
+                            placeholder="{{
+                                'component.fields.rate-value' | translate
+                            }}"
+                            [ngClass]="{
+                                'is-invalid': valueControl.invalid,
+                                'is-valid': valueControl.valid
+                            }" />
+                        <div
+                            *ngIf="valueControl.errors as bnErrors"
+                            class="invalid-feedback">
+                            <p
+                                *ngIf="bnErrors['required']"
+                                class="mb-0">
+                                {{ 'validation.rate.required' | translate }}
+                            </p>
+                            <p
+                                *ngIf="bnErrors['min']"
+                                class="mb-0">
+                                {{ 'validation.rate.length' | translate }}
+                            </p>
+                            <p
+                                *ngIf="bnErrors['invalidDecimal']"
+                                class="mb-0">
+                                {{
+                                    'validation.rate.decimal-places' | translate
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mb-2 has-validation row">
+                        <div class="">
+                            {{ 'component.fields.effective-date' | translate }}
+                        </div>
+                        <div>
+                            <ngb-datepicker
+                                formControlName="effectiveDate"
+                                [(ngModel)]="initial"
+                                [minDate]="today"></ngb-datepicker>
+                        </div>
+                        <div
+                            *ngIf="effectiveDate.errors as dateErrors"
+                            class="date-validation-message">
+                            <p
+                                *ngIf="dateErrors['required']"
+                                class="mb-0">
+                                {{
+                                    'validation.effective-date.required'
+                                        | translate
+                                }}
+                            </p>
+                            <p
+                                *ngIf="dateErrors['invalidDate']"
+                                class="mb-0">
+                                {{
+                                    'validation.effective-date.invalid-date'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-4 d-flex justify-content-between modal-footer">
+    <div
+        (click)="activeModal.close(false)"
+        class="btn btn-outline-secondary">
+        {{ 'component.ratesByCategory.cancel' | translate }}
+    </div>
+    <button
+        [disabled]="!addRateForm.valid"
+        (click)="confirm()"
+        class="btn btn-success">
+        {{ 'component.ratesByCategory.create' | translate }}
+    </button>
+</div>

@@ -64,6 +64,15 @@
     },
     "repeat-new-password": {
       "required": "Repeat new password is required"
+    },
+    "rate": {
+      "required": "Rate value is required.",
+      "length": "Rate value must be greater or equal to 0.",
+      "decimal-places": "Rate value can have only up to 2 decimal places"
+    },
+    "effective-date": {
+      "required": "Effective date is required.",
+      "invalid-date": "Effective date should be the first day of month"
     }
   },
   "form": {
@@ -218,7 +227,7 @@
       "categories": {
         "edit": "Edit",
         "save": "Save",
-        "pln": "pln",
+        "pln": "PLN",
         "person": "pp",
         "month": "pm",
         "title": "Place payment categories",
@@ -243,7 +252,9 @@
       "city": "City",
       "place-number": "Place number",
       "residents-number": "Number of residents",
-      "square-footage": "Square footage"
+      "square-footage": "Square footage",
+      "rate-value": "Rate value",
+      "effective-date": "Effective date"
     },
     "landing-page": {
       "title": "Improve your community with eBok!",
@@ -256,7 +267,10 @@
       "effectiveDate": "Effective from",
       "created": "Created",
       "modified": "Modified",
-      "loading": "Loading rates"
+      "loading": "Loading rates",
+      "add": "Add a new rate",
+      "cancel": "Cancel",
+      "create": "Add"
     },
     "welcome": {
       "welcome": "Welcome",
@@ -322,7 +336,8 @@
       "edit-account": "Are you sure, you want to edit account",
       "edit-account-danger": "This action cannot be undone!",
       "change-password": "Are you sure, you want to change your password?",
-      "verify-negative": "Confirm negative verification."
+      "verify-negative": "Confirm negative verification.",
+      "add-rate": "Are you sure, you want to add this rate?"
     }
   },
   "access-levels": {
@@ -391,6 +406,14 @@
     },
     "place": {
       "not-found": "Place not found"
+    },
+    "rate": {
+      "add-success": "Rate added successfully",
+      "response": {
+        "message": {
+          "rate_not_unique": "Rate with same effective date within this category already exists!"
+        }
+      }
     }
   },
   "password-change": {
@@ -558,5 +581,17 @@
         "invalid_token_type": "Invalid token"
       }
     }
+  },
+  "categories": {
+    "maintenance": "Maintenance fee",
+    "repair": "Repair fee",
+    "heating": "Heating fee",
+    "hot_water": "Hot water fee",
+    "cold_water": "Cold water fee",
+    "intercom": "Intercom fee",
+    "garbage": "Garbage fee",
+    "elevator": "Elevator fee",
+    "satellite_tv": "Satellite TV fee",
+    "parking": "Parking fee"
   }
 }
