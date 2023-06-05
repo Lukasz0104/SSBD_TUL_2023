@@ -3,9 +3,16 @@
         <h3
             class="modal-title me-1"
             id="modal-basic-title">
-            {{ 'component.meter.readings' | translate }} {{ meter?.category }}
+            {{ 'component.meter.readings' | translate }}
+            {{ meter?.getValue()?.category ?? '' | translate }}
         </h3>
+        <div class="col text-end">
+            <i
+                (click)="getReadings()"
+                class="me-2 bi bi-arrow-clockwise fs-3 cursor-pointer"></i>
+        </div>
         <button
+            (click)="showAddReadingModal()"
             *ngIf="isNextReadingBeforeNow() || authService.isManager()"
             class="btn btn-success text-truncate">
             {{ 'component.meter.add-reading' | translate }}
@@ -14,7 +21,9 @@
             *ngIf="!isNextReadingBeforeNow() && !authService.isManager()"
             class="">
             {{ 'component.meter.next-reading-date' | translate }} -
-            <b>{{ meter?.dateOfNextReading | date : 'dd/MM/yy HH:mm' }}</b>
+            <b>{{
+                meter?.getValue()?.dateOfNextReading | date : 'dd/MM/yy HH:mm'
+            }}</b>
         </span>
     </div>
     <ng-container *ngIf="readings$ | async as readings; else loadingReadings">

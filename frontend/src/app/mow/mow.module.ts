@@ -14,6 +14,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { PlaceComponent } from './components/place/place.component';
 import { MeterComponent } from './components/meter/meter.component';
+import { AddRateComponent } from './components/add-rate/add-rate.component';
+import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
+import { AddReadingComponent } from './components/add-reading/add-reading.component';
 
 @NgModule({
     declarations: [
@@ -26,7 +29,10 @@ import { MeterComponent } from './components/meter/meter.component';
         PlaceComponent,
         BuildingsComponent,
         CostsComponent,
-        MeterComponent
+        MeterComponent,
+        BuildingReportsComponent,
+        AddRateComponent,
+        AddReadingComponent
     ],
     imports: [
         CommonModule,

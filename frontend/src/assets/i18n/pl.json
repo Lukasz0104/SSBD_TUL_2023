@@ -64,6 +64,23 @@
     },
     "repeat-new-password": {
       "required": "Powtórzenie nowego hasła jest wymagane"
+    },
+    "rate": {
+      "required": "Wysokość stawki jest wymagana.",
+      "length": "Wysokość stawki musi być większa lub równa 0.",
+      "decimal-places": "Wysokość stawki może mieć tylko do 2 miejsc po przecinku"
+    },
+    "effective-date": {
+      "required": "Data obowiązywania jest wymagana.",
+      "invalid-date": "Data obowiązywania stawki musi być pierwszym dniem miesiąca"
+    },
+    "reading": {
+      "required": "Wartość odczytu jest wymagana.",
+      "length": "Wartość odczytu musi być większa od 0",
+      "decimal-places": "Wartość odczytu może mieć tylko do 3 miejsc po przecinku",
+      "reading-date": {
+        "required": "Data odczytu jest wymagana"
+      }
     }
   },
   "form": {
@@ -243,7 +260,9 @@
       "city": "Miasto",
       "place-number": "Numer lokalu",
       "residents-number": "Ilość lokatorów",
-      "square-footage": "Powierzchnia"
+      "square-footage": "Powierzchnia",
+      "rate-value": "Wysokość stawki",
+      "effective-date": "Data obowiązywania"
     },
     "landing-page": {
       "title": "Zmień oblicze swojej wspólnoty z eBok!",
@@ -256,7 +275,11 @@
       "effectiveDate": "Obowiązuje od",
       "created": "Utworzona",
       "modified": "Zmodyfikowana",
-      "loading": "Wczytywanie stawek"
+      "remove": "Usuń",
+      "loading": "Wczytywanie stawek",
+      "add": "Dodaj nową stawkę",
+      "cancel": "Anuluj",
+      "create": "Dodaj"
     },
     "welcome": {
       "welcome": "Witaj",
@@ -305,7 +328,45 @@
       "readings": "Odczyty licznika: ",
       "add-reading": "Dodaj odczyt",
       "next-reading-date": "Następny odczyt"
+    },
+    "building-report": {
+      "year": "Rok",
+      "chooseYear": "Wybierz rok",
+      "yearly": "Raport roczny",
+      "category": "Kategoria opłaty",
+      "pred-amount": "Przewidywane zużycie",
+      "pred-value": "Przewidywany koszt",
+      "diff": "Różnica",
+      "real-value": "Koszt rzeczywisty",
+      "real-amount": "Zużycie rzeczywiste",
+      "rate": "Stawka",
+      "sum": "Suma",
+      "loading-year": "Wybierz rok",
+      "loading": "Ładowanie raportu ...",
+      "not-full-year": "Wybrany rok nie posiada jeszcze pełnego raportu",
+      "month-1": "Styczeń",
+      "month-2": "Luty",
+      "month-3": "Marzec",
+      "month-4": "Kwiecień",
+      "month-5": "Maj",
+      "month-6": "Czerwiec",
+      "month-7": "Lipiec",
+      "month-8": "Sierpień",
+      "month-9": "Wrzesień",
+      "month-10": "Październik",
+      "month-11": "Listopad",
+      "month-12": "Grudzień"
+    },
+    "add-reading": {
+      "add": "Dodaj odczyt",
+      "cancel": "Anuluj",
+      "create": "Dodaj"
     }
+  },
+  "accounting-rule": {
+    "pln": "zł",
+    "person": "os",
+    "month": "mies"
   },
   "modal": {
     "access-level": "Wybierz poziom dostępu",
@@ -323,7 +384,11 @@
       "edit-account": "Czy na pewno chcesz edytować konto",
       "edit-account-danger": "Tej akcji nie można cofnąć!",
       "change-password": "Czy na pewno chcesz zmienić swoje hasło?",
-      "verify-negative": "Potwierdź negatywną weryfikację."
+      "verify-negative": "Potwierdź negatywną weryfikację.",
+      "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
+      "remove-rate-danger": "Tej akcji nie można cofnąć!",
+      "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
+      "add-reading": "Czy na pewno chcesz dodać ten odczyt?"
     }
   },
   "access-levels": {
@@ -342,7 +407,7 @@
     "profile": "Profil",
     "change-access-level": "Zmień poziom dostępu",
     "your-places": "Twoje lokale",
-    "place": "Lokal",
+    "reports": "Raporty",
     "categories": "Kategorie opłat",
     "buildings": "Budynki",
     "costs": "Koszty"
@@ -392,6 +457,31 @@
     },
     "place": {
       "not-found": "Nie znaleziono lokalu"
+    },
+    "rate": {
+      "remove-success": "Pomyślnie usunięto stawkę",
+      "add-success": "Pomyślnie dodano nową stawkę",
+      "remove-fail": "Coś poszło nie tak podczas usuwania stawki!",
+      "response": {
+        "message": {
+          "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!",
+          "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
+        }
+      }
+    },
+    "report": {
+      "not-found": "Nie znaleziono raportu"
+    },
+    "reading": {
+      "add-fail": "Nie udało się dodać odczytu. Spróbuj ponownie później",
+      "add-success": "Pomyślnie dodano odczyt",
+      "response": {
+        "message": {
+          "reading_value_smaller_than_previous": "Wartość odczytu musi być wyższa od wartości poprzedniego odczytu",
+          "not_enough_days_between_reliable_readings": "Nie minęła wystarczająca ilość dni od ostatniego odczytu",
+          "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów"
+        }
+      }
     }
   },
   "password-change": {
@@ -559,5 +649,17 @@
         "invalid_token_type": "Podano błędny kod"
       }
     }
+  },
+  "categories": {
+    "maintenance": "Opłata eksploatacyjna",
+    "repair": "Opłata remontowa",
+    "heating": "Ogrzewanie",
+    "hot_water": "Woda ciepła",
+    "cold_water": "Woda zimna",
+    "intercom": "Domofon",
+    "garbage": "Śmieci",
+    "elevator": "Winda",
+    "satellite_tv": "Telewizja satelitarna",
+    "parking": "Parking"
   }
 }

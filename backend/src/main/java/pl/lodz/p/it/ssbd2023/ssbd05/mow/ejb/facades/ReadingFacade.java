@@ -8,6 +8,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
@@ -15,6 +16,8 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
@@ -25,6 +28,10 @@ import java.util.List;
 @Stateless
 @DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class ReadingFacade extends AbstractFacade<Reading> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")

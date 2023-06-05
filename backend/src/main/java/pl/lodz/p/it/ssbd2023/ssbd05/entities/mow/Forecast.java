@@ -98,6 +98,32 @@ import java.time.Year;
     @NamedQuery(
         name = "Forecast.findByMonthAndYearAndRateId",
         query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year AND f.rate.id = :rate"),
+    @NamedQuery(
+        name = "Forecast.findByBuildingIdAndYear",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.year = :year
+            AND f.place.building.id = :buildingId
+            """),
+    @NamedQuery(
+        name = "Forecast.findDistinctYearsById",
+        query = "SELECT DISTINCT f.year FROM Forecast f WHERE f.place.building.id = :id ORDER BY f.year"),
+    @NamedQuery(
+        name = "Forecast.findYearsAndMonthsByBuildingId",
+        query = """
+            SELECT f.year AS year, COUNT(DISTINCT f.month) AS months
+                FROM Forecast f
+                WHERE f.place.building.id = :id AND f.realValue IS NOT NULL
+                GROUP BY f.year
+                ORDER BY f.year
+            """),
+    @NamedQuery(
+        name = "Forecast.findByBuildingIdAndYearAndMonth",
+        query = """
+            SELECT f FROM Forecast f
+                WHERE f.month = :month AND f.year = :year
+                AND f.place.building.id = :id
+        """),
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {
@@ -129,7 +155,7 @@ public class Forecast extends AbstractEntity implements Serializable {
     @Column(name = "real_value", scale = 3, precision = 38)
     @Getter
     @Setter
-    private BigDecimal realValue;
+    private BigDecimal realValue = BigDecimal.ZERO;
 
     @PositiveOrZero
     @NotNull

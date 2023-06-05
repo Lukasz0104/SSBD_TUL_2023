@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MeterDtoConverter {
 
@@ -34,7 +33,8 @@ public class MeterDtoConverter {
         return new MeterDto(meter.getId(), meter.getCategory().getName(), hasReadingInLast30Days, dateOfNextReading);
     }
 
-    public Set<MeterDto> createMeterDtoListFromMeterList(Set<Meter> meters) {
-        return meters.stream().map(this::createMeterDtoFromMeter).collect(Collectors.toSet());
+    public List<MeterDto> createMeterDtoListFromMeterList(Set<Meter> meters) {
+        return meters.stream().map(this::createMeterDtoFromMeter).sorted(Comparator.comparing(MeterDto::getId))
+            .toList();
     }
 }

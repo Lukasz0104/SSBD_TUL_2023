@@ -10,7 +10,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -153,7 +153,7 @@ public class Reading extends AbstractEntity implements Serializable {
     @Setter
     private LocalDateTime date;
 
-    @Positive
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
     @Column(name = "value", nullable = false, scale = 3, precision = 38)

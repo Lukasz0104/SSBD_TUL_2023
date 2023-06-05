@@ -13,6 +13,11 @@
     font-size: 15px;
 }
 
+.date-validation-message {
+    font-size: 0.875rem;
+    color: var(--bs-form-invalid-color);
+}
+
 html, body {
     height: 100%;
 }
