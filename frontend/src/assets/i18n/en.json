@@ -304,6 +304,34 @@
       "modified": "Modified",
       "readings": "Readings of: ",
       "add-reading": "Add reading"
+    },
+    "building-report": {
+      "loading": "Loading reports' list ..",
+      "year": "Year",
+      "chooseYear": "Chose year",
+      "yearly": "Yearly report",
+      "category": "Category",
+      "pred-amount": "Predicted amount",
+      "pred-value": "Predicted cost",
+      "diff": "Difference",
+      "real-value": "Real cost",
+      "real-amount": "Real amount",
+      "rate": "Rate",
+      "sum": "Sum",
+      "loading-year": "Chose year",
+      "not-full-year": "Selected year does not yet have a full report",
+      "month-1": "January",
+      "month-2": "February",
+      "month-3": "March",
+      "month-4": "April",
+      "month-5": "May",
+      "month-6": "June",
+      "month-7": "July",
+      "month-8": "August",
+      "month-9": "September",
+      "month-10": "October",
+      "month-11": "November",
+      "month-12": "December"
     }
   },
   "modal": {
@@ -343,7 +371,7 @@
     "categories": "Bill categories",
     "buildings": "Buildings",
     "your-places": "Your places",
-    "place": "Place",
+    "reports": "Reports",
     "costs": "Costs"
   },
   "toast": {

@@ -14,14 +14,16 @@ public class ReportYearEntry {
     private BigDecimal realValue;
     private BigDecimal realAmount;
     private AccountingRule accountingRule;
+    private BigDecimal rate;
 
     private String categoryName;
 
-    public ReportYearEntry(AccountingRule accountingRule, String categoryName) {
+    public ReportYearEntry(BigDecimal rate, AccountingRule accountingRule, String categoryName) {
         predValue = BigDecimal.ZERO;
         predAmount = BigDecimal.ZERO;
         realValue = BigDecimal.ZERO;
         realAmount = BigDecimal.ZERO;
+        this.rate = rate;
         this.accountingRule = accountingRule;
         this.categoryName = categoryName;
     }

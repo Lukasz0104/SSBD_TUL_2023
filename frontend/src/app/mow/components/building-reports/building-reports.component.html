@@ -1,0 +1,231 @@
+<ng-container *ngIf="yearAndMonth$ | async as yearAndMonth">
+    <div class="row">
+        <div
+            class="btn-group mb-3 d-flex"
+            role="group">
+            <div>
+                <select
+                    class="form-select w-auto"
+                    [(ngModel)]="year"
+                    (ngModelChange)="choseYear($event)">
+                    <option [ngValue]="undefined">
+                        {{ 'component.building-report.chooseYear' | translate }}
+                    </option>
+                    <option
+                        *ngFor="let e of yearAndMonth"
+                        [ngValue]="e.year">
+                        {{ e.year }}
+                    </option>
+                </select>
+            </div>
+            <div>
+                <select
+                    *ngIf="year"
+                    class="form-select w-auto mx-md-auto"
+                    [(ngModel)]="month"
+                    (ngModelChange)="choseMonth($event)">
+                    <option [ngValue]="undefined">
+                        {{ 'component.building-report.yearly' | translate }}
+                    </option>
+                    <option
+                        *ngFor="let month of months"
+                        [ngValue]="month">
+                        {{
+                            'component.building-report.month-' + month
+                                | translate
+                        }}
+                    </option>
+                </select>
+            </div>
+            <div
+                (click)="reload()"
+                class="btn btn-primary flex-grow-0 d-flex justify-content-center align-items-center">
+                <i class="bi bi-arrow-clockwise"></i>
+            </div>
+        </div>
+    </div>
+    <ng-container *ngIf="report$ | async as report; else loadingReport">
+        <div
+            class="d-flex flex-column justify-content-between table-responsive border rounded">
+            <table
+                class="table text-center table-hover"
+                *ngIf="report.categories.length">
+                <thead>
+                    <tr class="bg-light-subtle">
+                        <th scope="col">
+                            {{
+                                'component.building-report.category' | translate
+                            }}
+                        </th>
+                        <th scope="col">
+                            {{
+                                'component.building-report.pred-amount'
+                                    | translate
+                            }}
+                        </th>
+                        <th scope="col">
+                            {{ 'component.building-report.rate' | translate }}
+                        </th>
+                        <th scope="col">
+                            {{
+                                'component.building-report.pred-value'
+                                    | translate
+                            }}
+                        </th>
+                        <th scope="col">
+                            {{ 'component.building-report.diff' | translate }}
+                        </th>
+                        <th scope="col">
+                            {{
+                                'component.building-report.real-value'
+                                    | translate
+                            }}
+                        </th>
+                        <th
+                            scope="col"
+                            *ngIf="month === undefined">
+                            {{
+                                'component.building-report.real-amount'
+                                    | translate
+                            }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        *ngFor="let category of report.categories"
+                        class="cursor-pointer align-middle">
+                        <td>
+                            <i
+                                class="bi {{
+                                    placeService.pictureMap.get(
+                                        category.categoryName
+                                    )
+                                }}"></i>
+                            {{ category.categoryName }}
+                        </td>
+                        <td>
+                            {{ category.predAmount | number : '.2-2' }}
+                        </td>
+                        <td>
+                            {{ category.rate }}
+                            <span
+                                *ngIf="
+                                    category.accountingRule ===
+                                    AccountingRule.UNIT
+                                ">
+                                {{ 'accounting-rule.pln' | translate }}/{{
+                                    'accounting-rule.month' | translate
+                                }}
+                            </span>
+                            <span
+                                *ngIf="
+                                    category.accountingRule ===
+                                    AccountingRule.METER
+                                ">
+                                {{ 'accounting-rule.pln' | translate }}/m<sup
+                                    >3</sup
+                                >
+                            </span>
+                            <span
+                                *ngIf="
+                                    category.accountingRule ===
+                                    AccountingRule.PERSON
+                                ">
+                                {{ 'accounting-rule.pln' | translate }}/{{
+                                    'accounting-rule.person' | translate
+                                }}
+                            </span>
+                            <span
+                                *ngIf="
+                                    category.accountingRule ===
+                                    AccountingRule.SURFACE
+                                ">
+                                {{ 'accounting-rule.pln' | translate }}/m
+                                <sup> 2 </sup>
+                            </span>
+                        </td>
+                        <td>
+                            {{ category.predValue | number : '.2-2' }}
+                            {{ 'accounting-rule.pln' | translate }}
+                        </td>
+                        <td>
+                            <i>
+                                {{
+                                    category.predValue - category.realValue
+                                        | number : '.2-2'
+                                }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </i>
+                        </td>
+                        <td>
+                            {{ category.realValue | number : '.2-2' }}
+                            {{ 'accounting-rule.pln' | translate }}
+                        </td>
+                        <td *ngIf="month === undefined">
+                            {{ category.realAmount | number : '.2-2' }}
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="cursor-pointer align-middle">
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <b>{{
+                                'component.building-report.sum' | translate
+                            }}</b>
+                        </td>
+                        <td>
+                            <b>
+                                {{ report.sumPredValue | number : '.2-2' }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </b>
+                        </td>
+                        <td>
+                            <b
+                                [ngClass]="{
+                                    'text-danger': report.diff < 0,
+                                    'text-success': report.diff >= 0
+                                }">
+                                {{ report.diff | number : '.2-2' }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </b>
+                        </td>
+                        <td>
+                            <b>
+                                {{ report.sumRealValue | number : '.2-2' }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </b>
+                        </td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </ng-container>
+    <ng-template #loadingReport>
+        <div
+            class="d-flex flex-column justify-content-center align-items-center">
+            <span class="spinner-border"></span>
+            <span class="mt-3 text-dark-emphasis">
+                <b>{{ 'component.building-report.loading' | translate }} </b>
+            </span>
+        </div>
+    </ng-template>
+</ng-container>
+
+<div *ngIf="year === undefined">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="mt-3 text-dark-emphasis">
+            <b> {{ 'component.building-report.loading-year' | translate }} </b>
+        </span>
+    </div>
+</div>
+<div *ngIf="notFullYear && year !== undefined">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="mt-3 text-dark-emphasis">
+            <b>{{ 'component.building-report.not-full-year' | translate }}</b>
+        </span>
+    </div>
+</div>

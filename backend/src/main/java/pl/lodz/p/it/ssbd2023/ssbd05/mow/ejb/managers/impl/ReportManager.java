@@ -96,7 +96,8 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         for (Forecast forecast: forecasts) {
             String cat = forecast.getRate().getCategory().getName();
             result.put(cat,
-                result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getAccountingRule(), cat))
+                result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getValue(),
+                        forecast.getRate().getAccountingRule(), cat))
                     .addPred(forecast.getValue(), forecast.getAmount())
             );
         }
@@ -130,7 +131,8 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
                 realValue = BigDecimal.ZERO;
             }
             result.put(cat,
-                result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getAccountingRule(), cat))
+                result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getValue(),
+                        forecast.getRate().getAccountingRule(), cat))
                     .addMonth(forecast.getValue(), forecast.getAmount(), realValue)
             );
         }

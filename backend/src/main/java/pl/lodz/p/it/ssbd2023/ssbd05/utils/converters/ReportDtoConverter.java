@@ -14,17 +14,14 @@ public class ReportDtoConverter {
         BigDecimal sumPredValue = BigDecimal.ZERO;
         BigDecimal sumRealValue = BigDecimal.ZERO;
         for (Map.Entry<String,ReportYearEntry> entry: categories.entrySet()) {
-            sumPredValue = sumRealValue.add(entry.getValue().getPredValue());
+            sumPredValue = sumPredValue.add(entry.getValue().getPredValue());
             sumRealValue = sumRealValue.add(entry.getValue().getRealValue());
         }
         return new BuildingReportYearlyDto(categories.values().stream().toList(),
             sumPredValue, sumRealValue, sumPredValue.subtract(sumRealValue));
     }
 
-    public static BuildingReportsDto mapToListOfBuildingReports(Map<Integer, List<Integer>> maps) {
-        List<BuildingReportsDto.YearInner> t
-            = maps.entrySet().stream().map(e -> new BuildingReportsDto.YearInner(e.getKey(), e.getValue())).toList();
-
-        return new BuildingReportsDto(t);
+    public static List<BuildingReportsDto> mapToListOfBuildingReports(Map<Integer, List<Integer>> maps) {
+        return maps.entrySet().stream().map(e -> new BuildingReportsDto(e.getKey(), e.getValue())).toList();
     }
 }

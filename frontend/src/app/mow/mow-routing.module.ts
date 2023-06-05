@@ -8,9 +8,22 @@ import { canMatchOwner } from '../shared/guards/owner.guard';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
 import { CostsComponent } from './components/costs/costs.component';
+import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
 
 export const routes: Routes = [
-    { path: 'buildings', component: BuildingsComponent },
+    {
+        path: 'buildings',
+        component: BuildingsComponent,
+        canActivate: [canActivateAuthenticated]
+    },
+    {
+        path: 'buildings/reports',
+        component: BuildingReportsComponent,
+        canActivate: [canActivateAuthenticated],
+        data: {
+            title: 'Reports'
+        }
+    },
     {
         path: '',
         component: WelcomeComponent,
