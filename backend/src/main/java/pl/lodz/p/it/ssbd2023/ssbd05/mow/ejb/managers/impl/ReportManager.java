@@ -15,7 +15,7 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.UnaccessibleReportException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InaccessibleReportException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
@@ -117,7 +117,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @RolesAllowed({OWNER, MANAGER})
     private void checkUserPlace(Long placeId, String login) throws AppBaseException {
         if (placeFacade.findByLogin(login).stream().noneMatch((place) -> Objects.equals(place.getId(), placeId))) {
-            throw new UnaccessibleReportException();
+            throw new InaccessibleReportException();
         }
     }
 }

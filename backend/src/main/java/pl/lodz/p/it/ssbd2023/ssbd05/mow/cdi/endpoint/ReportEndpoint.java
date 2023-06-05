@@ -8,6 +8,9 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -69,7 +72,8 @@ public class ReportEndpoint {
     @Path("/place/{id}/report/year")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response getYearlyReportsForPlace(@PathParam("id") Long id, @QueryParam("year") Integer year)
+    public Response getYearlyReportsForPlace(@PathParam("id") Long id,
+                                             @QueryParam("year") @NotNull @Min(2020) @Max(2999) Integer year)
         throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
             () -> ReportDtoConverter.createPlaceReportYearDtoFromListOfReportForecastYear(
@@ -81,7 +85,8 @@ public class ReportEndpoint {
     @Path("/me/place/{id}/report/year")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(OWNER)
-    public Response getOwnYearlyReportsForPlace(@PathParam("id") Long id, @QueryParam("year") Integer year)
+    public Response getOwnYearlyReportsForPlace(@PathParam("id") Long id,
+                                                @QueryParam("year") @NotNull @Min(2020) @Max(2999) Integer year)
         throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
             () -> ReportDtoConverter.createPlaceReportYearDtoFromListOfReportForecastYear(
@@ -98,8 +103,8 @@ public class ReportEndpoint {
     @RolesAllowed(MANAGER)
     public Response getMonthlyReportsForPlace(
         @PathParam("id") Long id,
-        @QueryParam("year") Integer year,
-        @QueryParam("month") Integer month) throws AppBaseException {
+        @QueryParam("year") @NotNull @Min(2020) @Max(2999) Integer year,
+        @QueryParam("month") @NotNull @Min(1) @Max(12) Integer month) throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
             () -> ReportDtoConverter.createPlaceReportMonthDtoFromListOfForecast(
                 reportManager.getAllReportsDataByPlaceAndYearAndMonth(
@@ -116,8 +121,8 @@ public class ReportEndpoint {
     @RolesAllowed(OWNER)
     public Response getOwnMonthlyReportsForPlace(
         @PathParam("id") Long id,
-        @QueryParam("year") Integer year,
-        @QueryParam("month") Integer month) throws AppBaseException {
+        @QueryParam("year") @NotNull @Min(2020) @Max(2999) Integer year,
+        @QueryParam("month") @NotNull @Min(1) @Max(12) Integer month) throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
             () -> ReportDtoConverter.createPlaceReportMonthDtoFromListOfForecast(
                 reportManager.getAllOwnReportsDataByPlaceAndYearAndMonth(
@@ -133,7 +138,8 @@ public class ReportEndpoint {
     @Path("/place/{id}/is-report")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({OWNER, MANAGER})
-    public Response isReportForPlace(@PathParam("id") Long id, @QueryParam("year") Integer year) {
+    public Response isReportForPlace(@PathParam("id") Long id,
+                                     @QueryParam("year") @NotNull @Min(2020) @Max(2999) Integer year) {
         return Response.ok(reportManager.isReportForYear(Year.of(year), id)).build();
     }
 
@@ -141,7 +147,8 @@ public class ReportEndpoint {
     @Path("/me/place/{id}/is-report")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({OWNER, MANAGER})
-    public Response isOwnReportForPlace(@PathParam("id") Long id, @QueryParam("year") Integer year)
+    public Response isOwnReportForPlace(@PathParam("id") Long id,
+                                        @QueryParam("year") @Min(2020) @Max(2999) Integer year)
         throws AppBaseException {
         return Response.ok(
             reportManager.isOwnReportForYear(Year.of(year), id, securityContext.getUserPrincipal().getName())).build();

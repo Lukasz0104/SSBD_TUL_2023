@@ -303,7 +303,7 @@
       "created": "Utworzony",
       "modified": "Zmodyfikowany",
       "readings": "Odczyty licznika: ",
-      "add-reading": "Dodaj odczyt"
+      "add-reading": "Dodaj odczyt",
       "no-meters": "W tym lokalu nie ma żadnych liczników"
     },
     "report": {
@@ -409,6 +409,13 @@
     },
     "place": {
       "not-found": "Nie znaleziono lokalu"
+    },
+    "forecast": {
+      "forecast.get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu"
+    },
+    "report": {
+      "get-place-report-fail": "Bład podczas pobierania raportu",
+      "is-report-for-place-fail": "Nie można zwerfikować roku"
     }
   },
   "password-change": {
