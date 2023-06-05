@@ -71,7 +71,7 @@
       "decimal-places": "Wysokość stawki może mieć tylko do 2 miejsc po przecinku"
     },
     "effective-date": {
-      "required": "Data obowiżywania jest wymagana.",
+      "required": "Data obowiązywania jest wymagana.",
       "invalid-date": "Data obowiązywania stawki musi być pierwszym dniem miesiąca"
     }
   },
