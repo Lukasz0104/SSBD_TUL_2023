@@ -419,7 +419,7 @@
           "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
         }
       }
-    },
+    }
   },
   "password-change": {
     "response": {
