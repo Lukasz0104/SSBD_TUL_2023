@@ -413,6 +413,7 @@
     "rate": {
       "remove-success": "Successfully removed the rate",
       "add-success": "Rate added successfully",
+      "remove-fail": "Something went wrong while removing the rate!",
       "response": {
         "message": {
           "rate_already-effective": "Can't remove this rate, because it's already effective!",

@@ -4,7 +4,6 @@ import { AppConfigService } from '../../shared/services/app-config.service';
 import { PublicRate } from '../../shared/model/rate';
 import { ToastService } from '../../shared/services/toast.service';
 import { catchError, map, of, tap } from 'rxjs';
-import { ResponseMessage } from '../../shared/model/response-message.enum';
 
 @Injectable({
     providedIn: 'root'
@@ -33,11 +32,11 @@ export class RateService {
                 }),
                 map(() => true),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError('toast.rate.fail', 'toast.rate', err);
-                    switch (err.error.message) {
-                        case ResponseMessage.RATE_ALREADY_EFFECTIVE:
-                            return of(false);
-                    }
+                    this.handleError(
+                        'toast.rate.remove-fail',
+                        'toast.rate',
+                        err
+                    );
                     return of(false);
                 })
             );

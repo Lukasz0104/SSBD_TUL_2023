@@ -137,5 +137,4 @@ export class RatesByCategoryComponent implements OnInit {
     }
 
     protected readonly AccountingRule = AccountingRule;
-    protected readonly Date = Date;
 }

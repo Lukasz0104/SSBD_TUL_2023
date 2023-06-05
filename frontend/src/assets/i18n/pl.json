@@ -413,6 +413,7 @@
     "rate": {
       "remove-success": "Pomyślnie usunięto stawkę",
       "add-success": "Pomyślnie dodano nową stawkę",
+      "remove-fail": "Coś poszło nie tak podczas usuwania stawki!",
       "response": {
         "message": {
           "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!",
