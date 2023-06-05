@@ -29,6 +29,7 @@ GRANT SELECT ON TABLE account_data TO ssbd05mow;
 GRANT SELECT ON TABLE access_level TO ssbd05mow;
 GRANT SELECT ON TABLE owner_data TO ssbd05mow;
 GRANT SELECT ON TABLE manager_data TO ssbd05mow;
+GRANT SELECT ON TABLE admin_data TO ssbd05mow;
 
 GRANT SELECT, UPDATE ON SEQUENCE city_dict_id_seq TO ssbd05mok;
 GRANT SELECT, UPDATE ON SEQUENCE access_level_id_seq TO ssbd05mok;
