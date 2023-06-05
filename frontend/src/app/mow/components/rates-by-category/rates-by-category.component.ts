@@ -8,6 +8,8 @@ import { Rate } from '../../../shared/model/rate';
 import { DatePipe } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AddRateComponent } from '../add-rate/add-rate.component';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
+import { RateService } from '../../../auth/services/rate.service';
 
 @Component({
     selector: 'app-rates-by-category',
@@ -20,11 +22,13 @@ export class RatesByCategoryComponent implements OnInit {
     currentRateId = -1;
     page = 1;
     pageSize = 10;
+    currentDate = new Date();
 
     constructor(
         private categoriesService: CategoriesService,
         private datePipe: DatePipe,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private rateService: RateService
     ) {}
 
     ngOnInit(): void {
@@ -37,6 +41,7 @@ export class RatesByCategoryComponent implements OnInit {
     }
 
     getRatesByCategory() {
+        this.currentDate = new Date();
         if (this.category != null) {
             this.rates$ = this.categoriesService
                 .getRatesByCategory(
@@ -102,6 +107,33 @@ export class RatesByCategoryComponent implements OnInit {
                 this.modalService.dismissAll();
                 return EMPTY;
             });
+    }
+
+    isFuture(date: Date) {
+        return new Date(date).getTime() - this.currentDate.getTime() > 0;
+    }
+
+    confirmRemoveRate(id: number) {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'modal.confirm-action.remove-rate';
+        instance.danger = 'modal.confirm-action.remove-rate-danger';
+        modalRef.closed.subscribe((res: boolean) => {
+            if (res) {
+                this.removeRate(id);
+            }
+        });
+    }
+
+    removeRate(id: number) {
+        this.rateService.removeRate(id).subscribe((result) => {
+            if (result) {
+                this.getRatesByCategory();
+            }
+        });
     }
 
     protected readonly AccountingRule = AccountingRule;

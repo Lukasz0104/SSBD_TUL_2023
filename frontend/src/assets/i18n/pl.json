@@ -267,6 +267,7 @@
       "effectiveDate": "Obowiązuje od",
       "created": "Utworzona",
       "modified": "Zmodyfikowana",
+      "remove": "Usuń",
       "loading": "Wczytywanie stawek",
       "add": "Dodaj nową stawkę",
       "cancel": "Anuluj",
@@ -337,6 +338,8 @@
       "edit-account-danger": "Tej akcji nie można cofnąć!",
       "change-password": "Czy na pewno chcesz zmienić swoje hasło?",
       "verify-negative": "Potwierdź negatywną weryfikację.",
+      "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
+      "remove-rate-danger": "Tej akcji nie można cofnąć!",
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?"
     }
   },
@@ -408,9 +411,12 @@
       "not-found": "Nie znaleziono lokalu"
     },
     "rate": {
+      "remove-success": "Pomyślnie usunięto stawkę",
       "add-success": "Pomyślnie dodano nową stawkę",
+      "remove-fail": "Coś poszło nie tak podczas usuwania stawki!",
       "response": {
         "message": {
+          "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!",
           "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
         }
       }
