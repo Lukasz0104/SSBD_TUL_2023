@@ -204,6 +204,15 @@
             </table>
         </div>
     </ng-container>
+    <ng-template #loadingReport>
+        <div
+            class="d-flex flex-column justify-content-center align-items-center">
+            <span class="spinner-border"></span>
+            <span class="mt-3 text-dark-emphasis">
+                <b>{{ 'component.building-report.loading' | translate }} </b>
+            </span>
+        </div>
+    </ng-template>
 </ng-container>
 
 <div *ngIf="year === undefined">

@@ -333,6 +333,7 @@
       "rate": "Stawka",
       "sum": "Suma",
       "loading-year": "Wybierz rok",
+      "loading": "Ładowanie raportu ...",
       "not-full-year": "Wybrany rok nie posiada jeszcze pełnego raportu",
       "month-1": "Styczeń",
       "month-2": "Luty",
@@ -452,6 +453,9 @@
           "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
         }
       }
+    },
+    "report": {
+      "not-found": "Nie znaleziono raportu"
     }
   },
   "password-change": {

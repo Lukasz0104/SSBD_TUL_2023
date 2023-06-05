@@ -78,8 +78,6 @@ export class BuildingReportsComponent implements OnInit {
                     this.year
                 );
                 this.notFullYear = false;
-            } else if (this.months == undefined) {
-                this.report$ = undefined;
             } else {
                 this.notFullYear = true;
                 this.report$ = undefined;
