@@ -268,8 +268,8 @@
       "loading": "Loading buildings..."
     },
     "costs": {
-      "month":  "Month",
-      "realRate":  "Real rate ",
+      "month": "Month",
+      "realRate": "Real rate ",
       "totalConsumption": "Total consumption",
       "months": {
         "january": "January",
@@ -303,7 +303,7 @@
       "created": "Created",
       "modified": "Modified",
       "readings": "Readings of: ",
-      "add-reading": "Add reading"
+      "add-reading": "Add reading",
       "no-meters": "There are no meters in this place"
     },
     "report": {
@@ -409,6 +409,13 @@
     },
     "place": {
       "not-found": "Place not found"
+    },
+    "forecast": {
+      "forecast.get-years-by-place-fail": "Could not get available report years for given place"
+    },
+    "report": {
+      "get-place-report-fail": "Could not get report",
+      "is-report-for-place-fail": "Could not validate year"
     }
   },
   "password-change": {
@@ -558,6 +565,32 @@
         "access-management-self": "Cannot grant access level to your own account",
         "account_not_found": "This account could not be found",
         "license-number-already-taken": "License number already taken"
+      }
+    }
+  },
+  "get-report-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "",
+        "inaccessible_forecast": "",
+        "forecast_not_found": "",
+        "report_not_found": ""
+      }
+    }
+  },
+  "is-report-for-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "",
+        "inaccessible_forecast": ""
+      }
+    }
+  },
+  "get-years-by-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "",
+        "inaccessible_forecast": ""
       }
     }
   },
