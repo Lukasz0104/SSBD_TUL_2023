@@ -8,8 +8,10 @@ import { canMatchOwner } from '../shared/guards/owner.guard';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
 import { CostsComponent } from './components/costs/costs.component';
+import { PlacesComponent } from './components/places/places.component';
 
 export const routes: Routes = [
+    { path: 'buildings/:id/places', component: PlacesComponent },
     { path: 'buildings', component: BuildingsComponent },
     {
         path: '',

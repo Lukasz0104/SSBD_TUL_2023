@@ -14,6 +14,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { PlaceComponent } from './components/place/place.component';
 import { MeterComponent } from './components/meter/meter.component';
+import { PlacesComponent } from './components/places/places.component';
 
 @NgModule({
     declarations: [
@@ -26,7 +27,8 @@ import { MeterComponent } from './components/meter/meter.component';
         PlaceComponent,
         BuildingsComponent,
         CostsComponent,
-        MeterComponent
+        MeterComponent,
+        PlacesComponent
     ],
     imports: [
         CommonModule,

@@ -20,6 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
@@ -57,7 +58,13 @@ public class BuildingEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response getBuildingPlaces(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+                () -> buildingManager.getBuildingPlaces(id)
+                    .stream()
+                    .map(PlaceDtoConverter::createPlaceDtoFromPlace)
+                    .toList(),
+                buildingManager)
+            .build();
     }
 
     @GET
