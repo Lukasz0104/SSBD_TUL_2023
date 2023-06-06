@@ -45,17 +45,19 @@ public class ReadingEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({OWNER})
     public Response createReadingAsOwner(@Valid @NotNull AddReadingAsOwnerDto dto) throws AppBaseException {
-        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(() -> readingManager.createReadingAsOwner(
-            ReadingDtoConverter.createReadingFromDto(dto),
-            dto.getMeterId(), securityContext.getUserPrincipal().getName()), readingManager).build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> readingManager.createReadingAsOwner(
+                ReadingDtoConverter.createReadingFromDto(dto),
+                dto.getMeterId(), securityContext.getUserPrincipal().getName()), readingManager).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER})
     public Response createReadingAsManager(@Valid @NotNull AddReadingAsManagerDto dto) throws AppBaseException {
-        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(() -> readingManager.createReadingAsManager(
-            ReadingDtoConverter.createReadingFromDto(dto),
-            dto.getMeterId()), readingManager).build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> readingManager.createReadingAsManager(
+                ReadingDtoConverter.createReadingFromDto(dto),
+                dto.getMeterId()), readingManager).build();
     }
 }

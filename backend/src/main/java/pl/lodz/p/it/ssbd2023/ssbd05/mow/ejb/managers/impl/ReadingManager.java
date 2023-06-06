@@ -62,18 +62,8 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
     public void createReadingAsOwner(Reading reading, Long meterId, String login) throws AppBaseException {
         Meter meter = meterFacade.findByIdAndOwnerLogin(meterId, login).orElseThrow(MeterNotFoundException::new);
 
-        LocalDateTime now = LocalDateTime.now();
-        List<Reading> pastReliableReadings = meter.getReadings().stream()
-            .filter(Reading::isReliable)
-            .filter(r -> r.getDate().isBefore(now))
-            .sorted(Comparator.comparing(Reading::getDate).reversed())
-            .toList();
-
-        List<Reading> futureReliableReadings = meter.getReadings().stream()
-            .filter(Reading::isReliable)
-            .filter(r -> r.getDate().isAfter(now))
-            .sorted(Comparator.comparing(Reading::getDate).reversed())
-            .toList();
+        List<Reading> pastReliableReadings = meter.getPastReliableReadings();
+        List<Reading> futureReliableReadings = meter.getFutureReliableReadings();
 
         if (pastReliableReadings.size() > 0) {
             Reading lastReliableReading = pastReliableReadings.get(0);
@@ -106,17 +96,8 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
     public void createReadingAsManager(Reading reading, Long meterId) throws AppBaseException {
         Meter meter = meterFacade.find(meterId).orElseThrow(MeterNotFoundException::new);
 
-        List<Reading> pastReliableReadings = meter.getReadings().stream()
-            .filter(Reading::isReliable)
-            .filter(r -> r.getDate().isBefore(reading.getDate()) || r.getDate().isEqual(reading.getDate()))
-            .sorted(Comparator.comparing(Reading::getDate).reversed())
-            .toList();
-
-        List<Reading> futureReliableReadings = meter.getReadings().stream()
-            .filter(Reading::isReliable)
-            .filter(r -> r.getDate().isAfter(reading.getDate()) || r.getDate().isEqual(reading.getDate()))
-            .sorted(Comparator.comparing(Reading::getDate).reversed())
-            .toList();
+        List<Reading> pastReliableReadings = meter.getPastReliableReadings();
+        List<Reading> futureReliableReadings = meter.getFutureReliableReadings();
 
         pastReliableReadings.stream()
             .filter(r ->
@@ -139,11 +120,7 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
     private void calculateForecasts(Meter meter)
         throws AppBaseException {
         LocalDateTime now = LocalDateTime.now();
-        List<Reading> pastReliableReadings = meter.getReadings().stream()
-            .filter(Reading::isReliable)
-            .filter(r -> r.getDate().isBefore(now))
-            .sorted(Comparator.comparing(Reading::getDate).reversed())
-            .toList();
+        List<Reading> pastReliableReadings = meter.getPastReliableReadings();
 
         List<Reading> reliableReadingsFromConsideredMonths = pastReliableReadings.stream()
             .filter(
@@ -161,6 +138,7 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
         if (reliableReadingsFromConsideredMonths.size() > 0) {
             lastReading = reliableReadingsFromConsideredMonths.get(0);
         } else {
+            // W najgorszym wypadku(brak jakichkolwiek innych odczytów) odczyt zerowy (tworzony razem z licznikiem)
             lastReading = reliableReadingsFromBeforeConsideredMonths.get(0);
         }
 
@@ -168,6 +146,7 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
         if (reliableReadingsFromConsideredMonths.size() > 1) {
             firstReading = reliableReadingsFromConsideredMonths.get(reliableReadingsFromConsideredMonths.size() - 1);
         } else {
+            // Zawsze odczyt zerowy
             firstReading =
                 reliableReadingsFromBeforeConsideredMonths.get(reliableReadingsFromBeforeConsideredMonths.size() - 1);
         }
