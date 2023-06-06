@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CostPage } from '../../model/cost';
 import { CostsService } from '../../services/costs.service';
 import { AuthService } from '../../../shared/services/auth.service';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { CostComponent } from '../cost/cost.component';
 
 @Component({
     selector: 'app-costs',
@@ -20,7 +22,8 @@ export class CostsComponent implements OnInit {
 
     constructor(
         private costsService: CostsService,
-        protected authService: AuthService
+        protected authService: AuthService,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit() {
@@ -47,6 +50,21 @@ export class CostsComponent implements OnInit {
 
     reload() {
         this.getCosts();
+    }
+
+    openCostDetails(id: number) {
+        const modalRef: NgbModalRef = this.modalService.open(CostComponent, {
+            centered: true,
+            size: 'lg',
+            scrollable: true
+        });
+        modalRef.componentInstance.setCostById(id);
+        modalRef.result
+            .then((res): void => {
+                id = res;
+            })
+            .catch(() => EMPTY);
+        this.reload();
     }
 
     protected onSortChange() {

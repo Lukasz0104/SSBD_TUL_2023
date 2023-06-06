@@ -1,28 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Cost } from '../../model/cost';
-import { ActivatedRoute } from '@angular/router';
 import { CostsService } from '../../services/costs.service';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-cost',
     templateUrl: './cost.component.html'
 })
-export class CostComponent implements OnInit {
+export class CostComponent {
     id: number | undefined;
     cost$: Observable<Cost | null> | undefined;
 
     constructor(
-        private costsService: CostsService,
-        private route: ActivatedRoute
+        public activeModal: NgbActiveModal,
+        private modalService: NgbModal,
+        private costsService: CostsService
     ) {}
 
-    ngOnInit(): void {
-        this.route.queryParams.subscribe((params) => {
-            this.id = params['id'];
-            if (this.id !== undefined) {
-                this.cost$ = this.costsService.getCost(this.id);
-            }
-        });
+    setCostById(id: number) {
+        if (id !== undefined) {
+            this.cost$ = this.costsService.getCost(id);
+        }
     }
 }

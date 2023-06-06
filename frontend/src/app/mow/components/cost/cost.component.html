@@ -27,7 +27,7 @@
                                         'component.costs.category' | translate
                                     }}</strong>
                                 </p>
-                                <p>{{ cost.category }}</p>
+                                <p>{{ cost.category | translate }}</p>
                             </div>
                         </div>
                         <div
@@ -38,7 +38,13 @@
                                         'component.costs.month' | translate
                                     }}</strong>
                                 </p>
-                                <p>{{ cost.month }}</p>
+                                <p>
+                                    {{
+                                        'component.costs.months.' +
+                                            cost.month.toLocaleLowerCase()
+                                            | translate
+                                    }}
+                                </p>
                                 <p>
                                     <strong>{{
                                         'component.costs.year' | translate
@@ -46,7 +52,7 @@
                                 </p>
                                 <p>{{ cost.year }}</p>
                             </div>
-                            <div class="col-md text-center">
+                            <div class="col-md text-center text-nowrap">
                                 <p>
                                     <strong
                                         >{{
@@ -64,7 +70,7 @@
                                 </p>
                                 <p>{{ cost.totalConsumption }}</p>
                             </div>
-                            <div class="col-md">
+                            <div class="col-md text-nowrap">
                                 <p>
                                     <strong>{{
                                         'component.account.created-at'

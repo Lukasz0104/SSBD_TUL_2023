@@ -31,7 +31,7 @@
                     *ngFor="let name of categoryNames"
                     [ngValue]="name"
                     (click)="getCosts()">
-                    {{ name }}
+                    {{ name | translate }}
                 </option>
             </select>
         </div>
@@ -82,8 +82,7 @@
                     <td>{{ cost.totalConsumption }}</td>
                     <td>
                         <button
-                            [routerLink]="['cost']"
-                            [queryParams]="{ id: cost?.id }"
+                            (click)="openCostDetails(cost.id)"
                             class="btn btn-outline-primary">
                             {{ 'component.fields.details' | translate }}
                         </button>
@@ -105,22 +104,17 @@
             <div *ngIf="costs.data?.length">
                 <select
                     [(ngModel)]="pageSize"
+                    (ngModelChange)="reload()"
                     class="form-select w-auto">
-                    <option
-                        (click)="reload()"
-                        [ngValue]="5">
+                    <option [ngValue]="5">
                         {{
                             'component.accounts.display.five-items' | translate
                         }}
                     </option>
-                    <option
-                        (click)="reload()"
-                        [ngValue]="10">
+                    <option [ngValue]="10">
                         {{ 'component.accounts.display.ten-items' | translate }}
                     </option>
-                    <option
-                        (click)="reload()"
-                        [ngValue]="15">
+                    <option [ngValue]="15">
                         {{
                             'component.accounts.display.fifteen-items'
                                 | translate
