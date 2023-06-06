@@ -11,7 +11,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryR
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportYearDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.ReportForecastYear;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportForecastYear;
 
 import java.math.BigDecimal;
 import java.util.List;

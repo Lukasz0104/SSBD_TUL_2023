@@ -1,9 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.impl;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportForecastYear.convertReportAndForecastListToReportForecastYearList;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.ReportForecastYear.convertReportAndForecastListToReportForecastYearList;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -27,7 +27,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.ReportForecastYear;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportForecastYear;
 
 import java.math.BigDecimal;
 import java.time.Month;

@@ -6,7 +6,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.ReportForecastYear;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportForecastYear;
 
 import java.time.Month;
 import java.time.Year;

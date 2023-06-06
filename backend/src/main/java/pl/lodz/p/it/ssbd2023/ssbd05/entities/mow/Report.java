@@ -91,7 +91,7 @@ import java.time.Year;
         query = """
             SELECT r FROM Report r
             WHERE r.place.id = :placeId
-                  AND r.year = :year
+                  AND r.year = :year ORDER BY r.category.name ASC
             """),
     @NamedQuery(
         name = "Report.findByPlaceNumberAndBuildingIdAndYear",

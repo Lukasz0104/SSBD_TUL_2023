@@ -375,11 +375,12 @@
       "overpayment": "Nadpłata",
       "underpayment": "Niedopłata",
       "payed": "W pełni opłacone",
-      "total-real-cost": "Całkowity faktyczny koszy",
+      "total-real-cost": "Całkowity faktyczny koszt",
       "total-forecasted-cost": "Całkowity przewidywany koszt",
       "sum": "Suma",
       "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
-      "title": "Raport"
+      "title": "Raport",
+      "loading": "Ładowanie raportów"
     }
   },
   "accounting-rule": {
@@ -488,7 +489,7 @@
       }
     },
     "forecast": {
-      "forecast.get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu"
+      "get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu"
     },
     "report": {
       "get-place-report-fail": "Bład podczas pobierania raportu",
