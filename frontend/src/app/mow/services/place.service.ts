@@ -71,8 +71,4 @@ export class PlaceService {
     getPlaceMetersAsManager(id: number) {
         return this.http.get<Meter[]>(`${this.BASE_URL}/${id}/meters`);
     }
-
-    getPlaceMeters(id: number) {
-        return this.http.get<OwnPlace[]>(`${this.BASE_URL}/${id}/meters`);
-    }
 }

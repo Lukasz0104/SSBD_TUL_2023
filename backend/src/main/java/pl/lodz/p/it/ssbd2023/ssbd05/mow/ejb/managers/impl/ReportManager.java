@@ -16,29 +16,26 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InaccessibleReportException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppInternalServerErrorException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InaccessibleReportException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.ReportForecastYear;
 
-import java.time.Month;
-import java.time.Year;
 import java.math.BigDecimal;
 import java.time.Month;
 import java.time.Year;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -104,7 +101,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
         reports = reportFacade.findByBuildingIdAndYear(id, year);
 
-        for (Forecast forecast: forecasts) {
+        for (Forecast forecast : forecasts) {
             String cat = forecast.getRate().getCategory().getName();
             result.put(cat,
                 result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getValue(),
@@ -113,7 +110,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
             );
         }
 
-        for (Report report: reports) {
+        for (Report report : reports) {
             String cat = report.getCategory().getName();
             try {
                 result.put(cat,
@@ -135,7 +132,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         Map<String, ReportYearEntry> result = new HashMap<>();
         List<Forecast> forecasts = forecastFacade.findByBuildingIdAndYearAndMonth(id, year, month);
 
-        for (Forecast forecast: forecasts) {
+        for (Forecast forecast : forecasts) {
             String cat = forecast.getRate().getCategory().getName();
             BigDecimal realValue = forecast.getRealValue();
             if (realValue == null) {
@@ -205,9 +202,6 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
             throw new InaccessibleReportException();
         }
     }
-}
-
-
 }
 
 

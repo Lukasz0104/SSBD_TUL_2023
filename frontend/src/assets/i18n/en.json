@@ -363,8 +363,29 @@
         "10": "October",
         "11": "November",
         "12": "December"
-      }
+      },
+      "category": "Category",
+      "real-cost": "Real cost",
+      "forecasted-cost": "Forecasted cost",
+      "cost-diff": "Cost difference",
+      "real-usage": "Real consumption",
+      "forecasted-usage": "Forecasted consumption",
+      "usage-diff": "Consumption difference",
+      "rate": "Rate",
+      "overpayment": "Overpayment",
+      "underpayment": "Underpayment",
+      "payed": "Fully payed",
+      "total-real-cost": "Total real cost",
+      "total-forecasted-cost": "Total forecasted cost",
+      "sum": "Sum",
+      "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
+      "title": "Report"
     }
+  },
+  "accounting-rule": {
+    "pln": "PLN",
+    "person": "pp",
+    "month": "pm"
   },
   "modal": {
     "access-level": "Choose access level",
@@ -628,26 +649,26 @@
   "get-report-place": {
     "response": {
       "message": {
-        "inaccessible_report": "",
-        "inaccessible_forecast": "",
-        "forecast_not_found": "",
-        "report_not_found": ""
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place",
+        "forecast_not_found": "Forecast not found",
+        "report_not_found": "Report not found"
       }
     }
   },
   "is-report-for-place": {
     "response": {
       "message": {
-        "inaccessible_report": "",
-        "inaccessible_forecast": ""
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
       }
     }
   },
   "get-years-by-place": {
     "response": {
       "message": {
-        "inaccessible_report": "",
-        "inaccessible_forecast": ""
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
       }
     }
   },

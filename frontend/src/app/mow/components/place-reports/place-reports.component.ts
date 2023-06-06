@@ -6,6 +6,7 @@ import { Observable, tap } from 'rxjs';
 import { PlaceReportMonth } from '../../model/place-report-month';
 import { PlaceService } from '../../services/place.service';
 import { ForecastService } from '../../services/forecast.service';
+import { AccountingRule } from '../../../shared/model/accounting-rule';
 
 @Component({
     selector: 'app-place-reports',
@@ -130,5 +131,9 @@ export class PlaceReportsComponent implements OnInit {
 
     getNumAbs(diff: number) {
         return Math.abs(diff);
+    }
+
+    public get RULE(): typeof AccountingRule {
+        return AccountingRule;
     }
 }

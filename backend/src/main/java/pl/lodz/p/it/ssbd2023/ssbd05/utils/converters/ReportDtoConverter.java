@@ -4,14 +4,14 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.ForecastNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.ReportNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportsDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.ReportForecastYear;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportsDto;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -104,7 +104,7 @@ public class ReportDtoConverter {
     public static BuildingReportYearlyDto mapToBuildingReportYearlyDto(Map<String, ReportYearEntry> categories) {
         BigDecimal sumPredValue = BigDecimal.ZERO;
         BigDecimal sumRealValue = BigDecimal.ZERO;
-        for (Map.Entry<String,ReportYearEntry> entry: categories.entrySet()) {
+        for (Map.Entry<String, ReportYearEntry> entry : categories.entrySet()) {
             sumPredValue = sumPredValue.add(entry.getValue().getPredValue());
             sumRealValue = sumRealValue.add(entry.getValue().getRealValue());
         }

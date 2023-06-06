@@ -17,5 +17,5 @@ interface PlaceCategoryReportMonth {
     realValue: number;
     valueDifferential: number;
     amount: number;
-    rate_value: number;
+    rateValue: number;
 }

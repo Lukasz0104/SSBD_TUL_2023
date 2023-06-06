@@ -6,7 +6,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.List;
 
 public class MeterDtoConverter {
     public static MeterDto createMeterDtoFromMeter(Meter meter) {

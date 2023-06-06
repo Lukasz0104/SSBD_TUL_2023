@@ -2,7 +2,7 @@
     <div class="card-header text-center fs-3">
         <div class="row">
             <div class="col text-start">
-                <b>Raport</b>
+                <b>{{ 'component.report.title' | translate }}</b>
                 <div
                     ngbDropdown
                     class="d-inline">
@@ -57,7 +57,7 @@
                 <i
                     *ngIf="!validCurrentMonth"
                     class="bi bi-question-circle text-danger ms-2"
-                    ngbTooltip="Wybrany raport nie mógł zostać skompletowany&#10;z powodu braku faktury na podany miesiąc"
+                    ngbTooltip="Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc"
                     [openDelay]="200"
                     [closeDelay]="500"
                     tooltipClass="bg-danger"></i>
@@ -79,13 +79,32 @@
                 <table class="table shadow table-sm">
                     <thead>
                         <tr class="table-primary">
-                            <th scope="col">Kategoria</th>
-                            <th scope="col">Faktyczny koszt</th>
-                            <th scope="col">Przewidywany koszt</th>
-                            <th scope="col">Różnica kosztów</th>
-                            <th scope="col">Faktyczne zużycie</th>
-                            <th scope="col">Przewidywane zużycie</th>
-                            <th scope="col">Różnica zużycia</th>
+                            <th scope="col">
+                                {{ 'component.report.category' | translate }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.report.real-cost' | translate }}
+                            </th>
+                            <th scope="col">
+                                {{
+                                    'component.report.forecast-cost' | translate
+                                }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.report.cost-diff' | translate }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.report.real-usage' | translate }}
+                            </th>
+                            <th scope="col">
+                                {{
+                                    'component.report.forecasted-usage'
+                                        | translate
+                                }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.report.usage-diff' | translate }}
+                            </th>
                         </tr>
                     </thead>
                     <tbody *ngFor="let report of reports.details">
@@ -97,10 +116,16 @@
                                             report.categoryName
                                         )
                                     }}"></i>
-                                {{ report.categoryName }}
+                                {{ report.categoryName | translate }}
                             </th>
-                            <td>{{ report.totalCost.toFixed(2) }} zł</td>
-                            <td>{{ report.forecastValueSum.toFixed(2) }} zł</td>
+                            <td>
+                                {{ report.totalCost.toFixed(2) }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </td>
+                            <td>
+                                {{ report.forecastValueSum.toFixed(2) }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </td>
                             <td
                                 [ngClass]="{
                                     'text-success': report.costDifferential > 0,
@@ -111,16 +136,56 @@
                                         2
                                     )
                                 }}
-                                zł
+                                {{ 'accounting-rule.pln' | translate }}
                             </td>
-                            <td>{{ report.totalConsumption.toFixed(3) }}</td>
-                            <td>{{ report.forecastAmountSum.toFixed(3) }}</td>
+                            <td>
+                                {{ report.totalConsumption.toFixed(3) }}
+                                <span
+                                    *ngIf="report.accountingRule === RULE.METER"
+                                    >m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.SURFACE
+                                    "
+                                    >m<sup>2</sup>
+                                </span>
+                            </td>
+                            <td>
+                                {{ report.forecastAmountSum.toFixed(3) }}
+                                <span
+                                    *ngIf="report.accountingRule === RULE.METER"
+                                    >m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.SURFACE
+                                    "
+                                    >m<sup>2</sup>
+                                </span>
+                            </td>
                             <td
                                 [ngClass]="{
-                                    'text-success': report.costDifferential > 0,
-                                    'text-danger': report.costDifferential < 0
+                                    'text-success':
+                                        report.consumptionDifferential > 0,
+                                    'text-danger':
+                                        report.consumptionDifferential < 0
                                 }">
-                                {{ report.consumptionDifferential.toFixed(3) }}
+                                {{
+                                    getNumAbs(
+                                        report.consumptionDifferential
+                                    ).toFixed(3)
+                                }}
+                                <span
+                                    *ngIf="report.accountingRule === RULE.METER"
+                                    >m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.SURFACE
+                                    "
+                                    >m<sup>2</sup>
+                                </span>
                             </td>
                         </tr>
                     </tbody>
@@ -129,15 +194,26 @@
             <div class="rounded shadow mt-2">
                 <div class="row">
                     <div class="col-sm text-start m-2">
-                        <b>Suma: </b>
+                        <b>{{ 'component.report.sum' | translate }}: </b>
                     </div>
                     <div class="col mb-1">
-                        <b>Całkowity faktyczny koszt:</b><br />
-                        {{ reports.totalCostSum.toFixed(2) }} zł
+                        <b
+                            >{{
+                                'component.report.total-real-cost' | translate
+                            }}:</b
+                        ><br />
+                        {{ reports.totalCostSum.toFixed(2) }}
+                        {{ 'accounting-rule.pln' | translate }}
                     </div>
                     <div class="col mb-1">
-                        <b>Całkowity przewidywany koszt:</b><br />
-                        {{ reports.forecastedCostSum.toFixed(2) }} zł
+                        <b
+                            >{{
+                                'component.report.total-forecasted-cost'
+                                    | translate
+                            }}:</b
+                        ><br />
+                        {{ reports.forecastedCostSum.toFixed(2) }}
+                        {{ 'accounting-rule.pln' | translate }}
                     </div>
                     <div
                         class="col mb-1"
@@ -145,15 +221,23 @@
                             'text-success': reports.differential > 0,
                             'text-danger': reports.differential < 0
                         }">
-                        <b *ngIf="reports.differential > 0">Nadpłata:</b>
-                        <b *ngIf="reports.differential < 0">Niedopłata:</b>
-                        <b *ngIf="reports.differential === 0">Opłacone:</b>
+                        <b *ngIf="reports.differential > 0"
+                            >{{
+                                'component.report.overpayment' | translate
+                            }}:</b
+                        >
+                        <b *ngIf="reports.differential < 0"
+                            >{{
+                                'component.report.underpayment' | translate
+                            }}:</b
+                        >
+                        <b *ngIf="reports.differential === 0"
+                            >{{ 'component.report.payed' | translate }}:</b
+                        >
                         <br />
                         <span
-                            >{{
-                                getNumAbs(reports.differential).toFixed(2)
-                            }}
-                            zł</span
+                            >{{ getNumAbs(reports.differential).toFixed(2) }}
+                            {{ 'accounting-rule.pln' | translate }}</span
                         >
                     </div>
                 </div>
@@ -179,12 +263,30 @@
                 <table class="table shadow table-sm">
                     <thead>
                         <tr class="table-primary">
-                            <th scope="col">Kategoria</th>
-                            <th scope="col">Faktyczny koszt</th>
-                            <th scope="col">Przewidywany koszt</th>
-                            <th scope="col">Różnica kosztów</th>
-                            <th scope="col">Przewidywane zużycie</th>
-                            <th scope="col">Stawka</th>
+                            <th scope="col">
+                                {{ 'component.report.category' | translate }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.report.real-cost' | translate }}
+                            </th>
+                            <th scope="col">
+                                {{
+                                    'component.report.forecasted-cost'
+                                        | translate
+                                }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.report.cost-diff' | translate }}
+                            </th>
+                            <th scope="col">
+                                {{
+                                    'component.report.forecasted-usage'
+                                        | translate
+                                }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.report.rate' | translate }}
+                            </th>
                         </tr>
                     </thead>
                     <tbody *ngFor="let report of reports.details">
@@ -196,10 +298,16 @@
                                             report.categoryName
                                         )
                                     }}"></i>
-                                {{ report.categoryName }}
+                                {{ report.categoryName | translate }}
                             </th>
-                            <td>{{ report.realValue.toFixed(2) }} zł</td>
-                            <td>{{ report.value.toFixed(2) }} zł</td>
+                            <td>
+                                {{ report.realValue.toFixed(2) }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </td>
+                            <td>
+                                {{ report.value.toFixed(2) }}
+                                {{ 'accounting-rule.pln' | translate }}
+                            </td>
                             <td
                                 [ngClass]="{
                                     'text-success':
@@ -211,10 +319,53 @@
                                         2
                                     )
                                 }}
-                                zł
+                                {{ 'accounting-rule.pln' | translate }}
                             </td>
-                            <td>{{ report.amount.toFixed(3) }}</td>
-                            <td>{{ report.rate_value.toFixed(2) }}</td>
+                            <td>
+                                {{ report.amount.toFixed(3) }}
+                                <span
+                                    *ngIf="report.accountingRule === RULE.METER"
+                                    >m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.SURFACE
+                                    "
+                                    >m<sup>2</sup>
+                                </span>
+                            </td>
+                            <td>
+                                {{ report.rateValue.toFixed(2) }}
+                                <span
+                                    *ngIf="report.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.month' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.METER
+                                    ">
+                                    {{
+                                        'accounting-rule.pln' | translate
+                                    }}/m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.PERSON
+                                    ">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.person' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.SURFACE
+                                    ">
+                                    {{ 'accounting-rule.pln' | translate }}
+                                    /m<sup>2</sup>
+                                </span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -222,15 +373,29 @@
             <div class="rounded shadow mt-2">
                 <div class="row">
                     <div class="col-sm text-start m-2">
-                        <b>Suma: </b>
+                        <b> {{ 'component.report.sum' | translate }}: </b>
                     </div>
                     <div class="col mb-1">
-                        <span> <b>Całkowity faktyczny koszt:</b><br /> </span>
-                        {{ reports.totalRealValue.toFixed(2) }} zł
+                        <span>
+                            <b>
+                                {{
+                                    'component.report.total-real-cost'
+                                        | translate
+                                }}:</b
+                            ><br />
+                        </span>
+                        {{ reports.totalRealValue.toFixed(2) }}
+                        {{ 'accounting-rule.pln' | translate }}
                     </div>
                     <div class="col mb-1">
-                        <b>Całkowity przewidywany koszt:</b><br />
-                        {{ reports.totalValue.toFixed(2) }} zł
+                        <b>
+                            {{
+                                'component.report.total-forecasted-cost'
+                                    | translate
+                            }}:</b
+                        ><br />
+                        {{ reports.totalValue.toFixed(2) }}
+                        {{ 'accounting-rule.pln' | translate }}
                     </div>
                     <div
                         class="col mb-1"
@@ -238,15 +403,21 @@
                             'text-success': reports.differential > 0,
                             'text-danger': reports.differential < 0
                         }">
-                        <b *ngIf="reports.differential > 0">Nadpłata:</b>
-                        <b *ngIf="reports.differential < 0">Niedopłata:</b>
-                        <b *ngIf="reports.differential === 0">Opłacone:</b>
+                        <b *ngIf="reports.differential > 0">
+                            {{ 'component.report.overpayment' | translate }}:</b
+                        >
+                        <b *ngIf="reports.differential < 0">
+                            {{
+                                'component.report.underpayment' | translate
+                            }}:</b
+                        >
+                        <b *ngIf="reports.differential === 0">
+                            {{ 'component.report.payed' | translate }}:</b
+                        >
                         <br />
                         <span
-                            >{{
-                                getNumAbs(reports.differential).toFixed(2)
-                            }}
-                            zł</span
+                            >{{ getNumAbs(reports.differential).toFixed(2) }}
+                            {{ 'accounting-rule.pln' | translate }}</span
                         >
                     </div>
                 </div>

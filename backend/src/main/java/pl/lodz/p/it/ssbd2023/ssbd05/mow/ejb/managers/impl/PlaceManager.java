@@ -91,11 +91,6 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     public Set<Meter> getPlaceMetersAsOwner(Long id, String login) throws AppBaseException {
         Place place = placeFacade.findByIdAndOwnerLogin(id, login).orElseThrow(PlaceNotFoundException::new);
         return place.getMeters();
-
-    @Override
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Meter> getPlaceMeters(Long id) throws AppBaseException {
-        return meterFacade.findByPlaceId(id);
     }
 
     @Override

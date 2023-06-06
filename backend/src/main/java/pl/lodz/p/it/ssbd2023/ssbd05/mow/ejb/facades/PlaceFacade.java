@@ -1,6 +1,5 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
-import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -67,12 +66,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
 
     @Override
     @RolesAllowed({MANAGER})
-    public Optional<Place> find(Long id) {
-        return super.find(id);
-    }
-
-    @Override
-    @RolesAllowed({MANAGER, ADMIN})
     public Optional<Place> find(Long id) {
         return super.find(id);
     }
