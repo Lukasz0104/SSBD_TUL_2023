@@ -12,6 +12,15 @@
             </div>
         </div>
     </ng-container>
-    <ng-template #noPlacesFound>No places</ng-template>
+    <ng-template #noPlacesFound>
+        {{ 'component.places.empty' | translate }}
+    </ng-template>
 </ng-container>
-<ng-template #loadingPlaces></ng-template>
+<ng-template #loadingPlaces>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">
+            {{ 'component.places.loading' | translate }}
+        </span>
+    </div>
+</ng-template>

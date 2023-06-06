@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EMPTY, map, mergeMap, Observable } from 'rxjs';
-import { BuildingService } from '../../services/building.service';
+import { EMPTY, Observable, map, mergeMap } from 'rxjs';
 import { Place } from '../../model/place';
+import { BuildingService } from '../../services/building.service';
 
 @Component({
     selector: 'app-places',

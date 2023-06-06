@@ -25,7 +25,11 @@ export const routes: Routes = [
             title: 'Reports'
         }
     },
-    { path: 'buildings/:id/places', component: PlacesComponent },
+    {
+        path: 'buildings/:id',
+        component: PlacesComponent,
+        canMatch: [canMatchManager]
+    },
     {
         path: '',
         component: WelcomeComponent,

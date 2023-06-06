@@ -347,6 +347,10 @@
       "month-10": "Październik",
       "month-11": "Listopad",
       "month-12": "Grudzień"
+    },
+    "places": {
+      "loading": "Wczytywanie lokali...",
+      "empty": "Budynek nie istnieje lub nie posiada lokali."
     }
   },
   "accounting-rule": {

@@ -347,6 +347,10 @@
       "month-10": "October",
       "month-11": "November",
       "month-12": "December"
+    },
+    "places": {
+      "loading": "Loading places...",
+      "empty": "Building does not exists or it does not have any places."
     }
   },
   "modal": {
