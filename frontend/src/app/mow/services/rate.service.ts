@@ -1,42 +1,41 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { PublicRate } from '../../shared/model/rate';
-import { ToastService } from '../../shared/services/toast.service';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, of, tap } from 'rxjs';
+import { ResponseMessage } from '../../shared/model/response-message.enum';
+import { ToastService } from '../../shared/services/toast.service';
+import { AddRate } from '../../shared/model/rate';
 
 @Injectable({
     providedIn: 'root'
 })
 export class RateService {
+    private readonly ratesUrl = `${this.appConfig.apiUrl}/rates`;
+
     constructor(
-        private http: HttpClient,
         private appConfig: AppConfigService,
+        private http: HttpClient,
         private toastService: ToastService
     ) {}
 
-    private readonly ratesUrl = `${this.appConfig.apiUrl}/rates`;
-
-    getCurrentRates() {
-        return this.http.get<PublicRate[]>(`${this.ratesUrl}`);
-    }
-
-    removeRate(id: number) {
+    addRate(dto: AddRate) {
         return this.http
-            .delete(`${this.ratesUrl}/${id}`, {
+            .post<AddRate>(`${this.ratesUrl}`, dto, {
                 observe: 'response'
             })
             .pipe(
                 tap(() => {
-                    this.toastService.showSuccess('toast.rate.remove-success');
+                    this.toastService.showSuccess('toast.rate.add-success');
                 }),
                 map(() => true),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError(
-                        'toast.rate.remove-fail',
-                        'toast.rate',
-                        err
-                    );
+                    this.handleError('toast.rate.fail', 'toast.rate', err);
+                    switch (err.error.message) {
+                        case ResponseMessage.CATEGORY_NOT_FOUND:
+                            return of(true);
+                        case ResponseMessage.RATE_NOT_UNIQUE:
+                            return of(false);
+                    }
                     return of(false);
                 })
             );
