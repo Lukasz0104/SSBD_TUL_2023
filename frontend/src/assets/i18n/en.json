@@ -73,6 +73,14 @@
     "effective-date": {
       "required": "Effective date is required.",
       "invalid-date": "Effective date should be the first day of month"
+    },
+    "reading": {
+      "required": "Reading value is required.",
+      "length": "Reading value must be greater than 0.",
+      "decimal-places": "Reading value can have only up to 3 decimal places",
+      "reading-date": {
+        "required": "Reading date is required"
+      }
     }
   },
   "form": {
@@ -318,7 +326,8 @@
       "created": "Created",
       "modified": "Modified",
       "readings": "Readings of: ",
-      "add-reading": "Add reading"
+      "add-reading": "Add reading",
+      "next-reading-date": "Next reading"
     },
     "building-report": {
       "year": "Year",
@@ -347,7 +356,55 @@
       "month-10": "October",
       "month-11": "November",
       "month-12": "December"
+    },
+    "places": {
+      "loading": "Loading places...",
+      "empty": "Building does not exists or it does not have any places."
+    },
+    "add-reading": {
+      "add": "Add reading",
+      "cancel": "Cancel",
+      "create": "Add"
+    },
+    "report": {
+      "month": {
+        "0": "Total",
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      },
+      "category": "Category",
+      "real-cost": "Real cost",
+      "forecasted-cost": "Forecasted cost",
+      "cost-diff": "Cost difference",
+      "real-usage": "Real consumption",
+      "forecasted-usage": "Forecasted consumption",
+      "usage-diff": "Consumption difference",
+      "rate": "Rate",
+      "overpayment": "Overpayment",
+      "underpayment": "Underpayment",
+      "payed": "Fully payed",
+      "total-real-cost": "Total real cost",
+      "total-forecasted-cost": "Total forecasted cost",
+      "sum": "Sum",
+      "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
+      "title": "Report",
+      "loading": "Loading reports"
     }
+  },
+  "accounting-rule": {
+    "pln": "PLN",
+    "person": "pp",
+    "month": "pm"
   },
   "modal": {
     "access-level": "Choose access level",
@@ -368,7 +425,8 @@
       "verify-negative": "Confirm negative verification.",
       "remove-rate": "Are you sure you want to remove this rate?",
       "remove-rate-danger": "This action cannot be undone!",
-      "add-rate": "Are you sure, you want to add this rate?"
+      "add-rate": "Are you sure, you want to add this rate?",
+      "add-reading": "Are you sure, you want to add this reading?"
     }
   },
   "access-levels": {
@@ -449,8 +507,24 @@
         }
       }
     },
+    "forecast": {
+      "get-years-by-place-fail": "Could not get available report years for given place"
+    },
     "report": {
+      "get-place-report-fail": "Could not get report",
+      "is-report-for-place-fail": "Could not validate year",
       "not-found": "Report not found"
+    },
+    "reading": {
+      "add-fail": "Adding reading failed. Try again later",
+      "add-success": "Reading added successfully",
+      "response": {
+        "message": {
+          "reading_value_smaller_than_previous": "Reading value must be higher than value of previous reading",
+          "not_enough_days_between_reliable_readings": "Not enough days since last reading",
+          "reading_value_higher_than_future": "Reading value must be lower than values of future readings"
+        }
+      }
     }
   },
   "password-change": {
@@ -600,6 +674,32 @@
         "access-management-self": "Cannot grant access level to your own account",
         "account_not_found": "This account could not be found",
         "license-number-already-taken": "License number already taken"
+      }
+    }
+  },
+  "get-report-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place",
+        "forecast_not_found": "Forecast not found",
+        "report_not_found": "Report not found"
+      }
+    }
+  },
+  "is-report-for-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
+  "get-years-by-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
       }
     }
   },

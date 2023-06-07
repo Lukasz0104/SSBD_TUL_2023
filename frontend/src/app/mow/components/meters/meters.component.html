@@ -1,7 +1,14 @@
 <ng-container *ngIf="meters$ | async as meters; else loadingMeters">
     <ng-container *ngIf="meters.length > 0; else noMeters">
         <div class="row card-group">
-            <h4>{{ 'component.meters.add-reading' | translate }}</h4>
+            <div class="d-flex">
+                <h4>{{ 'component.meters.add-reading' | translate }}</h4>
+                <div class="col text-end">
+                    <i
+                        (click)="getMeters()"
+                        class="me-2 bi bi-arrow-clockwise fs-3 cursor-pointer"></i>
+                </div>
+            </div>
             <div
                 (click)="showMeterReadings(meter)"
                 class="col-md-6 col-xl-4 col-xxl-3 cursor-pointer"
@@ -31,7 +38,7 @@
                     </ul>
                     <div class="card-body">
                         <h5 class="card-title text-truncate">
-                            {{ meter.category }}
+                            {{ meter.category | translate }}
                         </h5>
                     </div>
                 </div>

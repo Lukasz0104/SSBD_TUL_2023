@@ -19,6 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
@@ -36,6 +37,9 @@ public class BuildingManager extends AbstractManager implements BuildingManagerL
     @Inject
     private BuildingFacade buildingFacade;
 
+    @Inject
+    private PlaceFacade placeFacade;
+
     @Override
     @RolesAllowed({ADMIN, MANAGER, OWNER})
     public List<Building> getAllBuildings() throws AppBaseException {
@@ -51,7 +55,7 @@ public class BuildingManager extends AbstractManager implements BuildingManagerL
     @Override
     @RolesAllowed(MANAGER)
     public List<Place> getBuildingPlaces(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return placeFacade.findByBuildingId(id);
     }
 
     @Override

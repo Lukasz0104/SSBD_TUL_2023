@@ -45,6 +45,9 @@ public class PlaceEndpoint {
     @Inject
     private RollbackUtils rollbackUtils;
 
+    @Inject
+    private MeterDtoConverter meterDtoConverter;
+
     @GET
     @RolesAllowed(MANAGER)
     @Produces(MediaType.APPLICATION_JSON)
@@ -111,7 +114,7 @@ public class PlaceEndpoint {
     @RolesAllowed({OWNER})
     public Response getPlaceMetersAsOwner(@PathParam("id") Long id) throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> MeterDtoConverter.createMeterDtoListFromMeterList(
+            () -> meterDtoConverter.createMeterDtoListFromMeterList(
                 placeManager.getPlaceMetersAsOwner(id, securityContext.getUserPrincipal().getName())),
             placeManager
         ).build();
@@ -123,7 +126,7 @@ public class PlaceEndpoint {
     @RolesAllowed({MANAGER})
     public Response getPlaceMetersAsManager(@PathParam("id") Long id) throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> MeterDtoConverter.createMeterDtoListFromMeterList(
+            () -> meterDtoConverter.createMeterDtoListFromMeterList(
                 placeManager.getPlaceMetersAsManager(id)),
             placeManager
         ).build();

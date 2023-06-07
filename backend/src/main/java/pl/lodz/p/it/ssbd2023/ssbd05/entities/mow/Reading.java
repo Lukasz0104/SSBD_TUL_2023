@@ -10,10 +10,11 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
@@ -89,6 +90,13 @@ import java.time.LocalDateTime;
             WHERE r.meter.id = :meterId
                   AND r.date BETWEEN :beginDate AND :endDate"""),
     @NamedQuery(
+        name = "Reading.findReliableByMeterIdAndDateBetween",
+        query = """
+            SELECT r FROM Reading r
+            WHERE r.meter.id = :meterId
+                  AND r.reliable = TRUE
+                  AND r.date BETWEEN :beginDate AND :endDate"""),
+    @NamedQuery(
         name = "Reading.findByPlaceId",
         query = """
             SELECT r FROM Reading r
@@ -135,6 +143,7 @@ import java.time.LocalDateTime;
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})
+@ToString
 public class Reading extends AbstractEntity implements Serializable {
 
     @NotNull
@@ -144,7 +153,7 @@ public class Reading extends AbstractEntity implements Serializable {
     @Setter
     private LocalDateTime date;
 
-    @Positive
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
     @Column(name = "value", nullable = false, scale = 3, precision = 38)
@@ -170,5 +179,10 @@ public class Reading extends AbstractEntity implements Serializable {
         this.date = date;
         this.value = value;
         this.meter = meter;
+    }
+
+    public Reading(LocalDateTime date, BigDecimal value) {
+        this.date = date;
+        this.value = value;
     }
 }

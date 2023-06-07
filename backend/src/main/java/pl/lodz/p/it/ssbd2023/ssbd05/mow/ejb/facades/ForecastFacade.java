@@ -40,7 +40,12 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return em;
     }
 
-    // Date
+
+    @RolesAllowed({OWNER, MANAGER})
+    public void edit(Forecast forecast) throws AppBaseException {
+        super.edit(forecast);
+    }
+
     @RolesAllowed({OWNER, MANAGER})
     public List<Forecast> findByYear(Year year) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByYear", Forecast.class);
@@ -88,6 +93,7 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return tq.getResultList();
     }
 
+
     @RolesAllowed({OWNER, MANAGER})
     public List<Forecast> findByPlaceIdAndYearAndMonth(Long placeId, Year year, Month month) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndYearAndMonth", Forecast.class);
@@ -97,12 +103,22 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return tq.getResultList();
     }
 
-
     @RolesAllowed({OWNER, MANAGER})
     public List<Forecast> findByPlaceIdAndCategory(Long placeId, Long categoryId) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndCategoryId", Forecast.class);
         tq.setParameter("place", placeId);
         tq.setParameter("categoryId", categoryId);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Forecast> findFutureByPlaceIdAndCategoryAndYear(Long placeId, Long categoryId, Year year, Month month) {
+        TypedQuery<Forecast> tq =
+            em.createNamedQuery("Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterMonth", Forecast.class);
+        tq.setParameter("place", placeId);
+        tq.setParameter("categoryId", categoryId);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
         return tq.getResultList();
     }
 
@@ -206,4 +222,10 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Year> findForecastYearByPlaceId(Long placeId) {
+        TypedQuery<Year> tq = em.createNamedQuery("Forecast.findForecastYearsByPlaceId", Year.class);
+        tq.setParameter("placeId", placeId);
+        return tq.getResultList();
+    }
 }

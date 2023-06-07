@@ -141,10 +141,16 @@ public class I18n {
     public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
     public static final String INVALID_DATE_FORMAT = "response.message.invalid-date-format";
     public static final String METER_NOT_FOUND = "response.message.meter_not_found";
-    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
-    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
+    public static final String READING_VALUE_SMALLER_THAN_PREVIOUS_EXCEPTION =
+        "response.message.reading_value_smaller_than_previous";
+    public static final String NOT_ENOUGH_DAYS_BETWEEN_RELIABLE_READINGS_EXCEPTION =
+        "response.message.not_enough_days_between_reliable_readings";
+    public static final String READING_VALUE_HIGHER_THAN_FUTURE_EXCEPTION =
+        "response.message.reading_value_higher_than_future";
     public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
     public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
+    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
+    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
     public static final String CATEGORY_IN_USE = "response.message.category_in_use";
     public static final String RATE_NOT_FOUND = "response.message.rate_not_found";
     public static final String INACTIVE_PLACE = "response.message.inactive_place";

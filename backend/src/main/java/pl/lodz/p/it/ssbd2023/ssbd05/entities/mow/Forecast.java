@@ -45,6 +45,15 @@ import java.time.Year;
     @NamedQuery(
         name = "Forecast.findByPlaceIdAndCategoryId",
         query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.rate.category.id = :categoryId"),
+    @NamedQuery(
+        name = "Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterMonth",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.place.id = :place
+            AND f.rate.category.id = :categoryId
+            AND f.year = :year
+            AND f.month > :month
+            """),
 
     // place queries
     @NamedQuery(
@@ -55,11 +64,19 @@ import java.time.Year;
         query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.month = :month"),
     @NamedQuery(
         name = "Forecast.findByPlaceIdAndYear",
-        query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.year = :year"),
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.place.id = :place
+            AND f.year = :year
+            ORDER BY f.rate.category.name ASC"""),
     @NamedQuery(
         name = "Forecast.findByPlaceIdAndYearAndMonth",
-        query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.month = :month AND f.year = :year"),
-
+        query = """
+            SELECT f FROM Forecast f 
+            WHERE f.place.id = :place 
+            AND f.month = :month 
+            AND f.year = :year 
+            ORDER BY f.rate.category.name ASC"""),
     // category queries
     @NamedQuery(
         name = "Forecast.findByCategoryId",
@@ -89,6 +106,9 @@ import java.time.Year;
     @NamedQuery(
         name = "Forecast.findByMonthAndYearAndRateId",
         query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year AND f.rate.id = :rate"),
+    @NamedQuery(
+        name = "Forecast.findForecastYearsByPlaceId",
+        query = "SELECT DISTINCT f.year FROM Forecast f WHERE f.place.id = :placeId ORDER BY f.year ASC"),
     @NamedQuery(
         name = "Forecast.findByBuildingIdAndYear",
         query = """
@@ -137,13 +157,13 @@ public class Forecast extends AbstractEntity implements Serializable {
 
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false, scale = 3, precision = 38)
+    @Column(name = "value", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
 
     @PositiveOrZero
-    @Column(name = "real_value", scale = 3, precision = 38)
+    @Column(name = "real_value", scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal realValue = BigDecimal.ZERO;

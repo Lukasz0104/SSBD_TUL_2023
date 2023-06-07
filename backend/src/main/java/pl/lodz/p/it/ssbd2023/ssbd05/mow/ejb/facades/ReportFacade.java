@@ -297,4 +297,11 @@ public class ReportFacade extends AbstractFacade<Report> {
                 "Report.findByPlaceNumberAndBuildingIdAndCategoryNameAndYear, Database Exception", e);
         }
     }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Year> findReportYearsByPlaceId(Long placeId) {
+        TypedQuery<Year> tq = em.createNamedQuery("Report.findYearsByPlaceId", Year.class);
+        tq.setParameter("placeId", placeId);
+        return tq.getResultList();
+    }
 }
