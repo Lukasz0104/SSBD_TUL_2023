@@ -1,103 +1,89 @@
-<ng-container *ngIf="cost$ | async as cost; else loadingCostData">
-    <div ngbAccordion>
-        <div
-            ngbAccordionItem="personal"
-            [collapsed]="false">
-            <h2 ngbAccordionHeader>
-                <button
-                    ngbAccordionButton
-                    class="fs-5">
-                    {{ 'component.costs.cost-data' | translate }}
-                </button>
-            </h2>
-            <div ngbAccordionCollapse>
-                <div
-                    ngbAccordionBody
-                    class="d-flex flex-column flex-md-row justify-content-start align-items-center mb-3 mb-md-0">
-                    <ng-template>
-                        <div class="px-5 mb-4 mb-md-2">
-                            <div class="text-center">
-                                <i
-                                    class="bi bi-piggy-bank"
-                                    style="font-size: 6rem"></i>
-                            </div>
-                            <div class="text-center">
-                                <p>
-                                    <strong>{{
-                                        'component.costs.category' | translate
-                                    }}</strong>
-                                </p>
-                                <p>{{ cost.category | translate }}</p>
-                            </div>
-                        </div>
-                        <div
-                            class="justify-content-center px-3 px-md-5 row fs-6">
-                            <div class="col-md text-center">
-                                <p>
-                                    <strong>{{
-                                        'component.costs.month' | translate
-                                    }}</strong>
-                                </p>
-                                <p>
-                                    {{
-                                        'component.costs.months.' +
-                                            cost.month.toLocaleLowerCase()
-                                            | translate
-                                    }}
-                                </p>
-                                <p>
-                                    <strong>{{
-                                        'component.costs.year' | translate
-                                    }}</strong>
-                                </p>
-                                <p>{{ cost.year }}</p>
-                            </div>
-                            <div class="col-md text-center text-nowrap">
-                                <p>
-                                    <strong
-                                        >{{
-                                            'component.costs.realRate'
-                                                | translate
-                                        }}
-                                    </strong>
-                                </p>
-                                <p>{{ cost.realRate }}</p>
-                                <p>
-                                    <strong>{{
-                                        'component.costs.totalConsumption'
-                                            | translate
-                                    }}</strong>
-                                </p>
-                                <p>{{ cost.totalConsumption }}</p>
-                            </div>
-                            <div class="col-md text-nowrap">
-                                <p>
-                                    <strong>{{
-                                        'component.account.created-at'
-                                            | translate
-                                    }}</strong>
-                                </p>
-                                <p>
-                                    {{
-                                        cost.createdTime
-                                            | date : 'dd/MM/yy HH:mm:ss'
-                                    }}
-                                </p>
-                                <p>
-                                    <strong>{{
-                                        'component.account.created-by'
-                                            | translate
-                                    }}</strong>
-                                </p>
-                                <p>{{ cost.createdBy }}</p>
-                            </div>
-                        </div>
-                    </ng-template>
+<div class="modal-header">
+    <h3
+        class="modal-title"
+        id="modal-basic-title">
+        {{ 'component.costs.cost-data' | translate }}
+    </h3>
+    <button
+        (click)="activeModal.dismiss('Cross click')"
+        class="btn-close"
+        type="button"></button>
+</div>
+<div class="modal-body px-4 py-2">
+    <ng-container *ngIf="cost$ | async as cost; else loadingCostData">
+        <div class="px-5 mb-4 mb-md-2">
+            <div class="text-center">
+                <i
+                    class="bi bi-piggy-bank"
+                    style="font-size: 6rem"></i>
+            </div>
+            <div class="text-center">
+                <p>
+                    <strong>{{
+                        'component.costs.category' | translate
+                    }}</strong>
+                </p>
+                <p>{{ cost.category | translate }}</p>
+            </div>
+        </div>
+        <div class="justify-content-center px-3 px-md-5 row fs-6">
+            <div class="col-md text-center">
+                <p>
+                    <strong>{{ 'component.costs.month' | translate }}</strong>
+                </p>
+                <p>
+                    {{
+                        'component.costs.months.' +
+                            cost.month.toLocaleLowerCase() | translate
+                    }}
+                </p>
+                <p>
+                    <strong>{{ 'component.costs.year' | translate }}</strong>
+                </p>
+                <p>{{ cost.year }}</p>
+            </div>
+            <div class="col-md text-center text-nowrap">
+                <p>
+                    <strong
+                        >{{ 'component.costs.realRate' | translate }}
+                    </strong>
+                </p>
+                <p>{{ cost.realRate }}</p>
+                <p>
+                    <strong>{{
+                        'component.costs.totalConsumption' | translate
+                    }}</strong>
+                </p>
+                <p>{{ cost.totalConsumption }}</p>
+            </div>
+            <div
+                *ngIf="
+                    cost.createdTime !== undefined ||
+                    cost.createdBy !== undefined
+                "
+                class="col-md text-center text-nowrap">
+                <div *ngIf="cost.createdTime !== undefined">
+                    <p>
+                        <strong>{{
+                            'component.account.created-at' | translate
+                        }}</strong>
+                    </p>
+                    <p>
+                        {{ cost.createdTime | date : 'dd/MM/yy HH:mm:ss' }}
+                    </p>
+                </div>
+                <div *ngIf="cost.createdBy !== undefined">
+                    <p>
+                        <strong>{{
+                            'component.account.created-by' | translate
+                        }}</strong>
+                    </p>
+                    <p>{{ cost.createdBy }}</p>
                 </div>
             </div>
         </div>
-    </div>
-</ng-container>
+    </ng-container>
+</div>
 
 <ng-template #loadingCostData>
     <div class="d-flex flex-column justify-content-center align-items-center">

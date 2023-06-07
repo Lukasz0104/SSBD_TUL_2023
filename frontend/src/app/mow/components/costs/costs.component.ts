@@ -55,7 +55,6 @@ export class CostsComponent implements OnInit {
     openCostDetails(id: number) {
         const modalRef: NgbModalRef = this.modalService.open(CostComponent, {
             centered: true,
-            size: 'lg',
             scrollable: true
         });
         modalRef.componentInstance.setCostById(id);
