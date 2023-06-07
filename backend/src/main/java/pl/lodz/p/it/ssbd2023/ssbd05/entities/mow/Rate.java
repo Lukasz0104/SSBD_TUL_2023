@@ -11,8 +11,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,7 +26,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "rate")
+@Table(name = "rate", uniqueConstraints = {
+    @UniqueConstraint(name = "unq_rate_0", columnNames = {"effective_date", "category_id"})})
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -111,17 +114,17 @@ import java.time.LocalDate;
         query = "SELECT r FROM Rate r WHERE r.effectiveDate < :effectiveDate"),
     @NamedQuery(
         name = "Rate.findByEffectiveDateAfter",
-        query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate"),
+        query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate")
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Rate extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Positive
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false, scale = 3, precision = 38)
+    @Column(name = "value", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
@@ -135,6 +138,7 @@ public class Rate extends AbstractEntity implements Serializable {
     private AccountingRule accountingRule;
 
     @NotNull
+    @Future
     @Basic(optional = false)
     @Column(name = "effective_date", nullable = false)
     @Getter

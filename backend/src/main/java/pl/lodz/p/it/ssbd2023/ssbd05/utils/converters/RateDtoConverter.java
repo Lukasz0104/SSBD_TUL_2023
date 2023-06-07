@@ -1,6 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
@@ -28,6 +30,11 @@ public class RateDtoConverter {
 
     public static List<RatePublicDTO> createPublicRateDtoList(List<Rate> rates) {
         return rates.stream().map(RateDtoConverter::createPublicRateDtoFromRate).toList();
+    }
+
+    public static Rate createRateFromCreateRateDto(CreateRateDto createRateDto) {
+        return new Rate(createRateDto.getValue(), AccountingRule.valueOf(createRateDto.getAccountingRule()),
+            createRateDto.getEffectiveDate());
     }
 
 }

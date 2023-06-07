@@ -1,0 +1,130 @@
+<ng-container>
+    <div class="modal-header">
+        <h3
+            class="modal-title me-1"
+            id="modal-basic-title">
+            {{ 'component.meter.readings' | translate }}
+            {{ meter?.getValue()?.category ?? '' | translate }}
+        </h3>
+        <div class="col text-end">
+            <i
+                (click)="getReadings()"
+                class="me-2 bi bi-arrow-clockwise fs-3 cursor-pointer"></i>
+        </div>
+        <button
+            (click)="showAddReadingModal()"
+            *ngIf="isNextReadingBeforeNow() || authService.isManager()"
+            class="btn btn-success text-truncate">
+            {{ 'component.meter.add-reading' | translate }}
+        </button>
+        <span
+            *ngIf="!isNextReadingBeforeNow() && !authService.isManager()"
+            class="">
+            {{ 'component.meter.next-reading-date' | translate }} -
+            <b>{{
+                meter?.getValue()?.dateOfNextReading | date : 'dd/MM/yy HH:mm'
+            }}</b>
+        </span>
+    </div>
+    <ng-container *ngIf="readings$ | async as readings; else loadingReadings">
+        <div
+            *ngIf="readings.totalSize > 0; else noReadings"
+            class="d-flex flex-column justify-content-between table-responsive border w-100"
+            style="min-height: 400px">
+            <table class="table table-hover">
+                <thead>
+                    <tr class="bg-light-subtle">
+                        <th
+                            class="text-nowrap text-center"
+                            scope="col">
+                            {{ 'component.meter.date' | translate }}
+                        </th>
+                        <th
+                            class="text-nowrap text-center"
+                            scope="col">
+                            {{ 'component.meter.value' | translate }}
+                            [m<sup>3</sup>]
+                        </th>
+                        <th
+                            class="text-nowrap text-center"
+                            scope="col">
+                            {{ 'component.meter.created' | translate }}
+                        </th>
+                        <th
+                            class="text-nowrap text-center"
+                            scope="col">
+                            {{ 'component.meter.modified' | translate }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        [ngClass]="
+                            reading.reliable ? 'cursor-pointer' : 'opacity-50'
+                        "
+                        *ngFor="let reading of readings.data"
+                        class="text-center align-middle">
+                        <td>
+                            {{ reading.date | date : 'dd/MM/yy HH:mm' }}
+                        </td>
+                        <td>{{ reading.value }}</td>
+                        <td>{{ getCreated(reading) }}</td>
+                        <td>{{ getUpdated(reading) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="d-sm-flex justify-content-between m-2">
+                <div>
+                    <ngb-pagination
+                        [(page)]="page"
+                        [collectionSize]="readings.totalSize"
+                        [pageSize]="pageSize"
+                        (pageChange)="getReadings()">
+                    </ngb-pagination>
+                </div>
+                <div>
+                    <select
+                        [(ngModel)]="pageSize"
+                        (ngModelChange)="getReadings()"
+                        class="form-select w-auto">
+                        <option [ngValue]="5">
+                            {{
+                                'component.accounts.display.five-items'
+                                    | translate
+                            }}
+                        </option>
+                        <option [ngValue]="10">
+                            {{
+                                'component.accounts.display.ten-items'
+                                    | translate
+                            }}
+                        </option>
+                        <option [ngValue]="15">
+                            {{
+                                'component.accounts.display.fifteen-items'
+                                    | translate
+                            }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>
+
+<ng-template #loadingReadings>
+    <div
+        style="min-height: 400px"
+        class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">{{ 'component.meter.loading' | translate }}</span>
+    </div>
+</ng-template>
+
+<ng-template #noReadings>
+    <div
+        style="min-height: 400px"
+        class="d-flex flex-column justify-content-center align-items-center">
+        <h3 class="m-3">{{ 'component.meter.no-readings' | translate }}</h3>
+    </div>
+</ng-template>

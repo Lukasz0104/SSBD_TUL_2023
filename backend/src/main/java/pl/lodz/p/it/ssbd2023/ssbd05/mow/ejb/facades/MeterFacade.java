@@ -10,16 +10,20 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @DenyAll
@@ -40,6 +44,44 @@ public class MeterFacade extends AbstractFacade<Meter> {
 
     public MeterFacade() {
         super(Meter.class);
+    }
+
+    @RolesAllowed({MANAGER})
+    public Optional<Meter> find(Long id) {
+        return super.find(id);
+    }
+
+
+    @RolesAllowed({OWNER})
+    public boolean existsByIdAndOwnerLogin(Long id, String login) {
+        TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByIdAndOwnerLogin", Meter.class);
+        tq.setParameter("id", id);
+        tq.setParameter("login", login);
+
+        try {
+            tq.getSingleResult();
+            return true;
+        } catch (NoResultException nre) {
+            return false;
+        }
+    }
+
+    @RolesAllowed({MANAGER})
+    public boolean existsById(Long id) {
+        return find(id).isPresent();
+    }
+
+    @RolesAllowed({OWNER})
+    public Optional<Meter> findByIdAndOwnerLogin(Long id, String login) {
+        TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByIdAndOwnerLogin", Meter.class);
+        tq.setParameter("id", id);
+        tq.setParameter("login", login);
+
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException nre) {
+            return Optional.empty();
+        }
     }
 
 
@@ -63,6 +105,14 @@ public class MeterFacade extends AbstractFacade<Meter> {
         } catch (PersistenceException e) {
             throw new AppDatabaseException("Meter.findByCategoryName , Database Exception", e);
         }
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Meter> findByPlaceId(Long placeId) throws AppDatabaseException {
+        TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByPlaceId", Meter.class);
+        tq.setParameter("placeId", placeId);
+        return tq.getResultList();
+
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -131,5 +181,11 @@ public class MeterFacade extends AbstractFacade<Meter> {
             throw new AppDatabaseException("Meter.findByCategoryNameAndPlaceNumberAndBuildingId , Database Exception",
                 e);
         }
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public void lockAndEdit(Meter meter) throws AppBaseException {
+        em.lock(meter, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+        super.edit(meter);
     }
 }

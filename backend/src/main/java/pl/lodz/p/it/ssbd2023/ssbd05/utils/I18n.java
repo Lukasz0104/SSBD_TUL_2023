@@ -96,6 +96,8 @@ public class I18n {
     public static final String EXPIRED_TOKEN = "response.message.expired_token";
     public static final String INVALID_TOKEN_TYPE = "response.message.invalid_token_type";
     public static final String TOKEN_NOT_FOUND = "response.message.token_not_found";
+    public static final String CATEGORY_NOT_FOUND = "response.message.category_not_found";
+    public static final String RATE_NOT_UNIQUE = "response.message.rate_not_unique";
     public static final String PASSWORD_CONSTRAINT = "response.message.password_constraint";
     public static final String PASSWORD_NOT_MATCH = "response.message.password_not_match";
     public static final String REPEATED_PASSWORD = "response.message.repeated_password";
@@ -110,6 +112,7 @@ public class I18n {
     public static final String LICENSE_NUMBER_ALREADY_TAKEN = "response.message.license-number-already-taken";
     public static final String EMAIL_ADDRESS_ALREADY_TAKEN = "response.message.email-address-already-taken";
     public static final String LOGIN_ALREADY_TAKEN = "response.message.login-already-taken";
+    public static final String RATE_ALREADY_EFFECTIVE = "response.message.rate-already-effective";
     public static final String ACCESS_LEVEL_NOT_FOUND = "response.message.access_level_not_found";
     public static final String FORCE_PASSWORD_CHANGE_DATABASE_EXCEPTION =
         "response.message.force_password_change_database_exception";
@@ -136,6 +139,18 @@ public class I18n {
 
     // MOW
     public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
+    public static final String INVALID_DATE_FORMAT = "response.message.invalid-date-format";
+    public static final String METER_NOT_FOUND = "response.message.meter_not_found";
+    public static final String READING_VALUE_SMALLER_THAN_PREVIOUS_EXCEPTION =
+        "response.message.reading_value_smaller_than_previous";
+    public static final String NOT_ENOUGH_DAYS_BETWEEN_RELIABLE_READINGS_EXCEPTION =
+        "response.message.not_enough_days_between_reliable_readings";
+    public static final String READING_VALUE_HIGHER_THAN_FUTURE_EXCEPTION =
+        "response.message.reading_value_higher_than_future";
+    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
+    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
+    public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
+    public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
     public static final String COST_NOT_FOUND = "response.message.cost_not_found";
 
 

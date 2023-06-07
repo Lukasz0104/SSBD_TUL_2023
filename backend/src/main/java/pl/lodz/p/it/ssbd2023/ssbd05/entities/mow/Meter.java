@@ -19,7 +19,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -29,8 +32,11 @@ import java.util.Set;
         name = "Meter.findAll",
         query = "SELECT m FROM Meter m"),
     @NamedQuery(
-        name = "Meter.findById",
-        query = "SELECT m FROM Meter m WHERE m.id = :id"),
+        name = "Meter.findByIdAndOwnerLogin",
+        query = """
+            SELECT m FROM Meter m WHERE m.id = :id
+            AND :login IN (SELECT o.account.login FROM m.place.owners o)
+            """),
     @NamedQuery(
         name = "Meter.findByCategoryId",
         query = "SELECT m FROM Meter m WHERE m.category.id = :categoryId"),
@@ -71,7 +77,7 @@ import java.util.Set;
             SELECT m FROM Meter m
             WHERE m.category.name = :categoryName
                   AND m.place.placeNumber = :placeNumber
-                  AND m.place.building.id = :buildingId""")
+                  AND m.place.building.id = :buildingId"""),
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})
@@ -99,5 +105,21 @@ public class Meter extends AbstractEntity implements Serializable {
     public Meter(Category category, Place place) {
         this.category = category;
         this.place = place;
+    }
+
+    public List<Reading> getFutureReliableReadings() {
+        return getReadings().stream()
+            .filter(Reading::isReliable)
+            .filter(r -> r.getDate().isAfter(LocalDateTime.now()))
+            .sorted(Comparator.comparing(Reading::getDate).reversed())
+            .toList();
+    }
+
+    public List<Reading> getPastReliableReadings() {
+        return getReadings().stream()
+            .filter(Reading::isReliable)
+            .filter(r -> r.getDate().isBefore(LocalDateTime.now()) || r.getDate().isEqual(LocalDateTime.now()))
+            .sorted(Comparator.comparing(Reading::getDate).reversed())
+            .toList();
     }
 }

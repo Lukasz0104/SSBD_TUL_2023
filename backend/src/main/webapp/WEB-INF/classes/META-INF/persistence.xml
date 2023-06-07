@@ -60,6 +60,7 @@
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData</class>
+        <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AdminData</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel</class>
         <class>pl.lodz.p.it.ssbd2023.ssbd05.entities.Address</class>
@@ -68,6 +69,7 @@
         <properties>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.canonicalmodel.prefix" value="mow"/>
+            <property name="eclipselink.cache.shared.default" value="false"/>
         </properties>
     </persistence-unit>
 </persistence>

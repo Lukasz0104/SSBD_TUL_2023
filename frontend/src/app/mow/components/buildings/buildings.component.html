@@ -39,12 +39,17 @@
                 <td>{{ building.address.city }}</td>
                 <td>{{ building.address.postalCode }}</td>
                 <td *ngIf="auth.isManager()">
-                    <button class="btn btn-primary">
+                    <button
+                        class="btn btn-outline-primary"
+                        [routerLink]="[building.id]">
                         {{ 'component.buildings.places' | translate }}
                     </button>
                 </td>
                 <td>
-                    <button class="btn btn-primary">
+                    <button
+                        [queryParams]="{ id: building.id }"
+                        [routerLink]="['reports']"
+                        class="btn btn-outline-primary">
                         {{ 'component.buildings.reports' | translate }}
                     </button>
                 </td>

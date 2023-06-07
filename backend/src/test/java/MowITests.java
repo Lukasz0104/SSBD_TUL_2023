@@ -11,21 +11,33 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.ReadingDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MowITests extends TestContainersSetup {
 
@@ -262,6 +274,402 @@ public class MowITests extends TestContainersSetup {
         void shouldReturnSC403WhenGettingAllCategoriesAsGuest() {
             given().when().get(ratesFromCategoryUrl.formatted(1)).then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+    }
+
+    @Nested
+    class MOW13 {
+        private static final String createRateUrl = "/rates";
+        private static final String ratesFromCategoryUrl = "/categories/%d/rates";
+        private static RequestSpecification testSpec;
+        private static Long ratesNumber;
+        private static String testDto;
+
+        private static LocalDate testDate;
+
+        static Long getRatesNumber() {
+            return given().spec(testSpec).when().get(ratesFromCategoryUrl.formatted(1)).getBody().as(Page.class)
+                .getTotalSize();
+        }
+
+        static void checkRatesNumber(Long expected) {
+            Long ratesNumberAfter = getRatesNumber();
+            assertEquals(expected, ratesNumberAfter);
+            ratesNumber = ratesNumberAfter;
+        }
+
+        static String convertDtoToString(CreateRateDto createRateDto) {
+            JSONObject dto = new JSONObject();
+            dto.put("accountingRule", createRateDto.getAccountingRule());
+            dto.put("effectiveDate", createRateDto.getEffectiveDate().toString());
+            dto.put("value", createRateDto.getValue().toString());
+            dto.put("categoryId", createRateDto.getCategoryId());
+            return dto.toString();
+        }
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("kgraczyk", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            ratesNumber = getRatesNumber();
+
+            testDate = LocalDate.of(LocalDate.now().getYear() + 1, LocalDate.now().getMonth().getValue() + 1, 1);
+            testDto = convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
+                BigDecimal.valueOf(123.51), 1L));
+        }
+
+        @Test
+        void shouldPassCreatingNewRate() {
+            given().spec(testSpec)
+                .contentType(ContentType.JSON)
+                .body(testDto)
+                .when()
+                .post(createRateUrl)
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            checkRatesNumber(ratesNumber + 1);
+        }
+
+        @Test
+        void shouldReturnSC400WhenCreatingRateWithCategoryIdThatDoesNotExist() {
+            String localTestDto =
+                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
+                    BigDecimal.valueOf(123.51), -1L));
+            given().spec(testSpec)
+                .contentType(ContentType.JSON)
+                .body(localTestDto)
+                .when()
+                .post(createRateUrl)
+                .then()
+                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            checkRatesNumber(ratesNumber);
+        }
+
+        @Nested
+        class AuthTest {
+            @Test
+            void shouldReturnSC403WhenCreatingNewRateAsAdmin() {
+                given().spec(adminSpec).body(testDto).when().post(createRateUrl).then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingNewRateAsOwner() {
+                given().spec(ownerSpec).body(testDto).when().post(createRateUrl).then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingNewRateAsGuest() {
+                given().body(testDto).when().post(createRateUrl).then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+        }
+
+        @Test
+        void shouldCreateOnlyOneRateWhenConcurrent() throws BrokenBarrierException, InterruptedException {
+            String localTestDto =
+                convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate.plusYears(3),
+                    BigDecimal.valueOf(123.51), 1L));
+
+            int threadNumber = 50;
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+            List<Thread> threads = new ArrayList<>(threadNumber);
+            AtomicInteger numberFinished = new AtomicInteger();
+            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+            for (int i = 0; i < threadNumber; i++) {
+                threads.add(new Thread(() -> {
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    int statusCode = given().spec(testSpec)
+                        .contentType(ContentType.JSON)
+                        .body(localTestDto)
+                        .when()
+                        .post(createRateUrl)
+                        .getStatusCode();
+
+                    if (statusCode == Response.Status.NO_CONTENT.getStatusCode()) {
+                        numberOfSuccessfulAttempts.getAndIncrement();
+                    }
+                    numberFinished.getAndIncrement();
+                }));
+            }
+            threads.forEach(Thread::start);
+            cyclicBarrier.await();
+            while (numberFinished.get() != threadNumber) {
+            }
+
+            assertEquals(1, numberOfSuccessfulAttempts.get());
+
+            checkRatesNumber(ratesNumber + 1);
+        }
+
+        @Nested
+        class Constraints {
+            @Test
+            void shouldReturnSC409WhenCreatingNotUniqueNewRate() {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate.plusYears(1),
+                        BigDecimal.valueOf(123.51), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+                checkRatesNumber(ratesNumber + 1);
+
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {
+                "1999-09-01",
+                "2200-09-02"
+            })
+            void shouldReturnSC400WhenCreatingRateWithInvalidEffectiveDate(String date) {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), LocalDate.parse(date),
+                        BigDecimal.valueOf(123.51), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @ValueSource(doubles = {
+                -1.0
+            })
+            void shouldReturnSC400WhenCreatingRateWithInvalidValue(Double value) {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
+                        BigDecimal.valueOf(value), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @NullAndEmptySource
+            @ValueSource(strings = {
+                "INVALID"
+            })
+            void shouldReturnSC400WhenCreatingRateWithInvalidAccountingRule(String accountingRule) {
+                String localTestDto = convertDtoToString(new CreateRateDto(accountingRule, testDate,
+                    BigDecimal.valueOf(123.51), 1L));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @ParameterizedTest
+            @NullSource
+            void shouldReturnSC400WhenCreatingRateWithInvalidCategoryId(Long categoryId) {
+                String localTestDto =
+                    convertDtoToString(new CreateRateDto(AccountingRule.UNIT.toString(), testDate,
+                        BigDecimal.valueOf(123.51), categoryId));
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .body(localTestDto)
+                    .when()
+                    .post(createRateUrl)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+        }
+
+
+    }
+
+    @Nested
+    class MOW14 {
+        private static final String removeRateUrl = "/rates/%d";
+        private static final String ratesFromCategoryUrl = "/categories/%d/rates";
+        private static Long ratesNumber;
+
+        static Long getRatesNumber() {
+            return given().spec(managerSpec).when().get(ratesFromCategoryUrl.formatted(1)).getBody().as(Page.class)
+                .getTotalSize();
+        }
+
+        static void checkRatesNumber(Long expected) {
+            Long ratesNumberAfter = getRatesNumber();
+            assertEquals(expected, ratesNumberAfter);
+            ratesNumber = ratesNumberAfter;
+        }
+
+        @BeforeAll
+        static void init() {
+            ratesNumber = getRatesNumber();
+        }
+
+        @Test
+        void shouldPassRemovingFutureRate() {
+            given().spec(managerSpec)
+                .when()
+                .delete(removeRateUrl.formatted(11))
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            checkRatesNumber(ratesNumber - 1);
+        }
+
+        @Test
+        void shouldReturnSC204WhenRemovingRateThatDoesNotExist() {
+            given().spec(managerSpec)
+                .when()
+                .delete(removeRateUrl.formatted(-2137))
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            checkRatesNumber(ratesNumber);
+        }
+
+        @Test
+        void shouldReturnSC409WhenRemovingRateThatIsAlreadyEffective() {
+            given().spec(managerSpec)
+                .when()
+                .delete(removeRateUrl.formatted(1))
+                .then()
+                .statusCode(Response.Status.CONFLICT.getStatusCode());
+            checkRatesNumber(ratesNumber);
+        }
+
+        @Nested
+        class AuthTest {
+            @Test
+            void shouldReturnSC403WhenRemovingRateAsOwner() {
+                given().spec(ownerSpec)
+                    .when()
+                    .delete(removeRateUrl.formatted(1))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingRateAsAdmin() {
+                given().spec(adminSpec)
+                    .when()
+                    .delete(removeRateUrl.formatted(1))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingRateAsGuest() {
+                given()
+                    .when()
+                    .delete(removeRateUrl.formatted(1))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                checkRatesNumber(ratesNumber);
+            }
+        }
+
+    }
+
+    @Nested
+    class MOW20 {
+        private static final String BASE_URL = "/buildings/%d/places";
+
+        @Nested
+        class GetPlacesInBuildingPositiveTest {
+
+            @Test
+            void shouldGetPlacesInBuildingAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThanOrEqualTo(2)));
+            }
+
+            @Test
+            void shouldGetEmptyListWhenBuildingDoesNotExistWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(-123))
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(0));
+            }
+        }
+
+        @Nested
+        class GetPlacesInBuildingsForbiddenTest {
+
+            @Test
+            void shouldFailToGetPlacesInBuildingAsAdminWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlacesInBuildingAsOwnerWithStatusCode403Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlacesInBuildingAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
         }
     }
 
@@ -602,6 +1010,155 @@ public class MowITests extends TestContainersSetup {
                     .get(ownerURL + "/7/meters")
                     .then()
                     .statusCode(404);
+            }
+        }
+    }
+
+    @Nested
+    class MOW29 {
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("lnowicki", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldPassOwnerGettingOwnPlaceMeterReadings() {
+                io.restassured.response.Response response =
+                    given().spec(onlyOwnerSpec).when().get("/meters/me/" + 5 + "/readings");
+                Page<ReadingDto> readingDtoPage =
+                    response.getBody().as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(readingDtoPage);
+                assertTrue(readingDtoPage.getTotalSize() >= 0);
+                assertTrue(readingDtoPage.getCurrentPage() >= 0);
+                assertTrue(readingDtoPage.getPageSize() >= 0);
+                assertTrue(readingDtoPage.getData().size() > 0);
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldPassManagerGettingAnyMeterReadings(int id) {
+                io.restassured.response.Response response =
+                    given().spec(onlyManagerSpec).when().get("/meters/" + id + "/readings");
+                Page<ReadingDto> readingDtoPage =
+                    response.getBody().as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(readingDtoPage);
+                assertTrue(readingDtoPage.getTotalSize() >= 0);
+                assertTrue(readingDtoPage.getCurrentPage() >= 0);
+                assertTrue(readingDtoPage.getPageSize() >= 0);
+                assertTrue(readingDtoPage.getData().size() > 0);
+            }
+
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingMeterReadingsAsAdmin(int id) {
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/meters/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingOwnPlaceMeterReadingsAsAdmin(int id) {
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingOwnPlaceMeterReadingsAsManager(int id) {
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+            void shouldReturnSC403WhenGettingAnyMeterReadingsAsOwner(int id) {
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .get("/meters/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 6, 7})
+            void shouldReturnSC404WhenGettingPlaceMeterReadingsAsOwnerNotOwningPlace(int id) {
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {1, 2, 3, 4, 6, 7})
+            void shouldReturnSC403WhenGettingAnyMeterReadingsAsGuest(int id) {
+                given()
+                    .when()
+                    .get("/meters/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
         }
     }

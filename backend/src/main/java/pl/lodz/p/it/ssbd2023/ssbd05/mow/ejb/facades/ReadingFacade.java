@@ -8,13 +8,18 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,6 +28,10 @@ import java.util.List;
 @Stateless
 @DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class ReadingFacade extends AbstractFacade<Reading> {
 
     @PersistenceContext(unitName = "ssbd05mowPU")
@@ -36,6 +45,11 @@ public class ReadingFacade extends AbstractFacade<Reading> {
 
     public ReadingFacade() {
         super(Reading.class);
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public void create(Reading reading) throws AppBaseException {
+        super.create(reading);
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -95,14 +109,24 @@ public class ReadingFacade extends AbstractFacade<Reading> {
     }
 
     @RolesAllowed({OWNER, MANAGER})
-    public List<Reading> findByMeterId(Long meterId) throws AppDatabaseException {
-        try {
-            TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterId", Reading.class);
-            tq.setParameter("meterId", meterId);
-            return tq.getResultList();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Reading.findByMeterId , Database Exception", e);
-        }
+    public Page<Reading> findByMeterId(Long meterId, int page, int pageSize) {
+        TypedQuery<Reading> tq = em.createNamedQuery("Reading.findByMeterId", Reading.class);
+        tq.setParameter("meterId", meterId);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countByMeterId(meterId);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public Long countByMeterId(Long meterId) {
+        TypedQuery<Long> tq = em.createNamedQuery("Reading.countByMeterId", Long.class);
+        tq.setParameter("meterId", meterId);
+
+        return tq.getSingleResult();
     }
 
     @RolesAllowed({OWNER, MANAGER})

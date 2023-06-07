@@ -1,8 +1,16 @@
 <ng-container *ngIf="rates$ | async as rates; else loadingRates">
     <h3 class="text-center">
         {{ 'component.ratesByCategory.ratesFor' | translate }}:
-        {{ category?.name }}
+        {{ category?.name ?? '' | translate }}
     </h3>
+    <div class="text-center">
+        <button
+            class="btn btn-primary mb-2"
+            (click)="addRate(rates.data[0])">
+            <i class="bi bi-plus-circle"></i>
+            {{ 'component.ratesByCategory.add' | translate }}
+        </button>
+    </div>
     <div
         class="d-flex flex-column justify-content-between table-responsive border rounded w-100"
         style="min-height: 300px">
@@ -31,6 +39,11 @@
                         class="text-nowrap text-center"
                         scope="col">
                         {{ 'component.ratesByCategory.modified' | translate }}
+                    </th>
+                    <th
+                        class="text-nowrap text-center"
+                        scope="col">
+                        {{ 'component.ratesByCategory.remove' | translate }}
                     </th>
                 </tr>
             </thead>
@@ -80,6 +93,14 @@
                     <td>{{ rate.effectiveDate }}</td>
                     <td>{{ getCreated(rate) }}</td>
                     <td>{{ getUpdated(rate) }}</td>
+                    <td>
+                        <button
+                            *ngIf="isFuture(rate.effectiveDate)"
+                            class="btn btn-danger"
+                            (click)="confirmRemoveRate(rate.id)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>

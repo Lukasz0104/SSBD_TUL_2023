@@ -38,7 +38,7 @@
                     </ul>
                     <div class="card-body">
                         <h5 class="card-title text-truncate">
-                            {{ category.categoryName }}
+                            {{ category.categoryName | translate }}
                         </h5>
                         <span class="card-text">{{ category.rate }}</span>
                         <span *ngIf="category.accountingRule === RULE.UNIT">

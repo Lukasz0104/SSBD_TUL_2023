@@ -64,6 +64,23 @@
     },
     "repeat-new-password": {
       "required": "Repeat new password is required"
+    },
+    "rate": {
+      "required": "Rate value is required.",
+      "length": "Rate value must be greater or equal to 0.",
+      "decimal-places": "Rate value can have only up to 2 decimal places"
+    },
+    "effective-date": {
+      "required": "Effective date is required.",
+      "invalid-date": "Effective date should be the first day of month"
+    },
+    "reading": {
+      "required": "Reading value is required.",
+      "length": "Reading value must be greater than 0.",
+      "decimal-places": "Reading value can have only up to 3 decimal places",
+      "reading-date": {
+        "required": "Reading date is required"
+      }
     }
   },
   "form": {
@@ -218,7 +235,7 @@
       "categories": {
         "edit": "Edit",
         "save": "Save",
-        "pln": "pln",
+        "pln": "PLN",
         "person": "pp",
         "month": "pm",
         "title": "Place payment categories",
@@ -243,7 +260,9 @@
       "city": "City",
       "place-number": "Place number",
       "residents-number": "Number of residents",
-      "square-footage": "Square footage"
+      "square-footage": "Square footage",
+      "rate-value": "Rate value",
+      "effective-date": "Effective date"
     },
     "landing-page": {
       "title": "Improve your community with eBok!",
@@ -256,7 +275,11 @@
       "effectiveDate": "Effective from",
       "created": "Created",
       "modified": "Modified",
-      "loading": "Loading rates"
+      "loading": "Loading rates",
+      "add": "Add a new rate",
+      "cancel": "Cancel",
+      "create": "Add",
+      "remove": "Remove"
     },
     "welcome": {
       "welcome": "Welcome",
@@ -296,8 +319,96 @@
     "meters": {
       "add-reading": "Choose a meter to add reading",
       "loading": "Loading meters..",
-      "no-meters": "There are no meters in this place"
+      "no-meters": "There are no meters in this place.",
+      "reading-needed": "There was no reading in the last 30 days. Add reading to improve forecasts accuracy."
+    },
+    "meter": {
+      "loading": "Loading readings..",
+      "no-readings": "There are no readings. Add first reading.",
+      "date": "Date",
+      "value": "Value",
+      "created": "Created",
+      "modified": "Modified",
+      "readings": "Readings of: ",
+      "add-reading": "Add reading",
+      "next-reading-date": "Next reading"
+    },
+    "building-report": {
+      "year": "Year",
+      "chooseYear": "Chose year",
+      "yearly": "Yearly report",
+      "category": "Category",
+      "pred-amount": "Predicted amount",
+      "pred-value": "Predicted cost",
+      "diff": "Difference",
+      "real-value": "Real cost",
+      "real-amount": "Real amount",
+      "rate": "Rate",
+      "sum": "Sum",
+      "loading-year": "Chose year",
+      "loading": "Loading report ...",
+      "not-full-year": "Selected year does not yet have a full report",
+      "month-1": "January",
+      "month-2": "February",
+      "month-3": "March",
+      "month-4": "April",
+      "month-5": "May",
+      "month-6": "June",
+      "month-7": "July",
+      "month-8": "August",
+      "month-9": "September",
+      "month-10": "October",
+      "month-11": "November",
+      "month-12": "December"
+    },
+    "places": {
+      "loading": "Loading places...",
+      "empty": "Building does not exists or it does not have any places."
+    },
+    "add-reading": {
+      "add": "Add reading",
+      "cancel": "Cancel",
+      "create": "Add"
+    },
+    "report": {
+      "month": {
+        "0": "Total",
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      },
+      "category": "Category",
+      "real-cost": "Real cost",
+      "forecasted-cost": "Forecasted cost",
+      "cost-diff": "Cost difference",
+      "real-usage": "Real consumption",
+      "forecasted-usage": "Forecasted consumption",
+      "usage-diff": "Consumption difference",
+      "rate": "Rate",
+      "overpayment": "Overpayment",
+      "underpayment": "Underpayment",
+      "payed": "Fully payed",
+      "total-real-cost": "Total real cost",
+      "total-forecasted-cost": "Total forecasted cost",
+      "sum": "Sum",
+      "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
+      "title": "Report",
+      "loading": "Loading reports"
     }
+  },
+  "accounting-rule": {
+    "pln": "PLN",
+    "person": "pp",
+    "month": "pm"
   },
   "modal": {
     "access-level": "Choose access level",
@@ -315,7 +426,11 @@
       "edit-account": "Are you sure, you want to edit account",
       "edit-account-danger": "This action cannot be undone!",
       "change-password": "Are you sure, you want to change your password?",
-      "verify-negative": "Confirm negative verification."
+      "verify-negative": "Confirm negative verification.",
+      "remove-rate": "Are you sure you want to remove this rate?",
+      "remove-rate-danger": "This action cannot be undone!",
+      "add-rate": "Are you sure, you want to add this rate?",
+      "add-reading": "Are you sure, you want to add this reading?"
     }
   },
   "access-levels": {
@@ -338,7 +453,8 @@
     "your-places": "Your places",
     "place": "Place",
     "costs": "Costs",
-    "cost": "Cost"
+    "cost": "Cost",
+    "reports": "Reports"
   },
   "toast": {
     "auth": {
@@ -385,6 +501,36 @@
     },
     "place": {
       "not-found": "Place not found"
+    },
+    "rate": {
+      "remove-success": "Successfully removed the rate",
+      "add-success": "Rate added successfully",
+      "remove-fail": "Something went wrong while removing the rate!",
+      "response": {
+        "message": {
+          "rate_already-effective": "Can't remove this rate, because it's already effective!",
+          "rate_not_unique": "Rate with same effective date within this category already exists!"
+        }
+      }
+    },
+    "forecast": {
+      "get-years-by-place-fail": "Could not get available report years for given place"
+    },
+    "report": {
+      "get-place-report-fail": "Could not get report",
+      "is-report-for-place-fail": "Could not validate year",
+      "not-found": "Report not found"
+    },
+    "reading": {
+      "add-fail": "Adding reading failed. Try again later",
+      "add-success": "Reading added successfully",
+      "response": {
+        "message": {
+          "reading_value_smaller_than_previous": "Reading value must be higher than value of previous reading",
+          "not_enough_days_between_reliable_readings": "Not enough days since last reading",
+          "reading_value_higher_than_future": "Reading value must be lower than values of future readings"
+        }
+      }
     }
   },
   "password-change": {
@@ -537,6 +683,32 @@
       }
     }
   },
+  "get-report-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place",
+        "forecast_not_found": "Forecast not found",
+        "report_not_found": "Report not found"
+      }
+    }
+  },
+  "is-report-for-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
+  "get-years-by-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
   "unlock-account": {
     "confirmation": "Account unlocked",
     "message": "Your account was unlocked. Now you can login again.",
@@ -552,5 +724,17 @@
         "invalid_token_type": "Invalid token"
       }
     }
+  },
+  "categories": {
+    "maintenance": "Maintenance fee",
+    "repair": "Repair fee",
+    "heating": "Heating fee",
+    "hot_water": "Hot water fee",
+    "cold_water": "Cold water fee",
+    "intercom": "Intercom fee",
+    "garbage": "Garbage fee",
+    "elevator": "Elevator fee",
+    "satellite_tv": "Satellite TV fee",
+    "parking": "Parking fee"
   }
 }
