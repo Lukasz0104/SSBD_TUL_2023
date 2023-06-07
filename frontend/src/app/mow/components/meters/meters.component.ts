@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PlaceService } from '../../services/place.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Meter } from '../../model/meter';
 import { AuthService } from '../../../shared/services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -15,6 +15,8 @@ export class MetersComponent implements OnInit {
 
     meters$: Observable<Meter[]> | undefined;
 
+    openedMeter: BehaviorSubject<Meter> | undefined;
+
     constructor(
         private placeService: PlaceService,
         private authService: AuthService,
@@ -22,17 +24,7 @@ export class MetersComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        if (this.placeId) {
-            if (this.authService.isOwner()) {
-                this.meters$ = this.placeService.getPlaceMetersAsOwner(
-                    this.placeId
-                );
-            } else {
-                this.meters$ = this.placeService.getPlaceMetersAsManager(
-                    this.placeId
-                );
-            }
-        }
+        this.getMeters();
     }
 
     public getIcon(category: string): string {
@@ -40,11 +32,40 @@ export class MetersComponent implements OnInit {
     }
 
     showMeterReadings(meter: Meter) {
+        this.openedMeter = new BehaviorSubject<Meter>(meter);
         const ref = this.modalService.open(MeterComponent, {
             centered: true,
             size: 'xl',
             scrollable: true
         });
-        ref.componentInstance.meter = meter;
+        ref.componentInstance.meter = this.openedMeter;
+        ref.componentInstance.readingAdded.subscribe(() => {
+            this.getMeters();
+        });
+    }
+
+    getMeters() {
+        if (this.placeId) {
+            if (this.authService.isOwner()) {
+                this.meters$ = this.placeService
+                    .getPlaceMetersAsOwner(this.placeId)
+                    .pipe(
+                        tap((meters) => {
+                            meters.forEach((m) => {
+                                if (
+                                    this.openedMeter &&
+                                    m.id === this.openedMeter.getValue().id
+                                ) {
+                                    this.openedMeter.next(m);
+                                }
+                            });
+                        })
+                    );
+            } else {
+                this.meters$ = this.placeService.getPlaceMetersAsManager(
+                    this.placeId
+                );
+            }
+        }
     }
 }

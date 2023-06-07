@@ -73,6 +73,14 @@
     "effective-date": {
       "required": "Data obowiązywania jest wymagana.",
       "invalid-date": "Data obowiązywania stawki musi być pierwszym dniem miesiąca"
+    },
+    "reading": {
+      "required": "Wartość odczytu jest wymagana.",
+      "length": "Wartość odczytu musi być większa od 0",
+      "decimal-places": "Wartość odczytu może mieć tylko do 3 miejsc po przecinku",
+      "reading-date": {
+        "required": "Data odczytu jest wymagana"
+      }
     }
   },
   "form": {
@@ -318,7 +326,8 @@
       "created": "Utworzony",
       "modified": "Zmodyfikowany",
       "readings": "Odczyty licznika: ",
-      "add-reading": "Dodaj odczyt"
+      "add-reading": "Dodaj odczyt",
+      "next-reading-date": "Następny odczyt"
     },
     "building-report": {
       "year": "Rok",
@@ -347,6 +356,11 @@
       "month-10": "Październik",
       "month-11": "Listopad",
       "month-12": "Grudzień"
+    },
+    "add-reading": {
+      "add": "Dodaj odczyt",
+      "cancel": "Anuluj",
+      "create": "Dodaj"
     },
     "report": {
       "month": {
@@ -407,7 +421,8 @@
       "verify-negative": "Potwierdź negatywną weryfikację.",
       "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
       "remove-rate-danger": "Tej akcji nie można cofnąć!",
-      "add-rate": "Czy na pewno chcesz dodać tę stawkę?"
+      "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
+      "add-reading": "Czy na pewno chcesz dodać ten odczyt?"
     }
   },
   "access-levels": {
@@ -495,6 +510,17 @@
       "get-place-report-fail": "Bład podczas pobierania raportu",
       "is-report-for-place-fail": "Nie można zwerfikować roku",
       "not-found": "Nie znaleziono raportu"
+    },
+    "reading": {
+      "add-fail": "Nie udało się dodać odczytu. Spróbuj ponownie później",
+      "add-success": "Pomyślnie dodano odczyt",
+      "response": {
+        "message": {
+          "reading_value_smaller_than_previous": "Wartość odczytu musi być wyższa od wartości poprzedniego odczytu",
+          "not_enough_days_between_reliable_readings": "Nie minęła wystarczająca ilość dni od ostatniego odczytu",
+          "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów"
+        }
+      }
     }
   },
   "password-change": {

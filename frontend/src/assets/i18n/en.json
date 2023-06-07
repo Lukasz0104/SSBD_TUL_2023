@@ -73,6 +73,14 @@
     "effective-date": {
       "required": "Effective date is required.",
       "invalid-date": "Effective date should be the first day of month"
+    },
+    "reading": {
+      "required": "Reading value is required.",
+      "length": "Reading value must be greater than 0.",
+      "decimal-places": "Reading value can have only up to 3 decimal places",
+      "reading-date": {
+        "required": "Reading date is required"
+      }
     }
   },
   "form": {
@@ -318,7 +326,8 @@
       "created": "Created",
       "modified": "Modified",
       "readings": "Readings of: ",
-      "add-reading": "Add reading"
+      "add-reading": "Add reading",
+      "next-reading-date": "Next reading"
     },
     "building-report": {
       "year": "Year",
@@ -347,6 +356,11 @@
       "month-10": "October",
       "month-11": "November",
       "month-12": "December"
+    },
+    "add-reading": {
+      "add": "Add reading",
+      "cancel": "Cancel",
+      "create": "Add"
     },
     "report": {
       "month": {
@@ -407,7 +421,8 @@
       "verify-negative": "Confirm negative verification.",
       "remove-rate": "Are you sure you want to remove this rate?",
       "remove-rate-danger": "This action cannot be undone!",
-      "add-rate": "Are you sure, you want to add this rate?"
+      "add-rate": "Are you sure, you want to add this rate?",
+      "add-reading": "Are you sure, you want to add this reading?"
     }
   },
   "access-levels": {
@@ -495,6 +510,17 @@
       "get-place-report-fail": "Could not get report",
       "is-report-for-place-fail": "Could not validate year",
       "not-found": "Report not found"
+    },
+    "reading": {
+      "add-fail": "Adding reading failed. Try again later",
+      "add-success": "Reading added successfully",
+      "response": {
+        "message": {
+          "reading_value_smaller_than_previous": "Reading value must be higher than value of previous reading",
+          "not_enough_days_between_reliable_readings": "Not enough days since last reading",
+          "reading_value_higher_than_future": "Reading value must be lower than values of future readings"
+        }
+      }
     }
   },
   "password-change": {

@@ -37,7 +37,7 @@ export class PlaceReportsComponent implements OnInit {
     initData() {
         this.getYears()?.subscribe((y) => {
             this.years = y;
-            this.currentYear = this.currentYear ?? y.at(-1);
+            this.currentYear = this.currentYear ?? y[y.length - 1];
             this.getPlaceReports();
         });
     }
