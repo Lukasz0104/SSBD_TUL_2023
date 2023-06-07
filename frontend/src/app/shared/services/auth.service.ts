@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import jwtDecode from 'jwt-decode';
-import { BehaviorSubject, EMPTY, catchError, map, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, EMPTY, map, of, tap } from 'rxjs';
 import { ChooseAccessLevelComponent } from '../components/choose-access-level/choose-access-level.component';
 import { RefreshSessionComponent } from '../components/refresh-session/refresh-session.component';
 import { TwoFactorAuthComponent } from '../components/two-factor-auth/two-factor-auth.component';

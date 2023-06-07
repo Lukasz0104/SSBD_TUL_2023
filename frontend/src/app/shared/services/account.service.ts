@@ -93,7 +93,7 @@ export class AccountService {
                     });
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.reset-password-fail',
                         'password-change',
                         response
@@ -118,7 +118,7 @@ export class AccountService {
                     );
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.reset-password-fail',
                         'force-password-change',
                         response
@@ -144,7 +144,7 @@ export class AccountService {
                     });
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.reset-password-fail',
                         'password-change',
                         response
@@ -172,7 +172,7 @@ export class AccountService {
             .pipe(
                 map(() => of(true)),
                 catchError((e: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.register-fail',
                         'register',
                         e
@@ -244,7 +244,7 @@ export class AccountService {
                 }),
                 map(() => true),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.edit-own-account-fail',
                         'edit-own-profile',
                         err
@@ -274,7 +274,7 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.edit-account-as-admin-fail',
                         'edit-as-admin',
                         err
@@ -339,18 +339,6 @@ export class AccountService {
         return EMPTY;
     }
 
-    handleError(
-        genericMessageKey: string,
-        method: string,
-        response: HttpErrorResponse
-    ) {
-        if (response.status == 500 || response.error.message == null) {
-            this.toastService.showDanger(genericMessageKey);
-        } else {
-            this.toastService.showDanger(method + '.' + response.error.message);
-        }
-    }
-
     changeEmail() {
         return this.http.post(`${this.accountsUrl}/me/change-email`, null).pipe(
             map(() => {
@@ -358,7 +346,7 @@ export class AccountService {
                 return true;
             }),
             catchError((err: HttpErrorResponse) => {
-                this.handleError(
+                this.toastService.handleError(
                     'toast.account.change-email-fail',
                     'change-email',
                     err
@@ -382,7 +370,7 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.change-email-confirm-fail',
                         'change-email-confirm',
                         err
@@ -409,7 +397,7 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.change-status-fail',
                         'change-status',
                         err
@@ -436,7 +424,7 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.change-status-fail',
                         'change-status',
                         err
@@ -457,7 +445,7 @@ export class AccountService {
                     return true;
                 }),
                 catchError((res: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.change-password-fail',
                         'change-password',
                         res
@@ -498,7 +486,7 @@ export class AccountService {
                             });
                         }),
                         catchError((err: HttpErrorResponse) => {
-                            this.handleError(
+                            this.toastService.handleError(
                                 'toast.account.change-access-level-fail',
                                 'change-access-level',
                                 err
@@ -533,7 +521,7 @@ export class AccountService {
                     }
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    this.handleError(
+                    this.toastService.handleError(
                         'toast.account.two-factor-status-fail',
                         'change-two-factor-status',
                         response
