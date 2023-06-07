@@ -48,10 +48,6 @@ export class CostsComponent implements OnInit {
         );
     }
 
-    reload() {
-        this.getCosts();
-    }
-
     openCostDetails(id: number) {
         const modalRef: NgbModalRef = this.modalService.open(CostComponent, {
             centered: true,
@@ -63,12 +59,12 @@ export class CostsComponent implements OnInit {
                 id = res;
             })
             .catch(() => EMPTY);
-        this.reload();
+        this.getCosts();
     }
 
     protected onSortChange() {
         this.sortDirection = -this.sortDirection;
-        this.reload();
+        this.getCosts();
     }
 
     changeCategoryName(name: string) {

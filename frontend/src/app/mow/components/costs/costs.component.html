@@ -1,11 +1,14 @@
 <div class="row">
-    <div
-        aria-label="Choose active"
-        class="btn-group mb-3 d-flex"
-        role="group">
+    <div class="btn-group mb-3 flex-column-reverse justify-content-start">
+        <div
+            (click)="getCosts()"
+            class="btn btn-primary align-items-center rounded-2 my-1"
+            style="max-width: 50px">
+            <i class="bi bi-arrow-clockwise"></i>
+        </div>
         <div>
             <select
-                class="form-select w-auto"
+                class="form-select w-auto my-1"
                 [(ngModel)]="year"
                 (ngModelChange)="changeYear($event)">
                 <option [ngValue]="undefined">
@@ -21,7 +24,7 @@
         </div>
         <div>
             <select
-                class="form-select w-auto mx-md-auto"
+                class="form-select w-auto my-1"
                 [(ngModel)]="categoryName"
                 (ngModelChange)="changeCategoryName($event)">
                 <option [ngValue]="undefined">
@@ -34,11 +37,6 @@
                     {{ name | translate }}
                 </option>
             </select>
-        </div>
-        <div
-            (click)="reload()"
-            class="btn btn-primary flex-grow-0 d-flex justify-content-center align-items-center">
-            <i class="bi bi-arrow-clockwise"></i>
         </div>
     </div>
 </div>
@@ -104,7 +102,7 @@
             <div *ngIf="costs.data?.length">
                 <select
                     [(ngModel)]="pageSize"
-                    (ngModelChange)="reload()"
+                    (ngModelChange)="getCosts()"
                     class="form-select w-auto">
                     <option [ngValue]="5">
                         {{
