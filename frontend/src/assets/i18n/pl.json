@@ -347,6 +347,40 @@
       "month-10": "Październik",
       "month-11": "Listopad",
       "month-12": "Grudzień"
+    },
+    "report": {
+      "month": {
+        "0": "Całkowity",
+        "1": "Styczeń",
+        "2": "Luty",
+        "3": "Marzec",
+        "4": "Kwiecień",
+        "5": "Maj",
+        "6": "Czerwiec",
+        "7": "Lipiec",
+        "8": "Sierpień",
+        "9": "Wrzesień",
+        "10": "Październik",
+        "11": "Listopad",
+        "12": "Grudzień"
+      },
+      "category": "Kategoria",
+      "real-cost": "Faktyczny koszt",
+      "forecasted-cost": "Przewidywany koszt",
+      "cost-diff": "Różnica kosztów",
+      "real-usage": "Faktyczne zużycie",
+      "forecasted-usage": "Przewidywane zużycie",
+      "usage-diff": "Różnica zużycia",
+      "rate": "Stawka",
+      "overpayment": "Nadpłata",
+      "underpayment": "Niedopłata",
+      "payed": "W pełni opłacone",
+      "total-real-cost": "Całkowity faktyczny koszt",
+      "total-forecasted-cost": "Całkowity przewidywany koszt",
+      "sum": "Suma",
+      "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
+      "title": "Raport",
+      "loading": "Ładowanie raportów"
     }
   },
   "accounting-rule": {
@@ -454,7 +488,12 @@
         }
       }
     },
+    "forecast": {
+      "get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu"
+    },
     "report": {
+      "get-place-report-fail": "Bład podczas pobierania raportu",
+      "is-report-for-place-fail": "Nie można zwerfikować roku",
       "not-found": "Nie znaleziono raportu"
     }
   },
@@ -605,6 +644,32 @@
         "access-management-self": "Nie można nadać poziomu dostępu własnemu kontu",
         "account_not_found": "To konto nie zostało znalezione",
         "license-number-already-taken": "Ten numer licencji jest już zajęty"
+      }
+    }
+  },
+  "get-report-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu",
+        "forecast_not_found": "Nie znaleziono prognozy",
+        "report_not_found": "Nie znaleziono raportu"
+      }
+    }
+  },
+  "is-report-for-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu"
+      }
+    }
+  },
+  "get-years-by-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu"
       }
     }
   },

@@ -11,7 +11,7 @@ public class MeterDtoConverter {
     public static MeterDto createMeterDtoFromMeter(Meter meter) {
         boolean hasReadingInLast30Days = meter.getReadings().stream()
             .anyMatch(reading -> reading.getDate().isAfter(LocalDateTime.now().minusDays(30)));
-        
+
         return new MeterDto(meter.getId(), meter.getCategory().getName(), hasReadingInLast30Days);
     }
 

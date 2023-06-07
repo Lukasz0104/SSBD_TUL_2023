@@ -91,7 +91,7 @@ import java.time.Year;
         query = """
             SELECT r FROM Report r
             WHERE r.place.id = :placeId
-                  AND r.year = :year
+                  AND r.year = :year ORDER BY r.category.name ASC
             """),
     @NamedQuery(
         name = "Report.findByPlaceNumberAndBuildingIdAndYear",
@@ -149,6 +149,9 @@ import java.time.Year;
             WHERE r.place.building.id = :buildingId
                   AND r.year = :year
             """),
+    @NamedQuery(
+        name = "Report.findYearsByPlaceId",
+        query = "SELECT DISTINCT r.year FROM Report r WHERE r.place.id = :placeId")
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Report extends AbstractEntity implements Serializable {
@@ -163,7 +166,7 @@ public class Report extends AbstractEntity implements Serializable {
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "total_cost", nullable = false, scale = 3, precision = 38)
+    @Column(name = "total_cost", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal totalCost;

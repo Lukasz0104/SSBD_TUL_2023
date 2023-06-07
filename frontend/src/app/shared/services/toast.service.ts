@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface ToastInfo {
     body: string;
@@ -32,5 +33,17 @@ export class ToastService {
 
     clearAll() {
         this.toasts = [];
+    }
+
+    handleError(
+        genericMessageKey: string,
+        method: string,
+        response: HttpErrorResponse
+    ) {
+        if (response.status == 500 || response.error.message == null) {
+            this.showDanger(genericMessageKey);
+        } else {
+            this.showDanger(method + '.' + response.error.message);
+        }
     }
 }

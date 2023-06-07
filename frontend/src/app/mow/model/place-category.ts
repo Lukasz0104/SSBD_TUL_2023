@@ -1,4 +1,4 @@
-import { AccountingRule } from './accounting-rules';
+import { AccountingRule } from '../../shared/model/accounting-rule';
 
 export interface PlaceCategory {
     rateId: number;
