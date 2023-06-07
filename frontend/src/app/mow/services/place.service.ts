@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { map, Observable } from 'rxjs';
+import { catchError, EMPTY, map, Observable } from 'rxjs';
 import { Place } from '../model/place';
 import { PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Injectable({
     providedIn: 'root'
@@ -13,32 +14,35 @@ export class PlaceService {
     ifMatch = '';
     private readonly BASE_URL = `${this.config.apiUrl}/places`;
 
-    constructor(private http: HttpClient, private config: AppConfigService) {}
+    constructor(
+        private http: HttpClient,
+        private config: AppConfigService,
+        private toastService: ToastService
+    ) {}
 
-    getAsOwner(id: number): Observable<Place | null> {
+    private getPlace(url: string) {
         return this.http
-            .get<Place>(`${this.BASE_URL}/me/${id}`, {
+            .get<Place>(url, {
                 observe: 'response'
             })
             .pipe(
                 map((response) => {
                     this.ifMatch = response.headers.get('ETag') ?? '';
                     return response.body;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError('toast.place.fail', 'toast.place', err);
+                    return EMPTY;
                 })
             );
     }
 
+    getAsOwner(id: number): Observable<Place | null> {
+        return this.getPlace(`${this.BASE_URL}/me/${id}`);
+    }
+
     getAsManager(id: number): Observable<Place | null> {
-        return this.http
-            .get<Place>(`${this.BASE_URL}/${id}`, {
-                observe: 'response'
-            })
-            .pipe(
-                map((response) => {
-                    this.ifMatch = response.headers.get('ETag') ?? '';
-                    return response.body;
-                })
-            );
+        return this.getPlace(`${this.BASE_URL}/${id}`);
     }
 
     getOwnPlaces() {
@@ -70,5 +74,19 @@ export class PlaceService {
 
     getPlaceMetersAsManager(id: number) {
         return this.http.get<Meter[]>(`${this.BASE_URL}/${id}/meters`);
+    }
+
+    handleError(
+        genericMessageKey: string,
+        method: string,
+        response: HttpErrorResponse
+    ): void {
+        if (response.status == 500 || response.error.message == null) {
+            this.toastService.showDanger(genericMessageKey);
+        } else if (response.status == 404) {
+            this.toastService.showDanger('toast.place.not-found');
+        } else {
+            this.toastService.showDanger(method + '.' + response.error.message);
+        }
     }
 }

@@ -244,7 +244,8 @@
       },
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
-      "data": "Lokal"
+      "data": "Lokal",
+      "edit-place": "Edytuj lokal"
     },
     "fields": {
       "login": "Login",
