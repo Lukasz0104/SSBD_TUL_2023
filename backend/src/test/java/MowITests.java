@@ -612,6 +612,68 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
+    class MOW20 {
+        private static final String BASE_URL = "/buildings/%d/places";
+
+        @Nested
+        class GetPlacesInBuildingPositiveTest {
+
+            @Test
+            void shouldGetPlacesInBuildingAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(greaterThanOrEqualTo(2)));
+            }
+
+            @Test
+            void shouldGetEmptyListWhenBuildingDoesNotExistWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(-123))
+                    .then()
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
+                    .body("$.size()", is(0));
+            }
+        }
+
+        @Nested
+        class GetPlacesInBuildingsForbiddenTest {
+
+            @Test
+            void shouldFailToGetPlacesInBuildingAsAdminWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlacesInBuildingAsOwnerWithStatusCode403Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlacesInBuildingAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+        }
+    }
+
+    @Nested
     class MOW25 {
 
         @Test
