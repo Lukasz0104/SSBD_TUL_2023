@@ -259,7 +259,7 @@
       "postal-code": "Kod pocztowy",
       "city": "Miasto",
       "place-number": "Numer lokalu",
-      "residents-number": "Ilość lokatorów",
+      "residents-number": "Liczba lokatorów",
       "square-footage": "Powierzchnia",
       "rate-value": "Wysokość stawki",
       "effective-date": "Data obowiązywania"
@@ -356,6 +356,10 @@
       "month-10": "Październik",
       "month-11": "Listopad",
       "month-12": "Grudzień"
+    },
+    "places": {
+      "loading": "Wczytywanie lokali...",
+      "empty": "Budynek nie istnieje lub nie posiada lokali."
     },
     "add-reading": {
       "add": "Dodaj odczyt",

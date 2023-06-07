@@ -96,7 +96,13 @@ import java.util.Set;
             SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT MAX(r2.effectiveDate) FROM Rate r2
             WHERE r2.effectiveDate < :now AND r.category = r2.category)
             AND EXISTS (SELECT p FROM Place p JOIN p.currentRates cr 
-            WHERE p.id = :placeId AND cr.id = r.id) ORDER BY r.category.name ASC""")
+            WHERE p.id = :placeId AND cr.id = r.id) ORDER BY r.category.name ASC"""),
+    @NamedQuery(
+        name = "Place.findByBuildingId",
+        query = """
+            SELECT p FROM Place p
+            WHERE p.building.id = :buildingId
+            """)
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {

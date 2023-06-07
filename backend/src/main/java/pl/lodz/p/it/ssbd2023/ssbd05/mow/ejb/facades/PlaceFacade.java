@@ -162,4 +162,11 @@ public class PlaceFacade extends AbstractFacade<Place> {
         tq.setParameter("now", LocalDate.now());
         return tq.getResultList();
     }
+
+    @RolesAllowed(MANAGER)
+    public List<Place> findByBuildingId(Long id) {
+        return em.createNamedQuery("Place.findByBuildingId", Place.class)
+            .setParameter("buildingId", id)
+            .getResultList();
+    }
 }

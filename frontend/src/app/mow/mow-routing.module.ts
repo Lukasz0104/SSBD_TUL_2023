@@ -9,6 +9,7 @@ import { WelcomeComponent } from './components/welcome/welcome.component';
 import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
 import { CostsComponent } from './components/costs/costs.component';
 import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
+import { PlacesComponent } from './components/places/places.component';
 
 export const routes: Routes = [
     {
@@ -23,6 +24,11 @@ export const routes: Routes = [
         data: {
             title: 'Reports'
         }
+    },
+    {
+        path: 'buildings/:id',
+        component: PlacesComponent,
+        canMatch: [canMatchManager]
     },
     {
         path: '',

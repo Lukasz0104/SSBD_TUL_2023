@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Place } from '../../model/place';
 import { PlaceService } from '../../services/place.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -12,8 +12,12 @@ import { AuthService } from '../../../shared/services/auth.service';
     templateUrl: './place.component.html'
 })
 export class PlaceComponent implements OnInit {
-    place$: Observable<Place | null> | undefined;
+    place$ = new BehaviorSubject<Place | null>(null);
+
     @Input() id: number | undefined;
+
+    @Input() place: Place | undefined;
+
     loading = true;
 
     constructor(
@@ -24,14 +28,21 @@ export class PlaceComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        if (this.id === undefined) {
+        if (this.place) {
+            this.place$.next(this.place);
+            this.loading = false;
+        } else if (this.id === undefined) {
             this.loading = true;
             this.toastService.showDanger('toast.place.not-found');
         } else {
             if (this.authService.isOwner()) {
-                this.place$ = this.placeService.getAsOwner(this.id);
+                this.placeService
+                    .getAsOwner(this.id)
+                    .subscribe((place) => this.place$.next(place));
             } else if (this.authService.isManager()) {
-                this.place$ = this.placeService.getAsManager(this.id);
+                this.placeService
+                    .getAsManager(this.id)
+                    .subscribe((place) => this.place$.next(place));
             } else {
                 this.toastService.showDanger('toast.guard.access-denied');
                 return;

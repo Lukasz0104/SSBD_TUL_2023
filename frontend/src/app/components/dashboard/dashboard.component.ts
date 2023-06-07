@@ -39,6 +39,13 @@ export class DashboardComponent {
         const urlDelimitators = new RegExp(/[?,;&:#$+=]/);
         return path.slice(0).split(urlDelimitators)[0];
     }
+
+    protected getKeyForName(name: string): string {
+        if (Number.parseInt(name)) {
+            return name;
+        }
+        return `nav.${name}`;
+    }
 }
 
 class Breadcrumb {

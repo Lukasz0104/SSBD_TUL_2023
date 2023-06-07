@@ -89,9 +89,7 @@ public class TestContainersSetup {
         payaraContainer.start();
         nginxContainer.start();
 
-        RestAssured.baseURI = "https://localhost"
-            + ":" + nginxContainer.getMappedPort(443)
-            + "/api";
+        RestAssured.baseURI = "https://localhost:" + nginxContainer.getMappedPort(443) + "/api";
         RestAssured.useRelaxedHTTPSValidation();
 
         generateOwnerSpec();
