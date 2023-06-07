@@ -97,6 +97,9 @@
                                 <app-meters
                                     [placeId]="place.id"
                                     *ngIf="tab === 2" />
+                                <app-place-reports
+                                    [id]="place.id"
+                                    *ngIf="tab === 3" />
                             </div>
                         </div>
                     </div>

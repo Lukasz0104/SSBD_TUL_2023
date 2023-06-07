@@ -4,7 +4,13 @@ import jakarta.ejb.Local;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.util.List;
+
 @Local
 public interface ForecastManagerLocal extends CommonManagerInterface {
     void createOverdueForecast() throws AppBaseException;
+
+    List<Integer> getForecastYearsByPlaceId(Long placeId);
+
+    List<Integer> getForecastYearsByOwnPlaceId(Long placeId, String login) throws AppBaseException;
 }

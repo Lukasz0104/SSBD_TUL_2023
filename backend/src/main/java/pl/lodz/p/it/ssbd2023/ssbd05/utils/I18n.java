@@ -147,6 +147,11 @@ public class I18n {
         "response.message.not_enough_days_between_reliable_readings";
     public static final String READING_VALUE_HIGHER_THAN_FUTURE_EXCEPTION =
         "response.message.reading_value_higher_than_future";
+    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
+    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
+    public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
+    public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
+
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);

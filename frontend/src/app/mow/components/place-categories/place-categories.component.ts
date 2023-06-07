@@ -7,8 +7,8 @@ import {
     NgbModalRef
 } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
-import { AccountingRule } from '../../model/accounting-rules';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
+import { AccountingRule } from '../../../shared/model/accounting-rule';
 
 @Component({
     selector: 'app-place-categories',
