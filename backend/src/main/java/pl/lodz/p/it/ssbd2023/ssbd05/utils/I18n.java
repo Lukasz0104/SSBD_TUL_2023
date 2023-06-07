@@ -141,6 +141,15 @@ public class I18n {
     public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
     public static final String INVALID_DATE_FORMAT = "response.message.invalid-date-format";
     public static final String METER_NOT_FOUND = "response.message.meter_not_found";
+    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
+    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
+    public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
+    public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
+    public static final String CATEGORY_IN_USE = "response.message.category_in_use";
+    public static final String RATE_NOT_FOUND = "response.message.rate_not_found";
+    public static final String INACTIVE_PLACE = "response.message.inactive_place";
+    public static final String INITIAL_READING_REQUIRED = "response.message.initial_reading_required";
+
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);

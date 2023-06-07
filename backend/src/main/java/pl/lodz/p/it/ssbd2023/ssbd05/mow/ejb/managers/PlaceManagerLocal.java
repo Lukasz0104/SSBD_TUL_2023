@@ -9,6 +9,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -40,9 +41,11 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     List<Rate> getCurrentRatesFromPlace(Long id) throws AppBaseException;
 
-    void addCategoryToPlace(Long id) throws AppBaseException;
+    void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value) throws AppBaseException;
 
     void removeCategoryFromPlace(Long id) throws AppBaseException;
+
+    boolean checkIfCategoryRequiresReading(Long placeId, Long categoryId) throws AppBaseException;
 
     void editPlaceDetails(Long id) throws AppBaseException;
 }

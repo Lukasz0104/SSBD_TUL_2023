@@ -16,6 +16,7 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
@@ -46,6 +47,11 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Place entity) throws AppBaseException {
+        super.edit(entity);
+    }
 
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
