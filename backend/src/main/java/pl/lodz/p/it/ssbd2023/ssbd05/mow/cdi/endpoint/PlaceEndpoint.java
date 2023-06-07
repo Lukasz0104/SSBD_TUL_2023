@@ -181,7 +181,7 @@ public class PlaceEndpoint {
     public Response addCategoryToPlace(@NotNull @Valid AddCategoryDto addCategoryDto) throws AppBaseException {
         return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
             () -> placeManager.addCategoryToPlace(addCategoryDto.getPlaceId(), addCategoryDto.getCategoryId(),
-                addCategoryDto.getNewReading()),
+                addCategoryDto.getNewReading(), securityContext.getUserPrincipal().getName()),
             placeManager
         ).build();
     }

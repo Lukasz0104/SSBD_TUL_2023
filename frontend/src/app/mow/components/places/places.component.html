@@ -1,13 +1,9 @@
 <ng-container *ngIf="places$ | async as places; else loadingPlaces">
-    <ng-container *ngIf="places.length; else noPlacesFound">
-        <div class="row row-cols-1 row-cols-xl-2 g-3">
-            <div
-                *ngFor="let place of places"
-                class="col">
-                <div class="col card shadow-sm p-1">
-                    <div class="card-body">
-                        <app-place [place]="place"></app-place>
-                    </div>
+    <ng-container *ngIf="places.length > 0; else noPlacesFound">
+        <div class="d-lg-flex">
+            <div class="col col-lg-12">
+                <div *ngFor="let place of places">
+                    <app-place-details [place]="place" />
                 </div>
             </div>
         </div>

@@ -1,0 +1,81 @@
+<div *ngIf="place">
+    <div
+        class="card mb-4 shadow-sm"
+        style="border-radius: 15px">
+        <div class="card-body p-4">
+            <h3 class="mb-3">
+                {{ 'component.own-places.place-number' | translate }}
+                {{ place.placeNumber }},
+                {{ place.building.address.street }}
+                {{ place.building.address.buildingNumber }},
+                {{ place.building.address.city }}
+                {{ place.building.address.postalCode }}
+            </h3>
+            <hr class="mt-3" />
+            <button
+                *ngIf="chosenId !== place.id"
+                class="btn btn-success"
+                (click)="showPlaceDetails(place.id)">
+                {{ 'component.own-places.show-place-details' | translate }}
+            </button>
+            <button
+                *ngIf="chosenId === place.id"
+                class="btn btn-secondary"
+                (click)="hidePlaceDetails()">
+                {{ 'component.own-places.hide-place-details' | translate }}
+            </button>
+        </div>
+
+        <div
+            *ngIf="toggled && chosenId === place.id"
+            class="ms-4">
+            <ul class="nav nav-tabs">
+                <li class="nav-item cursor-pointer">
+                    <span
+                        (click)="tab = 1"
+                        [ngClass]="{ active: tab === 1 }"
+                        class="nav-link"
+                        aria-current="page"
+                        >{{ 'component.own-places.details' | translate }}</span
+                    >
+                </li>
+                <li class="nav-item cursor-pointer">
+                    <span
+                        (click)="tab = 2"
+                        [ngClass]="{ active: tab === 2 }"
+                        class="nav-link"
+                        >{{ 'component.own-places.meters' | translate }}</span
+                    >
+                </li>
+                <li class="nav-item cursor-pointer">
+                    <span
+                        (click)="tab = 3"
+                        [ngClass]="{ active: tab === 3 }"
+                        class="nav-link"
+                        >{{ 'component.own-places.reports' | translate }}</span
+                    >
+                </li>
+                <li class="nav-item cursor-pointer">
+                    <span
+                        (click)="tab = 4"
+                        [ngClass]="{ active: tab === 4 }"
+                        class="nav-link"
+                        >{{ 'component.own-places.rates' | translate }}</span
+                    >
+                </li>
+            </ul>
+
+            <div class="m-3">
+                <app-place
+                    [id]="place.id"
+                    *ngIf="tab === 1" />
+                <app-meters
+                    [placeId]="place.id"
+                    *ngIf="tab === 2" />
+                <app-place-reports
+                    [id]="place.id"
+                    *ngIf="tab === 3" />
+            </div>
+        </div>
+    </div>
+</div>

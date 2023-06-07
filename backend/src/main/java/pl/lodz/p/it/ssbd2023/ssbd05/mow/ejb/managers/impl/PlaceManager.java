@@ -22,6 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InitialReadingRequiredException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
@@ -138,8 +139,12 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value) throws AppBaseException {
+    public void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value, String login)
+        throws AppBaseException {
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
+        if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
+            throw new IllegalSelfActionException();
+        }
         if (place.getCurrentRates().stream().anyMatch((p) -> p.getCategory().getId().equals(categoryId))) {
             throw new CategoryInUseException();
         }

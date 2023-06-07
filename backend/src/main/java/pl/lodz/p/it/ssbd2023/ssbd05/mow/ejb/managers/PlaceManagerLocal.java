@@ -41,7 +41,7 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     List<Rate> getCurrentRatesFromPlace(Long id) throws AppBaseException;
 
-    void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value) throws AppBaseException;
+    void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value, String login) throws AppBaseException;
 
     void removeCategoryFromPlace(Long id) throws AppBaseException;
 
