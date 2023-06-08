@@ -77,7 +77,6 @@ export class PlaceComponent implements OnInit {
                             PlaceEditComponent,
                             {
                                 centered: true,
-                                size: 'xl',
                                 scrollable: true
                             }
                         );
