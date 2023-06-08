@@ -674,6 +674,62 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
+    class MOW22 {
+        private static final String BASE_URL = "/places/%d/owners";
+
+        @Nested
+        class GetPlaceOwnersPositiveTest {
+            @Test
+            void shouldGetPlaceOwnersAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(3))
+                    .then()
+                    .statusCode(200)
+                    .body("$.size()", is(2));
+            }
+
+            @Test
+            void shouldGetPlaceOwnersAsManagerReturnEmptyListWhenPlaceDoesNotExistWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(-123))
+                    .then()
+                    .statusCode(200)
+                    .body("$.size()", is(0));
+            }
+        }
+
+        @Nested
+        class GetPlaceOwnersForbiddenTest {
+            @Test
+            void shouldFailToGetPlaceOwnersAsAdminWithStatusCode403Test() {
+                given(adminSpec).when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceOwnersAsOwnerWithStatusCode403Test() {
+                given(ownerSpec).when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceOwnersAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+        }
+    }
+
+    @Nested
     class MOW25 {
 
         @Test

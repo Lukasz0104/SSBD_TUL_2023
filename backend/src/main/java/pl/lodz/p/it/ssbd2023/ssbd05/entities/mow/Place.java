@@ -102,6 +102,12 @@ import java.util.Set;
         query = """
             SELECT p FROM Place p
             WHERE p.building.id = :buildingId
+            """),
+    @NamedQuery(
+        name = "Place.findAllOwnersByPlaceId",
+        query = """
+            SELECT p.owners FROM Place p
+            WHERE p.id = :placeId
             """)
 })
 @EntityListeners({EntityControlListenerMOW.class})

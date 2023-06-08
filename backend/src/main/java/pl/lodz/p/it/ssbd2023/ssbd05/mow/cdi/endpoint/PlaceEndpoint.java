@@ -141,7 +141,13 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response getPlaceOwners(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+                () -> placeManager.getPlaceOwners(id)
+                    .stream()
+                    .map(PlaceDtoConverter::createPlaceOwnerDtoFromOwnerData)
+                    .toList(),
+                placeManager)
+            .build();
     }
 
     @POST

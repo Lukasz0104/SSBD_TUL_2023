@@ -102,7 +102,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Override
     @RolesAllowed(MANAGER)
     public List<OwnerData> getPlaceOwners(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return placeFacade.findOwnersByPlaceId(id);
     }
 
     @Override

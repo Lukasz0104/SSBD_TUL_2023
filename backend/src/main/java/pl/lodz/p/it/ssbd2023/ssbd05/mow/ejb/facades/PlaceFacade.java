@@ -14,6 +14,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
@@ -167,6 +168,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
     public List<Place> findByBuildingId(Long id) {
         return em.createNamedQuery("Place.findByBuildingId", Place.class)
             .setParameter("buildingId", id)
+            .getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public List<OwnerData> findOwnersByPlaceId(Long placeId) {
+        return em.createNamedQuery("Place.findAllOwnersByPlaceId", OwnerData.class)
+            .setParameter("placeId", placeId)
             .getResultList();
     }
 }
