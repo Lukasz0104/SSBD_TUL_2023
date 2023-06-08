@@ -21,6 +21,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -61,5 +62,11 @@ public class BuildingFacade extends AbstractFacade<Building> {
     @RolesAllowed({OWNER, MANAGER, ADMIN})
     public List<Building> findAll() {
         return super.findAll();
+    }
+
+    @RolesAllowed(MANAGER)
+    @Override
+    public Optional<Building> find(Long id) {
+        return super.find(id);
     }
 }

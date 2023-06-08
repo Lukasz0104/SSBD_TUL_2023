@@ -12,19 +12,23 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.BuildingNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +46,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private MeterFacade meterFacade;
+
+    @Inject
+    private BuildingFacade buildingFacade;
 
     @Override
     @RolesAllowed(MANAGER)
@@ -95,8 +102,13 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void createPlace() throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public void createPlace(Integer placeNumber, BigDecimal squareFootage, Integer residentsNumber, Long buildingId)
+        throws AppBaseException {
+        Building building = buildingFacade.find(buildingId).orElseThrow(BuildingNotFoundException::new);
+
+        Place place = new Place(placeNumber, squareFootage, residentsNumber, true, building);
+
+        placeFacade.create(place);
     }
 
     @Override

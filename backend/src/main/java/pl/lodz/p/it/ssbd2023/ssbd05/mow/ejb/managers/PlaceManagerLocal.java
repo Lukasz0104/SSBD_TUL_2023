@@ -9,6 +9,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +31,8 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     Set<Meter> getPlaceMetersAsOwner(Long id, String login) throws AppBaseException;
 
-    void createPlace() throws AppBaseException;
+    void createPlace(Integer placeNumber, BigDecimal squareFootage, Integer residentsNumber, Long buildingNumber)
+        throws AppBaseException;
 
     List<OwnerData> getPlaceOwners(Long id) throws AppBaseException;
 
