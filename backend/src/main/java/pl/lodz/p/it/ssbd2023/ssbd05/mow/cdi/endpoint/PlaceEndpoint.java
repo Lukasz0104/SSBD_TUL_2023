@@ -188,10 +188,22 @@ public class PlaceEndpoint {
 
     @GET
     @Path("/{id}/category/required_reading")
+    @RolesAllowed(MANAGER)
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkIfReadingRequired(@PathParam("id") Long id, @QueryParam("categoryId") Long categoryId)
         throws AppBaseException {
         return Response.ok(placeManager.checkIfCategoryRequiresReading(id, categoryId)).build();
+    }
+
+    @GET
+    @Path("/{id}/categories/missing")
+    @RolesAllowed(MANAGER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMissingCategories(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceCategoryDtoList(placeManager.findCurrentRateByPlaceIdNotMatch(id)),
+            placeManager
+        ).build();
     }
 
 

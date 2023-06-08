@@ -63,6 +63,16 @@
                         >{{ 'component.own-places.rates' | translate }}</span
                     >
                 </li>
+                <li
+                    class="nav-item cursor-pointer"
+                    *ngIf="authService.isManager()">
+                    <span
+                        (click)="tab = 5"
+                        [ngClass]="{ active: tab === 5 }"
+                        class="nav-link">
+                        Kategorie
+                    </span>
+                </li>
             </ul>
 
             <div class="m-3">
@@ -75,6 +85,9 @@
                 <app-place-reports
                     [id]="place.id"
                     *ngIf="tab === 3" />
+                <app-place-categories
+                    [id]="place.id"
+                    *ngIf="tab === 5 && authService.isManager()" />
             </div>
         </div>
     </div>

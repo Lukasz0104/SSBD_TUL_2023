@@ -64,6 +64,12 @@ export class PlaceService {
         );
     }
 
+    getPlaceMissingCategories(id: number) {
+        return this.http.get<PlaceCategory[]>(
+            `${this.BASE_URL}/${id}/categories/missing`
+        );
+    }
+
     getPlaceMetersAsOwner(id: number) {
         return this.http.get<Meter[]>(`${this.BASE_URL}/me/${id}/meters`);
     }

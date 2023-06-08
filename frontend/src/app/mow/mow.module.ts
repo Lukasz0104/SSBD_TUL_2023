@@ -20,6 +20,7 @@ import { BuildingReportsComponent } from './components/building-reports/building
 import { AddReadingComponent } from './components/add-reading/add-reading.component';
 import { PlacesComponent } from './components/places/places.component';
 import { PlaceDetailsComponent } from './components/place-details/place-details.component';
+import { PlaceAddCategoryComponent } from './components/place-add-category/place-add-category.component';
 
 @NgModule({
     declarations: [
@@ -38,7 +39,8 @@ import { PlaceDetailsComponent } from './components/place-details/place-details.
         MeterComponent,
         PlaceReportsComponent,
         PlacesComponent,
-        PlaceDetailsComponent
+        PlaceDetailsComponent,
+        PlaceAddCategoryComponent
     ],
     imports: [
         CommonModule,

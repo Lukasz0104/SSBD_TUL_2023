@@ -139,6 +139,12 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
+    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
+        return placeFacade.findCurrentRateByPlaceIdNotMatch(id);
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
     public void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value, String login)
         throws AppBaseException {
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);

@@ -48,12 +48,6 @@
                 {{ place.building.address.street }},
                 {{ place.building.address.buildingNumber }}
             </p>
-            <button
-                *ngIf="authService.isManager()"
-                class="btn btn-outline-primary"
-                (click)="placeCategories(place.id)">
-                {{ 'component.place.show-categories' | translate }}
-            </button>
         </div>
     </div>
 </ng-container>

@@ -1,29 +1,23 @@
-<div class="text-center">
-    <h2>
-        <span *ngIf="!editing">{{
-            'component.place.categories.title' | translate
-        }}</span>
-        <span *ngIf="editing">{{
-            'component.place.categories.title-edit' | translate
-        }}</span>
+<div class="modal-header text-center">
+    <h2
+        class="modal-title w-100"
+        id="modal-basic-title">
+        <span>Choose category</span>
     </h2>
+    <i
+        class="bi bi-x-lg cursor-pointer"
+        (click)="this.activeModal.close()"></i>
 </div>
-<hr />
-<div class="px-4 py-2">
-    <div *ngIf="placeCategories$ | async as categories">
+<div class="modal-body px-4 py-2">
+    <div *ngIf="missingCategories$ | async as categories">
         <div class="row card-group">
             <div
-                class="col-sm-2"
+                class="col-sm-5"
                 *ngFor="let category of categories; let i = index">
-                <div
-                    class="card m-3 rounded-3 shadow text-center"
-                    [ngClass]="{
-                        'text-danger opacity-50 cursor-pointer':
-                            editing && chosen.includes(category.rateId),
-                        'text-success cursor-pointer':
-                            editing && !chosen.includes(category.rateId)
-                    }"
-                    (click)="addNumbers(category.rateId)">
+                <div class="card m-3 rounded-3 shadow text-center">
+                    <!--
+                    (click)="addNumbers(category.rateId)"
+                    -->
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
                             <i
@@ -63,36 +57,9 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="col-sm-2"
-                *ngIf="editing">
-                <div
-                    class="card m-3 rounded-3 shadow text-center"
-                    (click)="addCategory()">
-                    <div class="card-body">
-                        <div class="align-middle mt-4 mb-5">
-                            <i class="bi bi-plus-lg fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
-<hr />
-<div>
-    <button
-        *ngIf="!editing"
-        type="button"
-        class="btn btn-outline-success"
-        (click)="editing = true">
-        {{ 'component.place.categories.edit' | translate }}
-    </button>
-    <button
-        *ngIf="editing"
-        type="button"
-        class="btn btn-outline-danger"
-        (click)="onSave()">
-        {{ 'component.place.categories.save' | translate }}
-    </button>
+<div class="modal-footer">
+    <button></button>
 </div>

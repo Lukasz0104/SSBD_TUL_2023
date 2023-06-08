@@ -1,14 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PlaceCategory } from '../../model/place-category';
 import { PlaceService } from '../../services/place.service';
-import {
-    NgbActiveModal,
-    NgbModal,
-    NgbModalRef
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { PlaceAddCategoryComponent } from '../place-add-category/place-add-category.component';
 
 @Component({
     selector: 'app-place-categories',
@@ -23,7 +20,6 @@ export class PlaceCategoriesComponent implements OnInit {
 
     constructor(
         private placeService: PlaceService,
-        public activeModal: NgbActiveModal,
         private modalService: NgbModal
     ) {}
 
@@ -73,5 +69,13 @@ export class PlaceCategoriesComponent implements OnInit {
         } else {
             this.editing = false;
         }
+    }
+
+    addCategory() {
+        const modalRef: NgbModalRef = this.modalService.open(
+            PlaceAddCategoryComponent,
+            { centered: true }
+        );
+        modalRef.componentInstance.placeId = this.id;
     }
 }
