@@ -34,7 +34,7 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     List<OwnerData> getPlaceOwners(Long id) throws AppBaseException;
 
-    void addOwnerToPlace(Long id) throws AppBaseException;
+    void addOwnerToPlace(Long id, String login) throws AppBaseException;
 
     void removeOwnerFromPlace(Long id) throws AppBaseException;
 

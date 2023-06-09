@@ -11,21 +11,27 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Stateful
@@ -41,7 +47,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     private PlaceFacade placeFacade;
 
     @Inject
-    private MeterFacade meterFacade;
+    private AccountFacade accountFacade;
 
     @Override
     @RolesAllowed(MANAGER)
@@ -107,8 +113,20 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void addOwnerToPlace(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public void addOwnerToPlace(Long id, String login) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        Optional<AccessLevel> ownerData = account
+            .getAccessLevels()
+            .stream()
+            .filter(x -> x.isValidAccessLevel(AccessType.OWNER))
+            .findFirst();
+        Place place = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
+        if (ownerData.isEmpty()) {
+            throw new BadAccessLevelException();
+        } else {
+            place.getOwners().add((OwnerData) ownerData.get());
+            placeFacade.edit(place);
+        }
     }
 
     @Override

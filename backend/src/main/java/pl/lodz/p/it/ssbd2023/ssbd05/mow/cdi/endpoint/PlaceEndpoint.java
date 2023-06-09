@@ -16,6 +16,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -148,8 +149,12 @@ public class PlaceEndpoint {
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response addOwnerToPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response addOwnerToPlace(@PathParam("id") Long id, @NotNull @QueryParam("login") String login)
+        throws AppBaseException {
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.addOwnerToPlace(id, login),
+            placeManager
+        ).build();
     }
 
     @DELETE
