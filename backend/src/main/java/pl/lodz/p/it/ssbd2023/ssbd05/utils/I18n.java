@@ -152,6 +152,12 @@ public class I18n {
     public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
     public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
     public static final String COST_NOT_FOUND = "response.message.cost_not_found";
+    public static final String READING_DATE_BEFORE_INITIAL_READING_EXCEPTION =
+        "response.message.reading_date_before_initial_reading";
+    public static final String READING_VALUE_SMALLER_THAN_INITIAL_EXCEPTION =
+        "response.message.reading_value_smaller_than_initial";
+    public static final String NOT_ENOUGH_DAYS_AFTER_INITIAL_READING_EXCEPTION =
+        "response.message.not_enough_days_after_initial_reading";
 
 
     public static String getMessage(String key, String language) {

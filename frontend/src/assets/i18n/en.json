@@ -528,7 +528,10 @@
         "message": {
           "reading_value_smaller_than_previous": "Reading value must be higher than value of previous reading",
           "not_enough_days_between_reliable_readings": "Not enough days since last reading",
-          "reading_value_higher_than_future": "Reading value must be lower than values of future readings"
+          "reading_value_higher_than_future": "Reading value must be lower than values of future readings",
+          "reading_date_before_initial_reading": "Reading date must be after the date of initial reading",
+          "reading_value_smaller_than_initial": "Reading value must be higher than value of initial reading",
+          "not_enough_days_after_initial_reading": "Reading date must be at least 1 day after initial reading"
         }
       }
     }

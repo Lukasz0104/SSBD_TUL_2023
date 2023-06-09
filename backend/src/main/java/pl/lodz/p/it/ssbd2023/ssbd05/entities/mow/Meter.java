@@ -107,18 +107,18 @@ public class Meter extends AbstractEntity implements Serializable {
         this.place = place;
     }
 
-    public List<Reading> getFutureReliableReadings() {
+    public List<Reading> getFutureReliableReadings(LocalDateTime date) {
         return getReadings().stream()
             .filter(Reading::isReliable)
-            .filter(r -> r.getDate().isAfter(LocalDateTime.now()))
+            .filter(r -> r.getDate().isAfter(date))
             .sorted(Comparator.comparing(Reading::getDate).reversed())
             .toList();
     }
 
-    public List<Reading> getPastReliableReadings() {
+    public List<Reading> getPastReliableReadings(LocalDateTime date) {
         return getReadings().stream()
             .filter(Reading::isReliable)
-            .filter(r -> r.getDate().isBefore(LocalDateTime.now()) || r.getDate().isEqual(LocalDateTime.now()))
+            .filter(r -> r.getDate().isBefore(date) || r.getDate().isEqual(date))
             .sorted(Comparator.comparing(Reading::getDate).reversed())
             .toList();
     }

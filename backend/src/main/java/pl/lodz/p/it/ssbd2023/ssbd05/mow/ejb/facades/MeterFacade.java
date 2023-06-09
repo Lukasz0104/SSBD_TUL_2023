@@ -10,7 +10,6 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
@@ -49,6 +48,11 @@ public class MeterFacade extends AbstractFacade<Meter> {
     @RolesAllowed({MANAGER})
     public Optional<Meter> find(Long id) {
         return super.find(id);
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public void edit(Meter meter) throws AppBaseException {
+        super.edit(meter);
     }
 
 
@@ -181,11 +185,5 @@ public class MeterFacade extends AbstractFacade<Meter> {
             throw new AppDatabaseException("Meter.findByCategoryNameAndPlaceNumberAndBuildingId , Database Exception",
                 e);
         }
-    }
-
-    @RolesAllowed({OWNER, MANAGER})
-    public void lockAndEdit(Meter meter) throws AppBaseException {
-        em.lock(meter, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-        super.edit(meter);
     }
 }

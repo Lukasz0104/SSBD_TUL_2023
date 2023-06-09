@@ -32,7 +32,7 @@ export class ReadingService {
                 map(() => true),
                 catchError((err: HttpErrorResponse) => {
                     this.handleError(
-                        'toast.add-reading.fail',
+                        'toast.reading.add-fail',
                         'toast.reading',
                         err
                     );
