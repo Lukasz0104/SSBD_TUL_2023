@@ -20,6 +20,7 @@ import { BuildingReportsComponent } from './components/building-reports/building
 import { AddReadingComponent } from './components/add-reading/add-reading.component';
 import { PlacesComponent } from './components/places/places.component';
 import { PlaceEditComponent } from './components/place-edit/place-edit.component';
+import { CostComponent } from './components/cost/cost.component';
 
 @NgModule({
     declarations: [
@@ -31,13 +32,14 @@ import { PlaceEditComponent } from './components/place-edit/place-edit.component
         MetersComponent,
         PlaceComponent,
         BuildingsComponent,
-        CostsComponent,
         BuildingReportsComponent,
         AddRateComponent,
         AddReadingComponent,
         MeterComponent,
         PlaceReportsComponent,
         PlacesComponent,
+        CostsComponent,
+        CostComponent,
         PlaceEditComponent
     ],
     imports: [

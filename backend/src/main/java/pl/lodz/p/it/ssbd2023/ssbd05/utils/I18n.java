@@ -152,6 +152,7 @@ public class I18n {
     public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
     public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
     public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
+    public static final String COST_NOT_FOUND = "response.message.cost_not_found";
 
 
     public static String getMessage(String key, String language) {
