@@ -60,12 +60,12 @@ export class PlaceEditComponent {
     }
 
     onSubmit(): void {
-        const modal = this.modalService.open(ConfirmActionComponent);
-        const instance = modal.componentInstance as ConfirmActionComponent;
+        const modalRef = this.modalService.open(ConfirmActionComponent);
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
 
         instance.message = 'modal.confirm-action.place-edit';
         instance.danger = '';
-        modal.closed.subscribe((res: boolean): void => {
+        modalRef.result.then((res: boolean): void => {
             if (res && this.newPlace) {
                 const placeEdit: PlaceEdit = {
                     id: this.newPlace.id,

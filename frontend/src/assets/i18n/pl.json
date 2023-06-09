@@ -451,7 +451,8 @@
       "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
       "remove-rate-danger": "Tej akcji nie można cofnąć!",
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
-      "add-reading": "Czy na pewno chcesz dodać ten odczyt?"
+      "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
+      "place-edit": "Czy na pewno chcesz zaktualozować lokal?"
     }
   },
   "access-levels": {
@@ -523,7 +524,13 @@
       "fail": "Błąd przy ładowaniu danych lokalu"
     },
     "place-edit": {
-      "fail": "Błąd przy edycji lokalu"
+      "fail": "Błąd przy edycji lokalu",
+      "success": "Udało się zaktualizować lokal",
+      "response": {
+        "message": {
+          "place_number_already_taken": "Podany numer lokalu istnieję w wybranym budynku"
+        }
+      }
     },
     "rate": {
       "remove-success": "Pomyślnie usunięto stawkę",

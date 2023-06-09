@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
@@ -34,6 +35,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -1159,6 +1161,242 @@ public class MowITests extends TestContainersSetup {
                     .get("/meters/me/" + id + "/readings")
                     .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW28 {
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification adminOwnerSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification managerOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("asrebrna", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            adminOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            managerOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldEditPlaceWhenLoggedInAsManager() {
+                io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("/places/" + 1);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
+
+                EditPlaceDto editDto = new EditPlaceDto(place);
+                editDto.setSquareFootage(place.getSquareFootage().add(BigDecimal.TEN));
+                editDto.setActive(!place.isActive());
+
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .when().body(editDto).post("/places/" + 1)
+                    .then().statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                PlaceDto newPlace = given().spec(onlyManagerSpec).when().get("/places/" + 1)
+                    .getBody().as(PlaceDto.class);
+
+                Assertions.assertEquals(newPlace.getPlaceNumber(), place.getPlaceNumber());
+                Assertions.assertEquals(newPlace.getVersion() - 1, place.getVersion());
+                Assertions.assertEquals(newPlace.getResidentsNumber(), place.getResidentsNumber());
+                Assertions.assertEquals(newPlace.getId(), place.getId());
+                Assertions.assertEquals(place.getSquareFootage().add(BigDecimal.TEN), newPlace.getSquareFootage());
+                Assertions.assertEquals(place.isActive(), !newPlace.isActive());
+            }
+
+            @Test
+            void shouldEditPlaceWhenLoggedInAsManagerAndOwner() {
+                int id = 2;
+                io.restassured.response.Response response = given().spec(managerOwnerSpec).when().get("/places/" + id);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
+
+                EditPlaceDto editDto = new EditPlaceDto(place);
+                editDto.setResidentsNumber(place.getResidentsNumber() + 90);
+                given().spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .when().body(editDto).post("/places/" + id)
+                    .then().statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                PlaceDto newPlace = given().spec(managerOwnerSpec).when().get("/places/" + id)
+                    .getBody().as(PlaceDto.class);
+
+                Assertions.assertEquals(newPlace.getPlaceNumber(), place.getPlaceNumber());
+                Assertions.assertEquals(newPlace.getVersion() - 1, place.getVersion());
+                Assertions.assertEquals(newPlace.getResidentsNumber() - 90, place.getResidentsNumber());
+                Assertions.assertEquals(newPlace.getId(), place.getId());
+                Assertions.assertEquals(place.getSquareFootage(), newPlace.getSquareFootage());
+                Assertions.assertEquals(place.isActive(), newPlace.isActive());
+            }
+        }
+
+        @Nested
+        class ConstraintCases {
+
+            @NullSource
+            @ParameterizedTest
+            @ValueSource(ints = {-9, 0})
+            void shouldReturn400SCWhenInvalidPlaceNumber(Integer placeNumber) {
+                EditPlaceDto editDto = new EditPlaceDto(1L, 1L, placeNumber, BigDecimal.valueOf(10.9), 10, true);
+                given().spec(managerOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(editDto)
+                    .post("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {-9, 0})
+            void shouldReturn400SCWhenInvalidSquareFootage(Integer val) {
+                EditPlaceDto editDto
+                    = new EditPlaceDto(1L, 1L, 1, BigDecimal.valueOf(val), 10, true);
+                given().spec(managerOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(editDto)
+                    .post("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @NullSource
+            @ParameterizedTest
+            @ValueSource(ints = {-9, 0})
+            void shouldReturn400SCWhenInvalidResidentsNumber(Integer val) {
+                EditPlaceDto editDto =
+                    new EditPlaceDto(1L, 1L, 1, BigDecimal.valueOf(10.8), val, true);
+                given().spec(managerOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(editDto)
+                    .post("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+        }
+
+        @Nested
+        class UnauthorizedCases {
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                EditPlaceDto editDto =
+                    new EditPlaceDto(1L, 1L, 1, BigDecimal.valueOf(10.8), 3, true);
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(editDto)
+                    .post("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                EditPlaceDto editDto =
+                    new EditPlaceDto(1L, 1L, 1, BigDecimal.valueOf(10.8), 3, true);
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(editDto)
+                    .post("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+
+        @Nested
+        class OtherNegativeCases {
+
+            @Test
+            void shouldReturn404SCWhenRequestingNonExistingPlaceByPath() {
+                EditPlaceDto editDto =
+                    new EditPlaceDto(1L, 1L, 1, BigDecimal.valueOf(10.8), 3, true);
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(editDto)
+                    .post("/places/" + 90)
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn409SCWhenChangingToAlreadyTakenPlaceNumber() {
+                List<PlaceDto> places = Arrays.asList(
+                    given(onlyManagerSpec).when().get("/buildings/1/places").as(PlaceDto[].class));
+                int number = places.stream()
+                    .filter((p) -> p.getId() != 1)
+                    .findFirst()
+                    .get()
+                    .getPlaceNumber();
+
+                EditPlaceDto editDto =
+                    new EditPlaceDto(1L, 1L, number, BigDecimal.valueOf(10.8), 3, true);
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(editDto)
+                    .post("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
             }
         }
     }

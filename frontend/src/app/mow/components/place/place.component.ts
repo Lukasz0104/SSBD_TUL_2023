@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BehaviorSubject, catchError, EMPTY, map } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Place } from '../../model/place';
 import { PlaceService } from '../../services/place.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -15,11 +15,8 @@ import { PlaceEditComponent } from '../place-edit/place-edit.component';
 })
 export class PlaceComponent implements OnInit {
     place$ = new BehaviorSubject<Place | null>(null);
-
     @Input() id: number | undefined;
-
     @Input() place: Place | undefined;
-
     loading = true;
 
     constructor(
@@ -69,28 +66,17 @@ export class PlaceComponent implements OnInit {
     }
 
     editPlace() {
-        this.place$
-            .pipe(
-                map((place: Place | null): void => {
-                    if (place) {
-                        const modalRef: NgbModalRef = this.modalService.open(
-                            PlaceEditComponent,
-                            { centered: true }
-                        );
-                        modalRef.componentInstance.setPlace(place);
-                        modalRef.closed.subscribe((): void => {
-                            this.getPlace(place.id);
-                            console.log('closed edit-component subscribe');
-                        });
-                    }
-                }),
-                catchError(() => {
-                    console.log('Catch in place-component');
-                    this.modalService.dismissAll();
-                    return EMPTY;
-                })
-            )
-            .subscribe();
+        if (this.place) {
+            const modalRef: NgbModalRef = this.modalService.open(
+                PlaceEditComponent,
+                { centered: true }
+            );
+            modalRef.componentInstance.setPlace(this.place);
+            const id: number = this.place.id;
+            modalRef.result.then((): void => {
+                this.getPlace(id);
+            });
+        }
     }
 
     protected readonly AccessLevels = AccessLevels;

@@ -451,7 +451,8 @@
       "remove-rate": "Are you sure you want to remove this rate?",
       "remove-rate-danger": "This action cannot be undone!",
       "add-rate": "Are you sure, you want to add this rate?",
-      "add-reading": "Are you sure, you want to add this reading?"
+      "add-reading": "Are you sure, you want to add this reading?",
+      "place-edit": "Are you sure, you want update this place?"
     }
   },
   "access-levels": {
@@ -519,7 +520,17 @@
       "access-denied": "Access denied"
     },
     "place": {
-      "not-found": "Place not found"
+      "not-found": "Place not found",
+      "fail": "Error loading place",
+      "response": {
+        "message": {
+          "place_number_already_taken": "Given place number already exist in a chosen building"
+        }
+      }
+    },
+    "place-edit": {
+      "fail": "Error editing place",
+      "success": "Place update successfull"
     },
     "rate": {
       "remove-success": "Successfully removed the rate",
