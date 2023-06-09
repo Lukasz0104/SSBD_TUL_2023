@@ -164,11 +164,13 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
             try {
                 meter = meterFacade.findByCategoryIdAndPlaceId(categoryId, placeId)
                     .orElseThrow(MeterNotFoundException::new);
-                if (meter.getReadings().size() < 1 && value == null) {
-                    throw new InitialReadingRequiredException();
-                } else {
-                    meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
-                    meterFacade.edit(meter);
+                if (meter.getReadings().size() < 1) {
+                    if (value == null) {
+                        throw new InitialReadingRequiredException();
+                    } else {
+                        meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                        meterFacade.edit(meter);
+                    }
                 }
             } catch (MeterNotFoundException mnfe) {
                 if (value == null) {
