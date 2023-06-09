@@ -75,18 +75,17 @@ export class PlaceComponent implements OnInit {
                     if (place) {
                         const modalRef: NgbModalRef = this.modalService.open(
                             PlaceEditComponent,
-                            {
-                                centered: true,
-                                scrollable: true
-                            }
+                            { centered: true }
                         );
                         modalRef.componentInstance.setPlace(place);
-                        modalRef.result.then((): void => {
+                        modalRef.closed.subscribe((): void => {
                             this.getPlace(place.id);
+                            console.log('closed edit-component subscribe');
                         });
                     }
                 }),
                 catchError(() => {
+                    console.log('Catch in place-component');
                     this.modalService.dismissAll();
                     return EMPTY;
                 })

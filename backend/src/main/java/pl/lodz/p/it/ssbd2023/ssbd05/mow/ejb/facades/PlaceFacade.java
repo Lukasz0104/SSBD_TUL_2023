@@ -16,8 +16,10 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.PlaceFacadeExceptionInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
@@ -30,6 +32,7 @@ import java.util.Optional;
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
     GenericFacadeExceptionsInterceptor.class,
+    PlaceFacadeExceptionInterceptor.class,
     LoggerInterceptor.class
 })
 public class PlaceFacade extends AbstractFacade<Place> {
@@ -169,4 +172,12 @@ public class PlaceFacade extends AbstractFacade<Place> {
             .setParameter("buildingId", id)
             .getResultList();
     }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Place place) throws AppBaseException {
+        super.edit(place);
+    }
 }
+
+

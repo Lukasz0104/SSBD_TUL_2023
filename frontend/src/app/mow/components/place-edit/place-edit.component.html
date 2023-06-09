@@ -1,1 +1,170 @@
-<p>place-edit works!</p>
+<ng-container *ngIf="place$; else loading">
+    <div class="modal-header">
+        <h4
+            class="modal-title"
+            id="modal-basic-title">
+            {{ 'component.place-edit.title' | translate }}:
+        </h4>
+    </div>
+    <div class="modal-body px-4 py-2">
+        <form
+            [formGroup]="editPlaceFormGroup"
+            (ngSubmit)="onSubmit()">
+            <p>
+                <strong>{{
+                    'component.place-edit.placeNumber' | translate
+                }}</strong>
+            </p>
+            <div class="mb-2 has-validation">
+                <label
+                    class="form-label"
+                    for="placeNumber">
+                    {{ 'component.place-edit.placeNumber' | translate }}
+                </label>
+                <input
+                    class="form-control"
+                    formControlName="placeNumber"
+                    id="placeNumber"
+                    type="number"
+                    [ngClass]="{
+                        'is-invalid': placeNumberControl.invalid,
+                        'is-valid': placeNumberControl.valid
+                    }" />
+                <div
+                    *ngIf="placeNumberControl.errors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="placeNumberControl.errors['required']"
+                        class="mb-0">
+                        {{ 'validation.placeNumber.required' | translate }}
+                    </p>
+                    <p
+                        *ngIf="placeNumberControl.errors['min']"
+                        class="mb-0">
+                        {{ 'validation.placeNumber.min' | translate }}
+                    </p>
+                </div>
+            </div>
+
+            <p>
+                <strong>{{
+                    'component.place-edit.squareFootage' | translate
+                }}</strong>
+            </p>
+            <div class="mb-2 has-validation">
+                <label
+                    class="form-label"
+                    for="squareFootage">
+                    {{ 'component.place-edit.squareFootage' | translate }}
+                </label>
+                <input
+                    class="form-control"
+                    formControlName="squareFootage"
+                    id="squareFootage"
+                    type="number"
+                    [ngClass]="{
+                        'is-invalid': squareFootageControl.invalid,
+                        'is-valid': squareFootageControl.valid
+                    }" />
+                <div
+                    *ngIf="squareFootageControl.errors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="squareFootageControl.errors['required']"
+                        class="mb-0">
+                        {{ 'validation.squareFootage.required' | translate }}
+                    </p>
+                    <p
+                        *ngIf="squareFootageControl.errors['min']"
+                        class="mb-0">
+                        {{ 'validation.squareFootage.min' | translate }}
+                    </p>
+                </div>
+            </div>
+
+            <p>
+                <strong>{{
+                    'component.place-edit.residentsNumber' | translate
+                }}</strong>
+            </p>
+            <div class="mb-2 has-validation">
+                <label
+                    class="form-label"
+                    for="placeNumber">
+                    {{ 'component.place-edit.residentsNumber' | translate }}
+                </label>
+                <input
+                    class="form-control"
+                    formControlName="residentsNumber"
+                    id="residentsNumber"
+                    type="number"
+                    [ngClass]="{
+                        'is-invalid': residentsNumberControl.invalid,
+                        'is-valid': residentsNumberControl.valid
+                    }" />
+                <div
+                    *ngIf="residentsNumberControl.errors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="residentsNumberControl.errors['required']"
+                        class="mb-0">
+                        {{ 'validation.residentsNumber.required' | translate }}
+                    </p>
+                    <p
+                        *ngIf="residentsNumberControl.errors['min']"
+                        class="mb-0">
+                        {{ 'validation.residentsNumber.min' | translate }}
+                    </p>
+                </div>
+            </div>
+
+            <p>
+                <strong>{{ 'component.place-edit.active' | translate }}</strong>
+            </p>
+            <div class="mb-2 has-validation">
+                <label
+                    class="form-label"
+                    for="active">
+                    {{ 'component.place-edit.active' | translate }}
+                </label>
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input"
+                        formControlName="active"
+                        id="active"
+                        type="checkbox"
+                        role="switch"
+                        [ngClass]="{
+                            'is-invalid': activeControl.invalid,
+                            'is-valid': activeControl.valid
+                        }" />
+                </div>
+                <div
+                    *ngIf="activeControl.errors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="activeControl.errors['required']"
+                        class="mb-0">
+                        {{ 'validation.active.required' | translate }}
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="px-4 d-flex justify-content-between modal-footer">
+        <button
+            [disabled]="!areAllValid()"
+            (click)="onSubmit()"
+            class="btn btn-success">
+            {{ 'component.place-edit.save' | translate }}
+        </button>
+    </div>
+</ng-container>
+<ng-template #loading>
+    <div
+        style="min-height: 400px"
+        class="d-flex flex-column justify-content-center align-items-center">
+        <h3 class="m-3">{{ 'component.place-edit.loading' | translate }}</h3>
+    </div>
+</ng-template>

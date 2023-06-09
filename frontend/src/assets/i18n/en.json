@@ -81,6 +81,21 @@
       "reading-date": {
         "required": "Reading date is required"
       }
+    },
+    "active": {
+      "required": "Field is required"
+    },
+    "residentsNumber": {
+      "min": "Number of residents must not be lower then 1",
+      "required": "Number of residents is required"
+    },
+    "squareFootage": {
+      "min": "Square footage must be positive",
+      "required": "Square footage is required"
+    },
+    "placeNumber": {
+      "min": "Place number must be positive",
+      "required": "Place number is required"
     }
   },
   "form": {
@@ -400,6 +415,15 @@
       "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
       "title": "Report",
       "loading": "Loading reports"
+    },
+    "place-edit":  {
+      "title": "Edit place",
+      "placeNumber": "Place number",
+      "squareFootage": "Square footage",
+      "residentsNumber": "Number of residents",
+      "active": "In use",
+      "loading": "Loading ... ",
+      "save": "Save"
     }
   },
   "accounting-rule": {

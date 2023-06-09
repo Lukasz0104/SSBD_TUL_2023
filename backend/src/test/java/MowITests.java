@@ -25,7 +25,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.ReadingDto;
@@ -748,8 +748,8 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldPassGettingOwnPlaces() {
             io.restassured.response.Response response = given().spec(ownerSpec).when().get(ownPlacesURL);
-            List<PlaceDTO> places =
-                List.of(response.getBody().as(PlaceDTO[].class));
+            List<PlaceDto> places =
+                List.of(response.getBody().as(PlaceDto[].class));
 
             response.then().statusCode(Response.Status.OK.getStatusCode());
             assertNotNull(places);
@@ -846,7 +846,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldPassOwnerGettingOwnPlaces() {
                 io.restassured.response.Response response = given().spec(onlyOwnerSpec).when().get("/places/me/" + 7);
-                PlaceDTO place = response.getBody().as(PlaceDTO.class);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
                 Assertions.assertNotNull(place);
                 Assertions.assertEquals(place.getId(), 7);
@@ -859,7 +859,7 @@ public class MowITests extends TestContainersSetup {
             void shouldPassManagerGettingOwnPlaces() {
                 io.restassured.response.Response response =
                     given().spec(managerOwnerSpec).when().get("/places/me/" + 5);
-                PlaceDTO place = response.getBody().as(PlaceDTO.class);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
                 Assertions.assertNotNull(place);
                 Assertions.assertEquals(place.getId(), 5);
@@ -872,7 +872,7 @@ public class MowITests extends TestContainersSetup {
             @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
             void shouldPassManagerGettingAnyPlaces(int id) {
                 io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("/places/" + id);
-                PlaceDTO place = response.getBody().as(PlaceDTO.class);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
                 Assertions.assertNotNull(place);
             }

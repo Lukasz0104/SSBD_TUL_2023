@@ -44,5 +44,5 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     void removeCategoryFromPlace(Long id) throws AppBaseException;
 
-    void editPlaceDetails(Long id) throws AppBaseException;
+    void editPlaceDetails(Long id, Place newPlace) throws AppBaseException;
 }

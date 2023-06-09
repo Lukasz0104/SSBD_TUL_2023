@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {
+    HttpClient,
+    HttpErrorResponse,
+    HttpHeaders
+} from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { catchError, EMPTY, map, Observable } from 'rxjs';
-import { Place } from '../model/place';
+import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
+import { Place, PlaceEdit } from '../model/place';
 import { PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
 import { ToastService } from '../../shared/services/toast.service';
@@ -88,5 +92,27 @@ export class PlaceService {
         } else {
             this.toastService.showDanger(method + '.' + response.error.message);
         }
+    }
+
+    editPlace(newPlace: PlaceEdit) {
+        return this.http
+            .post<Place>(`${this.BASE_URL}/${newPlace.id}`, newPlace, {
+                headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
+                observe: 'response'
+            })
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess('toast.place-edit.success');
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError(
+                        'toast.place-edit.fail',
+                        'toast.place-edit',
+                        err
+                    );
+                    return of(true);
+                })
+            );
     }
 }

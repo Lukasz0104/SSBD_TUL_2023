@@ -81,6 +81,21 @@
       "reading-date": {
         "required": "Data odczytu jest wymagana"
       }
+    },
+    "active": {
+      "required": "Pole jest wymagane"
+    },
+    "residentsNumber": {
+      "min": "Ilość mieszkańców nie może być mniejsza niż 1",
+      "required": "Ilość mieszkanców jest wymagana"
+    },
+    "squareFootage": {
+      "min": "Powierzchnia lokalu musi być dodatnia",
+      "required": "Powierzchnia lokalu jest wymagana"
+    },
+    "placeNumber": {
+      "min": "Numer lokalu musi być dodatni",
+      "required": "Numer lokalu jest wymagany"
     }
   },
   "form": {
@@ -400,6 +415,15 @@
       "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
       "title": "Raport",
       "loading": "Ładowanie raportów"
+    },
+    "place-edit":  {
+      "title": "Edycja lokalu",
+      "placeNumber": "Numer lokalu",
+      "squareFootage": "Powierzchnia",
+      "residentsNumber": "Ilość mieszkańców",
+      "active": "Używane",
+      "loading": "Ładowanie ... ",
+      "save": "Zapisz"
     }
   },
   "accounting-rule": {
@@ -495,7 +519,11 @@
       "access-denied": "Odmowa dostępu"
     },
     "place": {
-      "not-found": "Nie znaleziono lokalu"
+      "not-found": "Nie znaleziono lokalu",
+      "fail": "Błąd przy ładowaniu danych lokalu"
+    },
+    "place-edit": {
+      "fail": "Błąd przy edycji lokalu"
     },
     "rate": {
       "remove-success": "Pomyślnie usunięto stawkę",

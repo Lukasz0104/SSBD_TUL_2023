@@ -17,9 +17,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
@@ -42,6 +44,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private MeterFacade meterFacade;
+
+    @Inject
+    private BuildingFacade buildingFacade;
 
     @Override
     @RolesAllowed(MANAGER)
@@ -137,7 +142,18 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void editPlaceDetails(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public void editPlaceDetails(Long id, Place newPlace) throws AppBaseException {
+        Place oldPlace = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
+        if (oldPlace.getVersion() != newPlace.getVersion()) {
+            throw new AppOptimisticLockException();
+        }
+
+        oldPlace.setActive(newPlace.isActive());
+        oldPlace.setPlaceNumber(newPlace.getPlaceNumber());
+        oldPlace.setResidentsNumber(newPlace.getResidentsNumber());
+        oldPlace.setSquareFootage(newPlace.getSquareFootage());
+
+        placeFacade.edit(oldPlace);
     }
+
 }

@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { Place } from '../../model/place';
+import { Place, PlaceEdit } from '../../model/place';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { PlaceService } from '../../services/place.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
     selector: 'app-place-edit',
@@ -13,71 +13,50 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class PlaceEditComponent {
     @Input() public place$: Observable<Place | null> | undefined;
-    public newPlace: Place | null | undefined;
+    protected newPlace: Place | null | undefined;
+    protected editPlaceFormGroup: FormGroup;
 
     constructor(
         public activeModal: NgbActiveModal,
         private modalService: NgbModal,
         private placeService: PlaceService,
-        private authService: AuthService
-    ) {}
-
-    editPlaceFormGroup = new FormGroup({
-        active: new FormControl(true, [Validators.required]),
-        squareFootage: new FormControl(1.0, [
-            Validators.required,
-            Validators.min(1)
-        ]),
-        placeNumber: new FormControl(1, [
-            Validators.required,
-            Validators.pattern('[1-9][0-9]+')
-        ]),
-        residentsNumber: new FormControl(1, [
-            Validators.required,
-            Validators.min(1)
-        ]),
-        street: new FormControl('', [
-            Validators.required,
-            Validators.maxLength(85)
-        ]),
-        buildingNumber: new FormControl(1, [
-            Validators.required,
-            Validators.min(0)
-        ]),
-        postalCode: new FormControl('', [
-            Validators.required,
-            Validators.minLength(6),
-            Validators.maxLength(6)
-        ]),
-        city: new FormControl('', [
-            Validators.required,
-            Validators.minLength(2),
-            Validators.maxLength(85),
-            Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
-        ])
-    });
+        private authService: AuthService,
+        private fb: FormBuilder
+    ) {
+        this.editPlaceFormGroup = this.fb.group({
+            active: this.fb.control(true, [Validators.required]),
+            squareFootage: this.fb.control(1, [
+                Validators.required,
+                Validators.min(0.001)
+            ]),
+            placeNumber: this.fb.control(1, [
+                Validators.required,
+                Validators.min(1)
+            ]),
+            residentsNumber: this.fb.control(1, [
+                Validators.required,
+                Validators.min(1)
+            ])
+        });
+    }
 
     setPlace(place: Place): void {
-        if (this.authService.isOwner()) {
-            this.place$ = this.placeService.getAsOwner(place.id);
-        } else {
-            this.place$ = this.placeService.getAsManager(place.id);
+        this.getPlace(place.id);
+
+        if (this.place$) {
+            this.place$.subscribe({
+                next: (val: Place | null): void => {
+                    this.newPlace = val;
+                    if (this.newPlace) {
+                        this.active = this.newPlace.active ?? true;
+                        this.squareFootage = this.newPlace.squareFootage ?? 1.0;
+                        this.placeNumber = this.newPlace.placeNumber ?? 1;
+                        this.residentsNumber =
+                            this.newPlace.residentsNumber ?? 1;
+                    }
+                }
+            });
         }
-        this.place$.subscribe({
-            next: (val: Place | null): void => {
-                this.newPlace = val;
-                this.active = this.newPlace?.active ?? true;
-                this.squareFootage = this.newPlace?.squareFootage ?? 1.0;
-                this.placeNumber = this.newPlace?.placeNumber ?? 1;
-                this.residentsNumber = this.newPlace?.residentsNumber ?? 1;
-                this.buildingNumber =
-                    this.newPlace?.building.address.buildingNumber ?? 1;
-                this.street = this.newPlace?.building.address.street ?? '';
-                this.postalCode =
-                    this.newPlace?.building.address.postalCode ?? '';
-                this.city = this.newPlace?.building.address.city ?? '';
-            }
-        });
     }
 
     onSubmit(): void {
@@ -88,11 +67,30 @@ export class PlaceEditComponent {
         instance.danger = '';
         modal.closed.subscribe((res: boolean): void => {
             if (res && this.newPlace) {
-                this.newPlace.active = this.active;
-                this.newPlace.squareFootage = this.squareFootage;
-                this.newPlace.placeNumber = this.placeNumber;
+                const placeEdit: PlaceEdit = {
+                    id: this.newPlace.id,
+                    version: this.newPlace.version,
+                    squareFootage: this.squareFootage,
+                    placeNumber: this.placeNumber,
+                    residentsNumber: this.residentsNumber,
+                    active: this.active
+                };
+
+                this.placeService.editPlace(placeEdit).subscribe((result) => {
+                    if (result) {
+                        this.activeModal.close();
+                    }
+                });
             }
         });
+    }
+
+    getPlace(id: number) {
+        if (this.authService.isOwner()) {
+            this.place$ = this.placeService.getAsOwner(id);
+        } else {
+            this.place$ = this.placeService.getAsManager(id);
+        }
     }
 
     // form controls
@@ -103,7 +101,7 @@ export class PlaceEditComponent {
         this.activeControl.setValue(value);
     }
     get activeControl() {
-        return this.editPlaceFormGroup.controls.active;
+        return this.editPlaceFormGroup.controls['active'];
     }
 
     get squareFootage() {
@@ -113,7 +111,7 @@ export class PlaceEditComponent {
         this.squareFootageControl.setValue(value);
     }
     get squareFootageControl() {
-        return this.editPlaceFormGroup.controls.squareFootage;
+        return this.editPlaceFormGroup.controls['squareFootage'];
     }
 
     get placeNumber() {
@@ -123,7 +121,7 @@ export class PlaceEditComponent {
         this.placeNumberControl.setValue(value);
     }
     get placeNumberControl() {
-        return this.editPlaceFormGroup.controls.placeNumber;
+        return this.editPlaceFormGroup.controls['placeNumber'];
     }
 
     get residentsNumber() {
@@ -133,46 +131,10 @@ export class PlaceEditComponent {
         this.residentsNumberControl.setValue(value);
     }
     get residentsNumberControl() {
-        return this.editPlaceFormGroup.controls.residentsNumber;
+        return this.editPlaceFormGroup.controls['residentsNumber'];
     }
 
-    get street() {
-        return this.editPlaceFormGroup.get('street')?.getRawValue();
-    }
-    set street(value: string) {
-        this.streetControl.setValue(value);
-    }
-    get streetControl() {
-        return this.editPlaceFormGroup.controls.street;
-    }
-
-    get buildingNumber() {
-        return this.editPlaceFormGroup.get('buildingNumber')?.getRawValue();
-    }
-    set buildingNumber(value: number) {
-        this.buildingNumberControl.setValue(value);
-    }
-    get buildingNumberControl() {
-        return this.editPlaceFormGroup.controls.buildingNumber;
-    }
-
-    get postalCode() {
-        return this.editPlaceFormGroup.get('postalCode')?.getRawValue();
-    }
-    set postalCode(value: string) {
-        this.postalCodeControl.setValue(value);
-    }
-    get postalCodeControl() {
-        return this.editPlaceFormGroup.controls.postalCode;
-    }
-
-    get city() {
-        return this.editPlaceFormGroup.get('city')?.getRawValue();
-    }
-    set city(value: string) {
-        this.cityControl.setValue(value);
-    }
-    get cityControl() {
-        return this.editPlaceFormGroup.controls.city;
+    areAllValid(): boolean {
+        return this.editPlaceFormGroup.valid;
     }
 }

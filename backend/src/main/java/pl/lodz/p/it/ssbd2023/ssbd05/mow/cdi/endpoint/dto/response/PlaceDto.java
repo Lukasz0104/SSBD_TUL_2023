@@ -12,10 +12,13 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaceDTO {
+public class PlaceDto {
 
     @NotNull
     private Long id;
+
+    @NotNull
+    private Long version;
 
     @NotNull @Positive
     private Integer placeNumber;
