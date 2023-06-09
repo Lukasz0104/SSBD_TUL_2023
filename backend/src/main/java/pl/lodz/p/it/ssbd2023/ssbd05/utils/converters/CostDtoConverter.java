@@ -20,6 +20,22 @@ public class CostDtoConverter {
         );
     }
 
+    public static CostDto createDetailedCostDto(Cost cost) {
+        return new CostDto(
+            cost.getId(),
+            cost.getVersion(),
+            cost.getYear().getValue(),
+            cost.getMonth(),
+            cost.getTotalConsumption(),
+            cost.getRealRate(),
+            cost.getCategory().getName(),
+            cost.getCreatedTime(),
+            cost.getCreatedBy() != null ? cost.getCreatedBy().getLogin() : null,
+            cost.getUpdatedTime(),
+            cost.getUpdatedBy() != null ? cost.getUpdatedBy().getLogin() : null
+        );
+    }
+
     public static Page<CostDto> createCostDtoPage(Page<Cost> costPage) {
         List<CostDto> costDtoList = costPage.getData().stream().map(CostDtoConverter::createCostDto).toList();
         return new Page<>(costDtoList, costPage.getTotalSize(), costPage.getPageSize(), costPage.getCurrentPage());

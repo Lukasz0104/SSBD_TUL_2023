@@ -5,7 +5,7 @@ import { ToastService } from '../../shared/services/toast.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { CostPage } from '../model/cost-page';
+import { Cost, CostPage } from '../model/cost';
 
 @Injectable({
     providedIn: 'root'
@@ -28,9 +28,15 @@ export class CostsService {
         year: string | undefined,
         categoryName: string | undefined
     ) {
-        return this.http.get<CostPage>(
-            `${this.costsUrl}/?page=${page}&pageSize=${pageSize}&ascending=${sortDirection}&year=${year}&categoryName=${categoryName}`
-        );
+        return this.http.get<CostPage>(this.costsUrl, {
+            params: {
+                page,
+                pageSize,
+                year: year ?? '',
+                categoryName: categoryName ?? '',
+                ascending: sortDirection
+            }
+        });
     }
 
     getYearsFromCosts() {
@@ -39,5 +45,9 @@ export class CostsService {
 
     getCategoryNamesFromCosts() {
         return this.http.get<string[]>(`${this.costsUrl}/categories`);
+    }
+
+    getCost(id: number) {
+        return this.http.get<Cost>(`${this.costsUrl}/${id}`);
     }
 }
