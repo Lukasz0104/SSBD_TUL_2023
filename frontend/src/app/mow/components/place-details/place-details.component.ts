@@ -7,7 +7,7 @@ import { AuthService } from '../../../shared/services/auth.service';
     templateUrl: './place-details.component.html'
 })
 export class PlaceDetailsComponent {
-    @Input() place: Place | undefined;
+    @Input() places: Place[] | undefined;
     chosenId: number | undefined;
     toggled = false;
     tab = 1;

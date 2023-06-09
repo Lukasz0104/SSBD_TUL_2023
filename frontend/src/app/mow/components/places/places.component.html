@@ -2,9 +2,7 @@
     <ng-container *ngIf="places.length > 0; else noPlacesFound">
         <div class="d-lg-flex">
             <div class="col col-lg-12">
-                <div *ngFor="let place of places">
-                    <app-place-details [place]="place" />
-                </div>
+                <app-place-details [places]="places" />
             </div>
         </div>
     </ng-container>
