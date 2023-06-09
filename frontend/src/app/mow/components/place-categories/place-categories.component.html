@@ -1,16 +1,24 @@
-<div class="text-center">
-    <h2>
-        <span *ngIf="!editing">{{
-            'component.place.categories.title' | translate
-        }}</span>
-        <span *ngIf="editing">{{
-            'component.place.categories.title-edit' | translate
-        }}</span>
-    </h2>
+<div class="row">
+    <div class="col">
+        <h2>
+            <span *ngIf="!deleting">{{
+                'component.place.categories.title' | translate
+            }}</span>
+            <span *ngIf="deleting">{{
+                'component.place.categories.title-edit' | translate
+            }}</span>
+        </h2>
+    </div>
+    <div class="col text-end fs-3">
+        <i
+            class="bi bi-arrow-clockwise"
+            (click)="onReload()"></i>
+    </div>
 </div>
 <hr />
 <div class="px-4 py-2">
-    <div *ngIf="placeCategories$ | async as categories">
+    <ng-container
+        *ngIf="placeCategories$ | async as categories; else loadingCategories">
         <div class="row card-group">
             <div
                 class="col-sm-2"
@@ -19,9 +27,9 @@
                     class="card m-3 rounded-3 shadow text-center"
                     [ngClass]="{
                         'text-danger opacity-50 cursor-pointer':
-                            editing && chosen.includes(category.rateId),
+                            deleting && chosen.includes(category.rateId),
                         'text-success cursor-pointer':
-                            editing && !chosen.includes(category.rateId)
+                            deleting && !chosen.includes(category.rateId)
                     }"
                     (click)="addNumbers(category.rateId)">
                     <ul class="list-group list-group-flush">
@@ -65,7 +73,7 @@
             </div>
             <div
                 class="col-sm-2"
-                *ngIf="editing">
+                *ngIf="!deleting">
                 <div
                     class="card m-3 rounded-3 shadow text-center"
                     (click)="addCategory()">
@@ -77,21 +85,30 @@
                 </div>
             </div>
         </div>
-    </div>
+    </ng-container>
+    <ng-template #loadingCategories>
+        <div
+            class="d-flex flex-column justify-content-center align-items-center">
+            <span class="spinner-border"></span>
+            <span class="mt-3">{{
+                'component.place.categories.loading' | translate
+            }}</span>
+        </div>
+    </ng-template>
 </div>
 <hr />
 <div>
     <button
-        *ngIf="!editing"
+        *ngIf="!deleting"
         type="button"
-        class="btn btn-outline-success"
-        (click)="editing = true">
+        class="btn btn-outline-danger"
+        (click)="deleting = true">
         {{ 'component.place.categories.edit' | translate }}
     </button>
     <button
-        *ngIf="editing"
+        *ngIf="deleting"
         type="button"
-        class="btn btn-outline-danger"
+        class="btn btn-outline-success"
         (click)="onSave()">
         {{ 'component.place.categories.save' | translate }}
     </button>

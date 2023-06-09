@@ -51,6 +51,17 @@ public class MeterFacade extends AbstractFacade<Meter> {
         return super.find(id);
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void create(Meter entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Meter entity) throws AppBaseException {
+        super.edit(entity);
+    }
 
     @RolesAllowed({OWNER})
     public boolean existsByIdAndOwnerLogin(Long id, String login) {

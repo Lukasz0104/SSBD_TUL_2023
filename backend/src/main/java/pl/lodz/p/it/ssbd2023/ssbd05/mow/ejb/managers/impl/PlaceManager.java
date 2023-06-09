@@ -168,6 +168,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     throw new InitialReadingRequiredException();
                 } else {
                     meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                    meterFacade.edit(meter);
                 }
             } catch (MeterNotFoundException mnfe) {
                 if (value == null) {
@@ -175,6 +176,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                 } else {
                     meter = new Meter(rate.getCategory(), place);
                     meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                    meterFacade.create(meter);
                 }
             }
             place.getMeters().add(meter);

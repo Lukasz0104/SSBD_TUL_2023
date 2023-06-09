@@ -15,7 +15,7 @@ import { PlaceAddCategoryComponent } from '../place-add-category/place-add-categ
 export class PlaceCategoriesComponent implements OnInit {
     placeCategories$: Observable<PlaceCategory[]> | undefined;
     @Input() public id: number | undefined;
-    editing = false;
+    deleting = false;
     chosen: number[] = [];
 
     constructor(
@@ -44,7 +44,7 @@ export class PlaceCategoriesComponent implements OnInit {
     }
 
     addNumbers(id: number) {
-        if (this.editing && !this.chosen.includes(id)) {
+        if (this.deleting && !this.chosen.includes(id)) {
             this.chosen.push(id);
         } else {
             this.chosen.splice(this.chosen.indexOf(id), 1);
@@ -62,20 +62,27 @@ export class PlaceCategoriesComponent implements OnInit {
             modalRef.componentInstance.danger = '';
             modalRef.closed.subscribe((result) => {
                 if (result) {
-                    this.editing = false;
+                    this.deleting = false;
                     this.chosen.splice(0);
                 }
             });
         } else {
-            this.editing = false;
+            this.deleting = false;
         }
     }
 
     addCategory() {
         const modalRef: NgbModalRef = this.modalService.open(
             PlaceAddCategoryComponent,
-            { centered: true }
+            { centered: true, size: 'lg' }
         );
         modalRef.componentInstance.placeId = this.id;
+        modalRef.closed.subscribe(() => {
+            this.getPlaceCategories();
+        });
+    }
+
+    onReload() {
+        this.getPlaceCategories();
     }
 }

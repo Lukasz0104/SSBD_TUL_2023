@@ -21,6 +21,7 @@ import { AddReadingComponent } from './components/add-reading/add-reading.compon
 import { PlacesComponent } from './components/places/places.component';
 import { PlaceDetailsComponent } from './components/place-details/place-details.component';
 import { PlaceAddCategoryComponent } from './components/place-add-category/place-add-category.component';
+import { AddInitialReadingComponent } from './components/place-add-category/add-initial-reading/add-initial-reading.component';
 
 @NgModule({
     declarations: [
@@ -40,7 +41,8 @@ import { PlaceAddCategoryComponent } from './components/place-add-category/place
         PlaceReportsComponent,
         PlacesComponent,
         PlaceDetailsComponent,
-        PlaceAddCategoryComponent
+        PlaceAddCategoryComponent,
+        AddInitialReadingComponent
     ],
     imports: [
         CommonModule,

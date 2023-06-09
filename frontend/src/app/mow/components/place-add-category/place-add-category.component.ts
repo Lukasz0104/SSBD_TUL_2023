@@ -1,9 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbActiveModal,
+    NgbModal,
+    NgbModalRef
+} from '@ng-bootstrap/ng-bootstrap';
 import { PlaceCategory } from '../../model/place-category';
 import { Observable } from 'rxjs';
 import { PlaceService } from '../../services/place.service';
 import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { AddInitialReadingComponent } from './add-initial-reading/add-initial-reading.component';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-place-add-category',
@@ -16,7 +22,8 @@ export class PlaceAddCategoryComponent implements OnInit {
 
     constructor(
         private placeService: PlaceService,
-        protected activeModal: NgbActiveModal
+        protected activeModal: NgbActiveModal,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit(): void {
@@ -36,5 +43,67 @@ export class PlaceAddCategoryComponent implements OnInit {
             this.missingCategories$ =
                 this.placeService.getPlaceMissingCategories(this.placeId);
         }
+    }
+
+    addCategory(category: PlaceCategory) {
+        if (this.placeId) {
+            this.placeService
+                .checkIfReadingRequired(this.placeId, category.categoryId)
+                .subscribe((result) => {
+                    if (result) {
+                        const modalRef: NgbModalRef = this.modalService.open(
+                            AddInitialReadingComponent,
+                            { centered: true }
+                        );
+                        modalRef.closed.subscribe((result) => {
+                            if (result > 0) {
+                                this.confirm(
+                                    this.placeId,
+                                    category.categoryId,
+                                    result
+                                );
+                            }
+                        });
+                    } else {
+                        this.confirm(this.placeId, category.categoryId, null);
+                    }
+                });
+        }
+    }
+
+    confirm(
+        placeId: number | undefined,
+        categoryId: number,
+        newReading: number | null
+    ) {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'component.place.categories.confirm';
+        instance.danger = 'component.place.categories.confirm-danger';
+        modalRef.closed.subscribe((res: boolean) => {
+            if (res) {
+                const addReadingDto: object = {
+                    placeId: this.placeId,
+                    categoryId: categoryId,
+                    newReading: newReading
+                };
+                this.placeService
+                    .addCategory(addReadingDto)
+                    .subscribe((res) => {
+                        if (res) {
+                            this.activeModal.close();
+                        } else {
+                            this.getMissingCategories();
+                        }
+                    });
+            }
+        });
+    }
+
+    onReload() {
+        this.getMissingCategories();
     }
 }
