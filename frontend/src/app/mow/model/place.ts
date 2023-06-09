@@ -8,3 +8,10 @@ export interface Place {
     building: Building;
     active: boolean;
 }
+
+export interface CreatePlaceDto {
+    buildingId: number;
+    placeNumber: number;
+    squareFootage: number;
+    residentsNumber: number;
+}

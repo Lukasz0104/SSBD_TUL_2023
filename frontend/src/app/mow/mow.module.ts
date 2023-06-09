@@ -20,6 +20,7 @@ import { BuildingReportsComponent } from './components/building-reports/building
 import { AddReadingComponent } from './components/add-reading/add-reading.component';
 import { PlacesComponent } from './components/places/places.component';
 import { CostComponent } from './components/cost/cost.component';
+import { AddPlaceComponent } from './components/add-place/add-place.component';
 
 @NgModule({
     declarations: [
@@ -38,7 +39,8 @@ import { CostComponent } from './components/cost/cost.component';
         PlaceReportsComponent,
         PlacesComponent,
         CostsComponent,
-        CostComponent
+        CostComponent,
+        AddPlaceComponent
     ],
     imports: [
         CommonModule,

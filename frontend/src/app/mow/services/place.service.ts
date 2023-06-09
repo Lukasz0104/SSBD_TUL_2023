@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { map, Observable } from 'rxjs';
-import { Place } from '../model/place';
+import { catchError, map, Observable, of } from 'rxjs';
+import { CreatePlaceDto, Place } from '../model/place';
 import { PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
+
+type MessageResponse = { message: string };
 
 @Injectable({
     providedIn: 'root'
@@ -70,5 +72,12 @@ export class PlaceService {
 
     getPlaceMetersAsManager(id: number) {
         return this.http.get<Meter[]>(`${this.BASE_URL}/${id}/meters`);
+    }
+
+    addPlace(dto: CreatePlaceDto): Observable<string | null> {
+        return this.http.post<MessageResponse | null>(this.BASE_URL, dto).pipe(
+            map((response) => response?.message),
+            catchError((e: HttpErrorResponse) => of(e.error.message))
+        );
     }
 }

@@ -1,4 +1,21 @@
 <ng-container *ngIf="places$ | async as places; else loadingPlaces">
+    <div class="mb-3">
+        <h3>{{ 'component.places.list' | translate }} {{ buildingId }}</h3>
+        <div class="btn-group">
+            <button
+                (click)="openModalToAddPlace()"
+                class="btn btn-success">
+                {{ 'component.places.add' | translate }}
+            </button>
+            <button
+                (click)="refresh()"
+                class="btn-secondary btn"
+                placement="right bottom"
+                [ngbTooltip]="'component.places.refresh' | translate">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+    </div>
     <ng-container *ngIf="places.length; else noPlacesFound">
         <div class="row row-cols-1 row-cols-xl-2 g-3">
             <div
