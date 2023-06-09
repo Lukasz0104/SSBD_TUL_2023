@@ -151,6 +151,7 @@ public class I18n {
     public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
     public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
     public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
+    public static final String COST_NOT_FOUND = "response.message.cost_not_found";
 
 
     public static String getMessage(String key, String language) {

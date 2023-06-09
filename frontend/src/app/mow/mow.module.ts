@@ -19,6 +19,7 @@ import { AddRateComponent } from './components/add-rate/add-rate.component';
 import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
 import { AddReadingComponent } from './components/add-reading/add-reading.component';
 import { PlacesComponent } from './components/places/places.component';
+import { CostComponent } from './components/cost/cost.component';
 
 @NgModule({
     declarations: [
@@ -30,13 +31,14 @@ import { PlacesComponent } from './components/places/places.component';
         MetersComponent,
         PlaceComponent,
         BuildingsComponent,
-        CostsComponent,
         BuildingReportsComponent,
         AddRateComponent,
         AddReadingComponent,
         MeterComponent,
         PlaceReportsComponent,
-        PlacesComponent
+        PlacesComponent,
+        CostsComponent,
+        CostComponent
     ],
     imports: [
         CommonModule,
