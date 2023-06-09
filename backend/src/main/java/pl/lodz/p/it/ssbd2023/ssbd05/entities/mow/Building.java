@@ -62,13 +62,4 @@ public class Building extends AbstractEntity implements Serializable {
         super(version, id);
         this.address = address;
     }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Building{");
-        sb.append(", address=").append(address);
-        sb.append(", id=").append(getId());
-        sb.append('}');
-        return sb.toString();
-    }
 }
