@@ -192,8 +192,10 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     meterFacade.create(meter);
                 }
             }
-            forecastUtils.calculateForecasts(meter);
+            forecastUtils.calculateForecastsForMeter(meter);
             place.getMeters().add(meter);
+        } else {
+            forecastUtils.calculateForecasts(place, rate);
         }
         place.getCurrentRates().add(rate);
         placeFacade.edit(place);

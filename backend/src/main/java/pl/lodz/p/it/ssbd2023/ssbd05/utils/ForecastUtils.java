@@ -3,8 +3,10 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -35,7 +37,7 @@ public class ForecastUtils {
     @Inject
     private RateFacade rateFacade;
 
-    public void calculateForecasts(Meter meter) throws AppBaseException {
+    public void calculateForecastsForMeter(Meter meter) throws AppBaseException {
         LocalDateTime now = LocalDateTime.now();
         List<Reading> pastReliableReadings = meter.getPastReliableReadings();
 
@@ -99,6 +101,40 @@ public class ForecastUtils {
                     new Forecast(Year.now(), Month.of(i), newAmount.multiply(rate.getValue()),
                         newAmount,
                         meter.getPlace(),
+                        rate));
+            }
+        }
+    }
+
+    public void calculateForecasts(Place place, Rate rate) throws AppBaseException {
+        LocalDateTime now = LocalDateTime.now();
+        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
+            place.getId(),
+            rate.getCategory().getId(),
+            Year.now(),
+            LocalDateTime.now().getMonth());
+        BigDecimal amount = BigDecimal.ZERO;
+        if (rate.getAccountingRule().equals(AccountingRule.PERSON)) {
+            amount = BigDecimal.valueOf(place.getResidentsNumber());
+        }
+        if (rate.getAccountingRule().equals(AccountingRule.UNIT)) {
+            amount = BigDecimal.ONE;
+        }
+        if (rate.getAccountingRule().equals(AccountingRule.SURFACE)) {
+            amount = place.getSquareFootage();
+        }
+        if (forecasts.size() > 0) {
+            for (Forecast forecast : forecasts) {
+                forecast.setAmount(amount);
+                forecast.setValue(amount.multiply(rate.getValue()));
+                forecastFacade.edit(forecast);
+            }
+        } else {
+            for (int i = now.getMonthValue() + 1; i < 13; i++) {
+                forecastFacade.create(
+                    new Forecast(Year.now(), Month.of(i), amount.multiply(rate.getValue()),
+                        amount,
+                        place,
                         rate));
             }
         }

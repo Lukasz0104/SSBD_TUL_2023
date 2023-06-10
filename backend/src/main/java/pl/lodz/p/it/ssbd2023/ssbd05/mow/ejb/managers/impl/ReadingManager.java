@@ -86,7 +86,7 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
         readingFacade.create(reading);
         meterFacade.edit(meter);
-        forecastUtils.calculateForecasts(meter);
+        forecastUtils.calculateForecastsForMeter(meter);
     }
 
     @Override
@@ -112,6 +112,6 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
         readingFacade.create(reading);
         meterFacade.edit(meter);
-        forecastUtils.calculateForecasts(meter);
+        forecastUtils.calculateForecastsForMeter(meter);
     }
 }
