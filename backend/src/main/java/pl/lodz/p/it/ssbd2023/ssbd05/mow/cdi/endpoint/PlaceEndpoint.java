@@ -118,6 +118,18 @@ public class PlaceEndpoint {
     }
 
     @GET
+    @Path("/me/{id}/rates")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({OWNER})
+    public Response getOwnPlaceRates(@NotNull @PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceCategoryDtoList(placeManager
+                .getCurrentRatesFromOwnPlace(id, securityContext.getUserPrincipal().getName())),
+            placeManager
+        ).build();
+    }
+
+    @GET
     @Path("/{id}/meters")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER})
