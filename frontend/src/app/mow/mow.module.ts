@@ -19,6 +19,9 @@ import { AddRateComponent } from './components/add-rate/add-rate.component';
 import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
 import { AddReadingComponent } from './components/add-reading/add-reading.component';
 import { PlacesComponent } from './components/places/places.component';
+import { PlaceDetailsComponent } from './components/place-details/place-details.component';
+import { PlaceAddCategoryComponent } from './components/place-add-category/place-add-category.component';
+import { AddInitialReadingComponent } from './components/place-add-category/add-initial-reading/add-initial-reading.component';
 import { CostComponent } from './components/cost/cost.component';
 
 @NgModule({
@@ -38,7 +41,11 @@ import { CostComponent } from './components/cost/cost.component';
         PlaceReportsComponent,
         PlacesComponent,
         CostsComponent,
-        CostComponent
+        CostComponent,
+        PlaceComponent,
+        PlaceDetailsComponent,
+        PlaceAddCategoryComponent,
+        AddInitialReadingComponent
     ],
     imports: [
         CommonModule,

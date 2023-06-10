@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -16,12 +17,12 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,11 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Place entity) throws AppBaseException {
+        super.edit(entity);
+    }
 
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
@@ -105,7 +111,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Place> findByActive(boolean active) {
         TypedQuery<Place> tq;
         if (active) {
@@ -159,7 +165,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
     public List<Rate> findCurrentRateByPlaceId(Long id) {
         TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceId", Rate.class);
         tq.setParameter("placeId", id);
-        tq.setParameter("now", LocalDate.now());
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceIdNotMatch", Rate.class);
+        tq.setParameter("placeId", id);
         return tq.getResultList();
     }
 

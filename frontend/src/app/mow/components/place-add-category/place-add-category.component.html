@@ -1,37 +1,41 @@
-<div class="row">
-    <div class="col">
-        <h2>
-            <span *ngIf="!deleting">{{
-                'component.place.categories.title' | translate
-            }}</span>
-            <span *ngIf="deleting">{{
-                'component.place.categories.title-edit' | translate
-            }}</span>
-        </h2>
-    </div>
-    <div class="col text-end fs-3">
-        <i
-            class="bi bi-arrow-clockwise"
-            (click)="onReload()"></i>
-    </div>
+<div class="modal-header text-center">
+    <h2
+        class="modal-title w-100"
+        id="modal-basic-title">
+        <span>{{
+            'component.place.categories.choose-missing' | translate
+        }}</span>
+    </h2>
+    <i
+        class="bi bi-arrow-clockwise fs-3"
+        (click)="onReload()"></i>
 </div>
-<hr />
-<div class="px-4 py-2">
+
+<div class="modal-body px-4 py-2">
     <ng-container
-        *ngIf="placeCategories$ | async as categories; else loadingCategories">
-        <div class="row card-group">
+        *ngIf="
+            missingCategories$ | async as categories;
+            else loadingCategories
+        ">
+        <div
+            *ngIf="categories.length <= 0"
+            class="text-center">
+            <span class="m-4"
+                >{{
+                    'component.place.categories.no-missing-categories'
+                        | translate
+                }}
+            </span>
+        </div>
+        <div
+            class="row card-group"
+            *ngIf="categories.length > 0">
             <div
-                class="col-sm-2"
+                class="col-sm-4"
                 *ngFor="let category of categories; let i = index">
                 <div
-                    class="card m-3 rounded-3 shadow text-center"
-                    [ngClass]="{
-                        'text-danger opacity-50 cursor-pointer':
-                            deleting && chosen.includes(category.rateId),
-                        'text-success cursor-pointer':
-                            deleting && !chosen.includes(category.rateId)
-                    }"
-                    (click)="addNumbers(category.rateId)">
+                    class="card m-3 rounded-3 shadow text-center cursor-pointer"
+                    (click)="addCategory(category)">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
                             <i
@@ -71,19 +75,6 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="col-sm-2"
-                *ngIf="!deleting">
-                <div
-                    class="card m-3 rounded-3 shadow text-center"
-                    (click)="addCategory()">
-                    <div class="card-body">
-                        <div class="align-middle mt-4 mb-5">
-                            <i class="bi bi-plus-lg fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </ng-container>
     <ng-template #loadingCategories>
@@ -96,20 +87,10 @@
         </div>
     </ng-template>
 </div>
-<hr />
-<div>
-    <button
-        *ngIf="!deleting"
-        type="button"
-        class="btn btn-outline-danger"
-        (click)="deleting = true">
-        {{ 'component.place.categories.edit' | translate }}
-    </button>
-    <button
-        *ngIf="deleting"
-        type="button"
-        class="btn btn-outline-success"
-        (click)="onSave()">
-        {{ 'component.place.categories.save' | translate }}
-    </button>
+<div class="px-4 d-flex justify-content-between modal-footer">
+    <div
+        (click)="activeModal.close()"
+        class="btn btn-outline-secondary">
+        {{ 'component.place.categories.cancel' | translate }}
+    </div>
 </div>

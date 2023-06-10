@@ -14,6 +14,9 @@ import java.math.BigDecimal;
 public class PlaceCategoryDTO {
 
     @NotNull
+    private Long categoryId;
+
+    @NotNull
     private Long rateId;
 
     @NotBlank

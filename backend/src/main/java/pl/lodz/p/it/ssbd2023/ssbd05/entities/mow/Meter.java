@@ -1,6 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 
+import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
@@ -97,10 +99,17 @@ public class Meter extends AbstractEntity implements Serializable {
     private Place place;
 
     @NotNull
-    @OneToMany(mappedBy = "meter", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "meter", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Reading> readings = new HashSet<>();
+
+    @NotNull
+    @Basic(optional = false)
+    @Column(name = "active", nullable = false)
+    @Getter
+    @Setter
+    private boolean active = true;
 
     public Meter(Category category, Place place) {
         this.category = category;

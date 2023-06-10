@@ -1,0 +1,72 @@
+<div class="modal-header">
+    <h2
+        class="modal-title"
+        id="modal-basic-title">
+        {{ 'component.add-reading.add' | translate }}
+    </h2>
+</div>
+<div class="modal-body px-4 py-2">
+    <div>
+        <div class="row">
+            <div class="col-md">
+                <form [formGroup]="addReadingForm">
+                    <div class="mb-2 has-validation">
+                        <label
+                            for="readingValueInput"
+                            class="form-label mb-0">
+                            {{ 'component.meter.value' | translate }}
+                            [m<sup>3</sup>]
+                        </label>
+                        <input
+                            type="number"
+                            step="0.001"
+                            value="0.001"
+                            id="readingValueInput"
+                            required
+                            class="form-control"
+                            formControlName="readingValue"
+                            [ngClass]="{
+                                'is-invalid': valueControl.invalid,
+                                'is-valid': valueControl.valid
+                            }" />
+                        <div
+                            *ngIf="valueControl.errors as bnErrors"
+                            class="invalid-feedback">
+                            <p
+                                *ngIf="bnErrors['required']"
+                                class="mb-0">
+                                {{ 'validation.reading.required' | translate }}
+                            </p>
+                            <p
+                                *ngIf="bnErrors['min']"
+                                class="mb-0">
+                                {{ 'validation.reading.length' | translate }}
+                            </p>
+                            <p
+                                *ngIf="bnErrors['invalidDecimal']"
+                                class="mb-0">
+                                {{
+                                    'validation.reading.decimal-places'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-4 d-flex justify-content-between modal-footer">
+    <div
+        (click)="activeModal.close(0)"
+        class="btn btn-outline-secondary">
+        {{ 'component.add-reading.cancel' | translate }}
+    </div>
+    <button
+        [disabled]="!addReadingForm.valid"
+        (click)="onClick()"
+        class="btn btn-success">
+        {{ 'component.add-reading.create' | translate }}
+    </button>
+</div>

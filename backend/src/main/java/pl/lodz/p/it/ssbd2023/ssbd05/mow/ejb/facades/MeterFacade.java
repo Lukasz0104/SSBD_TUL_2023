@@ -50,11 +50,17 @@ public class MeterFacade extends AbstractFacade<Meter> {
         return super.find(id);
     }
 
-    @RolesAllowed({OWNER, MANAGER})
-    public void edit(Meter meter) throws AppBaseException {
-        super.edit(meter);
+    @Override
+    @RolesAllowed(MANAGER)
+    public void create(Meter entity) throws AppBaseException {
+        super.create(entity);
     }
 
+    @Override
+    @RolesAllowed({MANAGER, OWNER})
+    public void edit(Meter entity) throws AppBaseException {
+        super.edit(entity);
+    }
 
     @RolesAllowed({OWNER})
     public boolean existsByIdAndOwnerLogin(Long id, String login) {
@@ -133,14 +139,14 @@ public class MeterFacade extends AbstractFacade<Meter> {
     }
 
     @RolesAllowed({OWNER, MANAGER})
-    public Meter findByCategoryIdAndPlaceId(Long categoryId, Long placeId) throws AppDatabaseException {
+    public Optional<Meter> findByCategoryIdAndPlaceId(Long categoryId, Long placeId) throws AppDatabaseException {
         try {
             TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByCategoryIdAndPlaceId", Meter.class);
             tq.setParameter("categoryId", categoryId);
             tq.setParameter("placeId", placeId);
-            return tq.getSingleResult();
+            return Optional.of(tq.getSingleResult());
         } catch (PersistenceException e) {
-            throw new AppDatabaseException("Meter.findByCategoryIdAndPlaceId , Database Exception", e);
+            return Optional.empty();
         }
     }
 
