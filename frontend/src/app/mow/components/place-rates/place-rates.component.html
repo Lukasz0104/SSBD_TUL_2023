@@ -1,0 +1,82 @@
+<div class="card text-center">
+    <div class="card-body">
+        <ng-container
+            *ngIf="ownPlaceCategories$ | async as rates; else loadingRates">
+            <div class="table-responsive">
+                <table class="table shadow table-sm">
+                    <thead>
+                        <tr class="table-primary">
+                            <th scope="col">
+                                {{
+                                    'component.place-rates.category' | translate
+                                }}
+                            </th>
+                            <th scope="col">
+                                {{
+                                    'component.place-rates.effectiveDate'
+                                        | translate
+                                }}
+                            </th>
+                            <th scope="col">
+                                {{ 'component.place-rates.rate' | translate }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody *ngFor="let rate of rates">
+                        <tr>
+                            <th scope="row">
+                                <i
+                                    class="bi {{
+                                        placeService.pictureMap.get(
+                                            rate.categoryName
+                                        )
+                                    }}"></i>
+                                {{ rate.categoryName | translate }}
+                            </th>
+                            <td>
+                                {{ transformDate(rate.effectiveDate) }}
+                            </td>
+                            <td>
+                                {{ rate.rate.toFixed(2) }}
+                                <span *ngIf="rate.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.month' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="rate.accountingRule === RULE.METER">
+                                    {{
+                                        'accounting-rule.pln' | translate
+                                    }}/m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="rate.accountingRule === RULE.PERSON">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.person' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        rate.accountingRule === RULE.SURFACE
+                                    ">
+                                    {{
+                                        'accounting-rule.pln' | translate
+                                    }}/m<sup>2</sup>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div></ng-container
+        >
+        <ng-template #loadingRates>
+            <div
+                class="d-flex flex-column justify-content-center align-items-center">
+                <span class="spinner-border"></span>
+                <span class="mt-3">{{
+                    'component.place-rates.loading' | translate
+                }}</span>
+            </div>
+        </ng-template>
+    </div>
+</div>
