@@ -28,11 +28,14 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.ForecastUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -56,6 +59,15 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private RateFacade rateFacade;
+
+    @Inject
+    private ForecastFacade forecastFacade;
+
+    @Inject
+    private AppProperties appProperties;
+
+    @Inject
+    private ForecastUtils forecastUtils;
 
     @Override
     @RolesAllowed(MANAGER)
@@ -158,9 +170,8 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
             throw new InactivePlaceException();
         }
         Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(RateNotFoundException::new);
-
+        Meter meter = null;
         if (rate.getAccountingRule().equals(AccountingRule.METER)) {
-            Meter meter = null;
             try {
                 meter = meterFacade.findByCategoryIdAndPlaceId(categoryId, placeId)
                     .orElseThrow(MeterNotFoundException::new);
@@ -181,6 +192,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     meterFacade.create(meter);
                 }
             }
+            forecastUtils.calculateForecasts(meter);
             place.getMeters().add(meter);
         }
         place.getCurrentRates().add(rate);

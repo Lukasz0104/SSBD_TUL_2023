@@ -244,7 +244,7 @@
         "loading": "Ładowanie kategorii ...",
         "cancel": "Anuluj",
         "no-missing-categories": "Lokal ma przypisane wszystkie dostępne kategorie",
-        "choose-missing": "Dodaj nową kategorię do miejsca",
+        "choose-missing": "Dodaj nową kategorię do lokalu",
         "confirm": "Czy napewno chcesz dodać tą kategorię?",
         "confirm-danger": "Ta akcja obciąży lokal dodatkowymi kosztami.",
         "tab-name": "Kategorie"
@@ -502,7 +502,7 @@
     },
     "place": {
       "not-found": "Nie znaleziono lokalu",
-      "add-category-fail": "Nie udało się dodać kategorii do wybranego miejsca",
+      "add-category-fail": "Nie udało się dodać kategorii do wybranego lokalu",
       "add-category-success": "Pomyślnie dodano kategorię do lokalu",
       "check-if-reading-needed-fail": "Nie udało się zweryfikować, czy kategoria potrzebuje odczytu",
       "get-missing-categories-fail": "Nie udało się pobrać brakujących kategorii"
@@ -718,12 +718,12 @@
     "response": {
       "message": {
         "illegal_self_action": "Nie można edytować lokalu, którego właścicielem jesteś",
-        "category_in_use": "Wybrana kategoria jest już przypisana do tego miejsca",
-        "inactive_place": "Wybrane miejsce zostało oznaczone jako nieaktywne",
-        "rate_not_found": "Nie udało się znaleźć stawki dla wybranego miejsca i kategorii",
-        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego miejsca i kategorii",
+        "category_in_use": "Wybrana kategoria jest już przypisana do tego lokalu",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
+        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii",
         "initial_reading_required": "Wymagane jest podanie, początkowej wartości odczytu dla licznika tej kategorii",
-        "optimistic_lock": "Nie udało się dodać kategorii do wybranego miejsca, spróbuj ponownie",
+        "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania"
       }
     }
