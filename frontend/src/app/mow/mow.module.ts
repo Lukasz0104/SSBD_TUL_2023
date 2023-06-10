@@ -42,6 +42,7 @@ import { CostComponent } from './components/cost/cost.component';
         PlacesComponent,
         CostsComponent,
         CostComponent,
+        PlaceComponent,
         PlaceDetailsComponent,
         PlaceAddCategoryComponent,
         AddInitialReadingComponent
