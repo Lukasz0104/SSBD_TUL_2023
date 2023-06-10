@@ -107,12 +107,6 @@ public class ForecastUtils {
     }
 
     public void calculateForecasts(Place place, Rate rate) throws AppBaseException {
-        LocalDateTime now = LocalDateTime.now();
-        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
-            place.getId(),
-            rate.getCategory().getId(),
-            Year.now(),
-            LocalDateTime.now().getMonth());
         BigDecimal amount = BigDecimal.ZERO;
         if (rate.getAccountingRule().equals(AccountingRule.PERSON)) {
             amount = BigDecimal.valueOf(place.getResidentsNumber());
@@ -123,6 +117,12 @@ public class ForecastUtils {
         if (rate.getAccountingRule().equals(AccountingRule.SURFACE)) {
             amount = place.getSquareFootage();
         }
+        LocalDateTime now = LocalDateTime.now();
+        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
+            place.getId(),
+            rate.getCategory().getId(),
+            Year.now(),
+            LocalDateTime.now().getMonth());
         if (forecasts.size() > 0) {
             for (Forecast forecast : forecasts) {
                 forecast.setAmount(amount);
