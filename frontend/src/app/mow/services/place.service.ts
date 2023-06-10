@@ -118,6 +118,29 @@ export class PlaceService {
             );
     }
 
+    removeCategory(id: number | undefined, categoryId: number) {
+        return this.http
+            .delete(
+                `${this.BASE_URL}/${id}/remove/category?categoryId=${categoryId}`
+            )
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess(
+                        'toast.place.remove-category-success'
+                    );
+                    return of(true);
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.handleError(
+                        'toast.place.remove-category-fail',
+                        'remove-category',
+                        err
+                    );
+                    return of(false);
+                })
+            );
+    }
+
     getPlaceMetersAsOwner(id: number) {
         return this.http.get<Meter[]>(`${this.BASE_URL}/me/${id}/meters`);
     }

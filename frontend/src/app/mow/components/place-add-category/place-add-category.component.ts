@@ -85,13 +85,13 @@ export class PlaceAddCategoryComponent implements OnInit {
         instance.danger = 'component.place.categories.confirm-danger';
         modalRef.closed.subscribe((res: boolean) => {
             if (res) {
-                const addReadingDto: object = {
+                const addCategoryDto: object = {
                     placeId: this.placeId,
                     categoryId: categoryId,
                     newReading: newReading
                 };
                 this.placeService
-                    .addCategory(addReadingDto)
+                    .addCategory(addCategoryDto)
                     .subscribe((res) => {
                         if (res) {
                             this.activeModal.close();

@@ -43,7 +43,7 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value, String login) throws AppBaseException;
 
-    void removeCategoryFromPlace(Long id) throws AppBaseException;
+    void removeCategoriesFromPlace(Long placeId, Long categoryId, String login) throws AppBaseException;
 
     boolean checkIfCategoryRequiresReading(Long placeId, Long categoryId) throws AppBaseException;
 

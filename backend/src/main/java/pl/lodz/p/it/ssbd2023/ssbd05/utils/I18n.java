@@ -156,6 +156,7 @@ public class I18n {
     public static final String INACTIVE_PLACE = "response.message.inactive_place";
     public static final String INITIAL_READING_REQUIRED = "response.message.initial_reading_required";
     public static final String COST_NOT_FOUND = "response.message.cost_not_found";
+    public static final String CATEGORY_NOT_IN_USE = "response.message.category_not_in_use";
 
 
     public static String getMessage(String key, String language) {
