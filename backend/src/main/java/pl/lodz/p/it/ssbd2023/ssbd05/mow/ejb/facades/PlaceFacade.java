@@ -56,6 +56,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @Override
+    @RolesAllowed(MANAGER)
     public void edit(Place place) throws AppBaseException {
         super.edit(place);
     }

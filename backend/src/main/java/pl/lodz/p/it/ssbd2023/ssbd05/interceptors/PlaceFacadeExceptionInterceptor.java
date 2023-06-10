@@ -7,7 +7,6 @@ import jakarta.persistence.PersistenceException;
 import org.eclipse.persistence.exceptions.DatabaseException;
 import org.postgresql.util.PSQLException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ConstraintViolationException;
 
 public class PlaceFacadeExceptionInterceptor {
 
@@ -21,8 +20,8 @@ public class PlaceFacadeExceptionInterceptor {
             Throwable pe = pe1;
             do {
                 String exceptionMessage = pe.getMessage();
-                if (exceptionMessage.contains("unq_place_0")) {
-                    throw new ConstraintViolationException();
+                if (exceptionMessage.contains("unq_place_owner_0")) {
+                    break;
                 }
                 pe = pe.getCause();
             } while (pe != null);

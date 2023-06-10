@@ -11,6 +11,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -102,7 +103,6 @@ public class MowITests extends TestContainersSetup {
         }
 
     }
-
 
     @Nested
     class MOW2 {
@@ -1160,6 +1160,133 @@ public class MowITests extends TestContainersSetup {
                     .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
+        }
+    }
+
+    @Nested
+    class MOW23 {
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldAddOwnerToPlace() {
+                String login = "pduda";
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturn401SCWhenRequestAsAdmin() {
+                String login = "pduda";
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn401SCWhenRequestAsOwner() {
+                String login = "pduda";
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn401SCWhenAddingManagerOnly() {
+                String login = "azloty";
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.bad-access-level"));
+            }
+
+            @Test
+            void shouldReturn401SCWhenAddingAdminOnly() {
+                String login = "wlokietek";
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.bad-access-level"));
+            }
+
+            @Test
+            void shouldReturn401SCWhenAddingInactiveOwner() {
+                String login = "kkuleczka";
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.bad-access-level"));
+            }
+
         }
     }
 }
