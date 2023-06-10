@@ -1,5 +1,10 @@
 <div class="card text-center">
     <div class="card-body">
+        <div class="col text-end">
+            <i
+                class="bi bi-arrow-clockwise fs-2 cursor-pointer"
+                (click)="onReload()"></i>
+        </div>
         <ng-container
             *ngIf="ownPlaceCategories$ | async as rates; else loadingRates">
             <div class="table-responsive">
@@ -22,6 +27,7 @@
                             </th>
                         </tr>
                     </thead>
+
                     <tbody *ngFor="let rate of rates">
                         <tr>
                             <th scope="row">
