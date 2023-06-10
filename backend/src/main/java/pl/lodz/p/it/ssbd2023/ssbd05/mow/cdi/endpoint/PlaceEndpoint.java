@@ -189,7 +189,7 @@ public class PlaceEndpoint {
         throw new UnsupportedOperationException();
     }
 
-    @POST
+    @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)

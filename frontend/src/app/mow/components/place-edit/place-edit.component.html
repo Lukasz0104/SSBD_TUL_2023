@@ -3,18 +3,13 @@
         <h4
             class="modal-title"
             id="modal-basic-title">
-            {{ 'component.place-edit.title' | translate }}:
+            {{ 'component.place-edit.title' | translate }}
         </h4>
     </div>
     <div class="modal-body px-4 py-2">
         <form
             [formGroup]="editPlaceFormGroup"
             (ngSubmit)="onSubmit()">
-            <p>
-                <strong>{{
-                    'component.place-edit.placeNumber' | translate
-                }}</strong>
-            </p>
             <div class="mb-2 has-validation">
                 <label
                     class="form-label"
@@ -46,11 +41,6 @@
                 </div>
             </div>
 
-            <p>
-                <strong>{{
-                    'component.place-edit.squareFootage' | translate
-                }}</strong>
-            </p>
             <div class="mb-2 has-validation">
                 <label
                     class="form-label"
@@ -82,11 +72,6 @@
                 </div>
             </div>
 
-            <p>
-                <strong>{{
-                    'component.place-edit.residentsNumber' | translate
-                }}</strong>
-            </p>
             <div class="mb-2 has-validation">
                 <label
                     class="form-label"
@@ -115,12 +100,14 @@
                         class="mb-0">
                         {{ 'validation.residentsNumber.min' | translate }}
                     </p>
+                    <p
+                        *ngIf="residentsNumberControl.errors['pattern']"
+                        class="mb-0">
+                        {{ 'validation.residentsNumber.pattern' | translate }}
+                    </p>
                 </div>
             </div>
 
-            <p>
-                <strong>{{ 'component.place-edit.active' | translate }}</strong>
-            </p>
             <div class="mb-2 has-validation">
                 <label
                     class="form-label"

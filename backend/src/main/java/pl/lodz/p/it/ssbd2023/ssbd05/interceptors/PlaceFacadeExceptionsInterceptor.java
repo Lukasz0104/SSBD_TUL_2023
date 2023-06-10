@@ -9,7 +9,7 @@ import org.postgresql.util.PSQLException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.PlaceNumberAlreadyTaken;
 
-public class PlaceFacadeExceptionInterceptor {
+public class PlaceFacadeExceptionsInterceptor {
 
     @AroundInvoke
     public Object intercept(InvocationContext ictx) throws Exception {

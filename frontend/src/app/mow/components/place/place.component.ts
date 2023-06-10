@@ -6,7 +6,6 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { PlaceCategoriesComponent } from '../place-categories/place-categories.component';
 import { AuthService } from '../../../shared/services/auth.service';
-import { AccessLevels } from '../../../shared/model/access-type';
 import { PlaceEditComponent } from '../place-edit/place-edit.component';
 
 @Component({
@@ -78,6 +77,4 @@ export class PlaceComponent implements OnInit {
             });
         }
     }
-
-    protected readonly AccessLevels = AccessLevels;
 }

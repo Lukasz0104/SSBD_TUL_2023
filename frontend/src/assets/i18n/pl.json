@@ -86,8 +86,9 @@
       "required": "Pole jest wymagane"
     },
     "residentsNumber": {
-      "min": "Ilość mieszkańców nie może być mniejsza niż 1",
-      "required": "Ilość mieszkanców jest wymagana"
+      "min": "Liczba mieszkańców nie może być ujemna",
+      "required": "Liczba mieszkanców jest wymagana",
+      "pattern": "Liczba mieszkańców musi być liczbą całkowitą"
     },
     "squareFootage": {
       "min": "Powierzchnia lokalu musi być dodatnia",
@@ -424,7 +425,7 @@
       "title": "Edycja lokalu",
       "placeNumber": "Numer lokalu",
       "squareFootage": "Powierzchnia",
-      "residentsNumber": "Ilość mieszkańców",
+      "residentsNumber": "Liczba mieszkańców",
       "active": "Używane",
       "loading": "Ładowanie ... ",
       "save": "Zapisz"
@@ -456,7 +457,7 @@
       "remove-rate-danger": "Tej akcji nie można cofnąć!",
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
-      "place-edit": "Czy na pewno chcesz zaktualozować lokal?"
+      "place-edit": "Czy na pewno chcesz zaktualizować lokal?"
     }
   },
   "access-levels": {
@@ -533,7 +534,7 @@
       "success": "Udało się zaktualizować lokal",
       "response": {
         "message": {
-          "place_number_already_taken": "Podany numer lokalu istnieję w wybranym budynku"
+          "place_number_already_taken": "Podany numer lokalu istnieje w wybranym budynku"
         }
       }
     },

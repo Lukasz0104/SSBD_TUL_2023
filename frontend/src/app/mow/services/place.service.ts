@@ -96,7 +96,7 @@ export class PlaceService {
 
     editPlace(newPlace: PlaceEdit) {
         return this.http
-            .post<Place>(`${this.BASE_URL}/${newPlace.id}`, newPlace, {
+            .put<Place>(`${this.BASE_URL}/${newPlace.id}`, newPlace, {
                 headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
                 observe: 'response'
             })

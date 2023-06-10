@@ -86,8 +86,9 @@
       "required": "Field is required"
     },
     "residentsNumber": {
-      "min": "Number of residents must not be lower then 1",
-      "required": "Number of residents is required"
+      "min": "Number of residents must not be negative",
+      "required": "Number of residents is required",
+      "pattern": "Number of residents must be a whole number"
     },
     "squareFootage": {
       "min": "Square footage must be positive",
@@ -527,16 +528,16 @@
     },
     "place": {
       "not-found": "Place not found",
-      "fail": "Error loading place",
+      "fail": "Error loading place"
+    },
+    "place-edit": {
+      "fail": "Error editing place",
+      "success": "Place updated successfully",
       "response": {
         "message": {
           "place_number_already_taken": "Given place number already exist in a chosen building"
         }
       }
-    },
-    "place-edit": {
-      "fail": "Error editing place",
-      "success": "Place update successfull"
     },
     "rate": {
       "remove-success": "Successfully removed the rate",

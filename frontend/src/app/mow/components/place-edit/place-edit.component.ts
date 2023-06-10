@@ -35,7 +35,8 @@ export class PlaceEditComponent {
             ]),
             residentsNumber: this.fb.control(1, [
                 Validators.required,
-                Validators.min(1)
+                Validators.min(0),
+                Validators.pattern('^[0-9]*$')
             ])
         });
     }

@@ -1170,7 +1170,6 @@ public class MowITests extends TestContainersSetup {
 
         private static RequestSpecification onlyManagerSpec;
         private static RequestSpecification onlyAdminSpec;
-        private static RequestSpecification adminOwnerSpec;
         private static RequestSpecification onlyOwnerSpec;
         private static RequestSpecification managerOwnerSpec;
 
@@ -1209,17 +1208,6 @@ public class MowITests extends TestContainersSetup {
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
 
-            loginDto = new LoginDto("asrebrna", "P@ssw0rd");
-            jwt = given().body(loginDto)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/login")
-                .jsonPath()
-                .get("jwt");
-            adminOwnerSpec = new RequestSpecBuilder()
-                .addHeader("Authorization", "Bearer " + jwt)
-                .build();
-
             loginDto = new LoginDto("pduda", "P@ssw0rd");
             jwt = given().body(loginDto)
                 .contentType(ContentType.JSON)
@@ -1245,7 +1233,7 @@ public class MowITests extends TestContainersSetup {
 
                 given().spec(onlyManagerSpec)
                     .contentType(ContentType.JSON)
-                    .when().body(editDto).post("/places/" + 1)
+                    .when().body(editDto).put("/places/" + 1)
                     .then().statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
                 PlaceDto newPlace = given().spec(onlyManagerSpec).when().get("/places/" + 1)
@@ -1269,7 +1257,7 @@ public class MowITests extends TestContainersSetup {
                 editDto.setResidentsNumber(place.getResidentsNumber() + 90);
                 given().spec(managerOwnerSpec)
                     .contentType(ContentType.JSON)
-                    .when().body(editDto).post("/places/" + id)
+                    .when().body(editDto).put("/places/" + id)
                     .then().statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
                 PlaceDto newPlace = given().spec(managerOwnerSpec).when().get("/places/" + id)
@@ -1296,7 +1284,7 @@ public class MowITests extends TestContainersSetup {
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .post("/places/" + 1)
+                    .put("/places/" + 1)
                     .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
             }
@@ -1310,7 +1298,7 @@ public class MowITests extends TestContainersSetup {
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .post("/places/" + 1)
+                    .put("/places/" + 1)
                     .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
             }
@@ -1325,7 +1313,7 @@ public class MowITests extends TestContainersSetup {
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .post("/places/" + 1)
+                    .put("/places/" + 1)
                     .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
             }
@@ -1343,7 +1331,7 @@ public class MowITests extends TestContainersSetup {
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .post("/places/" + 1)
+                    .put("/places/" + 1)
                     .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
@@ -1356,7 +1344,7 @@ public class MowITests extends TestContainersSetup {
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .post("/places/" + 1)
+                    .put("/places/" + 1)
                     .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
@@ -1373,7 +1361,7 @@ public class MowITests extends TestContainersSetup {
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .post("/places/" + 90)
+                    .put("/places/" + 90)
                     .then()
                     .statusCode(Response.Status.NOT_FOUND.getStatusCode());
             }
@@ -1394,7 +1382,7 @@ public class MowITests extends TestContainersSetup {
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .post("/places/" + 1)
+                    .put("/places/" + 1)
                     .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode());
             }
