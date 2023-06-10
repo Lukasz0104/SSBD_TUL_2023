@@ -299,6 +299,7 @@
     },
     "costs": {
       "month": "Miesiąc",
+      "year": "Rok",
       "realRate": "Stawka",
       "totalConsumption": "Łączne zużycie",
       "months": {
@@ -317,7 +318,10 @@
       },
       "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
       "chooseYear": "Wybierz rok",
-      "chooseCategory": "Wybierz kategorię"
+      "chooseCategory": "Wybierz kategorię",
+      "category": "Kategoria kosztu",
+      "cost-data": "Informacje o koszcie",
+      "details": "Szczegóły"
     },
     "meters": {
       "add-reading": "Wybierz licznik, aby dodać odczyt",
@@ -455,7 +459,8 @@
     "reports": "Raporty",
     "categories": "Kategorie opłat",
     "buildings": "Budynki",
-    "costs": "Koszty"
+    "costs": "Koszty",
+    "cost": "Koszt"
   },
   "toast": {
     "auth": {

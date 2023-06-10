@@ -299,6 +299,7 @@
     },
     "costs": {
       "month": "Month",
+      "year": "Year",
       "realRate": "Real rate ",
       "totalConsumption": "Total consumption",
       "months": {
@@ -317,7 +318,10 @@
       },
       "loading": "Choose year and category, to see the costs table",
       "chooseYear": "Choose year",
-      "chooseCategory": "Choose category"
+      "chooseCategory": "Choose category",
+      "category": "Cost category",
+      "cost-data": "Cost data",
+      "details": "Cost details"
     },
     "meters": {
       "add-reading": "Choose a meter to add reading",
@@ -454,8 +458,10 @@
     "categories": "Bill categories",
     "buildings": "Buildings",
     "your-places": "Your places",
-    "reports": "Reports",
-    "costs": "Costs"
+    "place": "Place",
+    "costs": "Costs",
+    "cost": "Cost",
+    "reports": "Reports"
   },
   "toast": {
     "auth": {

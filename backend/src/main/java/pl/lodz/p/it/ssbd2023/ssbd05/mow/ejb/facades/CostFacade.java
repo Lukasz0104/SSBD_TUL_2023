@@ -23,6 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 @DenyAll
@@ -212,6 +213,12 @@ public class CostFacade extends AbstractFacade<Cost> {
     @RolesAllowed({MANAGER})
     public List<Cost> findAll() {
         return super.findAll();
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public Optional<Cost> find(Long id) {
+        return super.find(id);
     }
 
     @RolesAllowed({MANAGER})

@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.CostNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CostFacade;
@@ -48,7 +49,7 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
     @Override
     @RolesAllowed(MANAGER)
     public Cost getCostDetails(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return costFacade.find(id).orElseThrow(CostNotFoundException::new);
     }
 
     @Override
