@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
 import { catchError, EMPTY, map, Observable, of } from 'rxjs';
 import { Place } from '../model/place';
-import { PlaceCategory } from '../model/place-category';
+import { OwnPlaceCategory, PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
 import { ToastService } from '../../shared/services/toast.service';
 
@@ -116,6 +116,12 @@ export class PlaceService {
                     return of(false);
                 })
             );
+    }
+
+    getOwnPlaceCategories(id: number) {
+        return this.http.get<OwnPlaceCategory[]>(
+            `${this.BASE_URL}/me/${id}/categories`
+        );
     }
 
     getPlaceMetersAsOwner(id: number) {
