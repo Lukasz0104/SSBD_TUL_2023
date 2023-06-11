@@ -7,11 +7,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlaceCategoryDTO {
+
+    @NotNull
+    private Long categoryId;
 
     @NotNull
     private Long rateId;
@@ -24,4 +28,7 @@ public class PlaceCategoryDTO {
 
     @NotNull
     private BigDecimal rate;
+
+    @NotNull
+    private LocalDate effectiveDate;
 }

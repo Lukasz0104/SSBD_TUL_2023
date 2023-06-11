@@ -8,6 +8,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -23,6 +24,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.MeterDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
@@ -118,6 +120,7 @@ public class PlaceEndpoint {
         ).build();
     }
 
+
     @GET
     @Path("/{id}/meters")
     @Produces(MediaType.APPLICATION_JSON)
@@ -176,13 +179,50 @@ public class PlaceEndpoint {
         ).build();
     }
 
+    @GET
+    @Path("/me/{id}/categories")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({OWNER})
+    public Response getOwnPlaceRates(@NotNull @PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceCategoryDtoList(placeManager
+                .getCurrentRatesFromOwnPlace(id, securityContext.getUserPrincipal().getName())),
+            placeManager
+        ).build();
+    }
+
     @POST
-    @Path("/{id}/categories")
+    @Path("/add/category")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response addCategoryToPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response addCategoryToPlace(@NotNull @Valid AddCategoryDto addCategoryDto) throws AppBaseException {
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.addCategoryToPlace(addCategoryDto.getPlaceId(), addCategoryDto.getCategoryId(),
+                addCategoryDto.getNewReading(), securityContext.getUserPrincipal().getName()),
+            placeManager
+        ).build();
     }
+
+    @GET
+    @Path("/{id}/category/required_reading")
+    @RolesAllowed(MANAGER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response checkIfReadingRequired(@PathParam("id") Long id, @QueryParam("categoryId") Long categoryId)
+        throws AppBaseException {
+        return Response.ok(placeManager.checkIfCategoryRequiresReading(id, categoryId)).build();
+    }
+
+    @GET
+    @Path("/{id}/categories/missing")
+    @RolesAllowed(MANAGER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMissingCategories(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceCategoryDtoList(placeManager.findCurrentRateByPlaceIdNotMatch(id)),
+            placeManager
+        ).build();
+    }
+
 
     @DELETE
     @Path("/{id}/categories")

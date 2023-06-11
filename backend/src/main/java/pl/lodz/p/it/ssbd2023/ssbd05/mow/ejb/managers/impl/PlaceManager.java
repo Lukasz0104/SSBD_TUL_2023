@@ -15,21 +15,36 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryInUseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InitialReadingRequiredException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.ForecastUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,6 +60,24 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private PlaceFacade placeFacade;
+
+    @Inject
+    private AccountFacade accountFacade;
+
+    @Inject
+    private MeterFacade meterFacade;
+
+    @Inject
+    private RateFacade rateFacade;
+
+    @Inject
+    private ForecastFacade forecastFacade;
+
+    @Inject
+    private AppProperties appProperties;
+
+    @Inject
+    private ForecastUtils forecastUtils;
 
     @Inject
     private AccountFacade accountFacade;
@@ -142,9 +175,77 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     }
 
     @Override
+    @RolesAllowed({OWNER})
+    public List<Rate> getCurrentRatesFromOwnPlace(Long id, String login) throws AppBaseException {
+        return placeFacade.findCurrentRateByOwnPlaceId(id, login);
+    }
+
+    @Override
     @RolesAllowed(MANAGER)
-    public void addCategoryToPlace(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
+        return placeFacade.findCurrentRateByPlaceIdNotMatch(id);
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value, String login)
+        throws AppBaseException {
+        Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
+        if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
+            throw new IllegalSelfActionException();
+        }
+        if (place.getCurrentRates().stream().anyMatch((p) -> p.getCategory().getId().equals(categoryId))) {
+            throw new CategoryInUseException();
+        }
+        if (!place.isActive()) {
+            throw new InactivePlaceException();
+        }
+        Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(RateNotFoundException::new);
+        Meter meter = null;
+        if (rate.getAccountingRule().equals(AccountingRule.METER)) {
+            try {
+                meter = meterFacade.findByCategoryIdAndPlaceId(categoryId, placeId)
+                    .orElseThrow(MeterNotFoundException::new);
+                if (meter.getReadings().size() < 1) {
+                    if (value == null) {
+                        throw new InitialReadingRequiredException();
+                    } else {
+                        meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                        meterFacade.edit(meter);
+                    }
+                }
+            } catch (MeterNotFoundException mnfe) {
+                if (value == null) {
+                    throw new InitialReadingRequiredException();
+                } else {
+                    meter = new Meter(rate.getCategory(), place);
+                    meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                    meterFacade.create(meter);
+                }
+            }
+            forecastUtils.calculateForecastsForMeter(meter);
+            place.getMeters().add(meter);
+        } else {
+            forecastUtils.calculateForecasts(place, rate);
+        }
+        place.getCurrentRates().add(rate);
+        placeFacade.edit(place);
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public boolean checkIfCategoryRequiresReading(Long placeId, Long categoryId) throws AppBaseException {
+        Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(RateNotFoundException::new);
+        if (!rate.getAccountingRule().equals(AccountingRule.METER)) {
+            return false;
+        }
+        try {
+            Meter meter = meterFacade.findByCategoryIdAndPlaceId(categoryId, placeId)
+                .orElseThrow(MeterNotFoundException::new);
+            return meter.getReadings().size() < 1;
+        } catch (MeterNotFoundException mnfe) {
+            return true;
+        }
     }
 
     @Override

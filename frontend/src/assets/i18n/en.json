@@ -233,14 +233,21 @@
     },
     "place": {
       "categories": {
-        "edit": "Edit",
+        "edit": "Delete category",
         "save": "Save",
         "pln": "PLN",
         "person": "pp",
         "month": "pm",
         "title": "Place payment categories",
-        "title-edit": "Edit place payment categories",
-        "action-confirm": "Are you sure, you want to remove chosen categories from this place?"
+        "title-edit": "Choose category you want to delete",
+        "action-confirm": "Are you sure, you want to remove chosen categories from this place?",
+        "loading": "Loading categories ...",
+        "cancel": "Cancel",
+        "no-missing-categories": "Place has all available categories assigned",
+        "choose-missing": "Add new category to place",
+        "confirm": "Do you want to add this category?",
+        "confirm-danger": "This action will add additional charge to chosen place.",
+        "tab-name": "Categories"
       },
       "show-categories": "Show payment categories",
       "loading": "Loading ...",
@@ -403,6 +410,13 @@
       "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
       "title": "Report",
       "loading": "Loading reports"
+    },
+    "place-rates" : {
+      "loading": "Loading rates...",
+      "category": "Category",
+      "effectiveDate": "Effective Date",
+      "rate": "Rate"
+
     }
   },
   "accounting-rule": {
@@ -500,7 +514,11 @@
       "access-denied": "Access denied"
     },
     "place": {
-      "not-found": "Place not found"
+      "not-found": "Place not found",
+      "add-category-fail": "Could not add category to chosen place",
+      "add-category-success": "Category added to chosen place",
+      "check-if-reading-needed-fail": "Could not verify, if category needs reading",
+      "get-missing-categories-fail": "Could not get missing categories"
     },
     "rate": {
       "remove-success": "Successfully removed the rate",
@@ -706,6 +724,20 @@
       "message": {
         "inaccessible_report": "Could not access report, you do not own chosen place",
         "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
+  "add-category": {
+    "response": {
+      "message": {
+        "illegal_self_action": "You cannot edit your own places",
+        "category_in_use": "Chosen category is already assigned to this place",
+        "inactive_place": "Chosen place is inactive",
+        "rate_not_found": "Could not find rate for chosen place and category",
+        "meter_not_found": "Could not find meter for chosen place and category",
+        "initial_reading_required": "Initial reading for this category meter is required",
+        "optimistic_lock": "Could not add category to chosen place, please try again",
+        "rollback.limit.exceeded": "Request timed out"
       }
     }
   },
