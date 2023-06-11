@@ -49,12 +49,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
-    @Override
-    @RolesAllowed(MANAGER)
-    public void edit(Place entity) throws AppBaseException {
-        super.edit(entity);
-    }
-
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
         return super.findAll();
@@ -62,8 +56,8 @@ public class PlaceFacade extends AbstractFacade<Place> {
 
     @Override
     @RolesAllowed(MANAGER)
-    public void edit(Place place) throws AppBaseException {
-        super.edit(place);
+    public void edit(Place entity) throws AppBaseException {
+        super.edit(entity);
     }
 
     @RolesAllowed({OWNER})
