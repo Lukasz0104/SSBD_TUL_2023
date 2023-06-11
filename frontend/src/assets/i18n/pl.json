@@ -282,7 +282,10 @@
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
       "data": "Lokal",
-      "edit-place": "Edytuj lokal"
+      "edit-place": "Edytuj lokal",
+      "owners": {
+        "tab-name": "Właściciele"
+      }
     },
     "fields": {
       "login": "Login",
@@ -326,7 +329,8 @@
     "buildings": {
       "places": "Lokale",
       "reports": "Raporty",
-      "loading": "Ładowanie budynków..."
+      "loading": "Ładowanie budynków...",
+      "refresh": "Odśwież listę budynków"
     },
     "costs": {
       "month": "Miesiąc",
@@ -404,7 +408,7 @@
       "empty": "Budynek nie istnieje lub nie posiada lokali.",
       "add": "Dodaj lokal",
       "list": "Lista lokali w budynku",
-      "refresh": "Odśwież listę budynków"
+      "refresh": "Odśwież listę lokali"
     },
     "add-reading": {
       "add": "Dodaj odczyt",
@@ -459,6 +463,14 @@
       "active": "Używane",
       "loading": "Ładowanie ... ",
       "save": "Zapisz"
+    },
+    "place-owners": {
+      "active": "Aktywny",
+      "remove": "Odłącz",
+      "loading": "Wczytywanie właściceli...",
+      "empty": "Lokal nie posiada przypisanych właścicieli",
+      "add": "Przypisz właściciela do lokalu",
+      "refresh": "Odśwież listę właścicieli"
     }
   },
   "accounting-rule": {

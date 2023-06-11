@@ -282,7 +282,10 @@
       "show-categories": "Show payment categories",
       "loading": "Loading ...",
       "data": "Place",
-      "edit-place": "Edit place"
+      "edit-place": "Edit place",
+      "owners": {
+        "tab-name": "Owners"
+      }
     },
     "fields": {
       "login": "Login",
@@ -326,7 +329,8 @@
     "buildings": {
       "places": "Places",
       "reports": "Reports",
-      "loading": "Loading buildings..."
+      "loading": "Loading buildings...",
+      "refresh": "Refresh building list"
     },
     "costs": {
       "month": "Month",
@@ -404,7 +408,7 @@
       "empty": "Building does not exists or it does not have any places.",
       "add": "Add place",
       "list": "List of places in building",
-      "refresh": "Refresh building list."
+      "refresh": "Refresh places list"
     },
     "add-reading": {
       "add": "Add reading",
@@ -460,6 +464,14 @@
       "active": "In use",
       "loading": "Loading ... ",
       "save": "Save"
+    },
+    "place-owners": {
+      "active": "Active",
+      "remove": "Remove",
+      "loading": "Loading owners...",
+      "empty": "There aren't any owner assinged to this place.",
+      "add": "Assign owner to this place",
+      "refresh": "Refresh owners list"
     }
   },
   "accounting-rule": {

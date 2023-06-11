@@ -8,6 +8,7 @@ import { RefreshSessionComponent } from './components/refresh-session/refresh-se
 import { TwoFactorAuthComponent } from './components/two-factor-auth/two-factor-auth.component';
 import { CodeInputModule } from 'angular-code-input';
 import { ChooseAccessLevelComponent } from './components/choose-access-level/choose-access-level.component';
+import { AddressPipe } from './pipes/address.pipe';
 
 @NgModule({
     declarations: [
@@ -15,9 +16,16 @@ import { ChooseAccessLevelComponent } from './components/choose-access-level/cho
         ConfirmActionComponent,
         RefreshSessionComponent,
         TwoFactorAuthComponent,
-        ChooseAccessLevelComponent
+        ChooseAccessLevelComponent,
+        AddressPipe
     ],
     imports: [CommonModule, NgbModule, TranslateModule, CodeInputModule],
-    exports: [TruncatePipe, ConfirmActionComponent, TranslateModule, NgbModule]
+    exports: [
+        TruncatePipe,
+        ConfirmActionComponent,
+        TranslateModule,
+        NgbModule,
+        AddressPipe
+    ]
 })
 export class SharedModule {}

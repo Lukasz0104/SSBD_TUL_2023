@@ -783,7 +783,7 @@ public class MowITests extends TestContainersSetup {
                     .post(CREATE_PLACE_URL)
                     .then()
                     .statusCode(409)
-                    .body("message", is(I18n.PLACE_NUMBER_BUILDING_ID_NOT_UNIQUE));
+                    .body("message", is(I18n.PLACE_NUMBER_ALREADY_TAKEN));
             }
 
             @Nested

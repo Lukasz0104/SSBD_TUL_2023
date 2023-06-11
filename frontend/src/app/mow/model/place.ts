@@ -1,3 +1,4 @@
+import { Address } from '../../shared/model/account';
 import { Building } from './building';
 
 export interface Place {
@@ -24,4 +25,12 @@ export interface CreatePlaceDto {
     placeNumber: number;
     squareFootage: number;
     residentsNumber: number;
+}
+
+export interface PlaceOwner {
+    ownerDataId: number;
+    firstName: string;
+    lastName: string;
+    address: Address;
+    active: boolean;
 }

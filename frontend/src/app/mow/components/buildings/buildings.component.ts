@@ -17,4 +17,8 @@ export class BuildingsComponent {
     ) {
         this.buildings$ = this.buildingService.findAllBuildings();
     }
+
+    refreshBuildingList() {
+        this.buildings$ = this.buildingService.findAllBuildings();
+    }
 }

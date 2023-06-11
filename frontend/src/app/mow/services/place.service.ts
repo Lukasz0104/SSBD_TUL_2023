@@ -6,7 +6,7 @@ import {
 } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
 import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
-import { CreatePlaceDto, Place, PlaceEdit } from '../model/place';
+import { CreatePlaceDto, Place, PlaceEdit, PlaceOwner } from '../model/place';
 import { OwnPlaceCategory, PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
 import { ToastService } from '../../shared/services/toast.service';
@@ -207,5 +207,11 @@ export class PlaceService {
                     return of(true);
                 })
             );
+    }
+
+    getPlaceOwners(placeId: number): Observable<PlaceOwner[]> {
+        return this.http.get<PlaceOwner[]>(
+            `${this.BASE_URL}/${placeId}/owners`
+        );
     }
 }
