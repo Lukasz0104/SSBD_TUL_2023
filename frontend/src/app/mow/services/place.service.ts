@@ -97,9 +97,17 @@ export class PlaceService {
             );
     }
 
-    addCategory(addCategoryDto: object) {
+    addCategory(
+        placeId: number,
+        categoryId: number,
+        newReading: number | null
+    ) {
         return this.http
-            .post(`${this.BASE_URL}/add/category`, addCategoryDto)
+            .post(`${this.BASE_URL}/add/category`, {
+                placeId,
+                categoryId,
+                newReading
+            })
             .pipe(
                 map(() => {
                     this.toastService.showSuccess(
@@ -126,9 +134,7 @@ export class PlaceService {
 
     removeCategory(id: number | undefined, categoryId: number) {
         return this.http
-            .delete(
-                `${this.BASE_URL}/${id}/remove/category?categoryId=${categoryId}`
-            )
+            .delete(`${this.BASE_URL}/${id}/categories/${categoryId}`)
             .pipe(
                 map(() => {
                     this.toastService.showSuccess(

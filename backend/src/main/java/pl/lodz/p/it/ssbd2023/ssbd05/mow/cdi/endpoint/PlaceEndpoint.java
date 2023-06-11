@@ -221,11 +221,11 @@ public class PlaceEndpoint {
 
 
     @DELETE
-    @Path("/{id}/remove/category")
+    @Path("/{id}/categories/{categoryId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response removeCategoryFromPlace(@PathParam("id") Long id,
-                                            @QueryParam("categoryId") @NotNull Long categoryId)
+                                            @PathParam("categoryId") Long categoryId)
         throws AppBaseException {
         return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
             () -> placeManager.removeCategoriesFromPlace(

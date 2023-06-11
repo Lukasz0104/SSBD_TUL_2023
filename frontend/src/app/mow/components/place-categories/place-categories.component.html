@@ -21,7 +21,7 @@
         *ngIf="placeCategories$ | async as categories; else loadingCategories">
         <div class="row card-group">
             <div
-                class="col-sm-2"
+                class="col-md-4 col-xl-3 col-xxl-2"
                 *ngFor="let category of categories; let i = index">
                 <div
                     class="card m-3 rounded-3 shadow text-center"

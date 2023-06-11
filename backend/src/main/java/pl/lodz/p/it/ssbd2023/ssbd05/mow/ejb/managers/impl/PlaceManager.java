@@ -241,12 +241,18 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
             throw new CategoryNotInUseException();
         }
         Rate rate =
-            place.getCurrentRates().stream().filter((r) -> r.getCategory().getId().equals(categoryId)).findFirst()
+            place.getCurrentRates()
+                .stream().filter(
+                    (r) -> r.getCategory().getId().equals(categoryId))
+                .findFirst()
                 .orElseThrow(CategoryNotFoundException::new);
         place.getCurrentRates().remove(rate);
         if (rate.getAccountingRule().equals(AccountingRule.METER)) {
-            place.getMeters().stream().filter((m) -> m.getCategory().getId().equals(categoryId)).findFirst()
-                .orElseThrow(MeterNotFoundException::new).setActive(false);
+            place.getMeters().stream().filter(
+                    (m) -> m.getCategory().getId().equals(categoryId))
+                .findFirst()
+                .orElseThrow(MeterNotFoundException::new)
+                .setActive(false);
         }
         placeFacade.edit(place);
         forecastFacade.deleteFutureForecastsByCategoryIdAndPlaceId(categoryId, placeId, Year.now(),
