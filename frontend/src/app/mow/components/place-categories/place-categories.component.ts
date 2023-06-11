@@ -3,7 +3,7 @@ import { PlaceCategory } from '../../model/place-category';
 import { PlaceService } from '../../services/place.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { AccountingRule } from '../../model/accounting-rule';
 import { PlaceAddCategoryComponent } from '../place-add-category/place-add-category.component';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 

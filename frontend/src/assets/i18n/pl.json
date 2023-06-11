@@ -508,7 +508,7 @@
       "add": "Dodaj",
       "success": "Lokal został dodany.",
       "response.message": {
-        "place_number_building_id_not_unique": "Podany numer lokalu już występuje w tym budynku.",
+        "place_number_already_taken": "Podany numer lokalu już występuje w tym budynku.",
         "building_not_found": "Nie udało się dodać lokalu, ponieważ budynek nie istnieje."
       }
     }

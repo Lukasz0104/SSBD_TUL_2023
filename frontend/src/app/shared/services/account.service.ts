@@ -23,8 +23,8 @@ import {
     RegisterManagerDto,
     RegisterOwnerDto
 } from '../model/registration.dto';
-import { AccountPage } from '../model/account-page';
 import { AppConfigService } from '../services/app-config.service';
+import { Page } from '../model/page';
 
 type MessageResponse = { message: ResponseMessage };
 
@@ -314,7 +314,7 @@ export class AccountService {
                 url = 'accounts';
                 break;
         }
-        return this.http.get<AccountPage>(
+        return this.http.get<Page<Account>>(
             `${this.appConfig.apiUrl}/${url}?active=${active}&page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
         );
     }
@@ -328,11 +328,11 @@ export class AccountService {
         login: string
     ) {
         if (type == AccessLevels.OWNER) {
-            return this.http.get<AccountPage>(
+            return this.http.get<Page<Account>>(
                 `${this.accountsUrl}/owners/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );
         } else if (type == AccessLevels.MANAGER) {
-            return this.http.get<AccountPage>(
+            return this.http.get<Page<Account>>(
                 `${this.accountsUrl}/managers/unapproved?page=${page}&pageSize=${size}&asc=${sortDirection}&phrase=${phrase}&login=${login}`
             );
         }

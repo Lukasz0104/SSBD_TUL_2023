@@ -509,7 +509,7 @@
       "add": "Add",
       "success": "Place was added.",
       "response.message": {
-        "place_number_building_id_not_unique": "Place number was already used in this building.",
+        "place_number_already_taken": "Place number was already used in this building.",
         "building_not_found": "Place was not added because the building does not exist."
       }
     }

@@ -6,7 +6,7 @@ import { Observable, tap } from 'rxjs';
 import { PlaceReportMonth } from '../../model/place-report-month';
 import { PlaceService } from '../../services/place.service';
 import { ForecastService } from '../../services/forecast.service';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { AccountingRule } from '../../model/accounting-rule';
 
 @Component({
     selector: 'app-place-reports',
