@@ -18,6 +18,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -26,6 +27,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
@@ -185,12 +187,48 @@ public class PlaceEndpoint {
         ).build();
     }
 
+    @GET
+    @Path("/me/{id}/categories")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({OWNER})
+    public Response getOwnPlaceRates(@NotNull @PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceCategoryDtoList(placeManager
+                .getCurrentRatesFromOwnPlace(id, securityContext.getUserPrincipal().getName())),
+            placeManager
+        ).build();
+    }
+
     @POST
-    @Path("/{id}/categories")
+    @Path("/add/category")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response addCategoryToPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response addCategoryToPlace(@NotNull @Valid AddCategoryDto addCategoryDto) throws AppBaseException {
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.addCategoryToPlace(addCategoryDto.getPlaceId(), addCategoryDto.getCategoryId(),
+                addCategoryDto.getNewReading(), securityContext.getUserPrincipal().getName()),
+            placeManager
+        ).build();
+    }
+
+    @GET
+    @Path("/{id}/category/required_reading")
+    @RolesAllowed(MANAGER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response checkIfReadingRequired(@PathParam("id") Long id, @QueryParam("categoryId") Long categoryId)
+        throws AppBaseException {
+        return Response.ok(placeManager.checkIfCategoryRequiresReading(id, categoryId)).build();
+    }
+
+    @GET
+    @Path("/{id}/categories/missing")
+    @RolesAllowed(MANAGER)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMissingCategories(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> PlaceDtoConverter.createPlaceCategoryDtoList(placeManager.findCurrentRateByPlaceIdNotMatch(id)),
+            placeManager
+        ).build();
     }
 
     @DELETE

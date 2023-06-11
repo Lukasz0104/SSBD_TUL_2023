@@ -1,14 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PlaceCategory } from '../../model/place-category';
 import { PlaceService } from '../../services/place.service';
-import {
-    NgbActiveModal,
-    NgbModal,
-    NgbModalRef
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { PlaceAddCategoryComponent } from '../place-add-category/place-add-category.component';
 
 @Component({
     selector: 'app-place-categories',
@@ -18,12 +15,11 @@ import { AccountingRule } from '../../../shared/model/accounting-rule';
 export class PlaceCategoriesComponent implements OnInit {
     placeCategories$: Observable<PlaceCategory[]> | undefined;
     @Input() public id: number | undefined;
-    editing = false;
+    deleting = false;
     chosen: number[] = [];
 
     constructor(
         private placeService: PlaceService,
-        public activeModal: NgbActiveModal,
         private modalService: NgbModal
     ) {}
 
@@ -48,7 +44,7 @@ export class PlaceCategoriesComponent implements OnInit {
     }
 
     addNumbers(id: number) {
-        if (this.editing && !this.chosen.includes(id)) {
+        if (this.deleting && !this.chosen.includes(id)) {
             this.chosen.push(id);
         } else {
             this.chosen.splice(this.chosen.indexOf(id), 1);
@@ -66,12 +62,27 @@ export class PlaceCategoriesComponent implements OnInit {
             modalRef.componentInstance.danger = '';
             modalRef.closed.subscribe((result) => {
                 if (result) {
-                    this.editing = false;
+                    this.deleting = false;
                     this.chosen.splice(0);
                 }
             });
         } else {
-            this.editing = false;
+            this.deleting = false;
         }
+    }
+
+    addCategory() {
+        const modalRef: NgbModalRef = this.modalService.open(
+            PlaceAddCategoryComponent,
+            { centered: true, size: 'lg' }
+        );
+        modalRef.componentInstance.placeId = this.id;
+        modalRef.closed.subscribe(() => {
+            this.getPlaceCategories();
+        });
+    }
+
+    onReload() {
+        this.getPlaceCategories();
     }
 }

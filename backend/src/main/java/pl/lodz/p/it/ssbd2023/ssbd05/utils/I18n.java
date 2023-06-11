@@ -147,12 +147,16 @@ public class I18n {
         "response.message.not_enough_days_between_reliable_readings";
     public static final String READING_VALUE_HIGHER_THAN_FUTURE_EXCEPTION =
         "response.message.reading_value_higher_than_future";
-    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
-    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
     public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
     public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
-    public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
+    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
+    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
+    public static final String CATEGORY_IN_USE = "response.message.category_in_use";
+    public static final String RATE_NOT_FOUND = "response.message.rate_not_found";
+    public static final String INACTIVE_PLACE = "response.message.inactive_place";
+    public static final String INITIAL_READING_REQUIRED = "response.message.initial_reading_required";
     public static final String COST_NOT_FOUND = "response.message.cost_not_found";
+    public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
 
 
     public static String getMessage(String key, String language) {

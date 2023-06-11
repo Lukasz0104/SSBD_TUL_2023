@@ -49,6 +49,11 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Place entity) throws AppBaseException {
+        super.edit(entity);
+    }
 
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
@@ -158,10 +163,25 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({MANAGER, OWNER})
+    @RolesAllowed({MANAGER})
     public List<Rate> findCurrentRateByPlaceId(Long id) {
         TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceId", Rate.class);
         tq.setParameter("placeId", id);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceIdNotMatch", Rate.class);
+        tq.setParameter("placeId", id);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER})
+    public List<Rate> findCurrentRateByOwnPlaceId(Long id, String login) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByOwnPlaceId", Rate.class);
+        tq.setParameter("placeId", id);
+        tq.setParameter("login", login);
         tq.setParameter("now", LocalDate.now());
         return tq.getResultList();
     }
@@ -171,12 +191,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em.createNamedQuery("Place.findByBuildingId", Place.class)
             .setParameter("buildingId", id)
             .getResultList();
-    }
-
-    @Override
-    @RolesAllowed(MANAGER)
-    public void edit(Place place) throws AppBaseException {
-        super.edit(place);
     }
 }
 

@@ -12,8 +12,9 @@ import java.util.List;
 public class PlaceDtoConverter {
 
     public static PlaceCategoryDTO createPlaceCategoryDto(Rate rate) {
-        return new PlaceCategoryDTO(rate.getId(), rate.getCategory().getName(), rate.getAccountingRule().toString(),
-            rate.getValue());
+        return new PlaceCategoryDTO(rate.getCategory().getId(), rate.getId(), rate.getCategory().getName(),
+            rate.getAccountingRule().toString(),
+            rate.getValue(), rate.getEffectiveDate());
     }
 
     public static List<PlaceCategoryDTO> createPlaceCategoryDtoList(List<Rate> rateList) {

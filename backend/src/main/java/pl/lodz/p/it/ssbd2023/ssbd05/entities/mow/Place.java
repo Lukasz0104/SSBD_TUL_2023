@@ -94,7 +94,7 @@ import java.util.Set;
         name = "Place.findCurrentRateByPlaceId",
         query = """
             SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT MAX(r2.effectiveDate) FROM Rate r2
-            WHERE r2.effectiveDate < :now AND r.category = r2.category)
+            WHERE r2.effectiveDate <= CURRENT_DATE AND r.category = r2.category)
             AND EXISTS (SELECT p FROM Place p JOIN p.currentRates cr 
             WHERE p.id = :placeId AND cr.id = r.id) ORDER BY r.category.name ASC"""),
     @NamedQuery(
@@ -102,7 +102,22 @@ import java.util.Set;
         query = """
             SELECT p FROM Place p
             WHERE p.building.id = :buildingId
-            """)
+            """),
+    @NamedQuery(
+        name = "Place.findCurrentRateByPlaceIdNotMatch",
+        query = """
+            SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT MAX(r2.effectiveDate) FROM Rate r2
+            WHERE r2.effectiveDate <= CURRENT_DATE AND r.category = r2.category)
+            AND NOT EXISTS (SELECT p FROM Place p JOIN p.currentRates cr
+            WHERE p.id = :placeId AND cr.id = r.id) ORDER BY r.category.name ASC"""),
+    @NamedQuery(
+        name = "Place.findCurrentRateByOwnPlaceId",
+        query = """
+            SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT MAX(r2.effectiveDate) FROM Rate r2
+            WHERE r2.effectiveDate < :now AND r.category = r2.category)
+            AND EXISTS (SELECT p FROM Place p JOIN p.currentRates cr
+            WHERE p.id = :placeId AND :login IN (SELECT o.account.login FROM p.owners o)
+            AND cr.id = r.id) ORDER BY r.category.name ASC""")
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {

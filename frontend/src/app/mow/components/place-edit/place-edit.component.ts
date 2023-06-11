@@ -41,8 +41,8 @@ export class PlaceEditComponent {
         });
     }
 
-    setPlace(place: Place): void {
-        this.getPlace(place.id);
+    setPlace(id: number): void {
+        this.getPlace(id);
 
         if (this.place$) {
             this.place$.subscribe({

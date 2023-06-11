@@ -1,80 +1,27 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Component, Input } from '@angular/core';
 import { Place } from '../../model/place';
-import { PlaceService } from '../../services/place.service';
-import { ToastService } from '../../../shared/services/toast.service';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { PlaceCategoriesComponent } from '../place-categories/place-categories.component';
 import { AuthService } from '../../../shared/services/auth.service';
-import { PlaceEditComponent } from '../place-edit/place-edit.component';
 
 @Component({
     selector: 'app-place',
     templateUrl: './place.component.html'
 })
-export class PlaceComponent implements OnInit {
-    place$ = new BehaviorSubject<Place | null>(null);
-    @Input() id: number | undefined;
-    @Input() place: Place | undefined;
-    loading = true;
+export class PlaceComponent {
+    @Input() places: Place[] | undefined;
+    chosenId: number | undefined;
+    toggled = false;
+    tab = 1;
 
-    constructor(
-        private placeService: PlaceService,
-        private toastService: ToastService,
-        private modalService: NgbModal,
-        protected authService: AuthService
-    ) {}
+    constructor(protected authService: AuthService) {}
 
-    ngOnInit(): void {
-        if (this.place) {
-            this.place$.next(this.place);
-            this.loading = false;
-        } else if (this.id === undefined) {
-            this.loading = true;
-            this.toastService.showDanger('toast.place.not-found');
-        } else {
-            this.getPlace(this.id);
-            this.loading = false;
-        }
+    showPlaceDetails(id: number) {
+        this.tab = 1;
+        this.chosenId = id;
+        this.toggled = true;
     }
 
-    getPlace(id: number) {
-        if (this.authService.isOwner()) {
-            this.placeService
-                .getAsOwner(id)
-                .subscribe((place: Place | null) => this.place$.next(place));
-        } else if (this.authService.isManager()) {
-            this.placeService
-                .getAsManager(id)
-                .subscribe((place: Place | null) => this.place$.next(place));
-        } else {
-            this.toastService.showDanger('toast.guard.access-denied');
-            return;
-        }
-    }
-
-    placeCategories(id: number) {
-        const modalRef: NgbModalRef = this.modalService.open(
-            PlaceCategoriesComponent,
-            {
-                centered: true,
-                size: 'xl'
-            }
-        );
-        modalRef.componentInstance.id = id;
-    }
-
-    editPlace() {
-        if (this.place) {
-            const modalRef: NgbModalRef = this.modalService.open(
-                PlaceEditComponent,
-                { centered: true }
-            );
-            modalRef.componentInstance.setPlace(this.place);
-            const id: number = this.place.id;
-            modalRef.result.then((): void => {
-                this.getPlace(id);
-            });
-        }
+    hidePlaceDetails() {
+        this.chosenId = undefined;
+        this.toggled = false;
     }
 }

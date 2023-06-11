@@ -5,9 +5,9 @@ import {
     HttpHeaders
 } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
+import { OwnPlaceCategory, PlaceCategory } from '../model/place-category';
 import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { Place, PlaceEdit } from '../model/place';
-import { PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
 import { ToastService } from '../../shared/services/toast.service';
 
@@ -69,6 +69,61 @@ export class PlaceService {
     getPlaceCategories(id: number) {
         return this.http.get<PlaceCategory[]>(
             `${this.BASE_URL}/${id}/categories`
+        );
+    }
+
+    getPlaceMissingCategories(id: number) {
+        return this.http
+            .get<PlaceCategory[]>(`${this.BASE_URL}/${id}/categories/missing`)
+            .pipe(
+                catchError(() => {
+                    this.toastService.showDanger(
+                        'toast.place.get-missing-categories-fail'
+                    );
+                    return EMPTY;
+                })
+            );
+    }
+
+    checkIfReadingRequired(placeId: number, categoryId: number) {
+        return this.http
+            .get<boolean>(
+                `${this.BASE_URL}/${placeId}/category/required_reading?categoryId=${categoryId}`
+            )
+            .pipe(
+                catchError(() => {
+                    this.toastService.showDanger(
+                        'toast.place.check-if-reading-needed-fail'
+                    );
+                    return EMPTY;
+                })
+            );
+    }
+
+    addCategory(addCategoryDto: object) {
+        return this.http
+            .post(`${this.BASE_URL}/add/category`, addCategoryDto)
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess(
+                        'toast.place.add-category-success'
+                    );
+                    return of(true);
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.handleError(
+                        'toast.place.add-category-fail',
+                        'add-category',
+                        err
+                    );
+                    return of(false);
+                })
+            );
+    }
+
+    getOwnPlaceCategories(id: number) {
+        return this.http.get<OwnPlaceCategory[]>(
+            `${this.BASE_URL}/me/${id}/categories`
         );
     }
 
