@@ -5,10 +5,12 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
@@ -16,6 +18,8 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.Month;
@@ -27,6 +31,10 @@ import java.util.stream.Collectors;
 @Stateless
 @DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 public class ForecastFacade extends AbstractFacade<Forecast> {
     @PersistenceContext(unitName = "ssbd05mowPU")
     private EntityManager em;
@@ -44,6 +52,12 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
     @RolesAllowed({OWNER, MANAGER})
     public void edit(Forecast forecast) throws AppBaseException {
         super.edit(forecast);
+    }
+
+    @Override
+    @PermitAll
+    public void create(Forecast entity) throws AppBaseException {
+        super.create(entity);
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -208,8 +222,8 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         TypedQuery<Object[]> tq = em.createNamedQuery("Forecast.findYearsAndMonthsByBuildingId", Object[].class);
         tq.setParameter("id", id);
         return tq.getResultStream().collect(Collectors.toMap(
-            obj -> ((Year)obj[0]).getValue(),
-            obj -> ((Long)obj[1]).intValue()
+            obj -> ((Year) obj[0]).getValue(),
+            obj -> ((Long) obj[1]).intValue()
         ));
     }
 
@@ -227,5 +241,17 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         TypedQuery<Year> tq = em.createNamedQuery("Forecast.findForecastYearsByPlaceId", Year.class);
         tq.setParameter("placeId", placeId);
         return tq.getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public void deleteFutureForecastsByCategoryIdAndPlaceId(Long categoryId, Long placeId, Year year, Month month) {
+        TypedQuery<Forecast> tq =
+            em.createNamedQuery("Forecast.deleteFutureForecastsByCategoryIdAndPlaceId", Forecast.class);
+        tq.setParameter("categoryId", categoryId);
+        tq.setParameter("placeId", placeId);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+        tq.executeUpdate();
+        em.flush();
     }
 }

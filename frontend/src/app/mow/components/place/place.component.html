@@ -1,65 +1,114 @@
-<ng-container *ngIf="place$ | async as place; else loading">
-    <div class="justify-content-center px-3 px-md-5 row fs-6">
-        <div class="col-md">
-            <p>
-                <strong>
-                    {{ 'component.fields.place-number' | translate }}
-                </strong>
-            </p>
-            <p>{{ place.placeNumber }}</p>
+<div *ngFor="let place of places">
+    <div *ngIf="place">
+        <div
+            class="card mb-4 shadow-sm"
+            style="border-radius: 15px">
+            <div class="card-body p-4">
+                <h3 class="mb-3">
+                    {{ 'component.own-places.place-number' | translate }}
+                    {{ place.placeNumber }},
+                    {{ place.building.address.street }}
+                    {{ place.building.address.buildingNumber }},
+                    {{ place.building.address.city }}
+                    {{ place.building.address.postalCode }}
+                </h3>
+                <hr class="mt-3" />
+                <button
+                    *ngIf="chosenId !== place.id"
+                    class="btn btn-success"
+                    (click)="showPlaceDetails(place.id)">
+                    {{ 'component.own-places.show-place-details' | translate }}
+                </button>
+                <button
+                    *ngIf="chosenId === place.id"
+                    class="btn btn-secondary"
+                    (click)="hidePlaceDetails()">
+                    {{ 'component.own-places.hide-place-details' | translate }}
+                </button>
+            </div>
 
-            <p>
-                <strong>
-                    {{ 'component.fields.active' | translate }}
-                </strong>
-            </p>
-            <p></p>
-            <div class="form-check form-switch">
-                <input
-                    class="form-check-input"
-                    disabled
-                    type="checkbox"
-                    role="switch"
-                    id="flexSwitchCheckDefault"
-                    [checked]="place.active" />
+            <div
+                *ngIf="toggled && chosenId === place.id"
+                class="ms-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item cursor-pointer">
+                        <span
+                            (click)="tab = 1"
+                            [ngClass]="{ active: tab === 1 }"
+                            class="nav-link"
+                            aria-current="page"
+                            >{{
+                                'component.own-places.details' | translate
+                            }}</span
+                        >
+                    </li>
+                    <li class="nav-item cursor-pointer">
+                        <span
+                            (click)="tab = 2"
+                            [ngClass]="{ active: tab === 2 }"
+                            class="nav-link"
+                            >{{
+                                'component.own-places.meters' | translate
+                            }}</span
+                        >
+                    </li>
+                    <li class="nav-item cursor-pointer">
+                        <span
+                            (click)="tab = 3"
+                            [ngClass]="{ active: tab === 3 }"
+                            class="nav-link"
+                            >{{
+                                'component.own-places.reports' | translate
+                            }}</span
+                        >
+                    </li>
+                    <li
+                        class="nav-item cursor-pointer"
+                        *ngIf="authService.isOwner()">
+                        <span
+                            (click)="tab = 4"
+                            [ngClass]="{ active: tab === 4 }"
+                            class="nav-link"
+                            >{{
+                                'component.own-places.rates' | translate
+                            }}</span
+                        >
+                    </li>
+                    <li
+                        class="nav-item cursor-pointer"
+                        *ngIf="authService.isManager()">
+                        <span
+                            (click)="tab = 5"
+                            [ngClass]="{ active: tab === 5 }"
+                            class="nav-link">
+                            {{
+                                'component.place.categories.tab-name'
+                                    | translate
+                            }}
+                        </span>
+                    </li>
+                </ul>
+
+                <div class="m-3">
+                    <app-place-details
+                        [id]="place.id"
+                        *ngIf="tab === 1"></app-place-details>
+                    <app-meters
+                        [placeId]="place.id"
+                        *ngIf="tab === 2" />
+                    <app-place-reports
+                        [id]="place.id"
+                        *ngIf="tab === 3" />
+                    <app-place-rates
+                        [id]="place.id"
+                        *ngIf="
+                            tab === 4 && place.active && authService.isOwner()
+                        " />
+                    <app-place-categories
+                        [id]="place.id"
+                        *ngIf="tab === 5 && authService.isManager()" />
+                </div>
             </div>
         </div>
-        <div class="col-md">
-            <p>
-                <strong>
-                    {{ 'component.fields.square-footage' | translate }}
-                </strong>
-            </p>
-            <p>{{ place.squareFootage }}</p>
-            <p>
-                <strong
-                    >{{ 'component.fields.residents-number' | translate }}
-                </strong>
-            </p>
-            <p>{{ place.residentsNumber }}</p>
-        </div>
-        <div class="col-md">
-            <p>
-                <strong>{{ 'component.fields.address' | translate }}</strong>
-            </p>
-            <p>
-                {{ place.building.address.city }},
-                {{ place.building.address.postalCode }},
-                {{ place.building.address.street }},
-                {{ place.building.address.buildingNumber }}
-            </p>
-            <button
-                *ngIf="authService.isManager()"
-                class="btn btn-outline-primary"
-                (click)="placeCategories(place.id)">
-                {{ 'component.place.show-categories' | translate }}
-            </button>
-        </div>
     </div>
-</ng-container>
-<ng-template #loading>
-    <div class="d-flex flex-column justify-content-center align-items-center">
-        <span class="spinner-border"></span>
-        <span class="mt-3">{{ 'component.place.loading' | translate }}</span>
-    </div>
-</ng-template>
+</div>

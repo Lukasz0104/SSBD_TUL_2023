@@ -4,7 +4,7 @@
       "required": "Hasło jest wymagane",
       "length": "Hasło musi mieć co najmniej 8 znaków",
       "strength": "Hasło jest zbyt słabe",
-      "message": "Hasło musi składać się z conajmniej 8 znaków i musi zawierać małą literę, dużą literę, numer oraz symbol",
+      "message": "Hasło musi składać się z co najmniej 8 znaków i musi zawierać małą literę, dużą literę, numer oraz symbol",
       "match": "Hasło oraz powtórzone hasło muszą się zgadzać"
     },
     "repeat-password": {
@@ -13,7 +13,7 @@
     },
     "login": {
       "required": "Login jest wymagany",
-      "min-length": "Login musi składać się z conajmniej 3 znaków.",
+      "min-length": "Login musi składać się z co najmniej 3 znaków.",
       "max-length": "Login może składać się z maksymalnie 100 znaków."
     },
     "email": {
@@ -81,6 +81,22 @@
       "reading-date": {
         "required": "Data odczytu jest wymagana"
       }
+    },
+    "active": {
+      "required": "Pole jest wymagane"
+    },
+    "residentsNumber": {
+      "min": "Liczba mieszkańców nie może być ujemna",
+      "required": "Liczba mieszkanców jest wymagana",
+      "pattern": "Liczba mieszkańców musi być liczbą całkowitą"
+    },
+    "squareFootage": {
+      "min": "Powierzchnia lokalu musi być dodatnia",
+      "required": "Powierzchnia lokalu jest wymagana"
+    },
+    "placeNumber": {
+      "min": "Numer lokalu musi być dodatni",
+      "required": "Numer lokalu jest wymagany"
     },
     "place-number": {
       "required": "Numer lokalu jest wymagany.",
@@ -245,18 +261,28 @@
     },
     "place": {
       "categories": {
-        "edit": "Edytuj",
-        "save": "Zapisz",
         "pln": "zł",
         "person": "os",
         "month": "mies",
         "title": "Kategorie opłat lokalu",
-        "title-edit": "Edycja kategorii opłat lokalu",
-        "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?"
+        "loading": "Ładowanie kategorii ...",
+        "cancel": "Anuluj",
+        "no-missing-categories": "Lokal ma przypisane wszystkie dostępne kategorie",
+        "choose-missing": "Dodaj nową kategorię do lokalu",
+        "confirm": "Czy napewno chcesz dodać tą kategorię?",
+        "confirm-danger": "Ta akcja obciąży lokal dodatkowymi kosztami.",
+        "tab-name": "Kategorie",
+        "delete": "Usuń wybraną kategorię",
+        "edit": "Edytuj",
+        "title-edit": "Edycja kategorii",
+        "edit-close": "Zakończ edycję",
+        "delete-confirm": "Czy napewno chcesz usunąć wybraną kategorię z lokalu?",
+        "delete-confirm-danger": "Ta akcja wpłynie na wartość opłat lokalu."
       },
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
-      "data": "Lokal"
+      "data": "Lokal",
+      "edit-place": "Edytuj lokal"
     },
     "fields": {
       "login": "Login",
@@ -418,6 +444,21 @@
       "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
       "title": "Raport",
       "loading": "Ładowanie raportów"
+    },
+    "place-rates": {
+      "loading": "Ładowanie stawek...",
+      "category": "Kategoria",
+      "effectiveDate": "Data ustalenia stawki",
+      "rate": "Stawka"
+    },
+    "place-edit":  {
+      "title": "Edycja lokalu",
+      "placeNumber": "Numer lokalu",
+      "squareFootage": "Powierzchnia",
+      "residentsNumber": "Liczba mieszkańców",
+      "active": "Używane",
+      "loading": "Ładowanie ... ",
+      "save": "Zapisz"
     }
   },
   "accounting-rule": {
@@ -446,6 +487,7 @@
       "remove-rate-danger": "Tej akcji nie można cofnąć!",
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
+      "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
       "add-place": "Potwierdź dodanie nowego lokalu."
     },
     "add-place": {
@@ -479,7 +521,8 @@
     "categories": "Kategorie opłat",
     "buildings": "Budynki",
     "costs": "Koszty",
-    "cost": "Koszt"
+    "cost": "Koszt",
+    "place": "Lokal"
   },
   "toast": {
     "auth": {
@@ -525,7 +568,24 @@
       "access-denied": "Odmowa dostępu"
     },
     "place": {
-      "not-found": "Nie znaleziono lokalu"
+      "not-found": "Nie znaleziono lokalu",
+      "add-category-fail": "Nie udało się dodać kategorii do wybranego lokalu",
+      "add-category-success": "Pomyślnie dodano kategorię do lokalu",
+      "check-if-reading-needed-fail": "Nie udało się zweryfikować, czy kategoria potrzebuje odczytu",
+      "get-missing-categories-fail": "Nie udało się pobrać brakujących kategorii",
+      "remove-category-fail": "Nie udało się usunąć kategorii z wybranego lokalu",
+      "remove-category-success": "Kategoria została usunięta z wybranego lokalu",
+      "fail": "Błąd przy ładowaniu danych lokalu"
+    },
+    "place-edit": {
+      "fail": "Błąd przy edycji lokalu",
+      "success": "Udało się zaktualizować lokal",
+      "response": {
+        "message": {
+          "place_number_already_taken": "Podany numer lokalu istnieje w wybranym budynku",
+          "optimistic_lock": "Lokal został edytowany przez kogoś innego, odśwież stronę i spróbuj ponownie"
+        }
+      }
     },
     "rate": {
       "remove-success": "Pomyślnie usunięto stawkę",
@@ -553,7 +613,10 @@
         "message": {
           "reading_value_smaller_than_previous": "Wartość odczytu musi być wyższa od wartości poprzedniego odczytu",
           "not_enough_days_between_reliable_readings": "Nie minęła wystarczająca ilość dni od ostatniego odczytu",
-          "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów"
+          "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów",
+          "reading_date_before_initial_reading": "Data odczytu musi być po dacie początkowego odczytu",
+          "reading_value_smaller_than_initial": "Wartość odczytu musi być wyższa niż wartość początkowego odczytu",
+          "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu"
         }
       }
     }
@@ -731,6 +794,34 @@
       "message": {
         "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
         "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu"
+      }
+    }
+  },
+  "add-category": {
+    "response": {
+      "message": {
+        "illegal_self_action": "Nie można edytować lokalu, którego jesteś właścicielem",
+        "category_in_use": "Wybrana kategoria jest już przypisana do tego lokalu",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
+        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii",
+        "initial_reading_required": "Wymagane jest podanie, początkowej wartości odczytu dla licznika tej kategorii",
+        "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu"
+      }
+    }
+  },
+  "remove-category": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "illegal_self_action": "Nie można edytować lokalu, którego jesteś właścicielem",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "category_not_in_use": "Wybrany lokal nie posiada kategorii, którą chcesz usunąć",
+        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu",
+        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii"
       }
     }
   },

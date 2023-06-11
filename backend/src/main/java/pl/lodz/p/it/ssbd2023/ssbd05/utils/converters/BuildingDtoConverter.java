@@ -1,6 +1,5 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressDtoFromAddress;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -12,6 +11,15 @@ public class BuildingDtoConverter {
     public static BuildingDto mapBuildingToDto(Building building) {
         return new BuildingDto(
             building.getId(),
-            createAddressDtoFromAddress(building.getAddress()));
+            building.getVersion(),
+            AccountDtoConverter.createAddressDtoFromAddress(building.getAddress()));
+    }
+
+    public static Building mapBuildingFromDto(BuildingDto building) {
+        return new Building(
+            building.id(),
+            building.version(),
+            AccountDtoConverter.createAddressFromDto(building.address())
+        );
     }
 }

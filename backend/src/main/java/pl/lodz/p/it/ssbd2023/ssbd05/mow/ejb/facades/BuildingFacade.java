@@ -16,6 +16,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
@@ -42,6 +43,18 @@ public class BuildingFacade extends AbstractFacade<Building> {
     @Override
     protected EntityManager getEntityManager() {
         return em;
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public Optional<Building> find(Long id) {
+        return super.find(id);
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Building building) throws AppBaseException {
+        super.edit(building);
     }
 
     @PermitAll

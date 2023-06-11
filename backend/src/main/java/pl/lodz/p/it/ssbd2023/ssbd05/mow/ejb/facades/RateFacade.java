@@ -12,6 +12,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
@@ -100,9 +101,9 @@ public class RateFacade extends AbstractFacade<Rate> {
     // Category
 
     @RolesAllowed({MANAGER})
-    public List<Rate> findByCategoryId(Category category) {
-        TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByCategory", Rate.class);
-        tq.setParameter("category", category);
+    public List<Rate> findByCategoryId(Long categoryId) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByCategoryId", Rate.class);
+        tq.setParameter("categoryId", categoryId);
         return tq.getResultList();
     }
 
@@ -123,6 +124,17 @@ public class RateFacade extends AbstractFacade<Rate> {
         TypedQuery<Long> tq = em.createNamedQuery("Rate.countByCategoryId", Long.class);
         tq.setParameter("categoryId", categoryId);
         return tq.getSingleResult();
+    }
+
+    @RolesAllowed({MANAGER})
+    public Optional<Rate> findCurrentRateByCategoryId(Long categoryId) {
+        try {
+            TypedQuery<Rate> tq = em.createNamedQuery("Rate.findCurrentRateByCategoryId", Rate.class);
+            tq.setParameter("categoryId", categoryId);
+            return Optional.of(tq.getSingleResult());
+        } catch (PersistenceException pe) {
+            return Optional.empty();
+        }
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -211,7 +223,7 @@ public class RateFacade extends AbstractFacade<Rate> {
     }
 
     @Override
-    @RolesAllowed(MANAGER)
+    @PermitAll
     public Optional<Rate> find(Long id) {
         return super.find(id);
     }

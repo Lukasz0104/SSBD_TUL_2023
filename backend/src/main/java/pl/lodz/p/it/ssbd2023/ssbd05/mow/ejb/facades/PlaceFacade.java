@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -50,6 +51,11 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Place entity) throws AppBaseException {
+        super.edit(entity);
+    }
 
     @Override
     @RolesAllowed(MANAGER)
@@ -70,7 +76,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @Override
-    @RolesAllowed({MANAGER})
+    @PermitAll
     public Optional<Place> find(Long id) {
         return super.find(id);
     }
@@ -110,7 +116,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Place> findByActive(boolean active) {
         TypedQuery<Place> tq;
         if (active) {
@@ -160,10 +166,25 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({MANAGER, OWNER})
+    @RolesAllowed({MANAGER})
     public List<Rate> findCurrentRateByPlaceId(Long id) {
         TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceId", Rate.class);
         tq.setParameter("placeId", id);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceIdNotMatch", Rate.class);
+        tq.setParameter("placeId", id);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER})
+    public List<Rate> findCurrentRateByOwnPlaceId(Long id, String login) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByOwnPlaceId", Rate.class);
+        tq.setParameter("placeId", id);
+        tq.setParameter("login", login);
         tq.setParameter("now", LocalDate.now());
         return tq.getResultList();
     }
@@ -188,3 +209,5 @@ public class PlaceFacade extends AbstractFacade<Place> {
         super.create(entity);
     }
 }
+
+

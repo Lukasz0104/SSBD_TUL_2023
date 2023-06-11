@@ -51,7 +51,7 @@
                 class="table text-center table-hover"
                 *ngIf="report.categories.length">
                 <thead>
-                    <tr class="bg-light-subtle">
+                    <tr class="table-primary">
                         <th scope="col">
                             {{
                                 'component.building-report.category' | translate
@@ -150,7 +150,17 @@
                             {{ 'accounting-rule.pln' | translate }}
                         </td>
                         <td>
-                            <i>
+                            <i
+                                [ngClass]="{
+                                    'text-danger':
+                                        category.predValue -
+                                            category.realValue <
+                                        0,
+                                    'text-success':
+                                        category.predValue -
+                                            category.realValue >=
+                                        0
+                                }">
                                 {{
                                     category.predValue - category.realValue
                                         | number : '.2-2'
@@ -167,7 +177,7 @@
                         </td>
                     </tr>
                 </tbody>
-                <tfoot>
+                <tfoot class="rounded shadow">
                     <tr class="cursor-pointer align-middle">
                         <td></td>
                         <td></td>
