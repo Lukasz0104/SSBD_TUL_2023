@@ -412,6 +412,13 @@
       "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
       "title": "Report",
       "loading": "Loading reports"
+    },
+    "place-rates" : {
+      "loading": "Loading rates...",
+      "category": "Category",
+      "effectiveDate": "Effective Date",
+      "rate": "Rate"
+
     }
   },
   "accounting-rule": {

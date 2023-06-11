@@ -62,7 +62,9 @@
                             }}</span
                         >
                     </li>
-                    <li class="nav-item cursor-pointer">
+                    <li
+                        class="nav-item cursor-pointer"
+                        *ngIf="authService.isOwner()">
                         <span
                             (click)="tab = 4"
                             [ngClass]="{ active: tab === 4 }"
@@ -97,6 +99,13 @@
                     <app-place-reports
                         [id]="place.id"
                         *ngIf="tab === 3" />
+                    <app-place-rates
+                        [id]="place.id"
+                        *ngIf="
+                            tab === 4 &&
+                            place.active === true &&
+                            authService.isOwner()
+                        " />
                     <app-place-categories
                         [id]="place.id"
                         *ngIf="tab === 5 && authService.isManager()" />

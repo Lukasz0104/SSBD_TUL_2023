@@ -22,6 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -160,7 +161,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({MANAGER, OWNER})
+    @RolesAllowed({MANAGER})
     public List<Rate> findCurrentRateByPlaceId(Long id) {
         TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceId", Rate.class);
         tq.setParameter("placeId", id);
@@ -171,6 +172,15 @@ public class PlaceFacade extends AbstractFacade<Place> {
     public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
         TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByPlaceIdNotMatch", Rate.class);
         tq.setParameter("placeId", id);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER})
+    public List<Rate> findCurrentRateByOwnPlaceId(Long id, String login) {
+        TypedQuery<Rate> tq = em.createNamedQuery("Place.findCurrentRateByOwnPlaceId", Rate.class);
+        tq.setParameter("placeId", id);
+        tq.setParameter("login", login);
+        tq.setParameter("now", LocalDate.now());
         return tq.getResultList();
     }
 

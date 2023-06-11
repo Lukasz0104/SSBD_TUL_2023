@@ -412,6 +412,12 @@
       "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
       "title": "Raport",
       "loading": "Ładowanie raportów"
+    },
+    "place-rates" : {
+      "loading": "Ładowanie stawek...",
+      "category": "Kategoria",
+      "effectiveDate": "Data ustalenia stawki",
+      "rate": "Stawka"
     }
   },
   "accounting-rule": {
