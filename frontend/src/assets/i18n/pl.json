@@ -81,6 +81,22 @@
       "reading-date": {
         "required": "Data odczytu jest wymagana"
       }
+    },
+    "active": {
+      "required": "Pole jest wymagane"
+    },
+    "residentsNumber": {
+      "min": "Liczba mieszkańców nie może być ujemna",
+      "required": "Liczba mieszkanców jest wymagana",
+      "pattern": "Liczba mieszkańców musi być liczbą całkowitą"
+    },
+    "squareFootage": {
+      "min": "Powierzchnia lokalu musi być dodatnia",
+      "required": "Powierzchnia lokalu jest wymagana"
+    },
+    "placeNumber": {
+      "min": "Numer lokalu musi być dodatni",
+      "required": "Numer lokalu jest wymagany"
     }
   },
   "form": {
@@ -253,7 +269,8 @@
       },
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
-      "data": "Lokal"
+      "data": "Lokal",
+      "edit-place": "Edytuj lokal"
     },
     "fields": {
       "login": "Login",
@@ -418,6 +435,15 @@
       "category": "Kategoria",
       "effectiveDate": "Data ustalenia stawki",
       "rate": "Stawka"
+    },
+    "place-edit":  {
+      "title": "Edycja lokalu",
+      "placeNumber": "Numer lokalu",
+      "squareFootage": "Powierzchnia",
+      "residentsNumber": "Liczba mieszkańców",
+      "active": "Używane",
+      "loading": "Ładowanie ... ",
+      "save": "Zapisz"
     }
   },
   "accounting-rule": {
@@ -445,7 +471,8 @@
       "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
       "remove-rate-danger": "Tej akcji nie można cofnąć!",
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
-      "add-reading": "Czy na pewno chcesz dodać ten odczyt?"
+      "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
+      "place-edit": "Czy na pewno chcesz zaktualizować lokal?"
     }
   },
   "access-levels": {
@@ -521,7 +548,18 @@
       "check-if-reading-needed-fail": "Nie udało się zweryfikować, czy kategoria potrzebuje odczytu",
       "get-missing-categories-fail": "Nie udało się pobrać brakujących kategorii",
       "remove-category-fail": "Nie udało się usunąć kategorii z wybranego lokalu",
-      "remove-category-success": "Kategoria została usunięta z wybranego lokalu"
+      "remove-category-success": "Kategoria została usunięta z wybranego lokalu",
+      "fail": "Błąd przy ładowaniu danych lokalu"
+    },
+    "place-edit": {
+      "fail": "Błąd przy edycji lokalu",
+      "success": "Udało się zaktualizować lokal",
+      "response": {
+        "message": {
+          "place_number_already_taken": "Podany numer lokalu istnieje w wybranym budynku",
+          "optimistic_lock": "Lokal został edytowany przez kogoś innego, odśwież stronę i spróbuj ponownie"
+        }
+      }
     },
     "rate": {
       "remove-success": "Pomyślnie usunięto stawkę",

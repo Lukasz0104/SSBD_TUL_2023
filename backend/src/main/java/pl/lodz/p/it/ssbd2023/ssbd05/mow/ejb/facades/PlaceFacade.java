@@ -19,6 +19,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.PlaceFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ import java.util.Optional;
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
     GenericFacadeExceptionsInterceptor.class,
+    PlaceFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class
 })
 public class PlaceFacade extends AbstractFacade<Place> {
@@ -191,3 +193,5 @@ public class PlaceFacade extends AbstractFacade<Place> {
             .getResultList();
     }
 }
+
+
