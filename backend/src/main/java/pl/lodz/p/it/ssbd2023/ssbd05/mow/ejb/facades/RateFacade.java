@@ -224,7 +224,7 @@ public class RateFacade extends AbstractFacade<Rate> {
     }
 
     @Override
-    @RolesAllowed(MANAGER)
+    @PermitAll
     public Optional<Rate> find(Long id) {
         return super.find(id);
     }

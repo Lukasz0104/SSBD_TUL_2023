@@ -4,7 +4,7 @@
       "required": "Hasło jest wymagane",
       "length": "Hasło musi mieć co najmniej 8 znaków",
       "strength": "Hasło jest zbyt słabe",
-      "message": "Hasło musi składać się z conajmniej 8 znaków i musi zawierać małą literę, dużą literę, numer oraz symbol",
+      "message": "Hasło musi składać się z co najmniej 8 znaków i musi zawierać małą literę, dużą literę, numer oraz symbol",
       "match": "Hasło oraz powtórzone hasło muszą się zgadzać"
     },
     "repeat-password": {
@@ -13,7 +13,7 @@
     },
     "login": {
       "required": "Login jest wymagany",
-      "min-length": "Login musi składać się z conajmniej 3 znaków.",
+      "min-length": "Login musi składać się z co najmniej 3 znaków.",
       "max-length": "Login może składać się z maksymalnie 100 znaków."
     },
     "email": {
@@ -598,7 +598,10 @@
         "message": {
           "reading_value_smaller_than_previous": "Wartość odczytu musi być wyższa od wartości poprzedniego odczytu",
           "not_enough_days_between_reliable_readings": "Nie minęła wystarczająca ilość dni od ostatniego odczytu",
-          "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów"
+          "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów",
+          "reading_date_before_initial_reading": "Data odczytu musi być po dacie początkowego odczytu",
+          "reading_value_smaller_than_initial": "Wartość odczytu musi być wyższa niż wartość początkowego odczytu",
+          "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu"
         }
       }
     }

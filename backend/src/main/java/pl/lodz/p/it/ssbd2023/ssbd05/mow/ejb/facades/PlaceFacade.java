@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -73,7 +74,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @Override
-    @RolesAllowed({MANAGER})
+    @PermitAll
     public Optional<Place> find(Long id) {
         return super.find(id);
     }
@@ -113,7 +114,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Place> findByActive(boolean active) {
         TypedQuery<Place> tq;
         if (active) {

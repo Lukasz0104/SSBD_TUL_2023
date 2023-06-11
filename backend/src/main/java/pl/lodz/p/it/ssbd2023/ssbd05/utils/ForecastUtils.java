@@ -3,7 +3,6 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
@@ -21,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -38,8 +38,112 @@ public class ForecastUtils {
     private RateFacade rateFacade;
 
     public void calculateForecastsForMeter(Meter meter) throws AppBaseException {
+        List<Reading> firstAndLastReading = findFirstAndLastReading(meter);
+        Reading firstReading = firstAndLastReading.get(0);
+        Reading lastReading = firstAndLastReading.get(1);
+
+        BigDecimal averageDailyConsumption = calculateAverageDailyConsumption(firstReading, lastReading);
+
+        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
+            meter.getPlace().getId(),
+            meter.getCategory().getId(),
+            Year.now(),
+            LocalDateTime.now().getMonth());
+
+        boolean leapYear = Year.now().isLeap();
+        if (forecasts.size() > 0) {
+            for (Forecast forecast : forecasts) {
+                BigDecimal newAmount =
+                    averageDailyConsumption.multiply(
+                        BigDecimal.valueOf(forecast.getMonth().length(leapYear))
+                            .setScale(3, RoundingMode.CEILING));
+                forecast.setAmount(newAmount);
+                forecast.setValue(newAmount.multiply(forecast.getRate().getValue()));
+                forecastFacade.edit(forecast);
+            }
+        } else {
+            Rate rate = rateFacade.findCurrentRateByCategoryId(meter.getCategory().getId()).orElseThrow(
+                RateNotFoundException::new);
+            for (int i = LocalDateTime.now().getMonthValue() + 1; i < 13; i++) {
+                BigDecimal newAmount =
+                    averageDailyConsumption.multiply(BigDecimal.valueOf(Month.of(i).length(leapYear)))
+                        .setScale(3, RoundingMode.CEILING);
+                forecastFacade.create(
+                    new Forecast(Year.now(), Month.of(i), newAmount.multiply(rate.getValue()),
+                        newAmount,
+                        meter.getPlace(),
+                        rate));
+            }
+        }
+    }
+
+    public void calculateForecasts(Place place, Rate rate) throws AppBaseException {
+        BigDecimal amount = findAmountByPlaceAndRate(place, rate);
         LocalDateTime now = LocalDateTime.now();
-        List<Reading> pastReliableReadings = meter.getPastReliableReadings();
+        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
+            place.getId(),
+            rate.getCategory().getId(),
+            Year.now(),
+            LocalDateTime.now().getMonth());
+        if (forecasts.size() > 0) {
+            for (Forecast forecast : forecasts) {
+                forecast.setAmount(amount);
+                forecast.setValue(amount.multiply(rate.getValue()));
+                forecastFacade.edit(forecast);
+            }
+        } else {
+            for (int i = now.getMonthValue() + 1; i < 13; i++) {
+                forecastFacade.create(
+                    new Forecast(Year.now(), Month.of(i), amount.multiply(rate.getValue()),
+                        amount,
+                        place,
+                        rate));
+            }
+        }
+    }
+
+    public void createMeterForecastsForYear(Meter meter, Rate rate, Year year) throws AppBaseException {
+        List<Reading> firstAndLastReading = findFirstAndLastReading(meter);
+        Reading firstReading = firstAndLastReading.get(0);
+        Reading lastReading = firstAndLastReading.get(1);
+
+        BigDecimal averageDailyConsumption = calculateAverageDailyConsumption(firstReading, lastReading);
+
+        for (int i = 1; i < 13; i++) {
+            BigDecimal newAmount =
+                averageDailyConsumption.multiply(BigDecimal.valueOf(Month.of(i).length(year.isLeap())))
+                    .setScale(3, RoundingMode.CEILING);
+            forecastFacade.create(
+                new Forecast(year, Month.of(i), newAmount.multiply(rate.getValue()),
+                    newAmount,
+                    meter.getPlace(),
+                    rate));
+        }
+    }
+
+    public void createOtherForecastsForYear(Place place, Rate rate, Year year) throws AppBaseException {
+        BigDecimal amount = findAmountByPlaceAndRate(place, rate);
+        for (int i = 1; i < 13; i++) {
+            forecastFacade.create(
+                new Forecast(year, Month.of(i), amount.multiply(rate.getValue()),
+                    amount,
+                    place,
+                    rate));
+        }
+    }
+
+    private BigDecimal findAmountByPlaceAndRate(Place place, Rate rate) {
+        return switch (rate.getAccountingRule()) {
+            case PERSON -> BigDecimal.valueOf(place.getResidentsNumber());
+            case UNIT -> BigDecimal.ONE;
+            case SURFACE -> place.getSquareFootage();
+            default -> BigDecimal.ZERO;
+        };
+    }
+
+    private List<Reading> findFirstAndLastReading(Meter meter) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Reading> pastReliableReadings = meter.getPastReliableReadings(now);
 
         List<Reading> reliableReadingsFromConsideredMonths = pastReliableReadings.stream()
             .filter(
@@ -73,71 +177,11 @@ public class ForecastUtils {
         } else {
             firstReading = lastReading;
         }
+        List<Reading> readings = new ArrayList<>();
+        readings.add(firstReading);
+        readings.add(lastReading);
 
-        BigDecimal averageDailyConsumption = calculateAverageDailyConsumption(firstReading, lastReading);
-
-        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
-            meter.getPlace().getId(),
-            meter.getCategory().getId(),
-            Year.now(),
-            LocalDateTime.now().getMonth());
-
-        boolean leapYear = Year.now().isLeap();
-        if (forecasts.size() > 0) {
-            for (Forecast forecast : forecasts) {
-                BigDecimal newAmount =
-                    averageDailyConsumption.multiply(BigDecimal.valueOf(forecast.getMonth().length(leapYear)));
-                forecast.setAmount(newAmount);
-                forecast.setValue(newAmount.multiply(forecast.getRate().getValue()));
-                forecastFacade.edit(forecast);
-            }
-        } else {
-            Rate rate = rateFacade.findCurrentRateByCategoryId(meter.getCategory().getId()).orElseThrow(
-                RateNotFoundException::new);
-            for (int i = now.getMonthValue() + 1; i < 13; i++) {
-                BigDecimal newAmount =
-                    averageDailyConsumption.multiply(BigDecimal.valueOf(Month.of(i).length(leapYear)));
-                forecastFacade.create(
-                    new Forecast(Year.now(), Month.of(i), newAmount.multiply(rate.getValue()),
-                        newAmount,
-                        meter.getPlace(),
-                        rate));
-            }
-        }
-    }
-
-    public void calculateForecasts(Place place, Rate rate) throws AppBaseException {
-        BigDecimal amount = BigDecimal.ZERO;
-        if (rate.getAccountingRule().equals(AccountingRule.PERSON)) {
-            amount = BigDecimal.valueOf(place.getResidentsNumber());
-        }
-        if (rate.getAccountingRule().equals(AccountingRule.UNIT)) {
-            amount = BigDecimal.ONE;
-        }
-        if (rate.getAccountingRule().equals(AccountingRule.SURFACE)) {
-            amount = place.getSquareFootage();
-        }
-        LocalDateTime now = LocalDateTime.now();
-        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
-            place.getId(),
-            rate.getCategory().getId(),
-            Year.now(),
-            LocalDateTime.now().getMonth());
-        if (forecasts.size() > 0) {
-            for (Forecast forecast : forecasts) {
-                forecast.setAmount(amount);
-                forecast.setValue(amount.multiply(rate.getValue()));
-                forecastFacade.edit(forecast);
-            }
-        } else {
-            for (int i = now.getMonthValue() + 1; i < 13; i++) {
-                forecastFacade.create(
-                    new Forecast(Year.now(), Month.of(i), amount.multiply(rate.getValue()),
-                        amount,
-                        place,
-                        rate));
-            }
-        }
+        return readings;
     }
 
     private BigDecimal calculateAverageDailyConsumption(Reading firstReading, Reading lastReading) {
@@ -150,7 +194,7 @@ public class ForecastUtils {
                 lastReading.getValue()
                     .subtract(firstReading.getValue())
                     .divide(BigDecimal.valueOf(days > 0 ? days : 1),
-                        3,
+                        6,
                         RoundingMode.CEILING);
         }
         return averageDailyConsumption;
