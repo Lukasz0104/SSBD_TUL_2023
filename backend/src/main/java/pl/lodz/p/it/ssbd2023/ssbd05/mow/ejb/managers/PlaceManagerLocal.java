@@ -49,7 +49,7 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     boolean checkIfCategoryRequiresReading(Long placeId, Long categoryId) throws AppBaseException;
 
-    void editPlaceDetails(Long id) throws AppBaseException;
+    void editPlaceDetails(Long id, Place newPlace) throws AppBaseException;
 
     List<Rate> findCurrentRateByPlaceIdNotMatch(Long id);
 }
