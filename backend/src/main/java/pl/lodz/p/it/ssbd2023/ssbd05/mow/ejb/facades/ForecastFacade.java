@@ -46,6 +46,12 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         super.edit(forecast);
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void create(Forecast entity) throws AppBaseException {
+        super.create(entity);
+    }
+
     @RolesAllowed({OWNER, MANAGER})
     public List<Forecast> findByYear(Year year) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByYear", Forecast.class);
@@ -208,8 +214,8 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         TypedQuery<Object[]> tq = em.createNamedQuery("Forecast.findYearsAndMonthsByBuildingId", Object[].class);
         tq.setParameter("id", id);
         return tq.getResultStream().collect(Collectors.toMap(
-            obj -> ((Year)obj[0]).getValue(),
-            obj -> ((Long)obj[1]).intValue()
+            obj -> ((Year) obj[0]).getValue(),
+            obj -> ((Long) obj[1]).intValue()
         ));
     }
 

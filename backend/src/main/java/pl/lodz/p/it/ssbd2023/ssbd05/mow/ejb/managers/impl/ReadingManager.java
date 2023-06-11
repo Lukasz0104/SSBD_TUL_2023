@@ -11,7 +11,6 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -27,13 +26,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReadingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.ForecastUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.List;
 
 @Stateful
@@ -56,6 +51,9 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
     @Inject
     private ForecastFacade forecastFacade;
+
+    @Inject
+    private ForecastUtils forecastUtils;
 
     @Override
     @RolesAllowed({OWNER})
@@ -87,8 +85,8 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
         meter.getReadings().add(reading);
 
         readingFacade.create(reading);
-        meterFacade.lockAndEdit(meter);
-        calculateForecasts(meter);
+        meterFacade.edit(meter);
+        forecastUtils.calculateForecastsForMeter(meter);
     }
 
     @Override
@@ -113,75 +111,7 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
         meter.getReadings().add(reading);
 
         readingFacade.create(reading);
-        meterFacade.lockAndEdit(meter);
-        calculateForecasts(meter);
-    }
-
-    private void calculateForecasts(Meter meter)
-        throws AppBaseException {
-        LocalDateTime now = LocalDateTime.now();
-        List<Reading> pastReliableReadings = meter.getPastReliableReadings();
-
-        List<Reading> reliableReadingsFromConsideredMonths = pastReliableReadings.stream()
-            .filter(
-                r -> r.getDate().isAfter(now.minusMonths(appProperties.getNumberOfMonthsForReadingConsideration())))
-            .sorted(Comparator.comparing(Reading::getDate).reversed())
-            .toList();
-
-        List<Reading> reliableReadingsFromBeforeConsideredMonths = pastReliableReadings.stream()
-            .filter(
-                r -> r.getDate().isBefore(now.minusMonths(appProperties.getNumberOfMonthsForReadingConsideration())))
-            .sorted(Comparator.comparing(Reading::getDate).reversed())
-            .toList();
-
-        Reading lastReading;
-        if (reliableReadingsFromConsideredMonths.size() > 0) {
-            lastReading = reliableReadingsFromConsideredMonths.get(0);
-        } else {
-            // W najgorszym wypadku(brak jakichkolwiek innych odczytów) odczyt zerowy (tworzony razem z licznikiem)
-            lastReading = reliableReadingsFromBeforeConsideredMonths.get(0);
-        }
-
-        Reading firstReading;
-        if (reliableReadingsFromConsideredMonths.size() > 1) {
-            firstReading = reliableReadingsFromConsideredMonths.get(reliableReadingsFromConsideredMonths.size() - 1);
-        } else {
-            // Zawsze odczyt zerowy
-            firstReading =
-                reliableReadingsFromBeforeConsideredMonths.get(reliableReadingsFromBeforeConsideredMonths.size() - 1);
-        }
-
-        BigDecimal averageDailyConsumption = calculateAverageDailyConsumption(firstReading, lastReading);
-
-        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
-            meter.getPlace().getId(),
-            meter.getCategory().getId(),
-            Year.now(),
-            LocalDateTime.now().getMonth());
-
-        boolean leapYear = Year.now().isLeap();
-        for (Forecast forecast : forecasts) {
-            BigDecimal newAmount =
-                averageDailyConsumption.multiply(BigDecimal.valueOf(forecast.getMonth().length(leapYear)));
-            forecast.setAmount(newAmount);
-            forecast.setValue(newAmount.multiply(forecast.getRate().getValue()));
-            forecastFacade.edit(forecast);
-        }
-    }
-
-    private BigDecimal calculateAverageDailyConsumption(Reading firstReading, Reading lastReading) {
-        BigDecimal averageDailyConsumption;
-        if (firstReading == lastReading) {
-            averageDailyConsumption = BigDecimal.ZERO;
-        } else {
-            long days = firstReading.getDate().until(lastReading.getDate(), ChronoUnit.DAYS);
-            averageDailyConsumption =
-                lastReading.getValue()
-                    .subtract(firstReading.getValue())
-                    .divide(BigDecimal.valueOf(days > 0 ? days : 1),
-                        3,
-                        RoundingMode.CEILING);
-        }
-        return averageDailyConsumption;
+        meterFacade.edit(meter);
+        forecastUtils.calculateForecastsForMeter(meter);
     }
 }

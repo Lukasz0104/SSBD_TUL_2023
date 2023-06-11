@@ -10,7 +10,6 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
@@ -51,6 +50,17 @@ public class MeterFacade extends AbstractFacade<Meter> {
         return super.find(id);
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void create(Meter entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
+    @RolesAllowed({MANAGER, OWNER})
+    public void edit(Meter entity) throws AppBaseException {
+        super.edit(entity);
+    }
 
     @RolesAllowed({OWNER})
     public boolean existsByIdAndOwnerLogin(Long id, String login) {
@@ -129,14 +139,14 @@ public class MeterFacade extends AbstractFacade<Meter> {
     }
 
     @RolesAllowed({OWNER, MANAGER})
-    public Meter findByCategoryIdAndPlaceId(Long categoryId, Long placeId) throws AppDatabaseException {
+    public Optional<Meter> findByCategoryIdAndPlaceId(Long categoryId, Long placeId) throws AppDatabaseException {
         try {
             TypedQuery<Meter> tq = em.createNamedQuery("Meter.findByCategoryIdAndPlaceId", Meter.class);
             tq.setParameter("categoryId", categoryId);
             tq.setParameter("placeId", placeId);
-            return tq.getSingleResult();
+            return Optional.of(tq.getSingleResult());
         } catch (PersistenceException e) {
-            throw new AppDatabaseException("Meter.findByCategoryIdAndPlaceId , Database Exception", e);
+            return Optional.empty();
         }
     }
 
@@ -181,11 +191,5 @@ public class MeterFacade extends AbstractFacade<Meter> {
             throw new AppDatabaseException("Meter.findByCategoryNameAndPlaceNumberAndBuildingId , Database Exception",
                 e);
         }
-    }
-
-    @RolesAllowed({OWNER, MANAGER})
-    public void lockAndEdit(Meter meter) throws AppBaseException {
-        em.lock(meter, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-        super.edit(meter);
     }
 }

@@ -97,7 +97,7 @@ public class Meter extends AbstractEntity implements Serializable {
     private Place place;
 
     @NotNull
-    @OneToMany(mappedBy = "meter", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "meter", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @Getter
     @Setter
     private Set<Reading> readings = new HashSet<>();
