@@ -551,7 +551,8 @@
       "success": "Udało się zaktualizować lokal",
       "response": {
         "message": {
-          "place_number_already_taken": "Podany numer lokalu istnieje w wybranym budynku"
+          "place_number_already_taken": "Podany numer lokalu istnieje w wybranym budynku",
+          "optimistic_lock": "Lokal został edytowany przez kogoś innego, odświerz stronę i spróbuj ponownie"
         }
       }
     },

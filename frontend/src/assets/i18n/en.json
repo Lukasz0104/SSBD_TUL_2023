@@ -553,7 +553,8 @@
       "success": "Place updated successfully",
       "response": {
         "message": {
-          "place_number_already_taken": "Given place number already exist in a chosen building"
+          "place_number_already_taken": "Given place number already exist in a chosen building",
+          "optimistic_lock": "Place has been already edited by someone else, please reload the page and try again"
         }
       }
     },
