@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
+import io.restassured.http.Header;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
 import org.json.JSONObject;
@@ -1232,9 +1233,13 @@ public class MowITests extends TestContainersSetup {
                 editDto.setActive(!place.isActive());
 
                 given().spec(onlyManagerSpec)
+                    .header(new Header("If-Match", response.getHeader("ETag")))
                     .contentType(ContentType.JSON)
-                    .when().body(editDto).put("/places/" + 1)
-                    .then().statusCode(Response.Status.NO_CONTENT.getStatusCode());
+                    .when()
+                    .body(editDto)
+                    .put("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
                 PlaceDto newPlace = given().spec(onlyManagerSpec).when().get("/places/" + 1)
                     .getBody().as(PlaceDto.class);
@@ -1257,8 +1262,12 @@ public class MowITests extends TestContainersSetup {
                 editDto.setResidentsNumber(place.getResidentsNumber() + 90);
                 given().spec(managerOwnerSpec)
                     .contentType(ContentType.JSON)
-                    .when().body(editDto).put("/places/" + id)
-                    .then().statusCode(Response.Status.NO_CONTENT.getStatusCode());
+                    .header(new Header("If-Match", response.getHeader("ETag")))
+                    .when()
+                    .body(editDto)
+                    .put("/places/" + id)
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
                 PlaceDto newPlace = given().spec(managerOwnerSpec).when().get("/places/" + id)
                     .getBody().as(PlaceDto.class);
@@ -1351,13 +1360,57 @@ public class MowITests extends TestContainersSetup {
         }
 
         @Nested
+        class SignatureCases {
+            @Test
+            void shouldReturn400SCWhenSendEditedId() {
+                io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("/places/" + 1);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
+
+                EditPlaceDto editDto = new EditPlaceDto(place);
+                editDto.setId(editDto.getId() + 1);
+
+                given().spec(onlyManagerSpec)
+                    .header(new Header("If-Match", response.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .body(editDto)
+                    .put("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn400SCWhenSendEditedVersion() {
+                io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("/places/" + 1);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
+
+                EditPlaceDto editDto = new EditPlaceDto(place);
+                editDto.setVersion(editDto.getVersion() + 1);
+
+                given().spec(onlyManagerSpec)
+                    .header(new Header("If-Match", response.getHeader("ETag")))
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .body(editDto)
+                    .put("/places/" + 1)
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+        }
+
+        @Nested
         class OtherNegativeCases {
 
             @Test
             void shouldReturn404SCWhenRequestingNonExistingPlaceByPath() {
+                int id = 1;
+                io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("/places/" + id);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
+
                 EditPlaceDto editDto =
-                    new EditPlaceDto(1L, 1L, 1, BigDecimal.valueOf(10.8), 3, true);
+                    new EditPlaceDto(place);
                 given().spec(onlyManagerSpec)
+                    .header(new Header("If-Match", response.getHeader("ETag")))
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
@@ -1368,21 +1421,27 @@ public class MowITests extends TestContainersSetup {
 
             @Test
             void shouldReturn409SCWhenChangingToAlreadyTakenPlaceNumber() {
+                int id = 1;
+                io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("/places/" + id);
+                PlaceDto place = response.getBody().as(PlaceDto.class);
+
                 List<PlaceDto> places = Arrays.asList(
                     given(onlyManagerSpec).when().get("/buildings/1/places").as(PlaceDto[].class));
                 int number = places.stream()
-                    .filter((p) -> p.getId() != 1)
+                    .filter((p) -> p.getId() != id)
                     .findFirst()
                     .get()
                     .getPlaceNumber();
 
                 EditPlaceDto editDto =
-                    new EditPlaceDto(1L, 1L, number, BigDecimal.valueOf(10.8), 3, true);
+                    new EditPlaceDto(place);
+                editDto.setPlaceNumber(number);
                 given().spec(onlyManagerSpec)
+                    .header(new Header("If-Match", response.getHeader("ETag")))
                     .when()
                     .contentType(ContentType.JSON)
                     .body(editDto)
-                    .put("/places/" + 1)
+                    .put("/places/" + id)
                     .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode());
             }
