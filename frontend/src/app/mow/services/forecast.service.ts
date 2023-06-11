@@ -33,7 +33,7 @@ export class ForecastService {
             );
     }
 
-    addOverdueForecast(
+    addCurrentForecast(
         placeId: number,
         categoryId: number,
         amount: number | null
@@ -46,12 +46,14 @@ export class ForecastService {
             })
             .pipe(
                 map(() => {
-                    this.toastService.showSuccess('Sukces');
+                    this.toastService.showSuccess(
+                        'toast.forecast.add-current-forecast-success'
+                    );
                 }),
                 catchError((err: HttpErrorResponse) => {
                     this.toastService.handleError(
-                        'fail',
-                        'add-overdue-forecasts',
+                        'toast.forecast.add-current-forecast-fail',
+                        'add-current-forecast',
                         err
                     );
                     return EMPTY;

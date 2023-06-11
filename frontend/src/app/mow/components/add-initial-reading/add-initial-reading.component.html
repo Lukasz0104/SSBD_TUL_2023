@@ -3,7 +3,9 @@
         class="modal-title"
         id="modal-basic-title">
         <span *ngIf="value">{{ 'component.add-reading.add' | translate }}</span>
-        <span *ngIf="!value">Add amount</span>
+        <span *ngIf="!value">{{
+            'component.place.categories.add-amount' | translate
+        }}</span>
     </h2>
 </div>
 <div class="modal-body px-4 py-2">
@@ -15,10 +17,7 @@
                         <label
                             for="readingValueInput"
                             class="form-label mb-0">
-                            <span *ngIf="value">{{
-                                'component.meter.value' | translate
-                            }}</span>
-                            <span *ngIf="!value">cos</span>
+                            {{ 'component.meter.value' | translate }}
                             [m<sup>3</sup>]
                         </label>
                         <input
@@ -42,7 +41,9 @@
                                 <span *ngIf="value">{{
                                     'validation.reading.required' | translate
                                 }}</span>
-                                <span *ngIf="!value">Amount required</span>
+                                <span *ngIf="!value">{{
+                                    'validation.amount.required' | translate
+                                }}</span>
                             </p>
 
                             <p
@@ -51,7 +52,9 @@
                                 <span *ngIf="value">{{
                                     'validation.reading.length' | translate
                                 }}</span>
-                                <span *ngIf="!value">amount length</span>
+                                <span *ngIf="!value">{{
+                                    'validation.amount.length' | translate
+                                }}</span>
                             </p>
                             <p
                                 *ngIf="bnErrors['invalidDecimal']"
@@ -60,9 +63,10 @@
                                     'validation.reading.decimal-places'
                                         | translate
                                 }}</span>
-                                <span *ngIf="!value"
-                                    >Decimal places amount</span
-                                >
+                                <span *ngIf="!value">{{
+                                    'validation.amount.decimal-places'
+                                        | translate
+                                }}</span>
                             </p>
                         </div>
                     </div>

@@ -122,12 +122,14 @@ export class PlaceCategoriesComponent implements OnInit {
         });
         const instance = modalRef.componentInstance as ConfirmActionComponent;
 
-        instance.message = 'Confirm?';
-        instance.danger = 'Danger';
+        instance.message =
+            'component.place.categories.add-current-forecast-confirm';
+        instance.danger =
+            'component.place.categories.add-current-forecast-danger';
         modalRef.closed.subscribe((res: boolean) => {
             if (res) {
                 this.forecastService
-                    .addOverdueForecast(placeId, categoryId, amount)
+                    .addCurrentForecast(placeId, categoryId, amount)
                     .subscribe(() => {
                         this.getPlaceCategories();
                         this.chosen = -1;
