@@ -249,21 +249,23 @@
     },
     "place": {
       "categories": {
-        "edit": "Usuń kategorię",
-        "save": "Zapisz",
         "pln": "zł",
         "person": "os",
         "month": "mies",
         "title": "Kategorie opłat lokalu",
-        "title-edit": "Wybierz kategorię, którą chcesz usunąć",
-        "action-confirm": "Czy napewno chcesz odłączyć wybrane kategorie od lokalu?",
         "loading": "Ładowanie kategorii ...",
         "cancel": "Anuluj",
         "no-missing-categories": "Lokal ma przypisane wszystkie dostępne kategorie",
         "choose-missing": "Dodaj nową kategorię do lokalu",
         "confirm": "Czy napewno chcesz dodać tą kategorię?",
         "confirm-danger": "Ta akcja obciąży lokal dodatkowymi kosztami.",
-        "tab-name": "Kategorie"
+        "tab-name": "Kategorie",
+        "delete": "Usuń wybraną kategorię",
+        "edit": "Edytuj",
+        "title-edit": "Edycja kategorii",
+        "edit-close": "Zakończ edycję",
+        "delete-confirm": "Czy napewno chcesz usunąć wybraną kategorię z lokalu?",
+        "delete-confirm-danger": "Ta akcja wpłynie na wartość opłat lokalu."
       },
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
@@ -493,7 +495,8 @@
     "categories": "Kategorie opłat",
     "buildings": "Budynki",
     "costs": "Koszty",
-    "cost": "Koszt"
+    "cost": "Koszt",
+    "place": "Lokal"
   },
   "toast": {
     "auth": {
@@ -544,6 +547,8 @@
       "add-category-success": "Pomyślnie dodano kategorię do lokalu",
       "check-if-reading-needed-fail": "Nie udało się zweryfikować, czy kategoria potrzebuje odczytu",
       "get-missing-categories-fail": "Nie udało się pobrać brakujących kategorii",
+      "remove-category-fail": "Nie udało się usunąć kategorii z wybranego lokalu",
+      "remove-category-success": "Kategoria została usunięta z wybranego lokalu",
       "fail": "Błąd przy ładowaniu danych lokalu"
     },
     "place-edit": {
@@ -766,14 +771,28 @@
   "add-category": {
     "response": {
       "message": {
-        "illegal_self_action": "Nie można edytować lokalu, którego właścicielem jesteś",
+        "illegal_self_action": "Nie można edytować lokalu, którego jesteś właścicielem",
         "category_in_use": "Wybrana kategoria jest już przypisana do tego lokalu",
         "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
         "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
         "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii",
         "initial_reading_required": "Wymagane jest podanie, początkowej wartości odczytu dla licznika tej kategorii",
         "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
-        "rollback.limit.exceeded": "Wygasł limit czasu żądania"
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu"
+      }
+    }
+  },
+  "remove-category": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "illegal_self_action": "Nie można edytować lokalu, którego jesteś właścicielem",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "category_not_in_use": "Wybrany lokal nie posiada kategorii, którą chcesz usunąć",
+        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu",
+        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii"
       }
     }
   },

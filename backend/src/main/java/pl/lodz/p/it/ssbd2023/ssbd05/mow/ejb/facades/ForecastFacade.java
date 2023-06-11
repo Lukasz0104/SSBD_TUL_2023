@@ -234,4 +234,16 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.setParameter("placeId", placeId);
         return tq.getResultList();
     }
+
+    @RolesAllowed(MANAGER)
+    public void deleteFutureForecastsByCategoryIdAndPlaceId(Long categoryId, Long placeId, Year year, Month month) {
+        TypedQuery<Forecast> tq =
+            em.createNamedQuery("Forecast.deleteFutureForecastsByCategoryIdAndPlaceId", Forecast.class);
+        tq.setParameter("categoryId", categoryId);
+        tq.setParameter("placeId", placeId);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+        tq.executeUpdate();
+        em.flush();
+    }
 }

@@ -232,11 +232,18 @@ public class PlaceEndpoint {
     }
 
     @DELETE
-    @Path("/{id}/categories")
+    @Path("/{id}/categories/{categoryId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response removeCategoryFromPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response removeCategoryFromPlace(@PathParam("id") Long id,
+                                            @PathParam("categoryId") Long categoryId)
+        throws AppBaseException {
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.removeCategoriesFromPlace(
+                id,
+                categoryId,
+                securityContext.getUserPrincipal().getName()),
+            placeManager).build();
     }
 
     @PUT

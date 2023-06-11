@@ -15,7 +15,7 @@ GRANT SELECT ON auth_view TO ssbd05auth;
 GRANT SELECT, INSERT, UPDATE ON TABLE building TO ssbd05mow;
 GRANT SELECT ON TABLE category TO ssbd05mow;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE cost TO ssbd05mow;
-GRANT SELECT, INSERT, UPDATE ON TABLE forecast TO ssbd05mow;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE forecast TO ssbd05mow;
 GRANT SELECT, INSERT, UPDATE ON TABLE meter TO ssbd05mow;
 GRANT SELECT, INSERT, UPDATE ON TABLE place TO ssbd05mow;
 GRANT SELECT, INSERT, DELETE ON TABLE place_owner TO ssbd05mow;
@@ -413,16 +413,16 @@ insert into public.place_rate (place_id, rate_id) values (6, 9);
 
 --region meters
 -- Meters
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 1, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 1, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 2, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 2, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 3, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 4, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 5, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 5, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 4, 6, '2021-12-01 12:22:03.000000', -4);
-INSERT INTO public.meter (version, category_id, place_id, created_time, created_by) VALUES (1, 5, 6, '2021-12-01 12:22:03.000000', -4);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 4, 1, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 1, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 4, 2, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 2, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 3, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 4, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 4, 5, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 5, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 4, 6, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 6, '2021-12-01 12:22:03.000000', -4, true);
 --endregion
 
 --region reading

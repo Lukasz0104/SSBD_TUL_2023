@@ -1,10 +1,10 @@
 <div class="row">
     <div class="col">
         <h2>
-            <span *ngIf="!deleting">
-                {{ 'component.place.categories.title' | translate }}
-            </span>
-            <span *ngIf="deleting">{{
+            <span *ngIf="!editing">{{
+                'component.place.categories.title' | translate
+            }}</span>
+            <span *ngIf="editing">{{
                 'component.place.categories.title-edit' | translate
             }}</span>
         </h2>
@@ -21,17 +21,17 @@
         *ngIf="placeCategories$ | async as categories; else loadingCategories">
         <div class="row card-group">
             <div
-                class="col-sm-2"
+                class="col-md-4 col-xl-3 col-xxl-2"
                 *ngFor="let category of categories; let i = index">
                 <div
                     class="card m-3 rounded-3 shadow text-center"
                     [ngClass]="{
                         'text-danger opacity-50 cursor-pointer':
-                            deleting && chosen.includes(category.rateId),
+                            editing && chosen === category.categoryId,
                         'text-success cursor-pointer':
-                            deleting && !chosen.includes(category.rateId)
+                            editing && chosen !== category.categoryId
                     }"
-                    (click)="addNumbers(category.rateId)">
+                    (click)="setChosen(category.categoryId)">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
                             <i
@@ -73,7 +73,7 @@
             </div>
             <div
                 class="col-sm-2"
-                *ngIf="!deleting">
+                *ngIf="editing">
                 <div
                     class="card m-3 rounded-3 shadow text-center"
                     (click)="addCategory()">
@@ -99,17 +99,24 @@
 <hr />
 <div>
     <button
-        *ngIf="!deleting"
+        *ngIf="!editing"
         type="button"
-        class="btn btn-outline-danger"
-        (click)="deleting = true">
+        class="btn btn-outline-success"
+        (click)="editing = true">
         {{ 'component.place.categories.edit' | translate }}
     </button>
     <button
-        *ngIf="deleting"
+        *ngIf="editing"
         type="button"
         class="btn btn-outline-success"
-        (click)="onSave()">
-        {{ 'component.place.categories.save' | translate }}
+        (click)="stopEdit()">
+        {{ 'component.place.categories.edit-close' | translate }}
+    </button>
+    <button
+        *ngIf="editing && chosen !== -1"
+        type="button"
+        class="btn btn-outline-danger ms-2"
+        (click)="removeCategory()">
+        {{ 'component.place.categories.delete' | translate }}
     </button>
 </div>
