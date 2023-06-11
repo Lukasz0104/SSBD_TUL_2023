@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {
+    HttpClient,
+    HttpErrorResponse,
+    HttpHeaders
+} from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { catchError, EMPTY, map, Observable, of } from 'rxjs';
-import { Place } from '../model/place';
 import { OwnPlaceCategory, PlaceCategory } from '../model/place-category';
+import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
+import { Place, PlaceEdit } from '../model/place';
 import { Meter } from '../model/meter';
 import { ToastService } from '../../shared/services/toast.service';
 
@@ -20,30 +24,29 @@ export class PlaceService {
         private toastService: ToastService
     ) {}
 
-    getAsOwner(id: number): Observable<Place | null> {
+    private getPlace(url: string) {
         return this.http
-            .get<Place>(`${this.BASE_URL}/me/${id}`, {
+            .get<Place>(url, {
                 observe: 'response'
             })
             .pipe(
                 map((response) => {
                     this.ifMatch = response.headers.get('ETag') ?? '';
                     return response.body;
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError('toast.place.fail', 'toast.place', err);
+                    return EMPTY;
                 })
             );
     }
 
+    getAsOwner(id: number): Observable<Place | null> {
+        return this.getPlace(`${this.BASE_URL}/me/${id}`);
+    }
+
     getAsManager(id: number): Observable<Place | null> {
-        return this.http
-            .get<Place>(`${this.BASE_URL}/${id}`, {
-                observe: 'response'
-            })
-            .pipe(
-                map((response) => {
-                    this.ifMatch = response.headers.get('ETag') ?? '';
-                    return response.body;
-                })
-            );
+        return this.getPlace(`${this.BASE_URL}/${id}`);
     }
 
     getOwnPlaces() {
@@ -97,9 +100,17 @@ export class PlaceService {
             );
     }
 
-    addCategory(addCategoryDto: object) {
+    addCategory(
+        placeId: number,
+        categoryId: number,
+        newReading: number | null
+    ) {
         return this.http
-            .post(`${this.BASE_URL}/add/category`, addCategoryDto)
+            .post(`${this.BASE_URL}/add/category`, {
+                placeId,
+                categoryId,
+                newReading
+            })
             .pipe(
                 map(() => {
                     this.toastService.showSuccess(
@@ -124,11 +135,68 @@ export class PlaceService {
         );
     }
 
+    removeCategory(id: number | undefined, categoryId: number) {
+        return this.http
+            .delete(`${this.BASE_URL}/${id}/categories/${categoryId}`)
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess(
+                        'toast.place.remove-category-success'
+                    );
+                    return of(true);
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.handleError(
+                        'toast.place.remove-category-fail',
+                        'remove-category',
+                        err
+                    );
+                    return of(false);
+                })
+            );
+    }
+
     getPlaceMetersAsOwner(id: number) {
         return this.http.get<Meter[]>(`${this.BASE_URL}/me/${id}/meters`);
     }
 
     getPlaceMetersAsManager(id: number) {
         return this.http.get<Meter[]>(`${this.BASE_URL}/${id}/meters`);
+    }
+
+    handleError(
+        genericMessageKey: string,
+        method: string,
+        response: HttpErrorResponse
+    ): void {
+        if (response.status == 500 || response.error.message == null) {
+            this.toastService.showDanger(genericMessageKey);
+        } else if (response.status == 404) {
+            this.toastService.showDanger('toast.place.not-found');
+        } else {
+            this.toastService.showDanger(method + '.' + response.error.message);
+        }
+    }
+
+    editPlace(newPlace: PlaceEdit) {
+        return this.http
+            .put<Place>(`${this.BASE_URL}/${newPlace.id}`, newPlace, {
+                headers: new HttpHeaders({ 'If-Match': this.ifMatch }),
+                observe: 'response'
+            })
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess('toast.place-edit.success');
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError(
+                        'toast.place-edit.fail',
+                        'toast.place-edit',
+                        err
+                    );
+                    return of(true);
+                })
+            );
     }
 }

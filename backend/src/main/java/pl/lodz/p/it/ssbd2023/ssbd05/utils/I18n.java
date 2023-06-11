@@ -164,6 +164,8 @@ public class I18n {
         "response.message.not_enough_days_after_initial_reading";
     public static final String INACTIVE_METER = "response.message.inactive_meter";
     public static final String OWN_PLACE_READING_ATTEMPT_EXCEPTION = "response.message.own_place_reading_attempt";
+    public static final String CATEGORY_NOT_IN_USE = "response.message.category_not_in_use";
+    public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
 
 
     public static String getMessage(String key, String language) {
