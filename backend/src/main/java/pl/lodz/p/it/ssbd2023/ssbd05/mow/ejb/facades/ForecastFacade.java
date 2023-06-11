@@ -9,6 +9,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
@@ -16,6 +17,9 @@ import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.ForecastFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.Month;
@@ -26,6 +30,11 @@ import java.util.stream.Collectors;
 
 @Stateless
 @DenyAll
+@Interceptors({
+    GenericFacadeExceptionsInterceptor.class,
+    ForecastFacadeExceptionsInterceptor.class,
+    LoggerInterceptor.class
+})
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class ForecastFacade extends AbstractFacade<Forecast> {
     @PersistenceContext(unitName = "ssbd05mowPU")

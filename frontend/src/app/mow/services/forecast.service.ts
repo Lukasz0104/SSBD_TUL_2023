@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
 import { AuthService } from '../../shared/services/auth.service';
-import { catchError, EMPTY } from 'rxjs';
+import { catchError, EMPTY, map } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
 
 @Injectable({
@@ -26,6 +26,32 @@ export class ForecastService {
                     this.toastService.handleError(
                         'toast.forecast.get-years-by-place-fail',
                         'get-years-by-place',
+                        err
+                    );
+                    return EMPTY;
+                })
+            );
+    }
+
+    addOverdueForecast(
+        placeId: number,
+        categoryId: number,
+        amount: number | null
+    ) {
+        return this.http
+            .post(`${this.forecastUrl}/add-overdue`, {
+                placeId,
+                categoryId,
+                amount
+            })
+            .pipe(
+                map(() => {
+                    this.toastService.showSuccess('Sukces');
+                }),
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.handleError(
+                        'fail',
+                        'add-overdue-forecasts',
                         err
                     );
                     return EMPTY;

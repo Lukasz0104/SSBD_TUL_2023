@@ -157,6 +157,8 @@ public class I18n {
     public static final String INITIAL_READING_REQUIRED = "response.message.initial_reading_required";
     public static final String COST_NOT_FOUND = "response.message.cost_not_found";
     public static final String CATEGORY_NOT_IN_USE = "response.message.category_not_in_use";
+    public static final String AMOUNT_REQUIRED = "response.message.amount_required";
+    public static final String FORECAST_ALREADY_EXISTS = "response.message.forecast_already_exists";
 
 
     public static String getMessage(String key, String language) {

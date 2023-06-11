@@ -21,7 +21,7 @@ import { AddReadingComponent } from './components/add-reading/add-reading.compon
 import { PlacesComponent } from './components/places/places.component';
 import { PlaceDetailsComponent } from './components/place-details/place-details.component';
 import { PlaceAddCategoryComponent } from './components/place-add-category/place-add-category.component';
-import { AddInitialReadingComponent } from './components/place-add-category/add-initial-reading/add-initial-reading.component';
+import { AddInitialReadingComponent } from './components/add-initial-reading/add-initial-reading.component';
 import { CostComponent } from './components/cost/cost.component';
 import { PlaceRatesComponent } from './components/place-rates/place-rates.component';
 
