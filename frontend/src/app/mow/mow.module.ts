@@ -23,6 +23,7 @@ import { PlaceDetailsComponent } from './components/place-details/place-details.
 import { PlaceAddCategoryComponent } from './components/place-add-category/place-add-category.component';
 import { AddInitialReadingComponent } from './components/place-add-category/add-initial-reading/add-initial-reading.component';
 import { CostComponent } from './components/cost/cost.component';
+import { PlaceRatesComponent } from './components/place-rates/place-rates.component';
 
 @NgModule({
     declarations: [
@@ -41,6 +42,7 @@ import { CostComponent } from './components/cost/cost.component';
         PlaceReportsComponent,
         PlacesComponent,
         CostsComponent,
+        PlaceRatesComponent,
         CostComponent,
         PlaceComponent,
         PlaceDetailsComponent,

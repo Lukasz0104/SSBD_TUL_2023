@@ -41,20 +41,26 @@ public class ForecastSystemTaskManager {
 
     @Schedule(dayOfMonth = "1", month = "1")
     private void createForecasts() {
-        List<Place> places = placeFacade.findByActive(true);
-        for (Place place : places) {
-            for (Rate rate : place.getCurrentRates()) {
-                try {
-                    rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
-                        () -> forecastManager.createForecastsForPlaceAndRateAndYear(place, rate,
-                            Year.now()), forecastManager);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE,
-                        "Exception while creating forecasts for place with id: "
-                            + place.getId() + ", and rate id: "
-                            + rate.getId());
+        Year year = Year.now();
+        try {
+            List<Place> places = placeFacade.findByActive(true);
+            for (Place place : places) {
+                for (Rate rate : place.getCurrentRates()) {
+                    try {
+                        rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+                            () -> forecastManager.createForecastsForPlaceAndRateAndYear(place, rate,
+                                year), forecastManager);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE,
+                            "Exception while creating forecasts for place with id: "
+                                + place.getId() + ", and rate id: "
+                                + rate.getId());
+                    }
                 }
             }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,
+                "Exception while creating forecasts for year: " + year.getValue());
         }
     }
 

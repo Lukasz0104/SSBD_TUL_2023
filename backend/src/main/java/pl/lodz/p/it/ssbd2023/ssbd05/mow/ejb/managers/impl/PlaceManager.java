@@ -150,6 +150,12 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     }
 
     @Override
+    @RolesAllowed({OWNER})
+    public List<Rate> getCurrentRatesFromOwnPlace(Long id, String login) throws AppBaseException {
+        return placeFacade.findCurrentRateByOwnPlaceId(id, login);
+    }
+
+    @Override
     @RolesAllowed(MANAGER)
     public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
         return placeFacade.findCurrentRateByPlaceIdNotMatch(id);
