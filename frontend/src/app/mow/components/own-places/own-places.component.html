@@ -82,6 +82,7 @@
                                         (click)="tab = 4"
                                         [ngClass]="{ active: tab === 4 }"
                                         class="nav-link"
+                                        *ngIf="place.active === true"
                                         >{{
                                             'component.own-places.rates'
                                                 | translate
@@ -100,6 +101,11 @@
                                 <app-place-reports
                                     [id]="place.id"
                                     *ngIf="tab === 3" />
+                                <app-place-rates
+                                    [id]="place.id"
+                                    *ngIf="
+                                        tab === 4 && place.active === true
+                                    " />
                             </div>
                         </div>
                     </div>

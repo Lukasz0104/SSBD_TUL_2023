@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
 import { map, Observable } from 'rxjs';
 import { Place } from '../model/place';
-import { PlaceCategory } from '../model/place-category';
+import { OwnPlaceCategory, PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
 
 @Injectable({
@@ -61,6 +61,12 @@ export class PlaceService {
     getPlaceCategories(id: number) {
         return this.http.get<PlaceCategory[]>(
             `${this.BASE_URL}/${id}/categories`
+        );
+    }
+
+    getOwnPlaceCategories(id: number) {
+        return this.http.get<OwnPlaceCategory[]>(
+            `${this.BASE_URL}/me/${id}/categories`
         );
     }
 
