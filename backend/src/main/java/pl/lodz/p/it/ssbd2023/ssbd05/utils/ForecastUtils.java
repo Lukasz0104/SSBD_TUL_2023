@@ -3,7 +3,6 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
@@ -134,15 +133,12 @@ public class ForecastUtils {
     }
 
     private BigDecimal findAmountByPlaceAndRate(Place place, Rate rate) {
-        BigDecimal amount = BigDecimal.ZERO;
-        if (rate.getAccountingRule().equals(AccountingRule.PERSON)) {
-            amount = BigDecimal.valueOf(place.getResidentsNumber());
-        } else if (rate.getAccountingRule().equals(AccountingRule.UNIT)) {
-            amount = BigDecimal.ONE;
-        } else if (rate.getAccountingRule().equals(AccountingRule.SURFACE)) {
-            amount = place.getSquareFootage();
-        }
-        return amount;
+        return switch (rate.getAccountingRule()) {
+            case PERSON -> BigDecimal.valueOf(place.getResidentsNumber());
+            case UNIT -> BigDecimal.ONE;
+            case SURFACE -> place.getSquareFootage();
+            default -> BigDecimal.ZERO;
+        };
     }
 
     private List<Reading> findFirstAndLastReading(Meter meter) {

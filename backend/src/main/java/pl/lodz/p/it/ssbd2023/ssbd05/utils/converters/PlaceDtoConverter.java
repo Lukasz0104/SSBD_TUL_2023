@@ -1,11 +1,10 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 
-import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter.mapBuildingToDto;
-
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,21 +25,33 @@ public class PlaceDtoConverter {
         return placeCategoryDtosList;
     }
 
-    public static PlaceDTO createPlaceDtoFromPlace(Place place) {
-        return new PlaceDTO(
+    public static PlaceDto createPlaceDtoFromPlace(Place place) {
+        return new PlaceDto(
             place.getId(),
+            place.getVersion(),
             place.getPlaceNumber(),
             place.getSquareFootage(),
             place.getResidentsNumber(),
             place.isActive(),
-            mapBuildingToDto(place.getBuilding())
+            BuildingDtoConverter.mapBuildingToDto(place.getBuilding())
         );
     }
 
 
-    public static List<PlaceDTO> createPlaceDtoList(List<Place> places) {
+    public static List<PlaceDto> createPlaceDtoList(List<Place> places) {
         return places.stream()
             .map(PlaceDtoConverter::createPlaceDtoFromPlace)
             .toList();
+    }
+
+    public static Place mapPlaceFromEditDto(EditPlaceDto dto) {
+        return new Place(
+            dto.getId(),
+            dto.getVersion(),
+            dto.getPlaceNumber(),
+            dto.getSquareFootage(),
+            dto.getResidentsNumber(),
+            dto.isActive()
+        );
     }
 }

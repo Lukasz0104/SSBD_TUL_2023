@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -22,10 +23,16 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.FunctionThrows;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.MeterDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
@@ -47,6 +54,9 @@ public class PlaceEndpoint {
 
     @Inject
     private MeterDtoConverter meterDtoConverter;
+
+    @Inject
+    private JwsProvider jwsProvider;
 
     @GET
     @RolesAllowed(MANAGER)
@@ -75,10 +85,7 @@ public class PlaceEndpoint {
     @RolesAllowed({OWNER})
     public Response getPlaceDetailsAsOwner(@PathParam("id") Long id) throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsOwner(id, login)),
-            placeManager
-        ).build();
+        return  getPlaceDetails(() -> placeManager.getPlaceDetailsAsOwner(id, login));
     }
 
     @GET
@@ -86,10 +93,16 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER})
     public Response getPlaceDetailsAsManager(@PathParam("id") Long id) throws AppBaseException {
-        return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> PlaceDtoConverter.createPlaceDtoFromPlace(placeManager.getPlaceDetailsAsManager(id)),
+        return  getPlaceDetails(() -> placeManager.getPlaceDetailsAsManager(id));
+    }
+
+    private Response getPlaceDetails(FunctionThrows<Place> func) throws AppBaseException {
+        PlaceDto dto = rollbackUtils.rollBackTXBasicWithReturnTypeT(
+            () -> PlaceDtoConverter.createPlaceDtoFromPlace(func.apply()),
             placeManager
-        ).build();
+        );
+        String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
+        return Response.ok(dto).header("ETag", ifMatch).build();
     }
 
     @GET
@@ -119,7 +132,6 @@ public class PlaceEndpoint {
             placeManager
         ).build();
     }
-
 
     @GET
     @Path("/{id}/meters")
@@ -219,20 +231,35 @@ public class PlaceEndpoint {
         ).build();
     }
 
-
     @DELETE
-    @Path("/{id}/categories")
+    @Path("/{id}/categories/{categoryId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response removeCategoryFromPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response removeCategoryFromPlace(@PathParam("id") Long id,
+                                            @PathParam("categoryId") Long categoryId)
+        throws AppBaseException {
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.removeCategoriesFromPlace(
+                id,
+                categoryId,
+                securityContext.getUserPrincipal().getName()),
+            placeManager).build();
     }
 
-    @POST
+    @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response editPlaceDetails(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response editPlaceDetails(@PathParam("id") Long id, @Valid @NotNull EditPlaceDto placeDto,
+                                     @NotNull @HeaderParam("If-Match") String ifMatch)
+        throws AppBaseException {
+        if (!jwsProvider.verify(ifMatch, placeDto.getSignableFields())) {
+            throw new SignatureMismatchException();
+        }
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.editPlaceDetails(id,
+                PlaceDtoConverter.mapPlaceFromEditDto(placeDto)),
+            placeManager
+        ).build();
     }
 }

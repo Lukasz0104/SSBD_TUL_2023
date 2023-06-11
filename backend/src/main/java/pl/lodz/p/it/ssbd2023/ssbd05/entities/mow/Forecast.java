@@ -131,10 +131,19 @@ import java.time.Year;
     @NamedQuery(
         name = "Forecast.findByBuildingIdAndYearAndMonth",
         query = """
-            SELECT f FROM Forecast f
-                WHERE f.month = :month AND f.year = :year
-                AND f.place.building.id = :id
-        """),
+                SELECT f FROM Forecast f
+                    WHERE f.month = :month AND f.year = :year
+                    AND f.place.building.id = :id
+            """),
+    @NamedQuery(
+        name = "Forecast.deleteFutureForecastsByCategoryIdAndPlaceId",
+        query = """
+            DELETE FROM Forecast f
+            WHERE f.rate.category.id = :categoryId
+            AND f.place.id = :placeId
+            AND f.year = :year
+            AND f.month > :month
+            """)
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {

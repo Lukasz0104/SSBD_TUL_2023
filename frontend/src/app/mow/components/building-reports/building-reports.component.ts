@@ -42,6 +42,7 @@ export class BuildingReportsComponent implements OnInit {
                 this.toastService.showDanger('toast.report.not-found');
             }
         });
+        this.choseYear(new Date().getFullYear() - 1);
     }
 
     choseYear(year: number) {

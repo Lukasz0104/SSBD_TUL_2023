@@ -162,6 +162,8 @@ public class I18n {
         "response.message.reading_value_smaller_than_initial";
     public static final String NOT_ENOUGH_DAYS_AFTER_INITIAL_READING_EXCEPTION =
         "response.message.not_enough_days_after_initial_reading";
+    public static final String CATEGORY_NOT_IN_USE = "response.message.category_not_in_use";
+    public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
 
 
     public static String getMessage(String key, String language) {
