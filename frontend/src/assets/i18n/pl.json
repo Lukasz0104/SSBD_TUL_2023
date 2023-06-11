@@ -338,7 +338,8 @@
       "modified": "Zmodyfikowany",
       "readings": "Odczyty licznika: ",
       "add-reading": "Dodaj odczyt",
-      "next-reading-date": "Następny odczyt"
+      "next-reading-date": "Następny odczyt",
+      "inactive-meter": "Licznik jest nieaktywny"
     },
     "building-report": {
       "year": "Rok",
@@ -411,7 +412,7 @@
       "title": "Raport",
       "loading": "Ładowanie raportów"
     },
-    "place-rates" : {
+    "place-rates": {
       "loading": "Ładowanie stawek...",
       "category": "Kategoria",
       "effectiveDate": "Data ustalenia stawki",
@@ -547,7 +548,9 @@
           "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów",
           "reading_date_before_initial_reading": "Data odczytu musi być po dacie początkowego odczytu",
           "reading_value_smaller_than_initial": "Wartość odczytu musi być wyższa niż wartość początkowego odczytu",
-          "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o conajmniej 1 dzień od początkowego odczytu"
+          "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o conajmniej 1 dzień od początkowego odczytu",
+          "inactive_meter": "Nie udało się dodać odczytu, licznik jest nieaktywny",
+          "own_place_reading_attempt": "Nie udało się dodać odczytu, ponieważ jesteś właścicielem tego lokalu. Spróbuj ponownie z widoku interfejsu właściciela"
         }
       }
     }

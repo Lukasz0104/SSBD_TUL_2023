@@ -3,4 +3,5 @@ export interface Meter {
     category: string;
     hasReadingInLast30Days: boolean;
     dateOfNextReading: string;
+    active: boolean;
 }

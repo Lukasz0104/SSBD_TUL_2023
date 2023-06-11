@@ -21,5 +21,8 @@ public class MeterDto {
     private boolean hasReadingInLast30Days;
 
     @NotNull
+    private boolean active;
+
+    @NotNull
     private LocalDateTime dateOfNextReading;
 }

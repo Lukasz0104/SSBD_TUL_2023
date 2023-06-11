@@ -16,7 +16,8 @@
                 <div
                     class="card m-3 rounded-3 shadow text-center"
                     [ngClass]="{
-                        'border-danger': !meter.hasReadingInLast30Days
+                        'border-danger':
+                            !meter.hasReadingInLast30Days && meter.active
                     }">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
@@ -25,7 +26,10 @@
                                     getIcon(meter.category)
                                 }} fs-2 mt-1">
                                 <span
-                                    *ngIf="!meter.hasReadingInLast30Days"
+                                    *ngIf="
+                                        !meter.hasReadingInLast30Days &&
+                                        meter.active
+                                    "
                                     class="bi bi-exclamation-diamond fs-2 text-danger position-absolute"
                                     ngbTooltip="{{
                                         'component.meters.reading-needed'

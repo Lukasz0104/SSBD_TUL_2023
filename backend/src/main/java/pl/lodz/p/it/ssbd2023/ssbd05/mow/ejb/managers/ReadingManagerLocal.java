@@ -9,5 +9,5 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 public interface ReadingManagerLocal extends CommonManagerInterface {
     void createReadingAsOwner(Reading reading, Long meterId, String login) throws AppBaseException;
 
-    void createReadingAsManager(Reading reading, Long meterId) throws AppBaseException;
+    void createReadingAsManager(Reading reading, Long meterId, String login) throws AppBaseException;
 }
