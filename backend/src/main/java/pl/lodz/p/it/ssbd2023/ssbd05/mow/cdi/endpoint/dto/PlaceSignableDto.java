@@ -24,7 +24,7 @@ public class PlaceSignableDto implements SignableDto {
     @Override
     public String getSignableFields() {
         Map<String, String> fields = new HashMap<>();
-        fields.put("login", String.valueOf(id));
+        fields.put("id", String.valueOf(id));
         fields.put("version", String.valueOf(version));
         return fields.toString();
     }

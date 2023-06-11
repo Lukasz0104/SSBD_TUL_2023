@@ -64,14 +64,11 @@ export class PlaceDetailsComponent implements OnInit {
     }
 
     getPlace(id: number) {
-        console.log('Getting place');
         if (this.authService.isOwner()) {
-            console.log('as owner');
             this.placeService
                 .getAsOwner(id)
                 .subscribe((place: Place | null) => this.place$.next(place));
         } else if (this.authService.isManager()) {
-            console.log('as manager');
             this.placeService
                 .getAsManager(id)
                 .subscribe((place: Place | null) => this.place$.next(place));
