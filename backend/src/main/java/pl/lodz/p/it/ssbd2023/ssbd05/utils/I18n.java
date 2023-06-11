@@ -156,6 +156,12 @@ public class I18n {
     public static final String INACTIVE_PLACE = "response.message.inactive_place";
     public static final String INITIAL_READING_REQUIRED = "response.message.initial_reading_required";
     public static final String COST_NOT_FOUND = "response.message.cost_not_found";
+    public static final String READING_DATE_BEFORE_INITIAL_READING_EXCEPTION =
+        "response.message.reading_date_before_initial_reading";
+    public static final String READING_VALUE_SMALLER_THAN_INITIAL_EXCEPTION =
+        "response.message.reading_value_smaller_than_initial";
+    public static final String NOT_ENOUGH_DAYS_AFTER_INITIAL_READING_EXCEPTION =
+        "response.message.not_enough_days_after_initial_reading";
     public static final String CATEGORY_NOT_IN_USE = "response.message.category_not_in_use";
     public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
 
