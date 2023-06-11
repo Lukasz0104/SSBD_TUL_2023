@@ -197,4 +197,14 @@ public class Place extends AbstractEntity implements Serializable {
         this.active = active;
         this.building = building;
     }
+
+    public Place(Long id, Long version, Integer placeNumber, BigDecimal squareFootage, 
+            Integer residentsNumber, boolean active) {
+        super(id, version);
+        this.placeNumber = placeNumber;
+        this.squareFootage = squareFootage;
+        this.residentsNumber = residentsNumber;
+        this.active = active;
+    }
 }
+
