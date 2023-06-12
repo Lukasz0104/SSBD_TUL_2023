@@ -169,6 +169,7 @@ public class I18n {
     public static final String FORECAST_ALREADY_EXISTS = "response.message.forecast_already_exists";
     public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
 
+    public static final String BUILDING_NOT_FOUND = "response.message.building_not_found";
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);

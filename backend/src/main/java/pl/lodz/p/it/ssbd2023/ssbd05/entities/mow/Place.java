@@ -30,7 +30,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "place", uniqueConstraints = {@UniqueConstraint(columnNames = {"place_number", "building_id"})})
+@Table(
+    name = "place",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "place_number_building_id",
+            columnNames = {"place_number", "building_id"})
+    })
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -198,8 +204,8 @@ public class Place extends AbstractEntity implements Serializable {
         this.building = building;
     }
 
-    public Place(Long id, Long version, Integer placeNumber, BigDecimal squareFootage, 
-            Integer residentsNumber, boolean active) {
+    public Place(Long id, Long version, Integer placeNumber, BigDecimal squareFootage,
+                 Integer residentsNumber, boolean active) {
         super(id, version);
         this.placeNumber = placeNumber;
         this.squareFootage = squareFootage;
@@ -207,4 +213,3 @@ public class Place extends AbstractEntity implements Serializable {
         this.active = active;
     }
 }
-

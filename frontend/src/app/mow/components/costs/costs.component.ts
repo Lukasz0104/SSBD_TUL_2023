@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { CostPage } from '../../model/cost';
 import { CostsService } from '../../services/costs.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { EMPTY, Observable } from 'rxjs';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CostComponent } from '../cost/cost.component';
+import { Page } from '../../../shared/model/page';
+import { Cost } from '../../model/cost';
 
 @Component({
     selector: 'app-costs',
     templateUrl: './costs.component.html'
 })
 export class CostsComponent implements OnInit {
-    private _costs$: Observable<CostPage> | undefined;
+    private _costs$: Observable<Page<Cost>> | undefined;
     years: string[] | undefined;
     categoryNames: string[] | undefined;
     page = 1;
@@ -79,7 +80,7 @@ export class CostsComponent implements OnInit {
         this.getCosts();
     }
 
-    get costs$(): Observable<CostPage> | undefined {
+    get costs$(): Observable<Page<Cost>> | undefined {
         return this._costs$;
     }
 }

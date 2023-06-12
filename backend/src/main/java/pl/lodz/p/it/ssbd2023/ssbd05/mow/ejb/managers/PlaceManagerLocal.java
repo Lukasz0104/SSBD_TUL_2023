@@ -31,7 +31,8 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     Set<Meter> getPlaceMetersAsOwner(Long id, String login) throws AppBaseException;
 
-    void createPlace() throws AppBaseException;
+    void createPlace(Integer placeNumber, BigDecimal squareFootage, Integer residentsNumber, Long buildingNumber)
+        throws AppBaseException;
 
     List<OwnerData> getPlaceOwners(Long id) throws AppBaseException;
 

@@ -17,15 +17,17 @@ public class PlaceFacadeExceptionsInterceptor {
             return ictx.proceed();
         } catch (OptimisticLockException ole) {
             throw ole;
-        } catch (PersistenceException | PSQLException | DatabaseException pe1) {
-            Throwable pe = pe1;
+        } catch (PersistenceException | PSQLException | DatabaseException pe) {
+            Throwable exceptionCopy = pe;
             do {
-                String exceptionMessage = pe.getMessage();
-                if (exceptionMessage.contains("unq_place_0")) {
+                String message = exceptionCopy.getMessage();
+                if (message.contains("place_number_building_id")) {
                     throw new PlaceNumberAlreadyTaken();
                 }
-                pe = pe.getCause();
-            } while (pe != null);
+
+                exceptionCopy = exceptionCopy.getCause();
+            } while (exceptionCopy != null);
+
             throw new AppDatabaseException(pe);
         }
     }

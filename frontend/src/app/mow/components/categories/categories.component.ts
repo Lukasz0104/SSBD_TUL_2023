@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from '../../../shared/services/auth.service';
 import { CategoriesService } from '../../services/categories.service';
-import { Category } from '../../../shared/model/category';
+import { Category } from '../../model/category';
 import { PlaceService } from '../../services/place.service';
 
 @Component({

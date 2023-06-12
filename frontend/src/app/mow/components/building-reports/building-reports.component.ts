@@ -7,7 +7,7 @@ import {
     BuildingReportYearAndMonths
 } from '../../model/building-report';
 import { ActivatedRoute } from '@angular/router';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { AccountingRule } from '../../model/accounting-rule';
 import { PlaceService } from '../../services/place.service';
 
 @Component({

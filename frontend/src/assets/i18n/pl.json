@@ -102,6 +102,18 @@
     "placeNumber": {
       "min": "Numer lokalu musi być dodatni",
       "required": "Numer lokalu jest wymagany"
+    },
+    "place-number": {
+      "required": "Numer lokalu jest wymagany.",
+      "min": "Numer lokalu musi być większy bądź równy "
+    },
+    "square-footage": {
+      "required": "Powierzchnia jest wymagana.",
+      "min": "Powierzchnia musi być większa bądź równa "
+    },
+    "residents-number": {
+      "required": "Liczba lokatorów jest wymagana.",
+      "min": "Liczba lokatorów musi być większa bądź równa "
     }
   },
   "form": {
@@ -279,7 +291,10 @@
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
       "data": "Lokal",
-      "edit-place": "Edytuj lokal"
+      "edit-place": "Edytuj lokal",
+      "owners": {
+        "tab-name": "Właściciele"
+      }
     },
     "fields": {
       "login": "Login",
@@ -323,7 +338,8 @@
     "buildings": {
       "places": "Lokale",
       "reports": "Raporty",
-      "loading": "Ładowanie budynków..."
+      "loading": "Ładowanie budynków...",
+      "refresh": "Odśwież listę budynków"
     },
     "costs": {
       "month": "Miesiąc",
@@ -399,7 +415,10 @@
     },
     "places": {
       "loading": "Wczytywanie lokali...",
-      "empty": "Budynek nie istnieje lub nie posiada lokali."
+      "empty": "Budynek nie istnieje lub nie posiada lokali.",
+      "add": "Dodaj lokal",
+      "list": "Lista lokali w budynku",
+      "refresh": "Odśwież listę lokali"
     },
     "add-reading": {
       "add": "Dodaj odczyt",
@@ -454,6 +473,14 @@
       "active": "Używane",
       "loading": "Ładowanie ... ",
       "save": "Zapisz"
+    },
+    "place-owners": {
+      "active": "Aktywny",
+      "remove": "Odłącz",
+      "loading": "Wczytywanie właściceli...",
+      "empty": "Lokal nie posiada przypisanych właścicieli",
+      "add": "Przypisz właściciela do lokalu",
+      "refresh": "Odśwież listę właścicieli"
     }
   },
   "accounting-rule": {
@@ -482,7 +509,18 @@
       "remove-rate-danger": "Tej akcji nie można cofnąć!",
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
-      "place-edit": "Czy na pewno chcesz zaktualizować lokal?"
+      "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
+      "add-place": "Potwierdź dodanie nowego lokalu."
+    },
+    "add-place": {
+      "title": "Dodaj nowy lokal",
+      "cancel": "Anuluj",
+      "add": "Dodaj",
+      "success": "Lokal został dodany.",
+      "response.message": {
+        "place_number_already_taken": "Podany numer lokalu już występuje w tym budynku.",
+        "building_not_found": "Nie udało się dodać lokalu, ponieważ budynek nie istnieje."
+      }
     }
   },
   "access-levels": {

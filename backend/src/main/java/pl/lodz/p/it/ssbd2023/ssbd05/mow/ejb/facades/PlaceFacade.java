@@ -194,4 +194,10 @@ public class PlaceFacade extends AbstractFacade<Place> {
             .setParameter("buildingId", id)
             .getResultList();
     }
+
+    @RolesAllowed(MANAGER)
+    @Override
+    public void create(Place entity) throws AppBaseException {
+        super.create(entity);
+    }
 }

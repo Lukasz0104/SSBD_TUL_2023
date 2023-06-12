@@ -28,6 +28,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
@@ -85,7 +86,7 @@ public class PlaceEndpoint {
     @RolesAllowed({OWNER})
     public Response getPlaceDetailsAsOwner(@PathParam("id") Long id) throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-        return  getPlaceDetails(() -> placeManager.getPlaceDetailsAsOwner(id, login));
+        return getPlaceDetails(() -> placeManager.getPlaceDetailsAsOwner(id, login));
     }
 
     @GET
@@ -93,7 +94,7 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER})
     public Response getPlaceDetailsAsManager(@PathParam("id") Long id) throws AppBaseException {
-        return  getPlaceDetails(() -> placeManager.getPlaceDetailsAsManager(id));
+        return getPlaceDetails(() -> placeManager.getPlaceDetailsAsManager(id));
     }
 
     private Response getPlaceDetails(FunctionThrows<Place> func) throws AppBaseException {
@@ -145,11 +146,18 @@ public class PlaceEndpoint {
         ).build();
     }
 
-    @PUT
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response createPlace() throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response createPlace(@NotNull @Valid CreatePlaceDTO dto) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> placeManager.createPlace(
+                dto.placeNumber(),
+                dto.squareFootage(),
+                dto.residentsNumber(),
+                dto.buildingId()),
+            placeManager
+        ).build();
     }
 
     @GET
@@ -157,7 +165,13 @@ public class PlaceEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response getPlaceOwners(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+                () -> placeManager.getPlaceOwners(id)
+                    .stream()
+                    .map(PlaceDtoConverter::createPlaceOwnerDtoFromOwnerData)
+                    .toList(),
+                placeManager)
+            .build();
     }
 
     @POST

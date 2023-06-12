@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDate, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RateService } from '../../services/rate.service';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { AccountingRule } from '../../model/accounting-rule';
 import { DatePipe } from '@angular/common';
 import { twoDecimalPlacesValidator } from '../../../shared/validators/two-decimal-places.validator';
 import { effectiveDateValidator } from '../../../shared/validators/effective-date.validator';

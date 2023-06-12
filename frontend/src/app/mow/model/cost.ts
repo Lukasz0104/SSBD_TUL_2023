@@ -1,10 +1,3 @@
-export interface CostPage {
-    currentPage: number;
-    data: Cost[];
-    pageSize: number;
-    totalSize: number;
-}
-
 export interface Cost {
     id: number;
     year: number;

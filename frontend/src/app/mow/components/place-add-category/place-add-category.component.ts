@@ -7,7 +7,7 @@ import {
 import { PlaceCategory } from '../../model/place-category';
 import { Observable } from 'rxjs';
 import { PlaceService } from '../../services/place.service';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { AccountingRule } from '../../model/accounting-rule';
 import { AddInitialReadingComponent } from '../add-initial-reading/add-initial-reading.component';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 
