@@ -82,6 +82,11 @@
         "required": "Reading date is required"
       }
     },
+    "amount": {
+      "required": "Consumption value is required",
+      "length": "Consumption value must be grater than 0",
+      "decimal-places": "Consumption value can have only up to 3 decimal places"
+    },
     "active": {
       "required": "Field is required"
     },
@@ -265,7 +270,11 @@
         "title-edit": "Category edit",
         "edit-close": "Finish editing",
         "delete-confirm": "Do you want to remove this category?",
-        "delete-confirm-danger": "This action will change the costs for this place."
+        "delete-confirm-danger": "This action will change the costs for this place.",
+        "add-amount": "Provide consumption",
+        "add-current-forecast-confirm": "Do you really want to add forecast for current month?",
+        "add-current-forecast-danger": "This action will change the costs for this place.",
+        "add-current-forecast-action": "Add forecast for current month"
       },
       "show-categories": "Show payment categories",
       "loading": "Loading ...",
@@ -436,9 +445,8 @@
       "category": "Category",
       "effectiveDate": "Effective Date",
       "rate": "Rate"
-
     },
-    "place-edit":  {
+    "place-edit": {
       "title": "Edit place",
       "placeNumber": "Place number",
       "squareFootage": "Square footage",
@@ -575,7 +583,9 @@
       }
     },
     "forecast": {
-      "get-years-by-place-fail": "Could not get available report years for given place"
+      "get-years-by-place-fail": "Could not get available report years for given place",
+      "add-current-forecast-success": "New forecast has been added",
+      "add-current-forecast-fail": "Could not add forecast for chosen category"
     },
     "report": {
       "get-place-report-fail": "Could not get report",
@@ -786,7 +796,8 @@
         "initial_reading_required": "Initial reading for this category meter is required",
         "optimistic_lock": "Could not add category to chosen place, please try again",
         "rollback.limit.exceeded": "Request timed out",
-        "category_not_found": "Could not find chosen category for place"
+        "category_not_found": "Could not find chosen category for place",
+        "place_not_found": "Chosen place does not exists"
       }
     }
   },
@@ -795,11 +806,27 @@
       "message": {
         "optimistic_lock": "Could not add category to chosen place, please try again",
         "rollback.limit.exceeded": "Request timed out",
-        "illegal_self_action": "You cannot edit your own places",
+        "illegal_self_action": "You cannot perform action on your own place",
         "inactive_place": "Chosen place is inactive",
         "category_not_in_use": "Chosen place doesn't have category, you want to delete",
         "category_not_found": "Could not find chosen category for place",
-        "meter_not_found": "Could not find meter for chosen place and category"
+        "meter_not_found": "Could not find meter for chosen place and category",
+        "place_not_found": "Chosen place does not exists"
+      }
+    }
+  },
+  "add-current-forecast": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Could not add forecast, please try again",
+        "rollback.limit.exceeded": "Request timed out",
+        "place_not_found": "Chosen place does not exists",
+        "illegal_self_action": "You cannot perform action on your own place",
+        "inactive_place": "Chosen place is inactive",
+        "category_not_in_use": "Chosen place doesn't have category, you want to assign forecast to",
+        "rate_not_found": "Could not find rate for chosen place and category",
+        "amount_required": "In order to add forecast for this category, you need to provide consumption",
+        "forecast_already_exists": "There is already a forecast for chosen category in this month"
       }
     }
   },
