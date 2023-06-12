@@ -11,19 +11,21 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactiveMeterException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.NotEnoughDaysAfterInitialReadingException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.NotEnoughDaysBetweenReliableReadingsException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingDateBeforeInitialReadingException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueHigherThanFutureException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueSmallerThanInitialException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueSmallerThanPreviousException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.OwnPlaceReadingAttemptException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReadingManagerLocal;
@@ -53,15 +55,15 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
     private MeterFacade meterFacade;
 
     @Inject
-    private ForecastFacade forecastFacade;
-
-    @Inject
     private ForecastUtils forecastUtils;
 
     @Override
     @RolesAllowed({OWNER})
     public void createReadingAsOwner(Reading reading, Long meterId, String login) throws AppBaseException {
         Meter meter = meterFacade.findByIdAndOwnerLogin(meterId, login).orElseThrow(MeterNotFoundException::new);
+        if (!meter.isActive()) {
+            throw new InactiveMeterException();
+        }
 
         List<Reading> pastReliableReadings = meter.getPastReliableReadings(reading.getDate());
         List<Reading> futureReliableReadings = meter.getFutureReliableReadings(reading.getDate());
@@ -94,8 +96,16 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
     @Override
     @RolesAllowed({MANAGER})
-    public void createReadingAsManager(Reading reading, Long meterId) throws AppBaseException {
+    public void createReadingAsManager(Reading reading, Long meterId, String login) throws AppBaseException {
         Meter meter = meterFacade.find(meterId).orElseThrow(MeterNotFoundException::new);
+        if (!meter.isActive()) {
+            throw new InactiveMeterException();
+        }
+        if (meter.getPlace().getOwners().stream()
+            .filter(OwnerData::isActive)
+            .anyMatch(ownerData -> ownerData.getAccount().getLogin().equals(login))) {
+            throw new OwnPlaceReadingAttemptException();
+        }
 
         List<Reading> pastReliableReadings = meter.getPastReliableReadings(reading.getDate());
         if (pastReliableReadings.size() == 0) {

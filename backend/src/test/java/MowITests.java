@@ -23,11 +23,15 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsManagerDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.ReadingDto;
@@ -103,9 +107,7 @@ public class MowITests extends TestContainersSetup {
             assertNotNull(rates);
             assertEquals(categoriesNumber, rates.size());
         }
-
     }
-
 
     @Nested
     class MOW2 {
@@ -155,6 +157,387 @@ public class MowITests extends TestContainersSetup {
                     .get(URL)
                     .then()
                     .statusCode(403);
+            }
+        }
+    }
+
+    @Nested
+    class MOW10 {
+        private static final String createReadingUrl = "/readings";
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification managerOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            managerOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        static String convertDtoToString(AddReadingAsManagerDto addReadingAsManagerDto) {
+            JSONObject dto = new JSONObject();
+            dto.put("meterId", addReadingAsManagerDto.getMeterId());
+            dto.put("value",
+                addReadingAsManagerDto.getValue() != null ? addReadingAsManagerDto.getValue().toString() : null);
+            dto.put("date",
+                addReadingAsManagerDto.getDate() != null ? addReadingAsManagerDto.getDate().toString() : null);
+            return dto.toString();
+        }
+
+        @Nested
+        public class PositiveCases {
+            @Test
+            void shouldReturnSC204WhenAddingReadingAsOwner() {
+                AddReadingAsOwnerDto dto = new AddReadingAsOwnerDto(10L, BigDecimal.valueOf(500));
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                PlaceReportMonthDto placeReportMonthDto1 = given()
+                    .spec(managerOwnerSpec)
+                    .when()
+                    .get("/reports/place/6/report/month?year=2023&month=10")
+                    .andReturn()
+                    .getBody().as(PlaceReportMonthDto.class);
+
+                PlaceReportMonthDto placeReportMonthDto2 = given()
+                    .spec(managerOwnerSpec)
+                    .when()
+                    .get("/reports/place/6/report/month?year=2023&month=12")
+                    .andReturn()
+                    .getBody().as(PlaceReportMonthDto.class);
+
+                List<PlaceCategoryReportMonthDto> details1 = placeReportMonthDto1.getDetails();
+                PlaceCategoryReportMonthDto coldWaterForecast1 = details1.stream()
+                    .filter(p -> p.getCategoryName().equals("categories.cold_water"))
+                    .findFirst()
+                    .orElseThrow();
+
+                List<PlaceCategoryReportMonthDto> details2 = placeReportMonthDto2.getDetails();
+                PlaceCategoryReportMonthDto coldWaterForecast2 = details2.stream()
+                    .filter(p -> p.getCategoryName().equals("categories.cold_water"))
+                    .findFirst()
+                    .orElseThrow();
+
+                assertEquals(coldWaterForecast2.getValue().doubleValue(), coldWaterForecast1.getValue().doubleValue());
+                assertEquals(coldWaterForecast2.getAmount().doubleValue(),
+                    coldWaterForecast1.getAmount().doubleValue());
+            }
+
+            @Test
+            void shouldReturnSC204WhenAddingReadingAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(9L, BigDecimal.valueOf(500), LocalDate.of(2023, 6, 11));
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                PlaceReportMonthDto placeReportMonthDto = given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get("/reports/place/6/report/month?year=2023&month=10")
+                    .andReturn()
+                    .getBody().as(PlaceReportMonthDto.class);
+
+                List<PlaceCategoryReportMonthDto> details = placeReportMonthDto.getDetails();
+                PlaceCategoryReportMonthDto coldWaterForecast = details.stream()
+                    .filter(p -> p.getCategoryName().equals("categories.hot_water"))
+                    .findFirst()
+                    .orElseThrow();
+
+                assertEquals(821.22, coldWaterForecast.getValue().doubleValue());
+                assertEquals(117.318, coldWaterForecast.getAmount().doubleValue());
+            }
+        }
+
+        @Nested
+        public class NegativeCases {
+            @Test
+            void shouldReturnSC403WHenAddingReadingAsGuest() {
+                AddReadingAsOwnerDto dto1 = new AddReadingAsOwnerDto(1L, BigDecimal.valueOf(120));
+                AddReadingAsManagerDto dto2 = new AddReadingAsManagerDto(1L, BigDecimal.valueOf(120), LocalDate.now());
+
+                given()
+                    .contentType(ContentType.JSON)
+                    .body(dto1)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+                given()
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto2))
+                    .when()
+                    .post(createReadingUrl)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenAddingReadingAsOwnerNotOwningPlace() {
+                AddReadingAsOwnerDto dto1 = new AddReadingAsOwnerDto(1L, BigDecimal.valueOf(520));
+
+                given()
+                    .contentType(ContentType.JSON)
+                    .spec(onlyOwnerSpec)
+                    .body(dto1)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .contentType(ContentType.JSON)
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingReadingAsAdmin() {
+                AddReadingAsOwnerDto dto1 = new AddReadingAsOwnerDto(1L, BigDecimal.valueOf(120));
+                AddReadingAsManagerDto dto2 = new AddReadingAsManagerDto(1L, BigDecimal.valueOf(120), LocalDate.now());
+
+                given()
+                    .spec(onlyAdminSpec)
+                    .body(dto1)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+                given()
+                    .spec(onlyAdminSpec)
+                    .body(dto2)
+                    .when()
+                    .post(createReadingUrl)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingReadingToOwnPlaceAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(8L, BigDecimal.valueOf(620), LocalDate.now());
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then().log().all()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WHenAddingReadingLowerThanPreviousAsOwner() {
+                AddReadingAsOwnerDto dto = new AddReadingAsOwnerDto(9L, BigDecimal.valueOf(100));
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingBeforeInitialReadingAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(8L, BigDecimal.valueOf(620), LocalDate.now().minusYears(3));
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then().log().all()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingTooCloseToInitialReadingAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(7L, BigDecimal.valueOf(620),
+                        LocalDate.of(2021, 12, 2));
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then().log().all()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingTooCloseToPreviousReadingAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(7L, BigDecimal.valueOf(620));
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then().log().all()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithoutValueAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(10L, null);
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithoutValueAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(7L, null, LocalDate.now());
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithoutMeterIdAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(null, BigDecimal.valueOf(456));
+
+                given()
+                    .spec(ownerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithoutMeterIdAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(null, BigDecimal.valueOf(4546), LocalDate.now());
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithNegativeValueAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(7L, BigDecimal.valueOf(-114), LocalDate.now());
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithNegativeValueAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(10L, BigDecimal.valueOf(-456));
+
+                given()
+                    .spec(ownerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
             }
         }
     }
