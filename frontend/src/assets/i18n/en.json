@@ -449,14 +449,13 @@
       "title": "Report",
       "loading": "Loading reports"
     },
-    "place-rates" : {
+    "place-rates": {
       "loading": "Loading rates...",
       "category": "Category",
       "effectiveDate": "Effective Date",
       "rate": "Rate"
-
     },
-    "place-edit":  {
+    "place-edit": {
       "title": "Edit place",
       "placeNumber": "Place number",
       "squareFootage": "Square footage",
@@ -469,7 +468,7 @@
       "active": "Active",
       "remove": "Remove",
       "loading": "Loading owners...",
-      "empty": "There aren't any owner assinged to this place.",
+      "empty": "There aren't any owners assigned to this place.",
       "add": "Assign owner to this place",
       "refresh": "Refresh owners list"
     }

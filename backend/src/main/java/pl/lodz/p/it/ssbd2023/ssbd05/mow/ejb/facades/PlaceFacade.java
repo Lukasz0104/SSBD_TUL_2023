@@ -15,7 +15,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -197,17 +196,8 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @RolesAllowed(MANAGER)
-    public List<OwnerData> findOwnersByPlaceId(Long placeId) {
-        return em.createNamedQuery("Place.findAllOwnersByPlaceId", OwnerData.class)
-            .setParameter("placeId", placeId)
-            .getResultList();
-    }
-
-    @RolesAllowed(MANAGER)
     @Override
     public void create(Place entity) throws AppBaseException {
         super.create(entity);
     }
 }
-
-

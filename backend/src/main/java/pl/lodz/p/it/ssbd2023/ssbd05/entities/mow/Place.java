@@ -110,12 +110,6 @@ import java.util.Set;
             WHERE p.building.id = :buildingId
             """),
     @NamedQuery(
-        name = "Place.findAllOwnersByPlaceId",
-        query = """
-            SELECT p.owners FROM Place p
-            WHERE p.id = :placeId
-            """),
-    @NamedQuery(
         name = "Place.findCurrentRateByPlaceIdNotMatch",
         query = """
             SELECT r FROM Rate r WHERE r.effectiveDate = (SELECT MAX(r2.effectiveDate) FROM Rate r2
@@ -211,7 +205,7 @@ public class Place extends AbstractEntity implements Serializable {
     }
 
     public Place(Long id, Long version, Integer placeNumber, BigDecimal squareFootage,
-            Integer residentsNumber, boolean active) {
+                 Integer residentsNumber, boolean active) {
         super(id, version);
         this.placeNumber = placeNumber;
         this.squareFootage = squareFootage;

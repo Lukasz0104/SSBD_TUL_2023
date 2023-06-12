@@ -690,13 +690,12 @@ public class MowITests extends TestContainersSetup {
             private static final String RETRIEVE_LIST_URL = "/buildings/%d/places".formatted(buildingId);
 
             @Test
-            void shouldCreateRoomAsManagerWithStatusCode200Test() {
+            void shouldCreatePlaceAsManagerWithStatusCode200Test() {
                 int count = given(managerSpec)
                     .when()
                     .get(RETRIEVE_LIST_URL)
                     .then()
                     .statusCode(200)
-                    .body("$.size()", is(3))
                     .extract()
                     .jsonPath().getInt("$.size()");
 
@@ -879,13 +878,34 @@ public class MowITests extends TestContainersSetup {
             }
 
             @Test
-            void shouldGetPlaceOwnersAsManagerReturnEmptyListWhenPlaceDoesNotExistWithStatusCode200Test() {
+            void shouldGetPlaceOwnersReturnEmptyListWhenPlaceHasNoOwnersWithStatusCode200Test() {
+                CreatePlaceDTO dto =
+                    new CreatePlaceDTO(444, BigDecimal.valueOf(38.93), 2, 1L);
+
+                given(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post("/places")
+                    .then()
+                    .statusCode(204);
+
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(8))
+                    .then()
+                    .statusCode(200)
+                    .body("$.size()", is(0));
+            }
+
+            @Test
+            void shouldFailToGetPlaceOwnersAsManagerWhenPlaceDoesNotExistWithStatusCode204Test() {
                 given(managerSpec)
                     .when()
                     .get(BASE_URL.formatted(-123))
                     .then()
-                    .statusCode(200)
-                    .body("$.size()", is(0));
+                    .statusCode(404)
+                    .body("message", is(I18n.PLACE_NOT_FOUND));
             }
         }
 

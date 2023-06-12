@@ -46,6 +46,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -143,7 +144,11 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Override
     @RolesAllowed(MANAGER)
     public List<OwnerData> getPlaceOwners(Long id) throws AppBaseException {
-        return placeFacade.findOwnersByPlaceId(id);
+        return new ArrayList<>(
+            placeFacade.find(id)
+                .map(Place::getOwners)
+                .orElseThrow(PlaceNotFoundException::new));
+
     }
 
     @Override
