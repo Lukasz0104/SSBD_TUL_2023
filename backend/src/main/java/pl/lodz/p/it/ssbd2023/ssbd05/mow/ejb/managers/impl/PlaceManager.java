@@ -35,9 +35,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.AccountFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
@@ -78,14 +77,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     private ForecastFacade forecastFacade;
 
     @Inject
-    private AppProperties appProperties;
-
-    @Inject
     private ForecastUtils forecastUtils;
-
-    @Inject
-    private BuildingFacade buildingFacade;
-
 
     @Override
     @RolesAllowed(MANAGER)
@@ -195,18 +187,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @RolesAllowed(MANAGER)
     public void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value, String login)
         throws AppBaseException {
-        Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
-        if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
-            throw new IllegalSelfActionException();
-        }
-        if (place.getCurrentRates().stream().anyMatch((p) -> p.getCategory().getId().equals(categoryId))) {
-            throw new CategoryInUseException();
-        }
-        if (!place.isActive()) {
-            throw new InactivePlaceException();
-        }
+        Place place = checkIfNotSelfActionAndActivePlaceAndCategoryInUse(placeId, categoryId, login);
         Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(CategoryNotFoundException::new);
-        Meter meter = null;
+        Meter meter;
         if (rate.getAccountingRule().equals(AccountingRule.METER)) {
             try {
                 meter = place.getMeters().stream().filter((m) -> m.getCategory().getId().equals(categoryId)).findFirst()
@@ -254,9 +237,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
         }
     }
 
-    @Override
-    @RolesAllowed(MANAGER)
-    public void removeCategoriesFromPlace(Long placeId, Long categoryId, String login) throws AppBaseException {
+    private Place checkIfNotSelfActionAndActivePlaceAndCategoryInUse(Long placeId, Long categoryId, String login) throws AppBaseException {
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
         if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
             throw new IllegalSelfActionException();
@@ -267,6 +248,13 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
         if (place.getCurrentRates().stream().noneMatch((p) -> p.getCategory().getId().equals(categoryId))) {
             throw new CategoryNotInUseException();
         }
+        return place;
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void removeCategoriesFromPlace(Long placeId, Long categoryId, String login) throws AppBaseException {
+        Place place = checkIfNotSelfActionAndActivePlaceAndCategoryInUse(placeId, categoryId, login);
         Rate rate =
             place.getCurrentRates()
                 .stream().filter(
