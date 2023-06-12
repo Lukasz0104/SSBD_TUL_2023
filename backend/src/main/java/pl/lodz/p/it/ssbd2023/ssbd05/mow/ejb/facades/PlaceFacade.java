@@ -56,6 +56,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         super.edit(entity);
     }
 
+    @Override
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
         return super.findAll();
@@ -193,6 +194,10 @@ public class PlaceFacade extends AbstractFacade<Place> {
             .setParameter("buildingId", id)
             .getResultList();
     }
+
+    @RolesAllowed(MANAGER)
+    @Override
+    public void create(Place entity) throws AppBaseException {
+        super.create(entity);
+    }
 }
-
-

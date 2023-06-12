@@ -43,10 +43,7 @@
                 <strong>{{ 'component.fields.address' | translate }}</strong>
             </p>
             <p>
-                {{ place.building.address.city }},
-                {{ place.building.address.postalCode }},
-                {{ place.building.address.street }},
-                {{ place.building.address.buildingNumber }}
+                {{ place.building.address | address }}
             </p>
             <div
                 *ngIf="authService.isManager()"

@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { OwnPlaceCategory } from '../../model/place-category';
 import { PlaceService } from '../../services/place.service';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
+import { AccountingRule } from '../../model/accounting-rule';
 import { DatePipe } from '@angular/common';
 
 @Component({

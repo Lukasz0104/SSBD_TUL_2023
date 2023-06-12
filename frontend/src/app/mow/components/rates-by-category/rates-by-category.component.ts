@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CategoriesService } from '../../services/categories.service';
 import { EMPTY, Observable, tap } from 'rxjs';
-import { Category } from '../../../shared/model/category';
-import { RatePage } from '../../../shared/model/rate-page';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
-import { Rate } from '../../../shared/model/rate';
+import { Category } from '../../model/category';
+import { AccountingRule } from '../../model/accounting-rule';
+import { Rate } from '../../model/rate';
 import { DatePipe } from '@angular/common';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AddRateComponent } from '../add-rate/add-rate.component';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
-import { RateService } from '../../../auth/services/rate.service';
+import { RateService } from '../../../shared/services/rate.service';
+import { Page } from '../../../shared/model/page';
 
 @Component({
     selector: 'app-rates-by-category',
@@ -18,7 +18,7 @@ import { RateService } from '../../../auth/services/rate.service';
 export class RatesByCategoryComponent implements OnInit {
     @Input() category$: Observable<Category | null> | undefined;
     category: Category | null | undefined;
-    rates$: Observable<RatePage> | undefined;
+    rates$: Observable<Page<Rate>> | undefined;
     currentRateId = -1;
     page = 1;
     pageSize = 10;
