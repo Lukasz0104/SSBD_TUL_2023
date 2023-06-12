@@ -82,6 +82,11 @@
         "required": "Data odczytu jest wymagana"
       }
     },
+    "amount": {
+      "required": "Wartość zużycia jest wymagana.",
+      "length": "Wartość zużycia musi być większa od 0",
+      "decimal-places": "Wartość zużycia może mieć tylko do 3 miejsc po przecinku"
+    },
     "active": {
       "required": "Pole jest wymagane"
     },
@@ -277,7 +282,11 @@
         "title-edit": "Edycja kategorii",
         "edit-close": "Zakończ edycję",
         "delete-confirm": "Czy napewno chcesz usunąć wybraną kategorię z lokalu?",
-        "delete-confirm-danger": "Ta akcja wpłynie na wartość opłat lokalu."
+        "delete-confirm-danger": "Ta akcja wpłynie na wartość opłat lokalu.",
+        "add-amount": "Podaj zużycie",
+        "add-current-forecast-confirm": "Czy napewno chcesz dodać prognozę na aktualny miesiąc?",
+        "add-current-forecast-danger": "Ta akcja wpływanie na wartość opłat lokalu.",
+        "add-current-forecast-action": "Dodaj prognozę na aktualny miesiąc"
       },
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
@@ -373,7 +382,8 @@
       "modified": "Zmodyfikowany",
       "readings": "Odczyty licznika: ",
       "add-reading": "Dodaj odczyt",
-      "next-reading-date": "Następny odczyt"
+      "next-reading-date": "Następny odczyt",
+      "inactive-meter": "Licznik jest nieaktywny"
     },
     "building-report": {
       "year": "Rok",
@@ -455,7 +465,7 @@
       "effectiveDate": "Data ustalenia stawki",
       "rate": "Stawka"
     },
-    "place-edit":  {
+    "place-edit": {
       "title": "Edycja lokalu",
       "placeNumber": "Numer lokalu",
       "squareFootage": "Powierzchnia",
@@ -611,7 +621,9 @@
       }
     },
     "forecast": {
-      "get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu"
+      "get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu",
+      "add-current-forecast-success": "Nowa prognoza została dodana",
+      "add-current-forecast-fail": "Bład podczas dodawania prognozy dla wybranej kategorii"
     },
     "report": {
       "get-place-report-fail": "Bład podczas pobierania raportu",
@@ -628,7 +640,9 @@
           "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów",
           "reading_date_before_initial_reading": "Data odczytu musi być po dacie początkowego odczytu",
           "reading_value_smaller_than_initial": "Wartość odczytu musi być wyższa niż wartość początkowego odczytu",
-          "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu"
+          "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu",
+          "inactive_meter": "Nie udało się dodać odczytu, licznik jest nieaktywny",
+          "own_place_reading_attempt": "Nie udało się dodać odczytu, ponieważ jesteś właścicielem tego lokalu. Spróbuj ponownie z widoku interfejsu właściciela"
         }
       }
     }
@@ -812,7 +826,7 @@
   "add-category": {
     "response": {
       "message": {
-        "illegal_self_action": "Nie można edytować lokalu, którego jesteś właścicielem",
+        "illegal_self_action": "Nie możesz wykonać akcji na własnym lokalu",
         "category_in_use": "Wybrana kategoria jest już przypisana do tego lokalu",
         "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
         "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
@@ -820,7 +834,8 @@
         "initial_reading_required": "Wymagane jest podanie, początkowej wartości odczytu dla licznika tej kategorii",
         "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
-        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu"
+        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu",
+        "place_not_found": "Wybrany lokal nie istnieje"
       }
     }
   },
@@ -829,11 +844,27 @@
       "message": {
         "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
-        "illegal_self_action": "Nie można edytować lokalu, którego jesteś właścicielem",
+        "illegal_self_action": "Nie możesz wykonać akcji na własnym lokalu",
         "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
         "category_not_in_use": "Wybrany lokal nie posiada kategorii, którą chcesz usunąć",
         "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu",
-        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii"
+        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii",
+        "place_not_found": "Wybrany lokal nie istnieje"
+      }
+    }
+  },
+  "add-current-forecast": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Nie udało się dodać prognozy, spróbuj ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "place_not_found": "Wybrany lokal nie istnieje",
+        "illegal_self_action": "Nie możesz wykonać akcji na własnym lokalu",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "category_not_in_use": "Wybrane miejsce nie posiada kategorii, dla której chcesz dodać prognozę",
+        "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
+        "amount_required": "Aby dodać prognozę dla wybranej kategorii, podaj zużycie",
+        "forecast_already_exists": "Już istnieje prognoza na aktualny miesiąc dla wybranej kategorii"
       }
     }
   },

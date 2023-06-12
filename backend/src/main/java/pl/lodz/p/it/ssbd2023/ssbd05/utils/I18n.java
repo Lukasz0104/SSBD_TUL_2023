@@ -162,7 +162,11 @@ public class I18n {
         "response.message.reading_value_smaller_than_initial";
     public static final String NOT_ENOUGH_DAYS_AFTER_INITIAL_READING_EXCEPTION =
         "response.message.not_enough_days_after_initial_reading";
+    public static final String INACTIVE_METER = "response.message.inactive_meter";
+    public static final String OWN_PLACE_READING_ATTEMPT_EXCEPTION = "response.message.own_place_reading_attempt";
     public static final String CATEGORY_NOT_IN_USE = "response.message.category_not_in_use";
+    public static final String AMOUNT_REQUIRED = "response.message.amount_required";
+    public static final String FORECAST_ALREADY_EXISTS = "response.message.forecast_already_exists";
     public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
 
     public static final String BUILDING_NOT_FOUND = "response.message.building_not_found";

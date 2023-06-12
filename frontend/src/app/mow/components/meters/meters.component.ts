@@ -62,9 +62,20 @@ export class MetersComponent implements OnInit {
                         })
                     );
             } else {
-                this.meters$ = this.placeService.getPlaceMetersAsManager(
-                    this.placeId
-                );
+                this.meters$ = this.placeService
+                    .getPlaceMetersAsManager(this.placeId)
+                    .pipe(
+                        tap((meters) => {
+                            meters.forEach((m) => {
+                                if (
+                                    this.openedMeter &&
+                                    m.id === this.openedMeter.getValue().id
+                                ) {
+                                    this.openedMeter.next(m);
+                                }
+                            });
+                        })
+                    );
             }
         }
     }

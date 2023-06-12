@@ -6,6 +6,8 @@ import { Observable } from 'rxjs';
 import { AccountingRule } from '../../model/accounting-rule';
 import { PlaceAddCategoryComponent } from '../place-add-category/place-add-category.component';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
+import { ForecastService } from '../../services/forecast.service';
+import { AddInitialReadingComponent } from '../add-initial-reading/add-initial-reading.component';
 
 @Component({
     selector: 'app-place-categories',
@@ -17,10 +19,12 @@ export class PlaceCategoriesComponent implements OnInit {
     @Input() public id: number | undefined;
     editing = false;
     chosen = -1;
+    isMeter = false;
 
     constructor(
         private placeService: PlaceService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private forecastService: ForecastService
     ) {}
 
     ngOnInit() {
@@ -43,12 +47,14 @@ export class PlaceCategoriesComponent implements OnInit {
         return this.placeService.pictureMap.get(category) ?? 'bi-coin';
     }
 
-    setChosen(id: number) {
+    setChosen(id: number, rule: AccountingRule) {
         if (this.editing) {
             if (this.chosen === id) {
                 this.chosen = -1;
+                this.isMeter = false;
             } else {
                 this.chosen = id;
+                this.isMeter = rule == AccountingRule.METER;
             }
         }
     }
@@ -68,6 +74,7 @@ export class PlaceCategoriesComponent implements OnInit {
                     .subscribe(() => {
                         this.getPlaceCategories();
                         this.chosen = -1;
+                        this.isMeter = false;
                     });
             }
         });
@@ -76,6 +83,7 @@ export class PlaceCategoriesComponent implements OnInit {
     stopEdit() {
         this.editing = false;
         this.chosen = -1;
+        this.isMeter = false;
     }
 
     addCategory() {
@@ -86,6 +94,48 @@ export class PlaceCategoriesComponent implements OnInit {
         modalRef.componentInstance.placeId = this.id;
         modalRef.closed.subscribe(() => {
             this.getPlaceCategories();
+        });
+    }
+
+    addOverdueForecast() {
+        if (this.isMeter) {
+            const modalRef: NgbModalRef = this.modalService.open(
+                AddInitialReadingComponent,
+                { centered: true }
+            );
+            modalRef.componentInstance.value = false;
+            modalRef.closed.subscribe((result) => {
+                if (result > 0 && this.id) {
+                    this.confirm(this.id, this.chosen, result);
+                }
+            });
+        } else {
+            if (this.id) {
+                this.confirm(this.id, this.chosen, null);
+            }
+        }
+    }
+
+    confirm(placeId: number, categoryId: number, amount: number | null) {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message =
+            'component.place.categories.add-current-forecast-confirm';
+        instance.danger =
+            'component.place.categories.add-current-forecast-danger';
+        modalRef.closed.subscribe((res: boolean) => {
+            if (res) {
+                this.forecastService
+                    .addCurrentForecast(placeId, categoryId, amount)
+                    .subscribe(() => {
+                        this.getPlaceCategories();
+                        this.chosen = -1;
+                        this.isMeter = false;
+                    });
+            }
         });
     }
 
