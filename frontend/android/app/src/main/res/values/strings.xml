@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">frontend</string>
+    <string name="title_activity_main">frontend</string>
+    <string name="package_name">pl.lodz.p.it.ssbd2023.ssbd05</string>
+    <string name="custom_url_scheme">pl.lodz.p.it.ssbd2023.ssbd05</string>
+</resources>
