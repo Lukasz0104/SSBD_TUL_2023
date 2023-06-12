@@ -137,6 +137,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         }
     }
 
+
     @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByEffectiveDateAndCategory(LocalDate effectiveDate, Category category) {
         TypedQuery<Rate> tq = em.createNamedQuery("Rate.findByEffectiveDateAndCategory", Rate.class);
@@ -223,7 +224,7 @@ public class RateFacade extends AbstractFacade<Rate> {
     }
 
     @Override
-    @RolesAllowed(MANAGER)
+    @PermitAll
     public Optional<Rate> find(Long id) {
         return super.find(id);
     }

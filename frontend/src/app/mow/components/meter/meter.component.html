@@ -11,19 +11,25 @@
                 (click)="getReadings()"
                 class="me-2 bi bi-arrow-clockwise fs-3 cursor-pointer"></i>
         </div>
-        <button
-            (click)="showAddReadingModal()"
-            *ngIf="isNextReadingBeforeNow() || authService.isManager()"
-            class="btn btn-success text-truncate">
-            {{ 'component.meter.add-reading' | translate }}
-        </button>
-        <span
-            *ngIf="!isNextReadingBeforeNow() && !authService.isManager()"
-            class="">
-            {{ 'component.meter.next-reading-date' | translate }} -
-            <b>{{
-                meter?.getValue()?.dateOfNextReading | date : 'dd/MM/yy HH:mm'
-            }}</b>
+        <span *ngIf="meter?.getValue()?.active">
+            <button
+                (click)="showAddReadingModal()"
+                *ngIf="isNextReadingBeforeNow() || authService.isManager()"
+                class="btn btn-success text-truncate">
+                {{ 'component.meter.add-reading' | translate }}
+            </button>
+            <span
+                *ngIf="!isNextReadingBeforeNow() && !authService.isManager()"
+                class="">
+                {{ 'component.meter.next-reading-date' | translate }} -
+                <b>{{
+                    meter?.getValue()?.dateOfNextReading
+                        | date : 'dd/MM/yy HH:mm'
+                }}</b>
+            </span>
+        </span>
+        <span *ngIf="!meter?.getValue()?.active">
+            {{ 'component.meter.inactive-meter' | translate }}
         </span>
     </div>
     <ng-container *ngIf="readings$ | async as readings; else loadingReadings">
@@ -111,6 +117,12 @@
         </div>
     </ng-container>
 </ng-container>
+
+<ng-template #inactiveMeter>
+    <span>
+        {{ 'component.meter.inactive-meter' | translate }}
+    </span>
+</ng-template>
 
 <ng-template #loadingReadings>
     <div

@@ -88,9 +88,14 @@ export class MeterComponent implements OnInit {
         });
         ref.componentInstance.meterId = this.meter?.getValue().id;
         ref.componentInstance.latestReading = this.meter;
-        ref.result.then(() => {
-            this.readingAdded.emit();
-            this.getReadings();
-        });
+        ref.result
+            .then(() => {
+                this.readingAdded.emit();
+                this.getReadings();
+            })
+            .catch(() => {
+                this.readingAdded.emit();
+                this.getReadings();
+            });
     }
 }

@@ -3,9 +3,11 @@ import { PlaceCategory } from '../../model/place-category';
 import { PlaceService } from '../../services/place.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
-import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { AccountingRule } from '../../../shared/model/accounting-rule';
 import { PlaceAddCategoryComponent } from '../place-add-category/place-add-category.component';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
+import { ForecastService } from '../../services/forecast.service';
+import { AddInitialReadingComponent } from '../add-initial-reading/add-initial-reading.component';
 
 @Component({
     selector: 'app-place-categories',
@@ -15,12 +17,14 @@ import { PlaceAddCategoryComponent } from '../place-add-category/place-add-categ
 export class PlaceCategoriesComponent implements OnInit {
     placeCategories$: Observable<PlaceCategory[]> | undefined;
     @Input() public id: number | undefined;
-    deleting = false;
-    chosen: number[] = [];
+    editing = false;
+    chosen = -1;
+    isMeter = false;
 
     constructor(
         private placeService: PlaceService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private forecastService: ForecastService
     ) {}
 
     ngOnInit() {
@@ -43,32 +47,43 @@ export class PlaceCategoriesComponent implements OnInit {
         return this.placeService.pictureMap.get(category) ?? 'bi-coin';
     }
 
-    addNumbers(id: number) {
-        if (this.deleting && !this.chosen.includes(id)) {
-            this.chosen.push(id);
-        } else {
-            this.chosen.splice(this.chosen.indexOf(id), 1);
+    setChosen(id: number, rule: AccountingRule) {
+        if (this.editing) {
+            if (this.chosen === id) {
+                this.chosen = -1;
+                this.isMeter = false;
+            } else {
+                this.chosen = id;
+                this.isMeter = rule == AccountingRule.METER;
+            }
         }
     }
 
-    onSave() {
-        if (this.chosen.length > 0) {
-            const modalRef: NgbModalRef = this.modalService.open(
-                ConfirmActionComponent,
-                { centered: true }
-            );
-            modalRef.componentInstance.message =
-                'component.place.categories.action-confirm';
-            modalRef.componentInstance.danger = '';
-            modalRef.closed.subscribe((result) => {
-                if (result) {
-                    this.deleting = false;
-                    this.chosen.splice(0);
-                }
-            });
-        } else {
-            this.deleting = false;
-        }
+    removeCategory() {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        modalRef.componentInstance.message =
+            'component.place.categories.delete-confirm';
+        modalRef.componentInstance.danger =
+            'component.place.categories.delete-confirm-danger';
+        modalRef.closed.subscribe((result) => {
+            if (result) {
+                this.placeService
+                    .removeCategory(this.id, this.chosen)
+                    .subscribe(() => {
+                        this.getPlaceCategories();
+                        this.chosen = -1;
+                        this.isMeter = false;
+                    });
+            }
+        });
+    }
+
+    stopEdit() {
+        this.editing = false;
+        this.chosen = -1;
+        this.isMeter = false;
     }
 
     addCategory() {
@@ -79,6 +94,48 @@ export class PlaceCategoriesComponent implements OnInit {
         modalRef.componentInstance.placeId = this.id;
         modalRef.closed.subscribe(() => {
             this.getPlaceCategories();
+        });
+    }
+
+    addOverdueForecast() {
+        if (this.isMeter) {
+            const modalRef: NgbModalRef = this.modalService.open(
+                AddInitialReadingComponent,
+                { centered: true }
+            );
+            modalRef.componentInstance.value = false;
+            modalRef.closed.subscribe((result) => {
+                if (result > 0 && this.id) {
+                    this.confirm(this.id, this.chosen, result);
+                }
+            });
+        } else {
+            if (this.id) {
+                this.confirm(this.id, this.chosen, null);
+            }
+        }
+    }
+
+    confirm(placeId: number, categoryId: number, amount: number | null) {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message =
+            'component.place.categories.add-current-forecast-confirm';
+        instance.danger =
+            'component.place.categories.add-current-forecast-danger';
+        modalRef.closed.subscribe((res: boolean) => {
+            if (res) {
+                this.forecastService
+                    .addCurrentForecast(placeId, categoryId, amount)
+                    .subscribe(() => {
+                        this.getPlaceCategories();
+                        this.chosen = -1;
+                        this.isMeter = false;
+                    });
+            }
         });
     }
 

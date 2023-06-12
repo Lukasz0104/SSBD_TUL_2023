@@ -22,7 +22,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.CategoryNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryInUseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryNotInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InitialReadingRequiredException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
@@ -30,9 +33,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionExcept
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
@@ -42,7 +46,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.ForecastUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,7 +75,17 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     private RateFacade rateFacade;
 
     @Inject
+    private ForecastFacade forecastFacade;
+
+    @Inject
+    private AppProperties appProperties;
+
+    @Inject
     private ForecastUtils forecastUtils;
+
+    @Inject
+    private BuildingFacade buildingFacade;
+
 
     @Override
     @RolesAllowed(MANAGER)
@@ -189,20 +205,21 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
         if (!place.isActive()) {
             throw new InactivePlaceException();
         }
-        Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(RateNotFoundException::new);
+        Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(CategoryNotFoundException::new);
         Meter meter = null;
         if (rate.getAccountingRule().equals(AccountingRule.METER)) {
             try {
-                meter = meterFacade.findByCategoryIdAndPlaceId(categoryId, placeId)
+                meter = place.getMeters().stream().filter((m) -> m.getCategory().getId().equals(categoryId)).findFirst()
                     .orElseThrow(MeterNotFoundException::new);
                 if (meter.getReadings().size() < 1) {
                     if (value == null) {
                         throw new InitialReadingRequiredException();
                     } else {
                         meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
-                        meterFacade.edit(meter);
                     }
                 }
+                meter.setActive(true);
+                meterFacade.edit(meter);
             } catch (MeterNotFoundException mnfe) {
                 if (value == null) {
                     throw new InitialReadingRequiredException();
@@ -224,7 +241,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Override
     @RolesAllowed(MANAGER)
     public boolean checkIfCategoryRequiresReading(Long placeId, Long categoryId) throws AppBaseException {
-        Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(RateNotFoundException::new);
+        Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(CategoryNotFoundException::new);
         if (!rate.getAccountingRule().equals(AccountingRule.METER)) {
             return false;
         }
@@ -239,13 +256,50 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void removeCategoryFromPlace(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public void removeCategoriesFromPlace(Long placeId, Long categoryId, String login) throws AppBaseException {
+        Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
+        if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
+            throw new IllegalSelfActionException();
+        }
+        if (!place.isActive()) {
+            throw new InactivePlaceException();
+        }
+        if (place.getCurrentRates().stream().noneMatch((p) -> p.getCategory().getId().equals(categoryId))) {
+            throw new CategoryNotInUseException();
+        }
+        Rate rate =
+            place.getCurrentRates()
+                .stream().filter(
+                    (r) -> r.getCategory().getId().equals(categoryId))
+                .findFirst()
+                .orElseThrow(CategoryNotFoundException::new);
+        place.getCurrentRates().remove(rate);
+        if (rate.getAccountingRule().equals(AccountingRule.METER)) {
+            place.getMeters().stream().filter(
+                    (m) -> m.getCategory().getId().equals(categoryId))
+                .findFirst()
+                .orElseThrow(MeterNotFoundException::new)
+                .setActive(false);
+        }
+        placeFacade.edit(place);
+        forecastFacade.deleteFutureForecastsByCategoryIdAndPlaceId(categoryId, placeId, Year.now(),
+            LocalDate.now().getMonth());
     }
 
     @Override
     @RolesAllowed(MANAGER)
-    public void editPlaceDetails(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public void editPlaceDetails(Long id, Place newPlace) throws AppBaseException {
+        Place oldPlace = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
+        if (oldPlace.getVersion() != newPlace.getVersion()) {
+            throw new AppOptimisticLockException();
+        }
+
+        oldPlace.setActive(newPlace.isActive());
+        oldPlace.setPlaceNumber(newPlace.getPlaceNumber());
+        oldPlace.setResidentsNumber(newPlace.getResidentsNumber());
+        oldPlace.setSquareFootage(newPlace.getSquareFootage());
+
+        placeFacade.edit(oldPlace);
     }
+
 }

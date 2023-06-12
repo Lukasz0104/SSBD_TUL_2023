@@ -8,7 +8,7 @@ import { PlaceCategory } from '../../model/place-category';
 import { Observable } from 'rxjs';
 import { PlaceService } from '../../services/place.service';
 import { AccountingRule } from '../../../shared/model/accounting-rule';
-import { AddInitialReadingComponent } from './add-initial-reading/add-initial-reading.component';
+import { AddInitialReadingComponent } from '../add-initial-reading/add-initial-reading.component';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 
 @Component({
@@ -55,6 +55,7 @@ export class PlaceAddCategoryComponent implements OnInit {
                             AddInitialReadingComponent,
                             { centered: true }
                         );
+                        modalRef.componentInstance.value = true;
                         modalRef.closed.subscribe((result) => {
                             if (result > 0) {
                                 this.confirm(
@@ -85,20 +86,17 @@ export class PlaceAddCategoryComponent implements OnInit {
         instance.danger = 'component.place.categories.confirm-danger';
         modalRef.closed.subscribe((res: boolean) => {
             if (res) {
-                const addReadingDto: object = {
-                    placeId: this.placeId,
-                    categoryId: categoryId,
-                    newReading: newReading
-                };
-                this.placeService
-                    .addCategory(addReadingDto)
-                    .subscribe((res) => {
-                        if (res) {
-                            this.activeModal.close();
-                        } else {
-                            this.getMissingCategories();
-                        }
-                    });
+                if (this.placeId) {
+                    this.placeService
+                        .addCategory(this.placeId, categoryId, newReading)
+                        .subscribe((res) => {
+                            if (res) {
+                                this.activeModal.close();
+                            } else {
+                                this.getMissingCategories();
+                            }
+                        });
+                }
             }
         });
     }

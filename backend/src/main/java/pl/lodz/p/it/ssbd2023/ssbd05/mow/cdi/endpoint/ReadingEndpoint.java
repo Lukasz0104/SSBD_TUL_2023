@@ -58,6 +58,6 @@ public class ReadingEndpoint {
         return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
             () -> readingManager.createReadingAsManager(
                 ReadingDtoConverter.createReadingFromDto(dto),
-                dto.getMeterId()), readingManager).build();
+                dto.getMeterId(), securityContext.getUserPrincipal().getName()), readingManager).build();
     }
 }

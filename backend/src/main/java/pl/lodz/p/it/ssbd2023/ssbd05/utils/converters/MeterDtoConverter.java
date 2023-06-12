@@ -30,7 +30,8 @@ public class MeterDtoConverter {
             hasReadingInLast30Days = lastReadingDate.isAfter(LocalDateTime.now().minusDays(30));
             dateOfNextReading = lastReadingDate.plusDays(appProperties.getDaysBetweenReadingsForOwner());
         }
-        return new MeterDto(meter.getId(), meter.getCategory().getName(), hasReadingInLast30Days, dateOfNextReading);
+        return new MeterDto(meter.getId(), meter.getCategory().getName(), hasReadingInLast30Days, meter.isActive(),
+            dateOfNextReading);
     }
 
     public List<MeterDto> createMeterDtoListFromMeterList(Set<Meter> meters) {

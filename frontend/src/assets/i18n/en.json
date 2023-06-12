@@ -81,6 +81,27 @@
       "reading-date": {
         "required": "Reading date is required"
       }
+    },
+    "amount": {
+      "required": "Consumption value is required",
+      "length": "Consumption value must be grater than 0",
+      "decimal-places": "Consumption value can have only up to 3 decimal places"
+    },
+    "active": {
+      "required": "Field is required"
+    },
+    "residentsNumber": {
+      "min": "Number of residents must not be negative",
+      "required": "Number of residents is required",
+      "pattern": "Number of residents must be a whole number"
+    },
+    "squareFootage": {
+      "min": "Square footage must be positive",
+      "required": "Square footage is required"
+    },
+    "placeNumber": {
+      "min": "Place number must be positive",
+      "required": "Place number is required"
     }
   },
   "form": {
@@ -233,25 +254,32 @@
     },
     "place": {
       "categories": {
-        "edit": "Delete category",
-        "save": "Save",
         "pln": "PLN",
         "person": "pp",
         "month": "pm",
         "title": "Place payment categories",
-        "title-edit": "Choose category you want to delete",
-        "action-confirm": "Are you sure, you want to remove chosen categories from this place?",
         "loading": "Loading categories ...",
         "cancel": "Cancel",
         "no-missing-categories": "Place has all available categories assigned",
         "choose-missing": "Add new category to place",
         "confirm": "Do you want to add this category?",
         "confirm-danger": "This action will add additional charge to chosen place.",
-        "tab-name": "Categories"
+        "tab-name": "Categories",
+        "delete": "Delete chosen category",
+        "edit": "Edit",
+        "title-edit": "Category edit",
+        "edit-close": "Finish editing",
+        "delete-confirm": "Do you want to remove this category?",
+        "delete-confirm-danger": "This action will change the costs for this place.",
+        "add-amount": "Provide consumption",
+        "add-current-forecast-confirm": "Do you really want to add forecast for current month?",
+        "add-current-forecast-danger": "This action will change the costs for this place.",
+        "add-current-forecast-action": "Add forecast for current month"
       },
       "show-categories": "Show payment categories",
       "loading": "Loading ...",
-      "data": "Place"
+      "data": "Place",
+      "edit-place": "Edit place"
     },
     "fields": {
       "login": "Login",
@@ -338,7 +366,8 @@
       "modified": "Modified",
       "readings": "Readings of: ",
       "add-reading": "Add reading",
-      "next-reading-date": "Next reading"
+      "next-reading-date": "Next reading",
+      "inactive-meter": "Meter is inactive"
     },
     "building-report": {
       "year": "Year",
@@ -411,12 +440,20 @@
       "title": "Report",
       "loading": "Loading reports"
     },
-    "place-rates" : {
+    "place-rates": {
       "loading": "Loading rates...",
       "category": "Category",
       "effectiveDate": "Effective Date",
       "rate": "Rate"
-
+    },
+    "place-edit": {
+      "title": "Edit place",
+      "placeNumber": "Place number",
+      "squareFootage": "Square footage",
+      "residentsNumber": "Number of residents",
+      "active": "In use",
+      "loading": "Loading ... ",
+      "save": "Save"
     }
   },
   "accounting-rule": {
@@ -444,7 +481,8 @@
       "remove-rate": "Are you sure you want to remove this rate?",
       "remove-rate-danger": "This action cannot be undone!",
       "add-rate": "Are you sure, you want to add this rate?",
-      "add-reading": "Are you sure, you want to add this reading?"
+      "add-reading": "Are you sure, you want to add this reading?",
+      "place-edit": "Are you sure, you want update this place?"
     }
   },
   "access-levels": {
@@ -518,7 +556,20 @@
       "add-category-fail": "Could not add category to chosen place",
       "add-category-success": "Category added to chosen place",
       "check-if-reading-needed-fail": "Could not verify, if category needs reading",
-      "get-missing-categories-fail": "Could not get missing categories"
+      "get-missing-categories-fail": "Could not get missing categories",
+      "remove-category-fail": "Could not remove category from chosen place",
+      "remove-category-success": "Category has been removed from chosen place",
+      "fail": "Error loading place"
+    },
+    "place-edit": {
+      "fail": "Error editing place",
+      "success": "Place updated successfully",
+      "response": {
+        "message": {
+          "place_number_already_taken": "Given place number already exist in a chosen building",
+          "optimistic_lock": "Place has been already edited by someone else, please reload the page and try again"
+        }
+      }
     },
     "rate": {
       "remove-success": "Successfully removed the rate",
@@ -532,7 +583,9 @@
       }
     },
     "forecast": {
-      "get-years-by-place-fail": "Could not get available report years for given place"
+      "get-years-by-place-fail": "Could not get available report years for given place",
+      "add-current-forecast-success": "New forecast has been added",
+      "add-current-forecast-fail": "Could not add forecast for chosen category"
     },
     "report": {
       "get-place-report-fail": "Could not get report",
@@ -546,7 +599,12 @@
         "message": {
           "reading_value_smaller_than_previous": "Reading value must be higher than value of previous reading",
           "not_enough_days_between_reliable_readings": "Not enough days since last reading",
-          "reading_value_higher_than_future": "Reading value must be lower than values of future readings"
+          "reading_value_higher_than_future": "Reading value must be lower than values of future readings",
+          "reading_date_before_initial_reading": "Reading date must be after the date of initial reading",
+          "reading_value_smaller_than_initial": "Reading value must be higher than value of initial reading",
+          "not_enough_days_after_initial_reading": "Reading date must be at least 1 day after initial reading",
+          "inactive_meter": "Failed to add reading, meter is inactive",
+          "own_place_reading_attempt": "Failed to add reading, you are owner of this place. Try again from owner view."
         }
       }
     }
@@ -737,7 +795,38 @@
         "meter_not_found": "Could not find meter for chosen place and category",
         "initial_reading_required": "Initial reading for this category meter is required",
         "optimistic_lock": "Could not add category to chosen place, please try again",
-        "rollback.limit.exceeded": "Request timed out"
+        "rollback.limit.exceeded": "Request timed out",
+        "category_not_found": "Could not find chosen category for place",
+        "place_not_found": "Chosen place does not exists"
+      }
+    }
+  },
+  "remove-category": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Could not add category to chosen place, please try again",
+        "rollback.limit.exceeded": "Request timed out",
+        "illegal_self_action": "You cannot perform action on your own place",
+        "inactive_place": "Chosen place is inactive",
+        "category_not_in_use": "Chosen place doesn't have category, you want to delete",
+        "category_not_found": "Could not find chosen category for place",
+        "meter_not_found": "Could not find meter for chosen place and category",
+        "place_not_found": "Chosen place does not exists"
+      }
+    }
+  },
+  "add-current-forecast": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Could not add forecast, please try again",
+        "rollback.limit.exceeded": "Request timed out",
+        "place_not_found": "Chosen place does not exists",
+        "illegal_self_action": "You cannot perform action on your own place",
+        "inactive_place": "Chosen place is inactive",
+        "category_not_in_use": "Chosen place doesn't have category, you want to assign forecast to",
+        "rate_not_found": "Could not find rate for chosen place and category",
+        "amount_required": "In order to add forecast for this category, you need to provide consumption",
+        "forecast_already_exists": "There is already a forecast for chosen category in this month"
       }
     }
   },

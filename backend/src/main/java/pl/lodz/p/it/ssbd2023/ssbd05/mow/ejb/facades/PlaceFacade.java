@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -19,7 +20,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.PlaceFacadeExceptionInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.PlaceFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
@@ -32,7 +33,7 @@ import java.util.Optional;
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
     GenericFacadeExceptionsInterceptor.class,
-    PlaceFacadeExceptionInterceptor.class,
+    PlaceFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class
 })
 public class PlaceFacade extends AbstractFacade<Place> {
@@ -54,6 +55,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return super.findAll();
     }
 
+
+    @Override
+    @PermitAll
+    public Optional<Place> find(Long id) {
+        return super.find(id);
+    }
+
     @Override
     @RolesAllowed(MANAGER)
     public void edit(Place entity) throws AppBaseException {
@@ -70,12 +78,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
         } catch (NoResultException nre) {
             return Optional.empty();
         }
-    }
-
-    @Override
-    @RolesAllowed({MANAGER})
-    public Optional<Place> find(Long id) {
-        return super.find(id);
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -113,7 +115,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Place> findByActive(boolean active) {
         TypedQuery<Place> tq;
         if (active) {

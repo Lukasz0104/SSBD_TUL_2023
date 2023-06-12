@@ -92,7 +92,7 @@
                 <div class="m-3">
                     <app-place-details
                         [id]="place.id"
-                        *ngIf="tab === 1" />
+                        *ngIf="tab === 1"></app-place-details>
                     <app-meters
                         [placeId]="place.id"
                         *ngIf="tab === 2" />
@@ -102,9 +102,7 @@
                     <app-place-rates
                         [id]="place.id"
                         *ngIf="
-                            tab === 4 &&
-                            place.active === true &&
-                            authService.isOwner()
+                            tab === 4 && place.active && authService.isOwner()
                         " />
                     <app-place-categories
                         [id]="place.id"

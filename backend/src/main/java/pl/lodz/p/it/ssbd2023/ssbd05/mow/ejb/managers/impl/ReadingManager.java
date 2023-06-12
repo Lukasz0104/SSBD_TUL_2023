@@ -11,16 +11,21 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactiveMeterException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.NotEnoughDaysAfterInitialReadingException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.NotEnoughDaysBetweenReliableReadingsException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingDateBeforeInitialReadingException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueHigherThanFutureException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueSmallerThanInitialException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueSmallerThanPreviousException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.OwnPlaceReadingAttemptException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReadingManagerLocal;
@@ -50,18 +55,18 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
     private MeterFacade meterFacade;
 
     @Inject
-    private ForecastFacade forecastFacade;
-
-    @Inject
     private ForecastUtils forecastUtils;
 
     @Override
     @RolesAllowed({OWNER})
     public void createReadingAsOwner(Reading reading, Long meterId, String login) throws AppBaseException {
         Meter meter = meterFacade.findByIdAndOwnerLogin(meterId, login).orElseThrow(MeterNotFoundException::new);
+        if (!meter.isActive()) {
+            throw new InactiveMeterException();
+        }
 
-        List<Reading> pastReliableReadings = meter.getPastReliableReadings();
-        List<Reading> futureReliableReadings = meter.getFutureReliableReadings();
+        List<Reading> pastReliableReadings = meter.getPastReliableReadings(reading.getDate());
+        List<Reading> futureReliableReadings = meter.getFutureReliableReadings(reading.getDate());
 
         if (pastReliableReadings.size() > 0) {
             Reading lastReliableReading = pastReliableReadings.get(0);
@@ -91,20 +96,41 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
     @Override
     @RolesAllowed({MANAGER})
-    public void createReadingAsManager(Reading reading, Long meterId) throws AppBaseException {
+    public void createReadingAsManager(Reading reading, Long meterId, String login) throws AppBaseException {
         Meter meter = meterFacade.find(meterId).orElseThrow(MeterNotFoundException::new);
+        if (!meter.isActive()) {
+            throw new InactiveMeterException();
+        }
+        if (meter.getPlace().getOwners().stream()
+            .filter(OwnerData::isActive)
+            .anyMatch(ownerData -> ownerData.getAccount().getLogin().equals(login))) {
+            throw new OwnPlaceReadingAttemptException();
+        }
 
-        List<Reading> pastReliableReadings = meter.getPastReliableReadings();
-        List<Reading> futureReliableReadings = meter.getFutureReliableReadings();
+        List<Reading> pastReliableReadings = meter.getPastReliableReadings(reading.getDate());
+        if (pastReliableReadings.size() == 0) {
+            throw new ReadingDateBeforeInitialReadingException();
+        }
+        if (pastReliableReadings.get(pastReliableReadings.size() - 1).getDate()
+            .until(reading.getDate(), ChronoUnit.DAYS) < 1) {
+            throw new NotEnoughDaysAfterInitialReadingException();
+        }
+        if (reading.getValue().compareTo(pastReliableReadings.get(pastReliableReadings.size() - 1).getValue()) < 0) {
+            throw new ReadingValueSmallerThanInitialException();
+        }
 
         pastReliableReadings.stream()
             .filter(r ->
-                r.getValue().compareTo(reading.getValue()) >= 0
-                    || r.getDate().until(reading.getDate(), ChronoUnit.DAYS) < 0)
+                r.getValue().compareTo(reading.getValue()) > 0
+                    || r.getDate().until(reading.getDate(), ChronoUnit.DAYS) < 1)
             .forEach(r -> r.setReliable(false));
 
+
+        List<Reading> futureReliableReadings = meter.getFutureReliableReadings(reading.getDate());
         futureReliableReadings.stream()
-            .filter(r -> r.getValue().compareTo(reading.getValue()) < 0)
+            .filter(r ->
+                r.getValue().compareTo(reading.getValue()) < 0
+                    || reading.getDate().until(r.getDate(), ChronoUnit.DAYS) < 1)
             .forEach(r -> r.setReliable(false));
 
         reading.setMeter(meter);

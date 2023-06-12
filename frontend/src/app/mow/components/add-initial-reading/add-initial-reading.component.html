@@ -2,7 +2,10 @@
     <h2
         class="modal-title"
         id="modal-basic-title">
-        {{ 'component.add-reading.add' | translate }}
+        <span *ngIf="value">{{ 'component.add-reading.add' | translate }}</span>
+        <span *ngIf="!value">{{
+            'component.place.categories.add-amount' | translate
+        }}</span>
     </h2>
 </div>
 <div class="modal-body px-4 py-2">
@@ -35,20 +38,35 @@
                             <p
                                 *ngIf="bnErrors['required']"
                                 class="mb-0">
-                                {{ 'validation.reading.required' | translate }}
+                                <span *ngIf="value">{{
+                                    'validation.reading.required' | translate
+                                }}</span>
+                                <span *ngIf="!value">{{
+                                    'validation.amount.required' | translate
+                                }}</span>
                             </p>
+
                             <p
                                 *ngIf="bnErrors['min']"
                                 class="mb-0">
-                                {{ 'validation.reading.length' | translate }}
+                                <span *ngIf="value">{{
+                                    'validation.reading.length' | translate
+                                }}</span>
+                                <span *ngIf="!value">{{
+                                    'validation.amount.length' | translate
+                                }}</span>
                             </p>
                             <p
                                 *ngIf="bnErrors['invalidDecimal']"
                                 class="mb-0">
-                                {{
+                                <span *ngIf="value">{{
                                     'validation.reading.decimal-places'
                                         | translate
-                                }}
+                                }}</span>
+                                <span *ngIf="!value">{{
+                                    'validation.amount.decimal-places'
+                                        | translate
+                                }}</span>
                             </p>
                         </div>
                     </div>
