@@ -54,7 +54,15 @@ import java.time.Year;
             AND f.year = :year
             AND f.month > :month
             """),
-
+    @NamedQuery(
+        name = "Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterOrEqualMonth",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.place.id = :place
+            AND f.rate.category.id = :categoryId
+            AND f.year = :year
+            AND f.month >= :month
+            """),
     // place queries
     @NamedQuery(
         name = "Forecast.findByPlaceId",
@@ -194,7 +202,7 @@ public class Forecast extends AbstractEntity implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "rate_id", referencedColumnName = "id", updatable = false, nullable = false)
+    @JoinColumn(name = "rate_id", referencedColumnName = "id", nullable = false)
     @Getter
     @Setter
     private Rate rate;

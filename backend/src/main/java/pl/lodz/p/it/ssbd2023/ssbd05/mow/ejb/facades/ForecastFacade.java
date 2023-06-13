@@ -49,7 +49,7 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
     }
 
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public void edit(Forecast forecast) throws AppBaseException {
         super.edit(forecast);
     }
@@ -125,10 +125,22 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         return tq.getResultList();
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Forecast> findFutureByPlaceIdAndCategoryAndYear(Long placeId, Long categoryId, Year year, Month month) {
         TypedQuery<Forecast> tq =
             em.createNamedQuery("Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterMonth", Forecast.class);
+        tq.setParameter("place", placeId);
+        tq.setParameter("categoryId", categoryId);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+        return tq.getResultList();
+    }
+
+    @PermitAll
+    public List<Forecast> findFutureAndCurrentByPlaceIdAndCategoryAndYear(Long placeId, Long categoryId, Year year,
+                                                                          Month month) {
+        TypedQuery<Forecast> tq =
+            em.createNamedQuery("Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterOrEqualMonth", Forecast.class);
         tq.setParameter("place", placeId);
         tq.setParameter("categoryId", categoryId);
         tq.setParameter("year", year);

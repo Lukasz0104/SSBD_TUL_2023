@@ -83,11 +83,12 @@ import java.util.Set;
         name = "Place.findByAddressAndInactive",
         query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false"),
     @NamedQuery(
-        name = "Place.findByLogin",
+        name = "Place.findActiveByOwnerLogin",
         query = """
             SELECT p FROM Place p
             JOIN p.owners od
             WHERE od.account.login = :login
+            AND p.active = true
             ORDER BY p.id
             """),
     @NamedQuery(
@@ -198,8 +199,8 @@ public class Place extends AbstractEntity implements Serializable {
         this.building = building;
     }
 
-    public Place(Long id, Long version, Integer placeNumber, BigDecimal squareFootage, 
-            Integer residentsNumber, boolean active) {
+    public Place(Long id, Long version, Integer placeNumber, BigDecimal squareFootage,
+                 Integer residentsNumber, boolean active) {
         super(id, version);
         this.placeNumber = placeNumber;
         this.squareFootage = squareFootage;
