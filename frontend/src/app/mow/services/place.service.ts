@@ -5,11 +5,13 @@ import {
     HttpHeaders
 } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { OwnPlaceCategory, PlaceCategory } from '../model/place-category';
 import { catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
-import { Place, PlaceEdit } from '../model/place';
+import { CreatePlaceDto, Place, PlaceEdit, PlaceOwner } from '../model/place';
+import { OwnPlaceCategory, PlaceCategory } from '../model/place-category';
 import { Meter } from '../model/meter';
 import { ToastService } from '../../shared/services/toast.service';
+
+type MessageResponse = { message: string };
 
 @Injectable({
     providedIn: 'root'
@@ -164,6 +166,13 @@ export class PlaceService {
         return this.http.get<Meter[]>(`${this.BASE_URL}/${id}/meters`);
     }
 
+    addPlace(dto: CreatePlaceDto): Observable<string | null> {
+        return this.http.post<MessageResponse | null>(this.BASE_URL, dto).pipe(
+            map((response) => response?.message),
+            catchError((e: HttpErrorResponse) => of(e.error.message))
+        );
+    }
+
     handleError(
         genericMessageKey: string,
         method: string,
@@ -198,5 +207,11 @@ export class PlaceService {
                     return of(true);
                 })
             );
+    }
+
+    getPlaceOwners(placeId: number): Observable<PlaceOwner[]> {
+        return this.http.get<PlaceOwner[]>(
+            `${this.BASE_URL}/${placeId}/owners`
+        );
     }
 }

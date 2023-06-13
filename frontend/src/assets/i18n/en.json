@@ -82,6 +82,11 @@
         "required": "Reading date is required"
       }
     },
+    "amount": {
+      "required": "Consumption value is required",
+      "length": "Consumption value must be grater than 0",
+      "decimal-places": "Consumption value can have only up to 3 decimal places"
+    },
     "active": {
       "required": "Field is required"
     },
@@ -97,6 +102,18 @@
     "placeNumber": {
       "min": "Place number must be positive",
       "required": "Place number is required"
+    },
+    "place-number": {
+      "required": "Place number is required.",
+      "min": "Place number must be greater than or equal to "
+    },
+    "square-footage": {
+      "required": "Square footage is required.",
+      "min": "Square footage must be greater than or equal to "
+    },
+    "residents-number": {
+      "required": "Residents number is required.",
+      "min": "Number of residents must be greater than or equal to "
     }
   },
   "form": {
@@ -265,12 +282,19 @@
         "title-edit": "Category edit",
         "edit-close": "Finish editing",
         "delete-confirm": "Do you want to remove this category?",
-        "delete-confirm-danger": "This action will change the costs for this place."
+        "delete-confirm-danger": "This action will change the costs for this place.",
+        "add-amount": "Provide consumption",
+        "add-current-forecast-confirm": "Do you really want to add forecast for current month?",
+        "add-current-forecast-danger": "This action will change the costs for this place.",
+        "add-current-forecast-action": "Add forecast for current month"
       },
       "show-categories": "Show payment categories",
       "loading": "Loading ...",
       "data": "Place",
-      "edit-place": "Edit place"
+      "edit-place": "Edit place",
+      "owners": {
+        "tab-name": "Owners"
+      }
     },
     "fields": {
       "login": "Login",
@@ -314,7 +338,8 @@
     "buildings": {
       "places": "Places",
       "reports": "Reports",
-      "loading": "Loading buildings..."
+      "loading": "Loading buildings...",
+      "refresh": "Refresh building list"
     },
     "costs": {
       "month": "Month",
@@ -390,7 +415,10 @@
     },
     "places": {
       "loading": "Loading places...",
-      "empty": "Building does not exists or it does not have any places."
+      "empty": "Building does not exists or it does not have any places.",
+      "add": "Add place",
+      "list": "List of places in building",
+      "refresh": "Refresh places list"
     },
     "add-reading": {
       "add": "Add reading",
@@ -436,9 +464,8 @@
       "category": "Category",
       "effectiveDate": "Effective Date",
       "rate": "Rate"
-
     },
-    "place-edit":  {
+    "place-edit": {
       "title": "Edit place",
       "placeNumber": "Place number",
       "squareFootage": "Square footage",
@@ -446,6 +473,14 @@
       "active": "In use",
       "loading": "Loading ... ",
       "save": "Save"
+    },
+    "place-owners": {
+      "active": "Active",
+      "remove": "Remove",
+      "loading": "Loading owners...",
+      "empty": "There aren't any owners assigned to this place.",
+      "add": "Assign owner to this place",
+      "refresh": "Refresh owners list"
     }
   },
   "accounting-rule": {
@@ -474,7 +509,18 @@
       "remove-rate-danger": "This action cannot be undone!",
       "add-rate": "Are you sure, you want to add this rate?",
       "add-reading": "Are you sure, you want to add this reading?",
-      "place-edit": "Are you sure, you want update this place?"
+      "place-edit": "Are you sure, you want update this place?",
+      "add-place": "Confirm adding new place."
+    },
+    "add-place": {
+      "title": "Add new place",
+      "cancel": "Cancel",
+      "add": "Add",
+      "success": "Place was added.",
+      "response.message": {
+        "place_number_already_taken": "Place number was already used in this building.",
+        "building_not_found": "Place was not added because the building does not exist."
+      }
     }
   },
   "access-levels": {
@@ -575,7 +621,9 @@
       }
     },
     "forecast": {
-      "get-years-by-place-fail": "Could not get available report years for given place"
+      "get-years-by-place-fail": "Could not get available report years for given place",
+      "add-current-forecast-success": "New forecast has been added",
+      "add-current-forecast-fail": "Could not add forecast for chosen category"
     },
     "report": {
       "get-place-report-fail": "Could not get report",
@@ -786,7 +834,8 @@
         "initial_reading_required": "Initial reading for this category meter is required",
         "optimistic_lock": "Could not add category to chosen place, please try again",
         "rollback.limit.exceeded": "Request timed out",
-        "category_not_found": "Could not find chosen category for place"
+        "category_not_found": "Could not find chosen category for place",
+        "place_not_found": "Chosen place does not exists"
       }
     }
   },
@@ -795,11 +844,27 @@
       "message": {
         "optimistic_lock": "Could not add category to chosen place, please try again",
         "rollback.limit.exceeded": "Request timed out",
-        "illegal_self_action": "You cannot edit your own places",
+        "illegal_self_action": "You cannot perform action on your own place",
         "inactive_place": "Chosen place is inactive",
         "category_not_in_use": "Chosen place doesn't have category, you want to delete",
         "category_not_found": "Could not find chosen category for place",
-        "meter_not_found": "Could not find meter for chosen place and category"
+        "meter_not_found": "Could not find meter for chosen place and category",
+        "place_not_found": "Chosen place does not exists"
+      }
+    }
+  },
+  "add-current-forecast": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Could not add forecast, please try again",
+        "rollback.limit.exceeded": "Request timed out",
+        "place_not_found": "Chosen place does not exists",
+        "illegal_self_action": "You cannot perform action on your own place",
+        "inactive_place": "Chosen place is inactive",
+        "category_not_in_use": "Chosen place doesn't have category, you want to assign forecast to",
+        "rate_not_found": "Could not find rate for chosen place and category",
+        "amount_required": "In order to add forecast for this category, you need to provide consumption",
+        "forecast_already_exists": "There is already a forecast for chosen category in this month"
       }
     }
   },

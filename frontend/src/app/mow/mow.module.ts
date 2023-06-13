@@ -22,9 +22,11 @@ import { PlacesComponent } from './components/places/places.component';
 import { PlaceEditComponent } from './components/place-edit/place-edit.component';
 import { PlaceDetailsComponent } from './components/place-details/place-details.component';
 import { PlaceAddCategoryComponent } from './components/place-add-category/place-add-category.component';
-import { AddInitialReadingComponent } from './components/place-add-category/add-initial-reading/add-initial-reading.component';
+import { AddInitialReadingComponent } from './components/add-initial-reading/add-initial-reading.component';
 import { CostComponent } from './components/cost/cost.component';
 import { PlaceRatesComponent } from './components/place-rates/place-rates.component';
+import { AddPlaceComponent } from './components/add-place/add-place.component';
+import { PlaceOwnersComponent } from './components/place-owners/place-owners.component';
 
 @NgModule({
     declarations: [
@@ -46,10 +48,11 @@ import { PlaceRatesComponent } from './components/place-rates/place-rates.compon
         CostComponent,
         PlaceEditComponent,
         PlaceRatesComponent,
-        PlaceComponent,
         PlaceDetailsComponent,
         PlaceAddCategoryComponent,
-        AddInitialReadingComponent
+        AddInitialReadingComponent,
+        AddPlaceComponent,
+        PlaceOwnersComponent
     ],
     imports: [
         CommonModule,

@@ -5,7 +5,8 @@ import { ToastService } from '../../shared/services/toast.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppConfigService } from '../../shared/services/app-config.service';
-import { Cost, CostPage } from '../model/cost';
+import { Cost } from '../model/cost';
+import { Page } from '../../shared/model/page';
 
 @Injectable({
     providedIn: 'root'
@@ -28,7 +29,7 @@ export class CostsService {
         year: string | undefined,
         categoryName: string | undefined
     ) {
-        return this.http.get<CostPage>(this.costsUrl, {
+        return this.http.get<Page<Cost>>(this.costsUrl, {
             params: {
                 page,
                 pageSize,

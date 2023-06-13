@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AppConfigService } from '../../shared/services/app-config.service';
 import { Observable } from 'rxjs';
-import { ReadingPage } from '../model/reading-page';
+import { Page } from '../../shared/model/page';
+import { Reading } from '../model/reading';
 
 @Injectable({
     providedIn: 'root'
@@ -16,8 +17,8 @@ export class MeterService {
         meterId: number,
         page: number,
         pageSize: number
-    ): Observable<ReadingPage> {
-        return this.http.get<ReadingPage>(
+    ): Observable<Page<Reading>> {
+        return this.http.get<Page<Reading>>(
             `${this.BASE_URL}/me/${meterId}/readings?page=${page}&pageSize=${pageSize}`
         );
     }
@@ -26,8 +27,8 @@ export class MeterService {
         meterId: number,
         page: number,
         pageSize: number
-    ): Observable<ReadingPage> {
-        return this.http.get<ReadingPage>(
+    ): Observable<Page<Reading>> {
+        return this.http.get<Page<Reading>>(
             `${this.BASE_URL}/${meterId}/readings?page=${page}&pageSize=${pageSize}`
         );
     }

@@ -22,8 +22,8 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { EditPersonalDataAsAdminComponent } from '../edit-personal-data-as-admin/edit-personal-data-as-admin.component';
 import { GrantAccessLevelComponent } from '../grant-access-level/grant-access-level.component';
-import { AccountPage } from '../../../shared/model/account-page';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Page } from '../../../shared/model/page';
 
 @Component({
     selector: 'app-accounts',
@@ -32,7 +32,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 export class AccountsComponent implements OnInit {
     protected readonly accessTypeEnum = AccessLevels;
 
-    accountsPage$: Observable<AccountPage> | undefined;
+    accountsPage$: Observable<Page<Account>> | undefined;
     page = 1;
     pageSize = 10;
     phrase = '';

@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Meter } from '../../model/meter';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { ReadingPage } from '../../model/reading-page';
 import { AuthService } from '../../../shared/services/auth.service';
 import { MeterService } from '../../services/meter.service';
 import { DatePipe } from '@angular/common';
 import { Reading } from '../../model/reading';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AddReadingComponent } from '../add-reading/add-reading.component';
+import { Page } from '../../../shared/model/page';
 
 @Component({
     selector: 'app-meter',
@@ -15,7 +15,7 @@ import { AddReadingComponent } from '../add-reading/add-reading.component';
 })
 export class MeterComponent implements OnInit {
     @Input() public meter: BehaviorSubject<Meter> | undefined;
-    readings$: Observable<ReadingPage> | undefined;
+    readings$: Observable<Page<Reading>> | undefined;
     page = 1;
     pageSize = 5;
 

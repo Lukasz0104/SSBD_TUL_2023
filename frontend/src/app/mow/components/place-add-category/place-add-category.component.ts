@@ -7,8 +7,8 @@ import {
 import { PlaceCategory } from '../../model/place-category';
 import { Observable } from 'rxjs';
 import { PlaceService } from '../../services/place.service';
-import { AccountingRule } from '../../../shared/model/accounting-rule';
-import { AddInitialReadingComponent } from './add-initial-reading/add-initial-reading.component';
+import { AccountingRule } from '../../model/accounting-rule';
+import { AddInitialReadingComponent } from '../add-initial-reading/add-initial-reading.component';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 
 @Component({
@@ -55,6 +55,7 @@ export class PlaceAddCategoryComponent implements OnInit {
                             AddInitialReadingComponent,
                             { centered: true }
                         );
+                        modalRef.componentInstance.value = true;
                         modalRef.closed.subscribe((result) => {
                             if (result > 0) {
                                 this.confirm(

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from '../../shared/services/app-config.service';
 import { HttpClient } from '@angular/common/http';
-import { Category } from '../../shared/model/category';
-import { RatePage } from '../../shared/model/rate-page';
+import { Category } from '../model/category';
+import { Page } from '../../shared/model/page';
+import { Rate } from '../model/rate';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +19,7 @@ export class CategoriesService {
     }
 
     getRatesByCategory(categoryId: number, page: number, pageSize: number) {
-        return this.http.get<RatePage>(
+        return this.http.get<Page<Rate>>(
             `${this.appConfig.apiUrl}/categories/${categoryId}/rates?page=${page}&pageSize=${pageSize}`
         );
     }

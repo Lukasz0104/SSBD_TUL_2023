@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { AppConfigService } from '../../shared/services/app-config.service';
-import { PublicRate } from '../../shared/model/rate';
-import { ToastService } from '../../shared/services/toast.service';
+import { AppConfigService } from './app-config.service';
+import { PublicRate } from '../../mow/model/rate';
+import { ToastService } from './toast.service';
 import { catchError, map, of, tap } from 'rxjs';
 
 @Injectable({

@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
@@ -26,6 +27,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryNotInUseExceptio
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InitialReadingRequiredException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.BuildingNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
@@ -44,6 +46,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -76,7 +79,6 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private BuildingFacade buildingFacade;
-
 
     @Override
     @RolesAllowed(MANAGER)
@@ -130,14 +132,23 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void createPlace() throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public void createPlace(Integer placeNumber, BigDecimal squareFootage, Integer residentsNumber, Long buildingId)
+        throws AppBaseException {
+        Building building = buildingFacade.find(buildingId).orElseThrow(BuildingNotFoundException::new);
+
+        Place place = new Place(placeNumber, squareFootage, residentsNumber, true, building);
+
+        placeFacade.create(place);
     }
 
     @Override
     @RolesAllowed(MANAGER)
     public List<OwnerData> getPlaceOwners(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return new ArrayList<>(
+            placeFacade.find(id)
+                .map(Place::getOwners)
+                .orElseThrow(PlaceNotFoundException::new));
+
     }
 
     @Override
@@ -280,5 +291,4 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
         placeFacade.edit(oldPlace);
     }
-
 }
