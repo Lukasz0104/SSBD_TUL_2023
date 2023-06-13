@@ -200,7 +200,8 @@
       "rates": "Rates",
       "no-places": "You don't have any places",
       "show-place-details": "Show information",
-      "hide-place-details": "Hide information"
+      "hide-place-details": "Hide information",
+      "count": "Amount of your places: "
     },
     "accounts": {
       "display": {
