@@ -408,6 +408,7 @@
     },
     "report": {
       "month": {
+        "-1": "Current",
         "0": "Total",
         "1": "January",
         "2": "February",
@@ -438,7 +439,8 @@
       "sum": "Sum",
       "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
       "title": "Report",
-      "loading": "Loading reports"
+      "loading": "Loading reports",
+      "balance": "Balance"
     },
     "place-rates": {
       "loading": "Loading rates...",
@@ -585,7 +587,8 @@
     "forecast": {
       "get-years-by-place-fail": "Could not get available report years for given place",
       "add-current-forecast-success": "New forecast has been added",
-      "add-current-forecast-fail": "Could not add forecast for chosen category"
+      "add-current-forecast-fail": "Could not add forecast for chosen category",
+      "get-min-months-fail": "Could not get months"
     },
     "report": {
       "get-place-report-fail": "Could not get report",
@@ -782,6 +785,14 @@
       "message": {
         "inaccessible_report": "Could not access report, you do not own chosen place",
         "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
+  "get-min-month": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "forecast_not_found": "Could not find forecast for chosen place"
       }
     }
   },

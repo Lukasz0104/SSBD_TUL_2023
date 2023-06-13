@@ -23,6 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryNotInUseExceptio
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InaccessibleReportException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.ForecastNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
@@ -132,5 +133,23 @@ public class ForecastManager extends AbstractManager implements ForecastManagerL
             throw new InaccessibleReportException();
         }
         return forecastFacade.findForecastYearByPlaceId(placeId).stream().map(Year::getValue).toList();
+    }
+
+    @Override
+    @RolesAllowed(OWNER)
+    public Integer getOwnMinMonthFromForecast(Long placeId, Year year, String login) throws AppBaseException {
+        if (placeFacade.findByLogin(login).stream().noneMatch((place) -> Objects.equals(place.getId(), placeId))) {
+            throw new InaccessibleReportException();
+        }
+        return forecastFacade.findMinMonthByPlaceIdAndYear(placeId, year)
+            .orElseThrow(ForecastNotFoundException::new).getValue();
+
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public Integer getMinMonthFromForecast(Long placeId, Year year) throws AppBaseException {
+        return forecastFacade.findMinMonthByPlaceIdAndYear(placeId, year)
+            .orElseThrow(ForecastNotFoundException::new).getValue();
     }
 }

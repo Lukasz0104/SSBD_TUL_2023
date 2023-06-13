@@ -106,6 +106,7 @@
                             <th scope="col">
                                 {{ 'component.report.usage-diff' | translate }}
                             </th>
+                            <th scope="col">Średnia stawka</th>
                         </tr>
                     </thead>
                     <tbody *ngFor="let report of reports.details">
@@ -188,6 +189,38 @@
                                     >m<sup>2</sup>
                                 </span>
                             </td>
+                            <td>
+                                {{ report.averageRate.toFixed(2) }}
+                                <span
+                                    *ngIf="report.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.month' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.METER
+                                    ">
+                                    {{
+                                        'accounting-rule.pln' | translate
+                                    }}/m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.PERSON
+                                    ">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.person' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.SURFACE
+                                    ">
+                                    {{ 'accounting-rule.pln' | translate }}
+                                    /m<sup>2</sup>
+                                </span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -238,6 +271,19 @@
                         <br />
                         <span
                             >{{ getNumAbs(reports.differential).toFixed(2) }}
+                            {{ 'accounting-rule.pln' | translate }}</span
+                        >
+                    </div>
+                    <div
+                        class="col mb-1"
+                        [ngClass]="{
+                            'text-success': reports.balance > 0,
+                            'text-danger': reports.balance < 0
+                        }">
+                        <b>Saldo:</b>
+                        <br />
+                        <span
+                            >{{ getNumAbs(reports.balance).toFixed(2) }}
                             {{ 'accounting-rule.pln' | translate }}</span
                         >
                     </div>
@@ -418,6 +464,19 @@
                         <br />
                         <span
                             >{{ getNumAbs(reports.differential).toFixed(2) }}
+                            {{ 'accounting-rule.pln' | translate }}</span
+                        >
+                    </div>
+                    <div
+                        class="col mb-1"
+                        [ngClass]="{
+                            'text-success': reports.balance > 0,
+                            'text-danger': reports.balance < 0
+                        }">
+                        <b>{{ 'component.report.balance' | translate }}:</b>
+                        <br />
+                        <span
+                            >{{ getNumAbs(reports.balance).toFixed(2) }}
                             {{ 'accounting-rule.pln' | translate }}</span
                         >
                     </div>

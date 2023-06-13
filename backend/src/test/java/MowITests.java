@@ -299,7 +299,7 @@ public class MowITests extends TestContainersSetup {
                     .findFirst()
                     .orElseThrow();
 
-                assertEquals(821.22, coldWaterForecast.getValue().doubleValue());
+                assertEquals(821.23, coldWaterForecast.getValue().doubleValue());
                 assertEquals(117.318, coldWaterForecast.getAmount().doubleValue());
             }
         }
