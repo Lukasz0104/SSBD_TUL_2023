@@ -27,6 +27,7 @@ import java.time.Month;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -117,6 +118,22 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.setParameter("year", year);
         tq.setParameter("month", month);
         return tq.getResultList();
+    }
+
+    @RolesAllowed({MANAGER})
+    public Optional<Forecast> findByPlaceIdAndCategoryIdAndYearAndMonth(Long placeId, Long categoryId, Year year,
+                                                                        Month month) {
+        try {
+            TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndCategoryIdAndYearAndMonth",
+                Forecast.class);
+            tq.setParameter("place", placeId);
+            tq.setParameter("categoryId", categoryId);
+            tq.setParameter("year", year);
+            tq.setParameter("month", month);
+            return Optional.of(tq.getSingleResult());
+        } catch (PersistenceException pe) {
+            return Optional.empty();
+        }
     }
 
     @RolesAllowed({OWNER, MANAGER})

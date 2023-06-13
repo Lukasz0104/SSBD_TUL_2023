@@ -77,6 +77,15 @@ import java.time.Year;
             AND f.month = :month 
             AND f.year = :year 
             ORDER BY f.rate.category.name ASC"""),
+    @NamedQuery(
+        name = "Forecast.findByPlaceIdAndCategoryIdAndYearAndMonth",
+        query = """
+            SELECT f FROM Forecast f 
+            WHERE f.place.id = :place
+            AND f.rate.category.id = :categoryId
+            AND f.month = :month 
+            AND f.year = :year 
+            ORDER BY f.rate.category.name ASC"""),
     // category queries
     @NamedQuery(
         name = "Forecast.findByCategoryId",
