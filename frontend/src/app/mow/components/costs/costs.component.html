@@ -66,7 +66,7 @@
                         {{ 'component.costs.totalConsumption' | translate }}
                     </th>
                     <th scope="col">
-                        {{ 'component.costs.details' | translate }}
+                        {{ 'component.fields.actions' | translate }}
                     </th>
                 </tr>
             </thead>
@@ -86,11 +86,35 @@
                     </td>
                     <td>{{ cost.totalConsumption }}</td>
                     <td>
-                        <button
-                            (click)="openCostDetails(cost.id)"
-                            class="btn btn-outline-primary">
-                            {{ 'component.fields.details' | translate }}
-                        </button>
+                        <div
+                            class="d-inline-block"
+                            ngbDropdown
+                            container="body">
+                            <button
+                                class="btn btn-outline-primary"
+                                id="dropdownBasic1"
+                                ngbDropdownToggle
+                                type="button">
+                                {{ 'component.fields.actions' | translate }}
+                            </button>
+                            <div
+                                aria-labelledby="dropdownBasic1"
+                                ngbDropdownMenu>
+                                <button
+                                    (click)="openCostDetails(cost.id)"
+                                    ngbDropdownItem>
+                                    {{ 'component.costs.details' | translate }}
+                                </button>
+                                <button
+                                    (click)="removeCost(cost.id)"
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.costs.remove-cost'
+                                            | translate
+                                    }}
+                                </button>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             </tbody>

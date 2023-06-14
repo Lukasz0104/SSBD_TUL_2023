@@ -353,8 +353,8 @@
     "costs": {
       "month": "Miesiąc",
       "year": "Rok",
-      "realRate": "Stawka",
-      "totalConsumption": "Łączne zużycie",
+      "realRate": "Rzeczywista stawka",
+      "totalConsumption": "Całkowite zużycie",
       "months": {
         "january": "Styczeń",
         "february": "Luty",
@@ -375,7 +375,8 @@
       "chooseMonth": "Wybierz miesiąc",
       "category": "Kategoria kosztu",
       "cost-data": "Informacje o koszcie",
-      "details": "Szczegóły"
+      "details": "Szczegóły",
+      "remove-cost": "Usuń koszt"
     },
     "add-cost": {
       "title": "Dodaj koszt",
@@ -541,7 +542,8 @@
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
       "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
       "add-place": "Potwierdź dodanie nowego lokalu.",
-      "add-cost": "Czy na pewno chcesz dodać nowy koszt?"
+      "add-cost": "Czy na pewno chcesz dodać nowy koszt?",
+      "remove-cost": "Czy na pewno chcesz usunąć dany koszt?"
     },
     "add-place": {
       "title": "Dodaj nowy lokal",
@@ -682,9 +684,12 @@
     "cost": {
       "add-success": "Pomyślnie dodano koszt",
       "add-fail": "Nie udało się dodać kosztu. Spróbuj ponownie później",
+      "remove-success": "Pomyślnie usunięto koszt",
+      "remove-fail": "Nie udało się usunąć kosztu. Spróbuj ponownie później",
       "response":{
         "message": {
-          "cost_already_exists": "Koszt dla wybranych wartości już istnieje"
+          "cost_already_exists": "Koszt dla wybranych wartości już istnieje",
+          "cost_not_found": "Nie znaleziono kosztu"
         }
       }
     }

@@ -353,7 +353,7 @@
     "costs": {
       "month": "Month",
       "year": "Year",
-      "realRate": "Real rate ",
+      "realRate": "Real rate",
       "totalConsumption": "Total consumption",
       "months": {
         "january": "January",
@@ -375,7 +375,8 @@
       "chooseCategory": "Choose category",
       "category": "Cost category",
       "cost-data": "Cost data",
-      "details": "Cost details"
+      "details": "Cost details",
+      "remove-cost": "Remove cost"
     },
     "add-cost": {
       "title": "Add cost",
@@ -541,7 +542,8 @@
       "add-reading": "Are you sure, you want to add this reading?",
       "place-edit": "Are you sure, you want update this place?",
       "add-place": "Confirm adding new place.",
-      "add-cost": "Are you sure, you want to add this cost?"
+      "add-cost": "Are you sure, you want to add this cost?",
+      "remove-cost": "Are you sure, you want to remove this cost?"
     },
     "add-place": {
       "title": "Add new place",
@@ -682,9 +684,12 @@
     "cost": {
       "add-success": "Cost added successfully",
       "add-fail": "Adding cost failed. Try again later",
+      "remove-success": "Cost removed successfully",
+      "remove-fail": "Removing cost failed. Try again later",
       "response":{
         "message": {
-          "cost_already_exists": "Cost with chosen values already exists"
+          "cost_already_exists": "Cost with chosen values already exists",
+          "cost_not_found": "Cost not found"
         }
       }
     }

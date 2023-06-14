@@ -52,7 +52,7 @@ export class AddCostComponent implements OnInit {
         });
         const instance = modalRef.componentInstance as ConfirmActionComponent;
 
-        instance.message = 'modal.confirm-action.add-cost'; //TODO I18n
+        instance.message = 'modal.confirm-action.add-cost';
         modalRef.closed.subscribe((res: boolean) => {
             if (res) {
                 this.onSubmit();

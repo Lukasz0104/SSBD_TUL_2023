@@ -76,15 +76,11 @@ export class CostsService {
             )
             .pipe(
                 tap(() => {
-                    this.toastService.showSuccess('toast.cost.add-success'); //TODO I18n
+                    this.toastService.showSuccess('toast.cost.add-success');
                 }),
                 map(() => true),
                 catchError((err: HttpErrorResponse) => {
-                    this.handleError(
-                        'toast.cost.add-fail', //TODO I18n
-                        'toast.cost', //TODO I18n
-                        err
-                    );
+                    this.handleError('toast.cost.add-fail', 'toast.cost', err);
                     return of(true);
                 })
             );
@@ -99,5 +95,18 @@ export class CostsService {
         } else {
             this.toastService.showDanger(method + '.' + response.error.message);
         }
+    }
+
+    removeCost(id: number) {
+        return this.http.delete(`${this.costsUrl}/${id}`).pipe(
+            tap(() => {
+                this.toastService.showSuccess('toast.cost.remove-success');
+            }),
+            map(() => true),
+            catchError((err: HttpErrorResponse) => {
+                this.handleError('toast.cost.remove-fail', 'toast.cost', err);
+                return of(true);
+            })
+        );
     }
 }

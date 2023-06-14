@@ -108,7 +108,7 @@ import java.time.Year;
             AND f.rate.category.id = :categoryId
             AND f.month = :month 
             AND f.year = :year 
-            ORDER BY f.rate.category.name ASC""")
+            ORDER BY f.rate.category.name ASC"""),
     // category queries
     @NamedQuery(
         name = "Forecast.findByCategoryId",
@@ -188,35 +188,29 @@ import java.time.Year;
 @EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     @NotNull
     @Basic(optional = false)
     @Column(name = "year", nullable = false)
     @Getter
     @Setter
     private Year year;
-
     @NotNull
     @Basic(optional = false)
     @Column(name = "month", nullable = false)
     @Getter
     @Setter
     private Month month;
-
     @NotNull
     @Basic(optional = false)
     @Column(name = "value", nullable = false, scale = 6, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
-
     @PositiveOrZero
     @Column(name = "real_value", scale = 6, precision = 38)
     @Getter
     @Setter
     private BigDecimal realValue = BigDecimal.ZERO;
-
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
@@ -224,20 +218,19 @@ public class Forecast extends AbstractEntity implements Serializable {
     @Getter
     @Setter
     private BigDecimal amount;
-
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "place_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Place place;
-
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "rate_id", referencedColumnName = "id", nullable = false)
     @Getter
     @Setter
     private Rate rate;
+    private static final long serialVersionUID = 1L;
 
     public Forecast(Year year, Month month, BigDecimal value, BigDecimal realValue, BigDecimal amount, Place place,
                     Rate rate) {

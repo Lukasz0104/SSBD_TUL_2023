@@ -1,6 +1,7 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,14 +18,17 @@ public class CreateCostDto {
     private int year;
 
     @NotNull
+    @Positive
     private short month;
 
     @NotNull
     private Long categoryId;
 
+    @NotNull
     @PositiveOrZero
     private BigDecimal totalConsumption;
 
-    @PositiveOrZero
+    @NotNull
+    @Positive
     private BigDecimal realRate;
 }
