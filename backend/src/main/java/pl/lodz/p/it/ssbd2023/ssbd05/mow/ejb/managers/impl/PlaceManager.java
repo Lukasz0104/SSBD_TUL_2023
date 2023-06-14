@@ -25,6 +25,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.CategoryNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryNotInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InitialReadingRequiredException;
@@ -42,6 +43,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.ForecastUtils;
@@ -85,6 +87,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private BuildingFacade buildingFacade;
+
+    @Inject
+    private ReadingFacade readingFacade;
 
     @Override
     @RolesAllowed(MANAGER)
@@ -226,9 +231,18 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @RolesAllowed(MANAGER)
     public void addCategoryToPlace(Long placeId, Long categoryId, BigDecimal value, String login)
         throws AppBaseException {
-        Place place = checkIfNotSelfActionAndActivePlaceAndCategoryInUse(placeId, categoryId, login);
+        Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
+        if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
+            throw new IllegalSelfActionException();
+        }
+        if (place.getCurrentRates().stream().anyMatch((p) -> p.getCategory().getId().equals(categoryId))) {
+            throw new CategoryInUseException();
+        }
+        if (!place.isActive()) {
+            throw new InactivePlaceException();
+        }
         Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId).orElseThrow(CategoryNotFoundException::new);
-        Meter meter;
+        Meter meter = null;
         if (rate.getAccountingRule().equals(AccountingRule.METER)) {
             try {
                 meter = place.getMeters().stream().filter((m) -> m.getCategory().getId().equals(categoryId)).findFirst()
@@ -237,7 +251,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     if (value == null) {
                         throw new InitialReadingRequiredException();
                     } else {
-                        meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                        Reading reading = new Reading(LocalDateTime.now(), value, meter);
+                        readingFacade.create(reading);
+                        meter.getReadings().add(reading);
                     }
                 }
                 meter.setActive(true);
@@ -276,8 +292,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
         }
     }
 
-    private Place checkIfNotSelfActionAndActivePlaceAndCategoryInUse(Long placeId, Long categoryId, String login)
-        throws AppBaseException {
+    @Override
+    @RolesAllowed(MANAGER)
+    public void removeCategoriesFromPlace(Long placeId, Long categoryId, String login) throws AppBaseException {
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
         if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
             throw new IllegalSelfActionException();
@@ -288,13 +305,6 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
         if (place.getCurrentRates().stream().noneMatch((p) -> p.getCategory().getId().equals(categoryId))) {
             throw new CategoryNotInUseException();
         }
-        return place;
-    }
-
-    @Override
-    @RolesAllowed(MANAGER)
-    public void removeCategoriesFromPlace(Long placeId, Long categoryId, String login) throws AppBaseException {
-        Place place = checkIfNotSelfActionAndActivePlaceAndCategoryInUse(placeId, categoryId, login);
         Rate rate =
             place.getCurrentRates()
                 .stream().filter(
