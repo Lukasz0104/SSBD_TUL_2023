@@ -653,11 +653,12 @@ INSERT INTO public.reading (created_time, date, reliable, updated_time, value, v
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 8, -4, null);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 7, -4, null);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 2, -4, null);
-INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 9, -4, null);
+INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 1.000, 1, 9, -4, null);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 4, -4, null);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 6, -4, null);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 3, -4, null);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2021-12-01 12:22:03.000000', true, null, 0.000, 1, 5, -4, null);
+INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2021-12-01 12:22:03.000000', '2023-12-31 12:22:03.000000', true, null, 1000.000, 1, 9, -4, null);
 --endregion
 
 --region forecast
