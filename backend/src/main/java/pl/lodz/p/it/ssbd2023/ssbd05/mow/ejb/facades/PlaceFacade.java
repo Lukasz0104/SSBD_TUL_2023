@@ -51,7 +51,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @Override
-    @RolesAllowed(MANAGER)
+    @PermitAll
     public void edit(Place entity) throws AppBaseException {
         super.edit(entity);
     }
@@ -90,6 +90,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
     @RolesAllowed(OWNER)
     public List<Place> findByLogin(String login) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByOwnerLogin", Place.class);
+        tq.setParameter("login", login);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(OWNER)
+    public List<Place> findActiveByLogin(String login) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findActiveByOwnerLogin", Place.class);
         tq.setParameter("login", login);
         return tq.getResultList();
     }

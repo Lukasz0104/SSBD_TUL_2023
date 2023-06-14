@@ -8,6 +8,7 @@ export interface PlaceReportMonth {
     differential: number;
     completeMonth: boolean;
     details: PlaceCategoryReportMonth[];
+    balance: number;
 }
 
 interface PlaceCategoryReportMonth {
