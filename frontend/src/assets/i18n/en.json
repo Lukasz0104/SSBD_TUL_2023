@@ -521,7 +521,9 @@
       "add-rate": "Are you sure, you want to add this rate?",
       "add-reading": "Are you sure, you want to add this reading?",
       "place-edit": "Are you sure, you want update this place?",
-      "add-place": "Confirm adding new place."
+      "add-place": "Confirm adding new place.",
+      "place-owners-add": "Are you sure, you want to add selected owner to this place?",
+      "place-owners-remove": "Are you sure, you want to remove selected owner from this place?"
     },
     "add-place": {
       "title": "Add new place",
