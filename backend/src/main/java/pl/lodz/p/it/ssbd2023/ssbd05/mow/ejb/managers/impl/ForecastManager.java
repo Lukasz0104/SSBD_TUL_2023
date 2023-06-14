@@ -112,10 +112,7 @@ public class ForecastManager extends AbstractManager implements ForecastManagerL
             .orElseThrow(RateNotFoundException::new);
 
         if (rate.getAccountingRule().equals(AccountingRule.METER)) {
-            Meter meter = place.getMeters().stream()
-                .filter(Meter::isActive)
-                .filter(m -> m.getCategory().equals(rate.getCategory()))
-                .findFirst()
+            Meter meter = meterFacade.findByCategoryIdAndPlaceId(rate.getCategory().getId(), placeId)
                 .orElseThrow(MeterNotFoundException::new);
             forecastUtils.createMeterForecastsForYear(meter, rate, year);
         } else {
