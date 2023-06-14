@@ -768,7 +768,8 @@
         "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
         "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu",
         "forecast_not_found": "Nie znaleziono prognozy",
-        "report_not_found": "Nie znaleziono raportu"
+        "report_not_found": "Nie znaleziono raportu",
+        "place_not_found": "Nie znaleziono wybranego lokalu"
       }
     }
   },

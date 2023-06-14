@@ -219,14 +219,14 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     }
 
     @Override
-    @RolesAllowed({MANAGER})
+    @RolesAllowed(MANAGER)
     public boolean isReportForYear(Year year, Long placeId) {
         return reportFacade.findReportYearsByPlaceId(placeId).stream()
             .anyMatch((e) -> e.getValue() == year.getValue());
     }
 
     @Override
-    @RolesAllowed({OWNER})
+    @RolesAllowed(OWNER)
     public boolean isOwnReportForYear(Year year, Long placeId, String login) throws AppBaseException {
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
         checkUserPlace(place, login);

@@ -768,7 +768,8 @@
         "inaccessible_report": "Could not access report, you do not own chosen place",
         "inaccessible_forecast": "Could not access forecast, you do not own chosen place",
         "forecast_not_found": "Forecast not found",
-        "report_not_found": "Report not found"
+        "report_not_found": "Report not found",
+        "place_not_found": "Nie znaleziono wybranego lokalu"
       }
     }
   },

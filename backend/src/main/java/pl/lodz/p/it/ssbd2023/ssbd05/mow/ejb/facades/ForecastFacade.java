@@ -137,7 +137,7 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.setParameter("year", year);
         try {
             return Optional.of(tq.getSingleResult());
-        } catch (NoResultException nre) {
+        } catch (NoResultException | NullPointerException nre) {
             return Optional.empty();
         }
     }

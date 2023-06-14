@@ -121,13 +121,13 @@ public class ForecastManager extends AbstractManager implements ForecastManagerL
     }
 
     @Override
-    @RolesAllowed({MANAGER})
+    @RolesAllowed(MANAGER)
     public List<Integer> getForecastYearsByPlaceId(Long placeId) {
         return forecastFacade.findForecastYearByPlaceId(placeId).stream().map(Year::getValue).toList();
     }
 
     @Override
-    @RolesAllowed({OWNER})
+    @RolesAllowed(OWNER)
     public List<Integer> getForecastYearsByOwnPlaceId(Long placeId, String login) throws AppBaseException {
         if (placeFacade.findByLogin(login).stream().noneMatch((place) -> Objects.equals(place.getId(), placeId))) {
             throw new InaccessibleReportException();

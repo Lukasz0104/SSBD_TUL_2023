@@ -85,15 +85,15 @@ public class ReportDtoConverter {
     public static PlaceReportMonthDto createPlaceReportMonthDtoFromReportPlaceForecastMonth(
         ReportPlaceForecastMonth reportPlaceForecastMonth, Integer month, Integer year, boolean full) {
 
+        List<PlaceCategoryReportMonthDto> dtos = createListOfPlaceCategoryReportMonthDtoFromListOfForecast(
+            reportPlaceForecastMonth.getForecasts(), full);
+
         BigDecimal forecasted =
-            reportPlaceForecastMonth.getForecasts()
-                .stream()
-                .map((element) -> getValue(element.getValue()))
+            dtos.stream().map(PlaceCategoryReportMonthDto::getValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal actual = reportPlaceForecastMonth.getForecasts()
-            .stream()
-            .map((element) -> getValue(element.getRealValue()))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal actual =
+            dtos.stream().map(PlaceCategoryReportMonthDto::getRealValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal differential = forecasted.subtract(actual);
         boolean validMonth = reportPlaceForecastMonth.getForecasts()
             .stream()
@@ -106,12 +106,12 @@ public class ReportDtoConverter {
             actual.setScale(2, RoundingMode.CEILING),
             differential.setScale(2, RoundingMode.CEILING),
             validMonth,
-            createListOfPlaceCategoryReportMonthDtoFromListOfForecast(reportPlaceForecastMonth.getForecasts(), full),
+            dtos,
             getValue(reportPlaceForecastMonth.getBalance()).setScale(2, RoundingMode.CEILING)
         );
     }
 
-    public static PlaceCategoryReportMonthDto createPlaceCategoryReportMonthDtoFromForecast(Forecast forecast) {
+    private static PlaceCategoryReportMonthDto createPlaceCategoryReportMonthDtoFromForecast(Forecast forecast) {
         return new PlaceCategoryReportMonthDto(
             forecast.getRate().getCategory().getName(),
             forecast.getRate().getAccountingRule(),
@@ -123,33 +123,35 @@ public class ReportDtoConverter {
         );
     }
 
+    private static PlaceCategoryReportMonthDto placeCategoryReportMonthDtoFromFullForecast(List<Forecast> forecasts,
+                                                                                           String categoryName) {
+        List<Forecast> forecastsPerCategory =
+            forecasts.stream().filter((f) -> f.getRate().getCategory().getName().equals(categoryName)).toList();
+        BigDecimal value = forecastsPerCategory.stream().map((element) -> getValue(element.getValue()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal realValue = forecastsPerCategory.stream().map((element) -> getValue(element.getRealValue()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal rateSum = forecastsPerCategory.stream().map(element -> element.getRate().getValue())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new PlaceCategoryReportMonthDto(
+            categoryName,
+            forecastsPerCategory.iterator().next().getRate().getAccountingRule(),
+            value.setScale(2, RoundingMode.CEILING),
+            realValue.setScale(2, RoundingMode.CEILING),
+            value.subtract(realValue).setScale(2, RoundingMode.CEILING),
+            forecastsPerCategory.stream().map(Forecast::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add),
+            rateSum.divide(BigDecimal.valueOf(forecastsPerCategory.size()), 6, RoundingMode.CEILING)
+                .setScale(2, RoundingMode.CEILING));
+    }
+
     public static List<PlaceCategoryReportMonthDto> createListOfPlaceCategoryReportMonthDtoFromListOfForecast(
         List<Forecast> forecasts, boolean full) {
 
         if (full) {
             List<String> categories =
                 forecasts.stream().map(forecast -> forecast.getRate().getCategory().getName()).distinct().toList();
-            return categories.stream().map((c) -> {
-                List<Forecast> forecastsPerCategory =
-                    forecasts.stream().filter((f) -> f.getRate().getCategory().getName().equals(c)).toList();
-                BigDecimal value = forecastsPerCategory.stream().map((element) -> getValue(element.getValue()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-                BigDecimal realValue = forecastsPerCategory.stream().map((element) -> getValue(element.getRealValue()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-                BigDecimal rateSum = forecastsPerCategory.stream().map(element -> element.getRate().getValue())
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-                return new PlaceCategoryReportMonthDto(
-                    c,
-                    forecastsPerCategory.iterator().next().getRate().getAccountingRule(),
-                    value.setScale(2, RoundingMode.CEILING),
-                    realValue.setScale(2, RoundingMode.CEILING),
-                    value.subtract(realValue).setScale(2, RoundingMode.CEILING),
-                    forecastsPerCategory.stream().map(Forecast::getAmount)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add),
-                    rateSum.divide(BigDecimal.valueOf(forecastsPerCategory.size()), 6, RoundingMode.CEILING)
-                        .setScale(2, RoundingMode.CEILING));
-
-            }).toList();
+            return categories.stream().map(c -> placeCategoryReportMonthDtoFromFullForecast(forecasts, c)).toList();
         }
 
         return forecasts.stream()

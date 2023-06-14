@@ -148,7 +148,7 @@ public class ReportEndpoint {
     @GET
     @Path("/place/{id}/is-report")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER, MANAGER})
+    @RolesAllowed(MANAGER)
     public Response isReportForPlace(@PathParam("id") Long id,
                                      @QueryParam("year") @NotNull @Min(2020) @Max(2999) Integer year) {
         return Response.ok(reportManager.isReportForYear(Year.of(year), id)).build();
@@ -157,7 +157,7 @@ public class ReportEndpoint {
     @GET
     @Path("/me/place/{id}/is-report")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER, MANAGER})
+    @RolesAllowed(OWNER)
     public Response isOwnReportForPlace(@PathParam("id") Long id,
                                         @QueryParam("year") @Min(2020) @Max(2999) Integer year)
         throws AppBaseException {

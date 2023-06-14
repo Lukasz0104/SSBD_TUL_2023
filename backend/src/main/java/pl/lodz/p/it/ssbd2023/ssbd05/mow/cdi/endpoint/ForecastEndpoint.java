@@ -9,6 +9,8 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -62,7 +64,7 @@ public class ForecastEndpoint {
     @GET
     @Path("/years/{id}/place")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({MANAGER})
+    @RolesAllowed(MANAGER)
     public Response getForecastYearsByPlaceId(@PathParam("id") Long id) {
         return Response.ok(forecastManager.getForecastYearsByPlaceId(id)).build();
     }
@@ -70,7 +72,7 @@ public class ForecastEndpoint {
     @GET
     @Path("/me/years/{id}/place")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER})
+    @RolesAllowed(OWNER)
     public Response getForecastYearsByOwnPlaceId(@PathParam("id") Long id) throws AppBaseException {
         return Response.ok(
             forecastManager.getForecastYearsByOwnPlaceId(id, securityContext.getUserPrincipal().getName())).build();
@@ -80,7 +82,8 @@ public class ForecastEndpoint {
     @Path("/me/min-month/{id}/place")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(OWNER)
-    public Response getOwnMinMonthByPlaceAndYear(@PathParam("id") Long id, @QueryParam("year") Integer year)
+    public Response getOwnMinMonthByPlaceAndYear(@PathParam("id") Long id,
+                                                 @QueryParam("year") @Min(2020) @Max(2999) Integer year)
         throws AppBaseException {
         return Response.ok(
             forecastManager.getOwnMinMonthFromForecast(
@@ -94,7 +97,8 @@ public class ForecastEndpoint {
     @Path("/min-month/{id}/place")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response getMinMonthByPlaceAndYear(@PathParam("id") Long id, @QueryParam("year") Integer year)
+    public Response getMinMonthByPlaceAndYear(@PathParam("id") Long id,
+                                              @QueryParam("year") @Min(2020) @Max(2999) Integer year)
         throws AppBaseException {
         return Response.ok(forecastManager.getMinMonthFromForecast(id, Year.of(year))).build();
     }
