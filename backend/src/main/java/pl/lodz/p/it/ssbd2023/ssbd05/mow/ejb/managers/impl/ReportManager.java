@@ -59,15 +59,6 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @Inject
     private ForecastFacade forecastFacade;
 
-    @Inject
-    private CategoryFacade categoryFacade;
-
-    @Override
-    @RolesAllowed({MANAGER, OWNER})
-    public Report getReportDetails(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     @RolesAllowed(MANAGER)
     public Map<Integer, List<Integer>> getAllCommunityReportsYearsAndMonths() throws AppBaseException {
@@ -95,7 +86,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
-    public Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year) throws AppBaseException {
+    public Map<String, ReportYearEntry> getYearlyReportForBuilding(Long id, Year year) throws AppBaseException {
         Map<String, ReportYearEntry> result = new HashMap<>();
         List<Forecast> forecasts;
         List<Report> reports;
@@ -128,7 +119,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
-    public Map<String, ReportYearEntry> getBuildingReportByYearAndMonth(Long id, Year year, Month month)
+    public Map<String, ReportYearEntry> getMonthlyReportForBuilding(Long id, Year year, Month month)
         throws AppBaseException {
 
         Map<String, ReportYearEntry> result = new HashMap<>();

@@ -15,7 +15,7 @@ public class ReportYearEntry {
     private BigDecimal realAmount;
     private AccountingRule accountingRule;
     private BigDecimal rate;
-
+    private BigDecimal balance;
     private String categoryName;
 
     public ReportYearEntry(BigDecimal rate, AccountingRule accountingRule, String categoryName) {
@@ -44,6 +44,11 @@ public class ReportYearEntry {
         this.predValue = this.predValue.add(predValue);
         this.predAmount = this.predAmount.add(predAmount);
         this.realValue = this.realValue.add(realValue);
+        return this;
+    }
+
+    public ReportYearEntry addBalance(BigDecimal balance) {
+        this.balance = balance;
         return this;
     }
 

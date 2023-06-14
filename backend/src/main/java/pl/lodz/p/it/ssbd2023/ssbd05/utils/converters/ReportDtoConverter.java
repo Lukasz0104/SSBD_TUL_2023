@@ -168,12 +168,14 @@ public class ReportDtoConverter {
     public static BuildingReportYearlyDto mapToBuildingReportYearlyDto(Map<String, ReportYearEntry> categories) {
         BigDecimal sumPredValue = BigDecimal.ZERO;
         BigDecimal sumRealValue = BigDecimal.ZERO;
-        for (Map.Entry<String, ReportYearEntry> entry : categories.entrySet()) {
-            sumPredValue = sumPredValue.add(entry.getValue().getPredValue());
-            sumRealValue = sumRealValue.add(entry.getValue().getRealValue());
+        BigDecimal sumBalance = BigDecimal.ZERO;
+        for (ReportYearEntry entry : categories.values()) {
+            sumPredValue = sumPredValue.add(entry.getPredValue());
+            sumRealValue = sumRealValue.add(entry.getRealValue());
+            sumBalance = sumBalance.add(entry.getBalance());
         }
         return new BuildingReportYearlyDto(categories.values().stream().toList(),
-            sumPredValue, sumRealValue, sumPredValue.subtract(sumRealValue));
+            sumPredValue, sumRealValue, sumPredValue.subtract(sumRealValue), sumBalance);
     }
 
     public static List<BuildingReportsDto> mapToListOfBuildingReports(Map<Integer, List<Integer>> maps) {

@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -21,11 +22,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidDateFormatException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.ReportDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
+import java.time.DateTimeException;
 import java.time.Month;
 import java.time.Year;
 
@@ -165,5 +168,50 @@ public class ReportEndpoint {
         throws AppBaseException {
         return Response.ok(
             reportManager.isOwnReportForYear(Year.of(year), id, securityContext.getUserPrincipal().getName())).build();
+    }
+
+
+    @GET
+    @Path("/buildings/{id}/{year}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Response getYearlyReportForBuilding(@PathParam("id") Long id,
+                                               @PathParam("year") @Min(2020) @Max(2999) Integer yearNum)
+        throws AppBaseException {
+        Year year;
+        try {
+            year = Year.of(yearNum);
+        } catch (DateTimeException e) {
+            throw new InvalidDateFormatException();
+        }
+
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> ReportDtoConverter.mapToBuildingReportYearlyDto(reportManager.getYearlyReportForBuilding(id, year)),
+            reportManager
+        ).build();
+    }
+
+    @GET
+    @Path("/buildings/{id}/{year}/{month}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Response getMonthlyReportForBuilding(
+        @PathParam("id") Long id,
+        @PathParam("year") @Min(2020) @Max(2999) Integer yearNum,
+        @PathParam("month") @Min(1) @Max(12) Integer monthNum) throws AppBaseException {
+        Year year;
+        Month month;
+        try {
+            year = Year.of(yearNum);
+            month = Month.of(monthNum);
+        } catch (DateTimeException e) {
+            throw new InvalidDateFormatException();
+        }
+
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> ReportDtoConverter.mapToBuildingReportYearlyDto(
+                reportManager.getMonthlyReportForBuilding(id, year, month)),
+            reportManager
+        ).build();
     }
 }

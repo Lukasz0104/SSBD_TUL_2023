@@ -15,16 +15,15 @@ import java.util.Map;
 
 @Local
 public interface ReportManagerLocal extends CommonManagerInterface {
-    Report getReportDetails(Long id) throws AppBaseException;
 
     Map<Integer, List<Integer>> getAllCommunityReportsYearsAndMonths() throws AppBaseException;
 
     Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException;
 
-    Map<String, ReportYearEntry> getBuildingReportByYear(Long id, Year year)
+    Map<String, ReportYearEntry> getYearlyReportForBuilding(Long id, Year year)
         throws AppBaseException;
 
-    Map<String, ReportYearEntry> getBuildingReportByYearAndMonth(Long id, Year year, Month month)
+    Map<String, ReportYearEntry> getMonthlyReportForBuilding(Long id, Year year, Month month)
         throws AppBaseException;
 
     Report getCommunityReportByYear(Long year) throws AppBaseException;
