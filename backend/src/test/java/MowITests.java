@@ -380,7 +380,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -410,7 +410,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -427,7 +427,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -443,7 +443,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -459,7 +459,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -475,7 +475,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -491,7 +491,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -507,7 +507,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -523,7 +523,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -539,7 +539,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1819,6 +1819,7 @@ public class MowITests extends TestContainersSetup {
         private static RequestSpecification onlyManagerSpec;
         private static RequestSpecification onlyAdminSpec;
         private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification ownerManagerSpec;
 
         @BeforeAll
         static void generateTestSpec() {
@@ -1854,17 +1855,27 @@ public class MowITests extends TestContainersSetup {
             onlyAdminSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            ownerManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
         }
 
         @Nested
         class PositiveCases {
             @Test
             void shouldAddOwnerToPlace() {
-                String login = "pduda";
+                Long id = -4L;
                 given()
                     .spec(onlyManagerSpec)
                     .when()
-                    .queryParam("login", login)
+                    .queryParam("ownerId", id)
                     .post("places/1/owners")
                     .then()
                     .statusCode(Response.Status.NO_CONTENT.getStatusCode());
@@ -1875,7 +1886,7 @@ public class MowITests extends TestContainersSetup {
         class NegativeCases {
 
             @Test
-            void shouldReturn401SCWhenRequestAsAdmin() {
+            void shouldReturn403SCWhenRequestAsAdmin() {
                 String login = "pduda";
                 given()
                     .spec(onlyAdminSpec)
@@ -1887,56 +1898,205 @@ public class MowITests extends TestContainersSetup {
             }
 
             @Test
-            void shouldReturn401SCWhenRequestAsOwner() {
-                String login = "pduda";
+            void shouldReturn403SCWhenRequestAsOwner() {
                 given()
                     .spec(onlyOwnerSpec)
                     .when()
-                    .queryParam("login", login)
+                    .queryParam("ownerId", -4)
                     .post("places/1/owners")
                     .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
 
             @Test
-            void shouldReturn401SCWhenAddingManagerOnly() {
-                String login = "azloty";
+            void shouldReturn404SCWhenAddingManagerOnly() {
                 given()
                     .spec(onlyManagerSpec)
                     .when()
-                    .queryParam("login", login)
+                    .queryParam("ownerId", -21)
                     .post("places/1/owners")
                     .then()
-                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
-                    .body("message", Matchers.equalTo("response.message.bad-access-level"));
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
             }
 
             @Test
-            void shouldReturn401SCWhenAddingAdminOnly() {
-                String login = "wlokietek";
+            void shouldReturn404SCWhenAddingAdminOnly() {
                 given()
                     .spec(onlyManagerSpec)
                     .when()
-                    .queryParam("login", login)
+                    .queryParam("ownerId", -45)
                     .post("places/1/owners")
                     .then()
-                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
-                    .body("message", Matchers.equalTo("response.message.bad-access-level"));
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
             }
 
             @Test
-            void shouldReturn401SCWhenAddingInactiveOwner() {
-                String login = "kkuleczka";
+            void shouldReturn404SCWhenAddingInactiveOwner() {
                 given()
                     .spec(onlyManagerSpec)
                     .when()
-                    .queryParam("login", login)
+                    .queryParam("ownerId", -23)
                     .post("places/1/owners")
                     .then()
-                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
-                    .body("message", Matchers.equalTo("response.message.bad-access-level"));
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
             }
 
+            @Test
+            void shouldReturn403WhenAddingSelfToPlace() {
+                given()
+                    .spec(ownerManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW24 {
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification ownerManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            ownerManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldRemoveOwnerFromlace() {
+                Long id = -1L;
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", id)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                String login = "pduda";
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingManagerOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -21)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingAdminOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -45)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingInactiveOwner() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -23)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn403WhenRemovingSelfToPlace() {
+                given()
+                    .spec(ownerManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .delete("places/5/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
         }
     }
 
