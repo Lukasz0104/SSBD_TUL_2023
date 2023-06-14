@@ -166,7 +166,7 @@ public class Report extends AbstractEntity implements Serializable {
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "total_cost", nullable = false, scale = 2, precision = 38)
+    @Column(name = "total_cost", nullable = false, scale = 6, precision = 38)
     @Getter
     @Setter
     private BigDecimal totalCost;

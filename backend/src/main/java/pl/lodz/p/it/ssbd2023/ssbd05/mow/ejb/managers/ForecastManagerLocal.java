@@ -19,4 +19,8 @@ public interface ForecastManagerLocal extends CommonManagerInterface {
     List<Integer> getForecastYearsByPlaceId(Long placeId);
 
     List<Integer> getForecastYearsByOwnPlaceId(Long placeId, String login) throws AppBaseException;
+
+    Integer getOwnMinMonthFromForecast(Long placeId, Year year, String login) throws AppBaseException;
+
+    Integer getMinMonthFromForecast(Long placeId, Year year) throws AppBaseException;
 }

@@ -13,6 +13,7 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,6 +35,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryD
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.ReadingDto;
@@ -41,6 +43,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -163,6 +166,1048 @@ public class MowITests extends TestContainersSetup {
             }
         }
     }
+
+    @Nested
+    class MOW7 {
+        private static final String createForecastUrl = "/forecasts";
+
+        private static final String createReportUrl = "/reports";
+        private static RequestSpecification firstOwnerSpec;
+
+        private static RequestSpecification secondOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            firstOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("ikaminski", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            secondOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetForecastYearsTest {
+
+            @Nested
+            class AvaliableYearsForPlace {
+                @Test
+                void shouldReturnAvailableYearsForPlaceWhenPlaceHasForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/years/5/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 2);
+                    assertTrue(years.contains(2022));
+                    assertTrue(years.contains(2023));
+                }
+
+                @Test
+                void shouldReturnNoAvailableYearsForPlaceHasNoForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/years/7/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 0);
+                }
+
+                @Test
+                void shouldReturnNoAvailableYearsForPlaceThatDoesntExist() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/years/-2/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 0);
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsAdmin() {
+                    given()
+                        .spec(adminSpec)
+                        .when()
+                        .get(createForecastUrl + "/years/5/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsOwner() {
+                    given()
+                        .spec(ownerSpec)
+                        .when()
+                        .get(createForecastUrl + "/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+
+            @Nested
+            class AvailableYearsForOwnPlace {
+                @Test
+                void shouldReturnAvailableYearsForPlaceWhenPlaceHasForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createForecastUrl + "/me/years/2/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 2);
+                    assertTrue(years.contains(2022));
+                    assertTrue(years.contains(2023));
+                }
+
+                @Test
+                void shouldReturnNoAvailableYearsForPlaceHasNoForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(firstOwnerSpec)
+                        .when().get(createForecastUrl + "/me/years/7/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 0);
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsForPlaceThatOwnerDoesntOwn() {
+                    given()
+                        .spec(firstOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                        .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsAdmin() {
+                    given()
+                        .spec(adminSpec)
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsManager() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+        }
+
+        @Nested
+        class GetMinMonthForPlaceAndYear {
+
+            @Nested
+            class MinMonthForPlace {
+
+                @Test
+                void shouldReturnMinMonthForPlaceWithForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/min-month/1/place?year=2022");
+                    Integer minMonth = response.as(Integer.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(minMonth);
+                    assertEquals(minMonth, 1);
+                }
+
+                @Test
+                void shouldReturnSC404WhenPlaceHasNoForecastsForYear() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/7/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.FORECAST_NOT_FOUND));
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/7/place?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/7/place?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC404WhenPlaceNotExists() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/-10232321321323/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.FORECAST_NOT_FOUND));
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsAdmin() {
+                    given()
+                        .spec(adminSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsOwner() {
+                    given()
+                        .spec(firstOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+
+            @Nested
+            class MinMonthForOwnPlace {
+
+                @Test
+                void shouldReturnMinMonthForPlaceWithForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createForecastUrl + "/me/min-month/2/place?year=2022");
+                    Integer minMonth = response.as(Integer.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(minMonth);
+                    assertEquals(minMonth, 1);
+                }
+
+                @Test
+                void shouldReturnSC403OwnerDoesntOwnPlace() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/3/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/2/place?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/2/place?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsAdmin() {
+                    given()
+                        .spec(adminSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsManager() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+        }
+
+        @Nested
+        class IsReportForPlace {
+
+            @Nested
+            class ForPlace {
+
+                @Test
+                void shouldReturnTrueWhenReportIs() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createReportUrl + "/place/1/is-report?year=2022");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, true);
+                }
+
+                @Test
+                void shouldReturnFalseWhenReportIsNot() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createReportUrl + "/place/1/is-report?year=2023");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, false);
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsAdmin() {
+                    given()
+                        .spec(adminSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsOwner() {
+                    given()
+                        .spec(firstOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsGuest() {
+                    given()
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+
+            @Nested
+            class ForOwnPlace {
+                @Test
+                void shouldReturnTrueWhenReportIs() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createReportUrl + "/me/place/2/is-report?year=2022");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, true);
+                }
+
+                @Test
+                void shouldReturnFalseWhenReportIsNot() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createReportUrl + "/me/place/2/is-report?year=2023");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, false);
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsAdmin() {
+                    given()
+                        .spec(adminSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsManager() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsGuest() {
+                    given()
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportForNotOwnedPlace() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/3/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+                }
+            }
+        }
+    }
+
+    @Nested
+    class MOW8 {
+        private static final String createReportUrl = "/reports";
+        private static RequestSpecification firstOwnerSpec;
+        private static RequestSpecification secondOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            firstOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("ikaminski", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            secondOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetYearlyReports {
+
+            @Test
+            void shouldReturnYearlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/1/report/year?year=2022");
+                PlaceReportYearDto placeReportYearDto = response.as(PlaceReportYearDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportYearDto);
+                assertEquals(placeReportYearDto.getYear(), 2022);
+                assertNotNull(placeReportYearDto.getDetails());
+                assertTrue(placeReportYearDto.getDetails().size() > 0);
+                assertNotNull(placeReportYearDto.getBalance());
+                assertNotNull(placeReportYearDto.getTotalCostSum());
+                assertNotNull(placeReportYearDto.getDifferential());
+                assertNotNull(placeReportYearDto.getForecastedCostSum());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2019")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=3000")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsOwner() {
+                given()
+                    .spec(firstOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/645643/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GetOwnYearlyReports {
+            @Test
+            void shouldReturnYearlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/year?year=2022");
+                PlaceReportYearDto placeReportYearDto = response.as(PlaceReportYearDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportYearDto);
+                assertEquals(placeReportYearDto.getYear(), 2022);
+                assertNotNull(placeReportYearDto.getDetails());
+                assertTrue(placeReportYearDto.getDetails().size() > 0);
+                assertNotNull(placeReportYearDto.getBalance());
+                assertNotNull(placeReportYearDto.getTotalCostSum());
+                assertNotNull(placeReportYearDto.getDifferential());
+                assertNotNull(placeReportYearDto.getForecastedCostSum());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/year?year=2019")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/year?year=3000")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsManager() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/me/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/45454545/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingYearlyReportForNotOwnPlace() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/4/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+            }
+        }
+
+        @Nested
+        class GetMonthlyReports {
+            @Test
+            void shouldReturnMonthlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2022&month=1");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto.getYear(), 2022);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertTrue(placeReportMonthDto.isCompleteMonth());
+            }
+
+            @Test
+            void shouldReturnSumMonthlyReportWhenFullIsTrue() {
+
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2023&month=1");
+                PlaceReportMonthDto placeReportMonthDto1 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto1);
+                assertEquals(placeReportMonthDto1.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto1.getYear(), 2023);
+                assertNotNull(placeReportMonthDto1.getDetails());
+                assertTrue(placeReportMonthDto1.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto1.getBalance());
+                assertNotNull(placeReportMonthDto1.getTotalRealValue());
+                assertNotNull(placeReportMonthDto1.getDifferential());
+                assertNotNull(placeReportMonthDto1.getTotalValue());
+
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2023&month=2");
+                PlaceReportMonthDto placeReportMonthDto2 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto2);
+                assertEquals(placeReportMonthDto2.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto2.getYear(), 2023);
+                assertNotNull(placeReportMonthDto2.getDetails());
+                assertTrue(placeReportMonthDto2.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto2.getBalance());
+                assertNotNull(placeReportMonthDto2.getTotalRealValue());
+                assertNotNull(placeReportMonthDto2.getDifferential());
+                assertNotNull(placeReportMonthDto2.getTotalValue());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2023&month=2&full=true");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto.getYear(), 2023);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertEquals(placeReportMonthDto.getTotalValue(),
+                    placeReportMonthDto1.getTotalValue().add(placeReportMonthDto2.getTotalValue()));
+                assertEquals(placeReportMonthDto.getTotalRealValue()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto1.getTotalRealValue().add(placeReportMonthDto2.getTotalRealValue())
+                        .setScale(0, RoundingMode.CEILING));
+                assertEquals(placeReportMonthDto.getBalance()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto2.getBalance()
+                        .setScale(0, RoundingMode.CEILING));
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2019&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=3000&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenMonthNotValid() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=13")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=-1")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsOwner() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2452145252/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GetOwnMonthlyReports {
+            @Test
+            void shouldReturnMonthlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2022&month=1");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto.getYear(), 2022);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertTrue(placeReportMonthDto.isCompleteMonth());
+            }
+
+            @Test
+            void shouldReturnSumMonthlyReportWhenFullIsTrue() {
+
+                io.restassured.response.Response response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2023&month=1");
+                PlaceReportMonthDto placeReportMonthDto1 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto1);
+                assertEquals(placeReportMonthDto1.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto1.getYear(), 2023);
+                assertNotNull(placeReportMonthDto1.getDetails());
+                assertTrue(placeReportMonthDto1.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto1.getBalance());
+                assertNotNull(placeReportMonthDto1.getTotalRealValue());
+                assertNotNull(placeReportMonthDto1.getDifferential());
+                assertNotNull(placeReportMonthDto1.getTotalValue());
+
+
+                response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2023&month=2");
+                PlaceReportMonthDto placeReportMonthDto2 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto2);
+                assertEquals(placeReportMonthDto2.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto2.getYear(), 2023);
+                assertNotNull(placeReportMonthDto2.getDetails());
+                assertTrue(placeReportMonthDto2.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto2.getBalance());
+                assertNotNull(placeReportMonthDto2.getTotalRealValue());
+                assertNotNull(placeReportMonthDto2.getDifferential());
+                assertNotNull(placeReportMonthDto2.getTotalValue());
+
+                response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2023&month=2&full=true");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto.getYear(), 2023);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertEquals(placeReportMonthDto.getTotalValue(),
+                    placeReportMonthDto1.getTotalValue().add(placeReportMonthDto2.getTotalValue()));
+                assertEquals(placeReportMonthDto.getTotalRealValue()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto1.getTotalRealValue().add(placeReportMonthDto2.getTotalRealValue())
+                        .setScale(0, RoundingMode.CEILING));
+                assertEquals(placeReportMonthDto.getBalance()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto2.getBalance()
+                        .setScale(0, RoundingMode.CEILING));
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2019&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=3000&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenMonthNotValid() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=13")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=-1")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsManager() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2452145252/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportForNotOwnPlace() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/4/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+            }
+        }
+    }
+
 
     @Nested
     class MOW10 {
@@ -331,7 +1376,7 @@ public class MowITests extends TestContainersSetup {
                     .findFirst()
                     .orElseThrow();
 
-                assertEquals(821.22, coldWaterForecast.getValue().doubleValue());
+                assertEquals(821.23, coldWaterForecast.getValue().doubleValue());
                 assertEquals(117.318, coldWaterForecast.getAmount().doubleValue());
             }
         }
