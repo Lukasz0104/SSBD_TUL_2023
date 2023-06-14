@@ -37,6 +37,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
@@ -79,6 +80,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Inject
     private BuildingFacade buildingFacade;
+
+    @Inject
+    private ReadingFacade readingFacade;
 
     @Override
     @RolesAllowed(MANAGER)
@@ -205,7 +209,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     if (value == null) {
                         throw new InitialReadingRequiredException();
                     } else {
-                        meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                        Reading reading = new Reading(LocalDateTime.now(), value, meter);
+                        readingFacade.create(reading);
+                        meter.getReadings().add(reading);
                     }
                 }
                 meter.setActive(true);

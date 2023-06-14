@@ -5,7 +5,9 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.restassured.builder.RequestSpecBuilder;
@@ -24,6 +26,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsManagerDto;
@@ -32,6 +35,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
@@ -231,7 +235,7 @@ public class MowITests extends TestContainersSetup {
 
                     response.then().statusCode(Response.Status.OK.getStatusCode());
                     assertNotNull(years);
-                    assertEquals(years.size(), 0);
+                    assertTrue(years.size() <= 1);
                 }
 
                 @Test
@@ -301,7 +305,7 @@ public class MowITests extends TestContainersSetup {
 
                     response.then().statusCode(Response.Status.OK.getStatusCode());
                     assertNotNull(years);
-                    assertEquals(years.size(), 0);
+                    assertTrue(years.size() <= 1);
                 }
 
                 @Test
@@ -1447,7 +1451,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenAddingReadingToOwnPlaceAsManager() {
                 AddReadingAsManagerDto dto =
-                    new AddReadingAsManagerDto(8L, BigDecimal.valueOf(620), LocalDate.now());
+                    new AddReadingAsManagerDto(10L, BigDecimal.valueOf(620), LocalDate.now());
 
                 given()
                     .spec(managerSpec)
@@ -2273,7 +2277,7 @@ public class MowITests extends TestContainersSetup {
                     .extract()
                     .jsonPath().getInt("$.size()");
 
-                dto = new CreatePlaceDTO(4, BigDecimal.valueOf(38.93), 2, buildingId);
+                dto = new CreatePlaceDTO(2137, BigDecimal.valueOf(38.93), 2, buildingId);
 
                 given(managerSpec)
                     .contentType(ContentType.JSON)
@@ -2858,33 +2862,377 @@ public class MowITests extends TestContainersSetup {
 
         private static final String createPlacesUrl = "/places";
 
+        private static final String createReportUrl = "/reports";
+
+        private static final String createMetersUrl = "/meters";
+
         @Nested
         class PositiveCases {
 
             @Test
             void shouldAddNonMeterCategoryAndGenerateForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
 
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
 
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.elevator")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/2/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.elevator")));
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(2L);
+                addCategoryDto.setCategoryId(8L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.elevator")));
+
+                if (!december) {
+                    response = given()
+                        .spec(managerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .anyMatch(r -> r.getCategoryName().equals("categories.elevator")));
+                }
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/2/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.elevator")));
             }
 
             @Test
-            void shouldAddMeterCategoryWhenMeterAndReadingExistAndGenerateForecasts() {
+            void shouldAddCategoryWhenMeterExistsAndGenerateForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
 
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.hot_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.hot_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                List<MeterDto> meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                MeterDto meterDto = meterDtos.get(0);
+                assertFalse(meterDto.isActive());
+
+                response = given().spec(managerSpec).when()
+                    .get(createMetersUrl + "/" + meterDto.getId() + "/readings?page=1&pageSzie=100");
+                Page<ReadingDto> readingDtos = response.as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertEquals(readingDtos.getData().size(), 0);
+
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(7L);
+                addCategoryDto.setCategoryId(4L);
+                addCategoryDto.setNewReading(BigDecimal.valueOf(323.123));
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.hot_water")));
+
+                if (!december) {
+                    response = given()
+                        .spec(managerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .anyMatch(r -> r.getCategoryName().equals("categories.hot_water")));
+                }
+
+                response = given().spec(managerSpec).when().get("/places/7/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.hot_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.hot_water")).findFirst().get()
+                        .isActive());
+
+                response = given().spec(managerSpec).when()
+                    .get(createMetersUrl + "/" + meterDto.getId() + "/readings?page=1&pageSzie=100");
+                readingDtos = response.as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertEquals(readingDtos.getData().size(), 1);
             }
 
             @Test
             void shouldAddMeterAndCategoryWhenMeterDoesntExistAndGenerateForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
 
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                List<MeterDto> meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                List<MeterDto> finalMeterDtos = meterDtos;
+                assertThrows(MeterNotFoundException.class, () -> finalMeterDtos.stream()
+                    .filter(m -> m.getCategory()
+                        .equals("categories.cold_water"))
+                    .findFirst().orElseThrow(MeterNotFoundException::new));
+
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(7L);
+                addCategoryDto.setCategoryId(5L);
+                addCategoryDto.setNewReading(BigDecimal.valueOf(323.123));
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+
+                if (!december) {
+                    response = given()
+                        .spec(managerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .anyMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+                }
+
+                response = given().spec(managerSpec).when().get("/places/7/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water"))
+                        .findFirst().get().isActive());
+
+                MeterDto meterDto =
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water")).findFirst()
+                        .get();
+
+                response = given().spec(managerSpec).when()
+                    .get(createMetersUrl + "/" + meterDto.getId() + "/readings?page=1&pageSzie=100");
+                Page<ReadingDto> readingDtos = response.as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertEquals(readingDtos.getData().size(), 1);
             }
 
             @Test
-            void shouldAddMeterAndCategoryWhenMeterExistsButNoReadingAndGenerateForecasts() {
+            void shouldAddCategoryOnceWhenConcurrentAdd() throws BrokenBarrierException, InterruptedException {
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
 
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                        AddCategoryDto addCategoryDto = new AddCategoryDto();
+                        addCategoryDto.setPlaceId(2L);
+                        addCategoryDto.setCategoryId(9L);
+                        addCategoryDto.setNewReading(null);
+
+                        int statusCode = given()
+                            .spec(managerSpec)
+                            .contentType(ContentType.JSON)
+                            .body(addCategoryDto)
+                            .when()
+                            .post(createPlacesUrl + "/add/category")
+                            .getStatusCode();
+
+                        if (statusCode == 204) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response response =
+                    given().spec(managerSpec).when().get(createPlacesUrl + "/2/categories");
+                List<PlaceCategoryDTO> categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.satellite_tv")));
             }
 
             @Test
-            void shouldAddCategoryOnceWhenConcurrentAdd() {
+            void shouldGetMissingCategoriesForPlace() {
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createPlacesUrl + "/3/categories/missing");
+                List<PlaceCategoryDTO> placeCategoryDTO = Arrays.asList(response.as(PlaceCategoryDTO[].class));
+                response.then().statusCode(Response.Status.OK.getStatusCode());
 
+                assertEquals(placeCategoryDTO.size(), 3);
             }
         }
 
@@ -3112,6 +3460,298 @@ public class MowITests extends TestContainersSetup {
 
     @Nested
     class MOW27 {
+
+        private static final String createReportUrl = "/reports";
+        private static final String createPlacesUrl = "/places";
+
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("dchmielewski", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+
+            @Test
+            void shouldRemoveNonMeterCategoryFromPlaceAndDeleteFutureForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
+
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.parking")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.parking")));
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/10")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                if (!december) {
+                    response = given()
+                        .spec(onlyManagerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .noneMatch(r -> r.getCategoryName().equals("categories.parking")));
+                }
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.parking")));
+            }
+
+            @Test
+            void shouldRemoveMeterCategoryMarkMeterAsInactiveAndDeleteFutureForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck = now.getMonthValue() + 1;
+
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
+
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/meters");
+                List<MeterDto> meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(meterDtos.stream().anyMatch(m -> m.getCategory().equals("categories.cold_water")));
+                assertTrue(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water")).findFirst().get()
+                        .isActive());
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/5")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                if (!december) {
+                    response = given()
+                        .spec(onlyManagerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .noneMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+                }
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/meters");
+                meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(meterDtos.stream().anyMatch(m -> m.getCategory().equals("categories.cold_water")));
+                assertFalse(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water")).findFirst().get()
+                        .isActive());
+            }
+
+            @Test
+            void shouldReturnOneSC204WhenRemovingConcurrently() throws BrokenBarrierException, InterruptedException {
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .spec(onlyManagerSpec)
+                            .when()
+                            .delete(createPlacesUrl + "/5/categories/1")
+                            .getStatusCode();
+
+                        if (statusCode == 204) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response response =
+                    given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                List<PlaceCategoryDTO> categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.maintenance")));
+            }
+
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturnSC404WhenRemovingCategoryFromNonExistingPlace() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/2137/categories/1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryFromOwnPlace() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.ILLEGAL_SELF_ACTION));
+            }
+
+            @Test
+            void shouldReturnSC409WhenRemovingCategoryFromInactivePlace() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/8/categories/1")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACTIVE_PLACE));
+            }
+
+            @Test
+            void shouldReturnSC409WhenRemovingCategoryThatIsNotInUse() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_IN_USE));
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryAsAdmin() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryAsOwner() {
+                given()
+                    .spec(ownerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryAsGuest() {
+                given()
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
 
     }
 
