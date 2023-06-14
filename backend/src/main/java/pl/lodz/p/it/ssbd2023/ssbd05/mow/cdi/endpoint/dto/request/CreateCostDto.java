@@ -6,6 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 import java.math.BigDecimal;
 
@@ -18,8 +19,8 @@ public class CreateCostDto {
     private int year;
 
     @NotNull
-    @Positive
-    private short month;
+    @Range(min = 1, max = 12)
+    private int month;
 
     @NotNull
     private Long categoryId;
