@@ -74,7 +74,7 @@
                 </div>
             </div>
             <div
-                class="col-sm-2"
+                class="col-md-4 col-xl-3 col-xxl-2"
                 *ngIf="editing">
                 <div
                     class="card m-3 rounded-3 shadow text-center"
@@ -103,28 +103,28 @@
     <button
         *ngIf="!editing"
         type="button"
-        class="btn btn-outline-success"
+        class="btn btn-outline-success ms-2 mt-1"
         (click)="editing = true">
         {{ 'component.place.categories.edit' | translate }}
     </button>
     <button
         *ngIf="editing"
         type="button"
-        class="btn btn-outline-success"
+        class="btn btn-outline-success ms-2 mt-1"
         (click)="stopEdit()">
         {{ 'component.place.categories.edit-close' | translate }}
     </button>
     <button
         *ngIf="editing && chosen !== -1"
         type="button"
-        class="btn btn-outline-danger ms-2"
+        class="btn btn-outline-danger ms-2 mt-1"
         (click)="removeCategory()">
         {{ 'component.place.categories.delete' | translate }}
     </button>
     <button
         *ngIf="editing && chosen !== -1"
         type="button"
-        class="btn btn-outline-warning ms-2"
+        class="btn btn-outline-warning ms-2 mt-1"
         (click)="addOverdueForecast()">
         {{
             'component.place.categories.add-current-forecast-action' | translate
