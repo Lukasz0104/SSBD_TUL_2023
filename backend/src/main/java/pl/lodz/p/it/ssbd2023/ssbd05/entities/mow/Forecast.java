@@ -110,6 +110,14 @@ import java.time.Year;
             SELECT f FROM Forecast f
             WHERE f.year = :year AND f.rate.category.name = :categoryName"""),
     @NamedQuery(
+        name = "Forecast.findByYearAndCategoryNameAndMonthBefore",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE
+                f.year = :year
+                AND f.rate.category.name = :categoryName
+                AND f.month < :month"""),
+    @NamedQuery(
         name = "Forecast.findByYearAndCategoryId",
         query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.rate.category.id = :categoryId"),
     @NamedQuery(

@@ -115,8 +115,16 @@ import java.time.Year;
     @NamedQuery(
         name = "Cost.findDistinctCategoryNames",
         query = """
-            SELECT DISTINCT c.category.name FROM Cost c""")
-
+            SELECT DISTINCT c.category.name FROM Cost c"""),
+    @NamedQuery(
+        name = "Cost.sumConsumptionForCategoryAndYearAndMonthBefore",
+        query = """
+            SELECT SUM(c.totalConsumption)
+            FROM Cost c
+            WHERE
+                c.year = :year
+                AND c.category.id = :categoryId
+                AND c.month < :month""")
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})

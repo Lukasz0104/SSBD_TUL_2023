@@ -314,4 +314,13 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
             .setParameter("categoryName", categoryName)
             .getResultList();
     }
+
+    @RolesAllowed(MANAGER)
+    public List<Forecast> findByYearAndCategoryNameAndMonthBefore(Year year, String categoryName, Month month) {
+        return em.createNamedQuery("Forecast.findByYearAndCategoryNameAndMonthBefore", Forecast.class)
+            .setParameter("year", year)
+            .setParameter("categoryName", categoryName)
+            .setParameter("month", month)
+            .getResultList();
+    }
 }

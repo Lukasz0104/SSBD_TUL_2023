@@ -24,6 +24,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterce
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CostFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
@@ -34,6 +35,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
@@ -65,6 +67,9 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @Inject
     private CategoryFacade categoryFacade;
 
+    @Inject
+    private CostFacade costFacade;
+
     @Override
     @RolesAllowed({MANAGER, OWNER})
     public Report getReportDetails(Long id) throws AppBaseException {
@@ -81,14 +86,24 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @RolesAllowed(MANAGER)
     public List<ReportYearEntry> getCommunityReportByYear(Integer year) throws AppBaseException {
         var yearObject = Year.of(year);
-        Map<String, List<Report>> reportsGroupedByCategoryName = reportFacade.findByYear(yearObject)
+        var reports = reportFacade.findByYear(yearObject);
+
+        if (!reports.isEmpty()) {
+            return getCommunityReportForYearWithReports(yearObject, reports);
+        }
+
+        return calculateCommunityReportForOngoingYear(yearObject);
+    }
+
+    private List<ReportYearEntry> getCommunityReportForYearWithReports(Year year, List<Report> reports) {
+        Map<String, List<Report>> reportsGroupedByCategoryName = reports
             .stream()
             .collect(Collectors.groupingBy(r -> r.getCategory().getName()));
 
         List<ReportYearEntry> yearlyCommunityReports = new ArrayList<>(reportsGroupedByCategoryName.size());
 
         for (Map.Entry<String, List<Report>> entry : reportsGroupedByCategoryName.entrySet()) {
-            List<Forecast> forecasts = forecastFacade.findByYearAndCategoryName(yearObject, entry.getKey());
+            List<Forecast> forecasts = forecastFacade.findByYearAndCategoryName(year, entry.getKey());
 
             BigDecimal averageRate = forecasts.stream()
                 .map(Forecast::getRate)
@@ -113,6 +128,42 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
                 .map(Report::getTotalConsumption)
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
 
+            yearlyCommunityReports.add(rye);
+        }
+
+        return yearlyCommunityReports;
+    }
+
+    private List<ReportYearEntry> calculateCommunityReportForOngoingYear(Year year) {
+        Month lastMonth = LocalDateTime.now().minusMonths(1).getMonth();
+        List<ReportYearEntry> yearlyCommunityReports = new ArrayList<>(12);
+
+        var categories = categoryFacade.findAll();
+
+        for (var category : categories) {
+            var forecasts = forecastFacade.findByYearAndCategoryNameAndMonthBefore(year, category.getName(), lastMonth);
+
+            BigDecimal averageForecastedRate = forecasts.stream()
+                .map(Forecast::getRate)
+                .map(Rate::getValue)
+                .collect(
+                    Collectors.teeing(
+                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add),
+                        Collectors.counting(),
+                        (sum, count) -> sum.divide(BigDecimal.valueOf(count), 6, RoundingMode.CEILING)
+                    )
+                );
+
+            ReportYearEntry rye = new ReportYearEntry(
+                averageForecastedRate,
+                forecasts.get(0).getRate().getAccountingRule(),
+                category.getName());
+
+            forecasts.forEach(f -> rye.addMonth(f.getValue(), f.getAmount(), f.getRealValue()));
+
+            var consumption = costFacade.sumConsumptionForCategoryAndMonthBefore(year,category.getId(),lastMonth);
+
+            rye.setRealAmount(consumption);
             yearlyCommunityReports.add(rye);
         }
 

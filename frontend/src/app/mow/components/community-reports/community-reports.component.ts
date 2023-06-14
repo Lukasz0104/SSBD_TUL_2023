@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ReportService } from '../../services/report.service';
+import { BehaviorSubject } from 'rxjs';
+import { ReportEntry } from '../../model/building-report';
+import { PlaceService } from '../../services/place.service';
+import { AccountingRule } from '../../model/accounting-rule';
 
 @Component({
     selector: 'app-community-reports',
@@ -8,10 +12,19 @@ import { ReportService } from '../../services/report.service';
 export class CommunityReportsComponent implements OnInit {
     yearsAndMonths: Map<string, number[]> = new Map<string, number[]>();
     years: number[] = [];
-    currentYear: number | undefined;
-    currentMonth = new Date().getMonth();
+    currentYear;
+    currentMonth;
 
-    constructor(private reportService: ReportService) {}
+    protected report$ = new BehaviorSubject<ReportEntry[]>([]);
+
+    constructor(
+        private reportService: ReportService,
+        protected placeService: PlaceService
+    ) {
+        const date = new Date();
+        this.currentYear = date.getFullYear();
+        this.currentMonth = date.getMonth();
+    }
 
     ngOnInit(): void {
         this.init();
@@ -23,13 +36,19 @@ export class CommunityReportsComponent implements OnInit {
                 const yearsAndMonths = new Map(Object.entries(y));
                 this.yearsAndMonths = yearsAndMonths;
                 this.years = Array.from(yearsAndMonths.keys()).map((x) => +x);
-                this.currentYear =
-                    this.currentYear ?? +this.years[this.years.length - 1];
+                this.currentYear ??= +this.years[this.years.length - 1];
                 for (const year of this.years) {
                     this.yearsAndMonths.get(year.toString())?.push(0);
                 }
+                this.loadReport();
             }
         });
+    }
+
+    loadReport() {
+        this.reportService
+            .getCommunityReportForYear(this.currentYear)
+            .subscribe((report) => this.report$.next(report));
     }
 
     getYears() {
@@ -49,13 +68,29 @@ export class CommunityReportsComponent implements OnInit {
         if (!months?.includes(this.currentMonth) && months) {
             this.currentMonth = months[0];
         }
+        this.loadReport();
     }
 
     changeCurrentMonth(month: number) {
         this.currentMonth = month;
+        this.loadReport();
     }
 
     onReload() {
         this.init();
+    }
+
+    protected AccountingRule = AccountingRule;
+
+    protected realValueSum(report: ReportEntry[]) {
+        return report
+            .map((re) => re.realValue)
+            .reduce((total, value) => total + value, 0);
+    }
+
+    protected predValueSum(report: ReportEntry[]) {
+        return report
+            .map((re) => re.predValue)
+            .reduce((total, value) => total + value, 0);
     }
 }
