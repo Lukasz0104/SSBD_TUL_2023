@@ -58,6 +58,12 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @Override
+    @PermitAll
+    public Optional<Place> find(Long id) {
+        return super.find(id);
+    }
+
+    @Override
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
         return super.findAll();
