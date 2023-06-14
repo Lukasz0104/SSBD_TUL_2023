@@ -521,7 +521,9 @@
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
       "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
-      "add-place": "Potwierdź dodanie nowego lokalu."
+      "add-place": "Potwierdź dodanie nowego lokalu.",
+      "place-owners-add": "Czy na pewno chcesz dodać wybranego właściciela do lokalu?",
+      "place-owners-remove": "Czy na pewno chcesz usunąć wybranego właściciela z lokalu?"
     },
     "add-place": {
       "title": "Dodaj nowy lokal",
@@ -662,7 +664,7 @@
     "place-owners-add": {
       "response": {
         "message": {
-          "optimistic_lock": "Lista, właścicieli nie przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
           "account_not_found": "Nie znaleziono konta użytkownika",
           "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
@@ -672,7 +674,7 @@
     "place-owners-remove": {
       "response": {
         "message": {
-          "optimistic_lock": "Lista, właścicieli przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "optimistic_lock": "Lista przypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
           "account_not_found": "Nie znaleziono konta użytkownika",
           "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"

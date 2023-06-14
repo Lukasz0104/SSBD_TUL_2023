@@ -4,6 +4,7 @@ import { EMPTY, Observable } from 'rxjs';
 import { PlaceOwner } from '../../model/place';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { PlaceOwnersAddComponent } from '../place-owners-add/place-owners-add.component';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-place-owners',
@@ -29,9 +30,18 @@ export class PlaceOwnersComponent implements OnInit {
     }
 
     removeOwner(ownerDataId: number) {
-        this.placeService
-            .removeOwner(ownerDataId, this.placeId)
-            .subscribe(() => this.getOwners());
+        const modalRef = this.modalService.open(ConfirmActionComponent);
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'modal.confirm-action.place-owners-remove';
+        instance.danger = '';
+        modalRef.result.then((res: boolean): void => {
+            if (res && this.placeId) {
+                this.placeService
+                    .removeOwner(ownerDataId, this.placeId)
+                    .subscribe(() => this.getOwners());
+            }
+        });
     }
 
     addOwners() {
