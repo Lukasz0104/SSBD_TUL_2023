@@ -36,9 +36,11 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     List<OwnerData> getPlaceOwners(Long id) throws AppBaseException;
 
-    void addOwnerToPlace(Long id) throws AppBaseException;
+    void addOwnerToPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException;
 
-    void removeOwnerFromPlace(Long id) throws AppBaseException;
+    List<OwnerData> getOwnerNotOwningPlace(Long id) throws AppBaseException;
+
+    void removeOwnerFromPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException;
 
     List<Rate> getCurrentRatesFromPlace(Long id) throws AppBaseException;
 
@@ -52,5 +54,6 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     void editPlaceDetails(Long id, Place newPlace) throws AppBaseException;
 
-    List<Rate> findCurrentRateByPlaceIdNotMatch(Long id);
+    List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) throws AppBaseException;
+
 }

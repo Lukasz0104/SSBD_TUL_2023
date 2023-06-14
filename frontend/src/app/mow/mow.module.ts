@@ -27,6 +27,7 @@ import { CostComponent } from './components/cost/cost.component';
 import { PlaceRatesComponent } from './components/place-rates/place-rates.component';
 import { AddPlaceComponent } from './components/add-place/add-place.component';
 import { PlaceOwnersComponent } from './components/place-owners/place-owners.component';
+import { PlaceOwnersAddComponent } from './components/place-owners-add/place-owners-add.component';
 import { CommunityReportsComponent } from './components/community-reports/community-reports.component';
 
 @NgModule({
@@ -54,6 +55,7 @@ import { CommunityReportsComponent } from './components/community-reports/commun
         AddInitialReadingComponent,
         AddPlaceComponent,
         PlaceOwnersComponent,
+        PlaceOwnersAddComponent,
         CommunityReportsComponent
     ],
     imports: [
