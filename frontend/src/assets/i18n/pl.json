@@ -662,7 +662,7 @@
     "place-owners-add": {
       "response": {
         "message": {
-          "optimistic_lock": "List właścicieli nie przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "optimistic_lock": "Lista, właścicieli nie przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
           "account_not_found": "Nie znaleziono konta użytkownika",
           "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
@@ -672,7 +672,7 @@
     "place-owners-remove": {
       "response": {
         "message": {
-          "optimistic_lock": "List właścicieli przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "optimistic_lock": "Lista, właścicieli przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
           "account_not_found": "Nie znaleziono konta użytkownika",
           "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
