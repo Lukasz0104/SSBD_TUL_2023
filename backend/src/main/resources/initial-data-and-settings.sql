@@ -314,6 +314,7 @@ insert into public.place_owner (place_id, owner_id) values (6, -4);
 
 insert into public.place_owner (place_id, owner_id) values (7, -20);
 insert into public.place_owner (place_id, owner_id) values (7, -60);
+insert into public.place_owner (place_id, owner_id) values (8, -60);
 --endregion
 
 --region categories

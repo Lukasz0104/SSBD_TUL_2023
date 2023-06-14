@@ -3977,7 +3977,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when()
                     .queryParam("ownerId", id)
-                    .post("places/1/owners")
+                    .post("places/2/owners")
                     .then()
                     .statusCode(Response.Status.NO_CONTENT.getStatusCode());
 
@@ -4125,7 +4125,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when()
                     .queryParam("ownerId", id)
-                    .delete("places/7/owners")
+                    .delete("places/8/owners")
                     .then()
                     .statusCode(Response.Status.NO_CONTENT.getStatusCode());
             }
