@@ -459,7 +459,8 @@
       "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
       "title": "Raport",
       "loading": "Ładowanie raportów",
-      "balance": "Saldo"
+      "balance": "Saldo",
+      "average-rate": "Średnia stawka"
     },
     "place-rates": {
       "loading": "Ładowanie stawek...",

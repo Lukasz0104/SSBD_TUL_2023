@@ -459,7 +459,8 @@
       "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
       "title": "Report",
       "loading": "Loading reports",
-      "balance": "Balance"
+      "balance": "Balance",
+      "average-rate": "Average rate"
     },
     "place-rates": {
       "loading": "Loading rates...",

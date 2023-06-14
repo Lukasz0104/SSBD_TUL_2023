@@ -106,7 +106,11 @@
                             <th scope="col">
                                 {{ 'component.report.usage-diff' | translate }}
                             </th>
-                            <th scope="col">Średnia stawka</th>
+                            <th scope="col">
+                                {{
+                                    'component.report.average-rate' | translate
+                                }}
+                            </th>
                         </tr>
                     </thead>
                     <tbody *ngFor="let report of reports.details">
@@ -331,8 +335,17 @@
                                         | translate
                                 }}
                             </th>
-                            <th scope="col">
+                            <th
+                                scope="col"
+                                *ngIf="currentMonth !== -1">
                                 {{ 'component.report.rate' | translate }}
+                            </th>
+                            <th
+                                scope="col"
+                                *ngIf="currentMonth === -1">
+                                {{
+                                    'component.report.average-rate' | translate
+                                }}
                             </th>
                         </tr>
                     </thead>
