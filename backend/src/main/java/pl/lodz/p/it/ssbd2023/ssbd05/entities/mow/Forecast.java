@@ -143,6 +143,14 @@ import java.time.Year;
         name = "Forecast.findDistinctYearsById",
         query = "SELECT DISTINCT f.year FROM Forecast f WHERE f.place.building.id = :id ORDER BY f.year"),
     @NamedQuery(
+        name = "Forecast.findYearsAndMonths",
+        query = """
+            SELECT f.year AS year, f.month AS month
+                FROM Forecast f
+                GROUP BY f.year, f.month
+                ORDER BY f.year, f.month
+            """),
+    @NamedQuery(
         name = "Forecast.findYearsAndMonthsByBuildingId",
         query = """
             SELECT f.year AS year, COUNT(DISTINCT f.month) AS months

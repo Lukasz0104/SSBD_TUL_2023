@@ -70,8 +70,8 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<Report> getAllCommunityReports(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Map<Integer, List<Integer>> getAllCommunityReportsYearsAndMonths() throws AppBaseException {
+        return forecastFacade.findYearsAndMonths();
     }
 
     @Override

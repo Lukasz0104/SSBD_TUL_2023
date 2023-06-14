@@ -548,7 +548,8 @@
     "buildings": "Budynki",
     "costs": "Koszty",
     "cost": "Koszt",
-    "place": "Lokal"
+    "place": "Lokal",
+    "community-reports": "Raporty wspólnoty"
   },
   "toast": {
     "auth": {

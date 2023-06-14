@@ -548,7 +548,8 @@
     "place": "Place",
     "costs": "Costs",
     "cost": "Cost",
-    "reports": "Reports"
+    "reports": "Reports",
+    "community-reports": "Community reports"
   },
   "toast": {
     "auth": {

@@ -17,7 +17,7 @@ import java.util.Map;
 public interface ReportManagerLocal extends CommonManagerInterface {
     Report getReportDetails(Long id) throws AppBaseException;
 
-    List<Report> getAllCommunityReports(Long id) throws AppBaseException;
+    Map<Integer, List<Integer>> getAllCommunityReportsYearsAndMonths() throws AppBaseException;
 
     Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException;
 

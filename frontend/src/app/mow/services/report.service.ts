@@ -96,6 +96,12 @@ export class ReportService {
         );
     }
 
+    getYears(): Observable<Map<string, number[]> | null> {
+        return this.http.get<Map<string, number[]> | null>(
+            `${this.reportUrl}/community`
+        );
+    }
+
     getBuildingReportByYear(
         buildingId: number,
         year: number
