@@ -3972,7 +3972,7 @@ public class MowITests extends TestContainersSetup {
         class PositiveCases {
             @Test
             void shouldAddOwnerToPlace() {
-                Long id = -4L;
+                Long id = -60L;
                 given()
                     .spec(onlyManagerSpec)
                     .when()
@@ -3980,6 +3980,11 @@ public class MowITests extends TestContainersSetup {
                     .post("places/1/owners")
                     .then()
                     .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                given().
+                    spec(onlyManagerSpec)
+                    .when()
+                    .get("places/1/owners");
             }
         }
 
@@ -4114,13 +4119,13 @@ public class MowITests extends TestContainersSetup {
         @Nested
         class PositiveCases {
             @Test
-            void shouldRemoveOwnerFromlace() {
-                Long id = -1L;
+            void shouldRemoveOwnerFromPlace() {
+                Long id = -60L;
                 given()
                     .spec(onlyManagerSpec)
                     .when()
                     .queryParam("ownerId", id)
-                    .delete("places/1/owners")
+                    .delete("places/7/owners")
                     .then()
                     .statusCode(Response.Status.NO_CONTENT.getStatusCode());
             }

@@ -663,6 +663,7 @@
     },
     "place-owners-add": {
       "fail": "Failed to add owner to the place",
+      "success": "Successfully added a new owner: ",
       "response": {
         "message": {
           "optimistic_lock": "List of not assigned owners was changed by someone else, please reload the list and try again",
@@ -674,6 +675,7 @@
     },
     "place-owners-remove": {
       "fail": "Failed to remove owner from the place",
+      "success": "Successfully removed owner: ",
       "response": {
         "message": {
           "optimistic_lock": "List of assigned owners was changed by someone else, please reload the list and try again",

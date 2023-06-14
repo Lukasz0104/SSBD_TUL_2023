@@ -663,6 +663,7 @@
     },
     "place-owners-add": {
       "fail": "Nie udało się przypisanie właściciela",
+      "success": "Udało się przypisać nowego właściciela: ",
       "response": {
         "message": {
           "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
@@ -674,6 +675,7 @@
     },
     "place-owners-remove": {
       "fail": "Nie udało się odłączenie właściciela",
+      "success": "Udało się odłączyć właściciela: ",
       "response": {
         "message": {
           "optimistic_lock": "Lista przypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
