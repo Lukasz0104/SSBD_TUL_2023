@@ -27,7 +27,7 @@ public interface ReportManagerLocal extends CommonManagerInterface {
     Map<String, ReportYearEntry> getBuildingReportByYearAndMonth(Long id, Year year, Month month)
         throws AppBaseException;
 
-    Report getCommunityReportByYear(Long year) throws AppBaseException;
+    List<ReportYearEntry> getCommunityReportByYear(Integer year) throws AppBaseException;
 
     ReportPlaceForecastYear getAllOwnReportsDataByPlaceAndYear(Long placeId, Year year, String login)
         throws AppBaseException;

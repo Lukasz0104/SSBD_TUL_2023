@@ -306,4 +306,12 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.executeUpdate();
         em.flush();
     }
+
+    @RolesAllowed(MANAGER)
+    public List<Forecast> findByYearAndCategoryName(Year year, String categoryName) {
+        return em.createNamedQuery("Forecast.findByYearAndCategoryName", Forecast.class)
+            .setParameter("year", year)
+            .setParameter("categoryName", categoryName)
+            .getResultList();
+    }
 }

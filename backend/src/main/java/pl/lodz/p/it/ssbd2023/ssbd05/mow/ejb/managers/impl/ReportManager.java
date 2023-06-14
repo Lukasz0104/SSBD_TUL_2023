@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppInternalServerErrorException;
@@ -32,9 +33,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +79,44 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed(MANAGER)
-    public Report getCommunityReportByYear(Long year) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public List<ReportYearEntry> getCommunityReportByYear(Integer year) throws AppBaseException {
+        var yearObject = Year.of(year);
+        Map<String, List<Report>> reportsGroupedByCategoryName = reportFacade.findByYear(yearObject)
+            .stream()
+            .collect(Collectors.groupingBy(r -> r.getCategory().getName()));
+
+        List<ReportYearEntry> yearlyCommunityReports = new ArrayList<>(reportsGroupedByCategoryName.size());
+
+        for (Map.Entry<String, List<Report>> entry : reportsGroupedByCategoryName.entrySet()) {
+            List<Forecast> forecasts = forecastFacade.findByYearAndCategoryName(yearObject, entry.getKey());
+
+            BigDecimal averageRate = forecasts.stream()
+                .map(Forecast::getRate)
+                .map(Rate::getValue)
+                .collect(
+                    Collectors.teeing(
+                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add),
+                        Collectors.counting(),
+                        (sum, count) -> sum.divide(BigDecimal.valueOf(count), 6, RoundingMode.CEILING)
+                    )
+                );
+
+            ReportYearEntry rye = new ReportYearEntry(
+                averageRate,
+                forecasts.get(0).getRate().getAccountingRule(),
+                entry.getKey());
+
+            forecasts.forEach(f -> rye.addMonth(f.getValue(), f.getAmount(), f.getRealValue()));
+
+            rye.setRealAmount(entry.getValue()
+                .stream()
+                .map(Report::getTotalConsumption)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+
+            yearlyCommunityReports.add(rye);
+        }
+
+        return yearlyCommunityReports;
     }
 
     @Override
@@ -241,8 +280,3 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         }
     }
 }
-
-
-
-
-
