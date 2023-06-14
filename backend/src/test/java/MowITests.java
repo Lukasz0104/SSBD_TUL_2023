@@ -13,6 +13,7 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +25,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
@@ -1660,6 +1662,268 @@ public class MowITests extends TestContainersSetup {
                     .statusCode(404);
             }
         }
+    }
+
+    @Nested
+    class MOW26 {
+
+        private static final String createPlacesUrl = "/places";
+
+        @Nested
+        class PositiveCases {
+
+            @Test
+            void shouldAddNonMeterCategoryAndGenerateForecasts() {
+
+
+            }
+
+            @Test
+            void shouldAddMeterCategoryWhenMeterAndReadingExistAndGenerateForecasts() {
+
+            }
+
+            @Test
+            void shouldAddMeterAndCategoryWhenMeterDoesntExistAndGenerateForecasts() {
+
+            }
+
+            @Test
+            void shouldAddMeterAndCategoryWhenMeterExistsButNoReadingAndGenerateForecasts() {
+
+            }
+
+            @Test
+            void shouldAddCategoryOnceWhenConcurrentAdd() {
+
+            }
+        }
+
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryToOwnPlace() {
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(6L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.ILLEGAL_SELF_ACTION));
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingCategoryThatIsInUse() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(1L);
+                addCategoryDto.setCategoryId(4L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_IN_USE));
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingCategoryToInactivePlace() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(8L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACTIVE_PLACE));
+            }
+
+            @Test
+            void shouldReturnSC400WhenCategoryNotFound() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(4L);
+                addCategoryDto.setCategoryId(-20L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC409WhenInitialReadingRequiredButNotProvided() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(4L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INITIAL_READING_REQUIRED));
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryAsAdmin() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryAsOwner() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(ownerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryAsGuest() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenCheckingIfCategoryRequiresReadingAndNotExists() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=-20")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsAdmin() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=4")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsOwner() {
+                given()
+                    .spec(ownerSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=-20")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsGuest() {
+                given()
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=-20")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingMissingCategoriesAsAdmin() {
+                given()
+                    .spec(adminSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/categories/missing")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingMissingCategoriesAsOwner() {
+                given()
+                    .spec(ownerSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/categories/missing")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingMissingCategoriesAsGuest() {
+                given()
+                    .when()
+                    .get(createPlacesUrl + "/3/categories/missing")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW27 {
+
     }
 
     @Nested
