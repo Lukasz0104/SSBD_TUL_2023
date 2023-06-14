@@ -61,6 +61,23 @@ export class ForecastService {
             );
     }
 
+    getMinMonthForPlaceAndYear(id: number, year: number) {
+        return this.http
+            .get<number>(
+                `${this.transformUrl()}/min-month/${id}/place?year=${year}`
+            )
+            .pipe(
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.handleError(
+                        'toast.forecast.get-min-months-fail',
+                        'get-min-month',
+                        err
+                    );
+                    return EMPTY;
+                })
+            );
+    }
+
     private transformUrl() {
         if (this.authService.isOwner()) {
             return this.forecastUrl + '/me';

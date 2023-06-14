@@ -12,6 +12,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
@@ -27,6 +28,7 @@ import java.time.Month;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -117,6 +119,27 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.setParameter("year", year);
         tq.setParameter("month", month);
         return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public List<Forecast> findByPlaceIdAndYearAndBeforeMonth(Long placeId, Year year, Month month) {
+        TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndYearAndBeforeMonth", Forecast.class);
+        tq.setParameter("placeId", placeId);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed({OWNER, MANAGER})
+    public Optional<Month> findMinMonthByPlaceIdAndYear(Long placeId, Year year) {
+        TypedQuery<Month> tq = em.createNamedQuery("Forecast.findMinMonthByPlaceIdAndYear", Month.class);
+        tq.setParameter("id", placeId);
+        tq.setParameter("year", year);
+        try {
+            return Optional.of(tq.getSingleResult());
+        } catch (NoResultException | NullPointerException nre) {
+            return Optional.empty();
+        }
     }
 
     @RolesAllowed({OWNER, MANAGER})

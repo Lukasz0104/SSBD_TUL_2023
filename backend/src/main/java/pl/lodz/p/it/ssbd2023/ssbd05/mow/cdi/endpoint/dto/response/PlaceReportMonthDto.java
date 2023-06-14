@@ -19,4 +19,5 @@ public class PlaceReportMonthDto {
     private BigDecimal differential;
     private boolean completeMonth;
     private List<PlaceCategoryReportMonthDto> details;
+    private BigDecimal balance;
 }

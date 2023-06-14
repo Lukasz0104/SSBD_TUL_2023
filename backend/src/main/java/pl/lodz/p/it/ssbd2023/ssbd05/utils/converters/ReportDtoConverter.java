@@ -1,9 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.ForecastNotFoundException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.ReportNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportsDto;
@@ -11,90 +8,157 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryR
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportYearDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportForecastYear;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Month;
 import java.util.List;
 import java.util.Map;
 
 public class ReportDtoConverter {
 
-    public static PlaceReportYearDto createPlaceReportYearDtoFromListOfReportForecastYear(
-        List<ReportForecastYear> reportForecastYear) throws AppBaseException {
-        BigDecimal forecasted = reportForecastYear.stream().map(ReportForecastYear::getForecastValueSum)
+    public static PlaceReportYearDto createPlaceReportYearDtoFromReportPlaceForecastYear(
+        ReportPlaceForecastYear reportPlaceForecastYear, Integer year) {
+
+        List<PlaceCategoryReportYearDto> placeCategoryReportYearList =
+            createListOfPlaceCategoryReportYearDtoFromReportPlaceForecastYear(reportPlaceForecastYear);
+
+        BigDecimal forecasted =
+            placeCategoryReportYearList.stream().map(PlaceCategoryReportYearDto::getForecastValueSum)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal actual = placeCategoryReportYearList.stream().map(PlaceCategoryReportYearDto::getTotalCost)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal actual = reportForecastYear.stream().map(ReportForecastYear::getTotalCost)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal differential = forecasted.subtract(actual);
 
         return new PlaceReportYearDto(
-            reportForecastYear.stream().findFirst().orElseThrow(ReportNotFoundException::new).getYear(),
-            forecasted,
-            actual,
-            differential,
-            createListOfPlaceCategoryReportYearDtoFromListOfReportForecastYear(reportForecastYear));
+            year,
+            forecasted.setScale(2, RoundingMode.CEILING),
+            actual.setScale(2, RoundingMode.CEILING),
+            differential.setScale(2, RoundingMode.CEILING),
+            placeCategoryReportYearList,
+            getValue(reportPlaceForecastYear.getBalance()).setScale(2, RoundingMode.CEILING));
     }
 
-    public static PlaceCategoryReportYearDto createPlaceCategoryReportYearDtoFromReportForecastYear(
-        ReportForecastYear reportForecastYear) {
-        return new PlaceCategoryReportYearDto(
-            reportForecastYear.getTotalCost(),
-            reportForecastYear.getTotalConsumption(),
-            reportForecastYear.getCategoryName(),
-            reportForecastYear.getAccountingRule(),
-            reportForecastYear.getForecastAmountSum(),
-            reportForecastYear.getForecastValueSum(),
-            reportForecastYear.getForecastValueSum().subtract(reportForecastYear.getTotalCost()),
-            reportForecastYear.getForecastAmountSum().subtract(reportForecastYear.getTotalConsumption())
-        );
+    public static List<PlaceCategoryReportYearDto> createListOfPlaceCategoryReportYearDtoFromReportPlaceForecastYear(
+        ReportPlaceForecastYear reportPlaceForecastYear) {
+
+        return reportPlaceForecastYear.getReports().stream().map((report -> {
+            BigDecimal forecastAmountSum = reportPlaceForecastYear.getForecasts().stream()
+                .filter(element -> element
+                    .getRate()
+                    .getCategory()
+                    .equals(report.getCategory()))
+                .map(Forecast::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal forecastValueSum = reportPlaceForecastYear.getForecasts().stream()
+                .filter(element -> element
+                    .getRate()
+                    .getCategory()
+                    .equals(report.getCategory()))
+                .map(Forecast::getValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal rateSum = reportPlaceForecastYear.getForecasts().stream()
+                .filter(element -> element
+                    .getRate()
+                    .getCategory()
+                    .equals(report.getCategory()))
+                .map(f -> f.getRate().getValue())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            return new PlaceCategoryReportYearDto(
+                report.getTotalCost().setScale(2, RoundingMode.CEILING),
+                report.getTotalConsumption(),
+                report.getCategory().getName(),
+                report.getCategory().getRates().iterator().next().getAccountingRule(),
+                forecastAmountSum,
+                forecastValueSum.setScale(2, RoundingMode.CEILING),
+                forecastValueSum.subtract(report.getTotalCost()).setScale(2, RoundingMode.CEILING),
+                forecastAmountSum.subtract(report.getTotalConsumption()),
+                rateSum.divide(BigDecimal.valueOf(12), 6, RoundingMode.CEILING)
+                    .setScale(2, RoundingMode.CEILING));
+        })).toList();
     }
 
-    public static List<PlaceCategoryReportYearDto> createListOfPlaceCategoryReportYearDtoFromListOfReportForecastYear(
-        List<ReportForecastYear> reportForecastYear) {
-        return reportForecastYear.stream()
-            .map(ReportDtoConverter::createPlaceCategoryReportYearDtoFromReportForecastYear).toList();
-    }
+    public static PlaceReportMonthDto createPlaceReportMonthDtoFromReportPlaceForecastMonth(
+        ReportPlaceForecastMonth reportPlaceForecastMonth, Integer month, Integer year, boolean full) {
 
-    public static PlaceReportMonthDto createPlaceReportMonthDtoFromListOfForecast(
-        List<Forecast> forecasts) throws AppBaseException {
+        List<PlaceCategoryReportMonthDto> dtos = createListOfPlaceCategoryReportMonthDtoFromListOfForecast(
+            reportPlaceForecastMonth.getForecasts(), full);
 
         BigDecimal forecasted =
-            forecasts.stream().map((element) -> getValue(element.getValue())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal actual = forecasts.stream().map((element) -> getValue(element.getRealValue()))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+            dtos.stream().map(PlaceCategoryReportMonthDto::getValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal actual =
+            dtos.stream().map(PlaceCategoryReportMonthDto::getRealValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal differential = forecasted.subtract(actual);
-        boolean validMonth = forecasts.stream().noneMatch((element) -> element.getRealValue() == null);
+        boolean validMonth = reportPlaceForecastMonth.getForecasts()
+            .stream()
+            .noneMatch((element) -> element.getRealValue() == null);
 
         return new PlaceReportMonthDto(
-            forecasts.stream().findFirst().orElseThrow(ForecastNotFoundException::new).getYear().getValue(),
-            forecasts.stream().findFirst().orElseThrow(ForecastNotFoundException::new).getMonth(),
-            forecasted,
-            actual,
-            differential,
+            year,
+            Month.of(month),
+            forecasted.setScale(2, RoundingMode.CEILING),
+            actual.setScale(2, RoundingMode.CEILING),
+            differential.setScale(2, RoundingMode.CEILING),
             validMonth,
-            createListOfPlaceCategoryReportMonthDtoFromListOfForecast(forecasts)
+            dtos,
+            getValue(reportPlaceForecastMonth.getBalance()).setScale(2, RoundingMode.CEILING)
         );
     }
 
-    public static PlaceCategoryReportMonthDto createPlaceCategoryReportMonthDtoFromForecast(Forecast forecast) {
+    private static PlaceCategoryReportMonthDto createPlaceCategoryReportMonthDtoFromForecast(Forecast forecast) {
         return new PlaceCategoryReportMonthDto(
             forecast.getRate().getCategory().getName(),
             forecast.getRate().getAccountingRule(),
-            forecast.getValue(),
-            getValue(forecast.getRealValue()),
-            forecast.getValue().subtract(getValue(forecast.getRealValue())),
+            forecast.getValue().setScale(2, RoundingMode.CEILING),
+            getValue(forecast.getRealValue()).setScale(2, RoundingMode.CEILING),
+            forecast.getValue().subtract(getValue(forecast.getRealValue())).setScale(2, RoundingMode.CEILING),
             forecast.getAmount(),
             forecast.getRate().getValue()
         );
     }
 
+    private static PlaceCategoryReportMonthDto placeCategoryReportMonthDtoFromFullForecast(List<Forecast> forecasts,
+                                                                                           String categoryName) {
+        List<Forecast> forecastsPerCategory =
+            forecasts.stream().filter((f) -> f.getRate().getCategory().getName().equals(categoryName)).toList();
+        BigDecimal value = forecastsPerCategory.stream().map((element) -> getValue(element.getValue()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal realValue = forecastsPerCategory.stream().map((element) -> getValue(element.getRealValue()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal rateSum = forecastsPerCategory.stream().map(element -> element.getRate().getValue())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new PlaceCategoryReportMonthDto(
+            categoryName,
+            forecastsPerCategory.iterator().next().getRate().getAccountingRule(),
+            value.setScale(2, RoundingMode.CEILING),
+            realValue.setScale(2, RoundingMode.CEILING),
+            value.subtract(realValue).setScale(2, RoundingMode.CEILING),
+            forecastsPerCategory.stream().map(Forecast::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add),
+            rateSum.divide(BigDecimal.valueOf(forecastsPerCategory.size()), 6, RoundingMode.CEILING)
+                .setScale(2, RoundingMode.CEILING));
+    }
+
     public static List<PlaceCategoryReportMonthDto> createListOfPlaceCategoryReportMonthDtoFromListOfForecast(
-        List<Forecast> forecasts) {
+        List<Forecast> forecasts, boolean full) {
+
+        if (full) {
+            List<String> categories =
+                forecasts.stream().map(forecast -> forecast.getRate().getCategory().getName()).distinct().toList();
+            return categories.stream().map(c -> placeCategoryReportMonthDtoFromFullForecast(forecasts, c)).toList();
+        }
+
         return forecasts.stream()
             .map(ReportDtoConverter::createPlaceCategoryReportMonthDtoFromForecast).toList();
     }
 
-    public static BigDecimal getValue(BigDecimal value) {
+    private static BigDecimal getValue(BigDecimal value) {
         if (value == null) {
             return BigDecimal.ZERO;
         }
