@@ -114,6 +114,14 @@
     "residents-number": {
       "required": "Liczba lokatorów jest wymagana.",
       "min": "Liczba lokatorów musi być większa bądź równa "
+    },
+    "total-consumption": {
+      "required": "Wartość całkowitego zużycia jest wymagana.",
+      "min": "Całkowite zużycie musi być większe bądź równe "
+    },
+    "real-rate": {
+      "required": "Wartość rzeczywistej stawki jest wymagana.",
+      "min": "Rzeczywista stawka musi być większa bądź równa "
     }
   },
   "form": {
@@ -363,9 +371,27 @@
       "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
       "chooseYear": "Wybierz rok",
       "chooseCategory": "Wybierz kategorię",
+      "chooseMonth": "Wybierz miesiąc",
       "category": "Kategoria kosztu",
       "cost-data": "Informacje o koszcie",
       "details": "Szczegóły"
+    },
+    "add-cost": {
+      "title": "Dodaj koszt",
+      "create": "Zapisz koszt",
+      "cancel": "Anuluj",
+      "months-0": "Styczeń",
+      "months-1": "Luty",
+      "months-2": "Marzec",
+      "months-3": "Kwiecień",
+      "months-4": "Maj",
+      "months-5": "Czerwiec",
+      "months-6": "Lipiec",
+      "months-7": "Sierpień",
+      "months-8": "Wrzesień",
+      "months-9": "Październik",
+      "months-10": "Listopad",
+      "months-11": "Grudzień"
     },
     "meters": {
       "add-reading": "Wybierz licznik, aby dodać odczyt",
@@ -510,7 +536,8 @@
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
       "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
-      "add-place": "Potwierdź dodanie nowego lokalu."
+      "add-place": "Potwierdź dodanie nowego lokalu.",
+      "add-cost": "Czy na pewno chcesz dodać nowy koszt?"
     },
     "add-place": {
       "title": "Dodaj nowy lokal",
@@ -643,6 +670,15 @@
           "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu",
           "inactive_meter": "Nie udało się dodać odczytu, licznik jest nieaktywny",
           "own_place_reading_attempt": "Nie udało się dodać odczytu, ponieważ jesteś właścicielem tego lokalu. Spróbuj ponownie z widoku interfejsu właściciela"
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Pomyślnie dodano koszt",
+      "add-fail": "Nie udało się dodać kosztu. Spróbuj ponownie później",
+      "response":{
+        "message": {
+          "cost_already_exists": "Koszt dla wybranych wartości już istnieje"
         }
       }
     }

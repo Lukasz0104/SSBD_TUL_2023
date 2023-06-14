@@ -114,6 +114,14 @@
     "residents-number": {
       "required": "Residents number is required.",
       "min": "Number of residents must be greater than or equal to "
+    },
+    "total-consumption": {
+      "required": "Total consumption is required.",
+      "min": "Total consumption must be greater than or equal to "
+    },
+    "real-rate": {
+      "required": "Real rate is required.",
+      "min": "Real rate must be greater than or equal to "
     }
   },
   "form": {
@@ -362,10 +370,28 @@
       },
       "loading": "Choose year and category, to see the costs table",
       "chooseYear": "Choose year",
+      "chooseMonth": "Choose month",
       "chooseCategory": "Choose category",
       "category": "Cost category",
       "cost-data": "Cost data",
       "details": "Cost details"
+    },
+    "add-cost": {
+      "title": "Add cost",
+      "create": "Save new cost",
+      "cancel": "Cancel",
+      "months-0": "January",
+      "months-1": "February",
+      "months-2": "March",
+      "months-3": "April",
+      "months-4": "May",
+      "months-5": "June",
+      "months-6": "July",
+      "months-7": "August",
+      "months-8": "September",
+      "months-9": "October",
+      "months-10": "November",
+      "months-11": "December"
     },
     "meters": {
       "add-reading": "Choose a meter to add reading",
@@ -510,7 +536,8 @@
       "add-rate": "Are you sure, you want to add this rate?",
       "add-reading": "Are you sure, you want to add this reading?",
       "place-edit": "Are you sure, you want update this place?",
-      "add-place": "Confirm adding new place."
+      "add-place": "Confirm adding new place.",
+      "add-cost": "Are you sure, you want to add this cost?"
     },
     "add-place": {
       "title": "Add new place",
@@ -643,6 +670,15 @@
           "not_enough_days_after_initial_reading": "Reading date must be at least 1 day after initial reading",
           "inactive_meter": "Failed to add reading, meter is inactive",
           "own_place_reading_attempt": "Failed to add reading, you are owner of this place. Try again from owner view."
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Cost added successfully",
+      "add-fail": "Adding cost failed. Try again later",
+      "response":{
+        "message": {
+          "cost_already_exists": "Cost with chosen values already exists"
         }
       }
     }

@@ -6,6 +6,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CostComponent } from '../cost/cost.component';
 import { Page } from '../../../shared/model/page';
 import { Cost } from '../../model/cost';
+import { AddCostComponent } from '../add-cost/add-cost.component';
 
 @Component({
     selector: 'app-costs',
@@ -61,6 +62,14 @@ export class CostsComponent implements OnInit {
             })
             .catch(() => EMPTY);
         this.getCosts();
+    }
+
+    addCost() {
+        const modalRef: NgbModalRef = this.modalService.open(AddCostComponent, {
+            centered: true,
+            scrollable: true
+        });
+        modalRef.result.then().catch(() => EMPTY);
     }
 
     protected onSortChange() {
