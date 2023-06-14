@@ -200,7 +200,8 @@
       "rates": "Stawki",
       "no-places": "Nie posiadasz żadnych lokali",
       "show-place-details": "Wyświetl informacje",
-      "hide-place-details": "Ukryj informacje"
+      "hide-place-details": "Ukryj informacje",
+      "count": "Liczba posiadanych lokali: "
     },
     "accounts": {
       "display": {

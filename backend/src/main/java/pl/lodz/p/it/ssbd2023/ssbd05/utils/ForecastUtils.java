@@ -9,7 +9,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
@@ -37,18 +36,28 @@ public class ForecastUtils {
     @Inject
     private RateFacade rateFacade;
 
-    public void calculateForecastsForMeter(Meter meter) throws AppBaseException {
+    public void calculateForecastsForMeter(Meter meter, Rate rate, boolean includeCurrentMonth)
+        throws AppBaseException {
         List<Reading> firstAndLastReading = findFirstAndLastReading(meter);
         Reading firstReading = firstAndLastReading.get(0);
         Reading lastReading = firstAndLastReading.get(1);
 
         BigDecimal averageDailyConsumption = calculateAverageDailyConsumption(firstReading, lastReading);
 
-        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
-            meter.getPlace().getId(),
-            meter.getCategory().getId(),
-            Year.now(),
-            LocalDateTime.now().getMonth());
+        List<Forecast> forecasts;
+        if (includeCurrentMonth) {
+            forecasts = forecastFacade.findFutureAndCurrentByPlaceIdAndCategoryAndYear(
+                meter.getPlace().getId(),
+                meter.getCategory().getId(),
+                Year.now(),
+                LocalDateTime.now().getMonth());
+        } else {
+            forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
+                meter.getPlace().getId(),
+                meter.getCategory().getId(),
+                Year.now(),
+                LocalDateTime.now().getMonth());
+        }
 
         boolean leapYear = Year.now().isLeap();
         if (forecasts.size() > 0) {
@@ -58,13 +67,16 @@ public class ForecastUtils {
                         BigDecimal.valueOf(forecast.getMonth().length(leapYear))
                             .setScale(3, RoundingMode.CEILING));
                 forecast.setAmount(newAmount);
+                forecast.setRate(rate);
                 forecast.setValue(newAmount.multiply(forecast.getRate().getValue()));
                 forecastFacade.edit(forecast);
             }
         } else {
-            Rate rate = rateFacade.findCurrentRateByCategoryId(meter.getCategory().getId()).orElseThrow(
-                RateNotFoundException::new);
-            for (int i = LocalDateTime.now().getMonthValue() + 1; i < 13; i++) {
+            int monthCounter = LocalDateTime.now().getMonthValue();
+            if (!includeCurrentMonth) {
+                monthCounter++;
+            }
+            for (int i = monthCounter; i < 13; i++) {
                 BigDecimal newAmount =
                     averageDailyConsumption.multiply(BigDecimal.valueOf(Month.of(i).length(leapYear)))
                         .setScale(3, RoundingMode.CEILING);
@@ -77,22 +89,37 @@ public class ForecastUtils {
         }
     }
 
-    public void calculateForecasts(Place place, Rate rate) throws AppBaseException {
+    public void calculateForecasts(Place place, Rate rate, boolean includeCurrentMonth) throws AppBaseException {
         BigDecimal amount = findAmountByPlaceAndRate(place, rate);
-        LocalDateTime now = LocalDateTime.now();
-        List<Forecast> forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
-            place.getId(),
-            rate.getCategory().getId(),
-            Year.now(),
-            LocalDateTime.now().getMonth());
+
+        List<Forecast> forecasts;
+        if (includeCurrentMonth) {
+            forecasts = forecastFacade.findFutureAndCurrentByPlaceIdAndCategoryAndYear(
+                place.getId(),
+                rate.getCategory().getId(),
+                Year.now(),
+                LocalDateTime.now().getMonth());
+        } else {
+            forecasts = forecastFacade.findFutureByPlaceIdAndCategoryAndYear(
+                place.getId(),
+                rate.getCategory().getId(),
+                Year.now(),
+                LocalDateTime.now().getMonth());
+        }
+
         if (forecasts.size() > 0) {
             for (Forecast forecast : forecasts) {
                 forecast.setAmount(amount);
                 forecast.setValue(amount.multiply(rate.getValue()));
+                forecast.setRate(rate);
                 forecastFacade.edit(forecast);
             }
         } else {
-            for (int i = now.getMonthValue() + 1; i < 13; i++) {
+            int monthCounter = LocalDateTime.now().getMonthValue();
+            if (!includeCurrentMonth) {
+                monthCounter++;
+            }
+            for (int i = monthCounter; i < 13; i++) {
                 forecastFacade.create(
                     new Forecast(Year.now(), Month.of(i), amount.multiply(rate.getValue()),
                         amount,

@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactiveMeterException;
@@ -24,9 +25,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueSmallerThanI
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.ReadingValueSmallerThanPreviousException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.OwnPlaceReadingAttemptException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReadingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -53,6 +56,9 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
     @Inject
     private MeterFacade meterFacade;
+
+    @Inject
+    private RateFacade rateFacade;
 
     @Inject
     private ForecastUtils forecastUtils;
@@ -91,7 +97,10 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
         readingFacade.create(reading);
         meterFacade.edit(meter);
-        forecastUtils.calculateForecastsForMeter(meter);
+
+        Rate rate = rateFacade.findCurrentRateByCategoryId(meter.getCategory().getId())
+            .orElseThrow(RateNotFoundException::new);
+        forecastUtils.calculateForecastsForMeter(meter, rate, false);
     }
 
     @Override
@@ -138,6 +147,9 @@ public class ReadingManager extends AbstractManager implements ReadingManagerLoc
 
         readingFacade.create(reading);
         meterFacade.edit(meter);
-        forecastUtils.calculateForecastsForMeter(meter);
+
+        Rate rate = rateFacade.findCurrentRateByCategoryId(meter.getCategory().getId())
+            .orElseThrow(RateNotFoundException::new);
+        forecastUtils.calculateForecastsForMeter(meter, rate, false);
     }
 }

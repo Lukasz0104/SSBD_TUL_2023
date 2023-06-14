@@ -126,7 +126,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getSingleResult();
     }
 
-    @RolesAllowed({MANAGER})
+    @PermitAll
     public Optional<Rate> findCurrentRateByCategoryId(Long categoryId) {
         try {
             TypedQuery<Rate> tq = em.createNamedQuery("Rate.findCurrentRateByCategoryId", Rate.class);
