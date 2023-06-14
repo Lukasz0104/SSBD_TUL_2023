@@ -2,7 +2,9 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
@@ -10,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -26,7 +29,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -89,11 +95,12 @@ import java.util.Set;
         name = "Place.findByAddressAndInactive",
         query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false"),
     @NamedQuery(
-        name = "Place.findByLogin",
+        name = "Place.findActiveByOwnerLogin",
         query = """
             SELECT p FROM Place p
             JOIN p.owners od
             WHERE od.account.login = :login
+            AND p.active = true
             ORDER BY p.id
             """),
     @NamedQuery(
@@ -194,6 +201,15 @@ public class Place extends AbstractEntity implements Serializable {
     @Getter
     @Setter
     private Set<Meter> meters = new HashSet<>();
+
+    @NotNull
+    @Getter
+    @Column(name = "balance", scale = 2, precision = 38)
+    @ElementCollection
+    @CollectionTable(name = "monthly_balance", joinColumns = @JoinColumn(name = "place_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"placeId", "year_month"}))
+    @MapKeyColumn(name = "year_month")
+    private Map<YearMonth, BigDecimal> balance = new HashMap<>();
 
     public Place(Integer placeNumber, BigDecimal squareFootage, Integer residentsNumber, boolean active,
                  Building building) {

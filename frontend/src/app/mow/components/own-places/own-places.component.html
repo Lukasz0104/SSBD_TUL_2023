@@ -1,4 +1,15 @@
 <ng-container *ngIf="ownPlaces$ | async as places; else loadingPlaces">
+    <div class="d-flex">
+        <h4>
+            {{ 'component.own-places.count' | translate }}
+            {{ places.length }}
+        </h4>
+        <div class="col text-end">
+            <i
+                (click)="refresh()"
+                class="me-2 bi bi-arrow-clockwise fs-3 cursor-pointer"></i>
+        </div>
+    </div>
     <ng-container *ngIf="places.length > 0; else noPlaces">
         <div class="d-lg-flex">
             <div class="col col-lg-12">

@@ -15,9 +15,9 @@ import { AccountingRule } from '../../model/accounting-rule';
 export class PlaceReportsComponent implements OnInit {
     @Input() id: number | undefined;
     years: number[] = [];
-    months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    months: number[] = [];
     currentYear: number | undefined;
-    currentMonth = new Date().getMonth();
+    currentMonth = new Date().getMonth() + 1;
     validCurrentMonth = true;
     loading = false;
     placeReportYear: Observable<PlaceReportYear> | undefined;
@@ -38,17 +38,8 @@ export class PlaceReportsComponent implements OnInit {
         this.getYears()?.subscribe((y) => {
             this.years = y;
             this.currentYear = this.currentYear ?? y[y.length - 1];
-            this.getPlaceReports();
+            this.getData();
         });
-    }
-
-    getPlaceReports() {
-        this.getMonths();
-        if (this.currentMonth == 0) {
-            this.getPlaceYearReports();
-        } else {
-            this.getPlaceMonthReports();
-        }
     }
 
     getPlaceYearReports() {
@@ -66,17 +57,22 @@ export class PlaceReportsComponent implements OnInit {
         }
     }
 
-    getPlaceMonthReports() {
+    getPlaceMonthReports(full: boolean) {
         if (this.id === undefined) {
             this.loading = true;
             this.toastService.showDanger('toast.report.not-found');
         } else {
             if (this.currentYear) {
+                let month = this.currentMonth;
+                if (full) {
+                    month = new Date().getMonth();
+                }
                 this.placeReportMonth = this.reportService
                     .getReportForPlaceAndYearAndMonth(
                         this.id,
                         this.currentYear,
-                        this.currentMonth
+                        month,
+                        full
                     )
                     .pipe(
                         tap((res) => {
@@ -94,35 +90,70 @@ export class PlaceReportsComponent implements OnInit {
         return null;
     }
 
-    getMonths() {
+    getData() {
+        this.months = [];
         if (this.currentYear && this.id) {
+            const id = this.id;
+            const currentYear = this.currentYear;
             this.reportService
-                .isReportForPlace(this.id, this.currentYear)
+                .isReportForPlace(id, currentYear)
                 .subscribe((res) => {
-                    if (res) {
-                        if (this.months.indexOf(0) === -1) {
-                            this.months.push(0);
-                        }
-                    } else {
-                        if (this.months.indexOf(0) > -1) {
-                            this.months.splice(this.months.indexOf(0), 1);
-                        }
-                        if (this.currentMonth === 0) {
-                            this.currentMonth = new Date().getMonth();
-                        }
-                    }
+                    this.forecastService
+                        .getMinMonthForPlaceAndYear(id, currentYear)
+                        .subscribe((result) => {
+                            for (let i = result; i < 13; i++) {
+                                this.months.push(i);
+                            }
+                            if (res) {
+                                if (this.months.indexOf(0) === -1) {
+                                    this.months.push(0);
+                                }
+                                if (this.months.indexOf(-1) > -1) {
+                                    this.months.splice(
+                                        this.months.indexOf(-1),
+                                        1
+                                    );
+                                }
+                            } else {
+                                if (this.months.indexOf(-1) === -1) {
+                                    this.months.push(-1);
+                                }
+                                if (this.months.indexOf(0) > -1) {
+                                    this.months.splice(
+                                        this.months.indexOf(0),
+                                        1
+                                    );
+                                }
+                                if (this.currentMonth === 0) {
+                                    this.currentMonth = -1;
+                                }
+                            }
+                            if (!this.months.includes(this.currentMonth)) {
+                                this.currentMonth = Math.min.apply(
+                                    null,
+                                    this.months
+                                );
+                            }
+                            if (this.currentMonth == 0) {
+                                this.getPlaceYearReports();
+                            } else if (this.currentMonth == -1) {
+                                this.getPlaceMonthReports(true);
+                            } else {
+                                this.getPlaceMonthReports(false);
+                            }
+                        });
                 });
         }
     }
 
     changeCurrentYear(year: number) {
         this.currentYear = year;
-        this.getPlaceReports();
+        this.getData();
     }
 
     changeCurrentMonth(month: number) {
         this.currentMonth = month;
-        this.getPlaceReports();
+        this.getData();
     }
 
     onReload() {

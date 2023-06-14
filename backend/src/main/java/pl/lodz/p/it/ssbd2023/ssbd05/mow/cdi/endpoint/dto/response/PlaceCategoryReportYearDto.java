@@ -19,4 +19,5 @@ public class PlaceCategoryReportYearDto {
     private BigDecimal forecastValueSum;
     private BigDecimal costDifferential;
     private BigDecimal consumptionDifferential;
+    private BigDecimal averageRate;
 }
