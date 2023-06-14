@@ -663,7 +663,7 @@
     },
     "place-owners-add": {
       "fail": "Nie udało się przypisanie właściciela",
-      "success": "Udało się przypisać nowego właściciela: ",
+      "success": "Udało się przypisać nowego właściciela",
       "response": {
         "message": {
           "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",

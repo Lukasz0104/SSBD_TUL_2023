@@ -219,29 +219,27 @@ export class PlaceService {
         );
     }
 
-    processOwnerAddRemoveRequest(component: string) {
-        return (
-            tap(() => {
-                this.toastService.showSuccess(`toast.${component}.success`);
-            }),
-            map(() => true),
-            catchError((err: HttpErrorResponse) => {
-                this.handleError(
-                    `toast.${component}.fail`,
-                    `toast.${component}`,
-                    err
-                );
-                return of(true);
-            })
-        );
-    }
-
     addOwner(ownerId: number, placeId: number) {
         return this.http
             .post(`${this.BASE_URL}/${placeId}/owners`, null, {
                 params: { ownerId: ownerId }
             })
-            .pipe(this.processOwnerAddRemoveRequest('place-owners-add'));
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess(
+                        `toast.place-owners-add.success`
+                    );
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError(
+                        `toast.place-owners-add.fail`,
+                        `toast.place-owners-add`,
+                        err
+                    );
+                    return of(true);
+                })
+            );
     }
 
     removeOwner(ownerId: number, placeId: number) {
@@ -249,6 +247,21 @@ export class PlaceService {
             .delete(`${this.BASE_URL}/${placeId}/owners`, {
                 params: { ownerId: ownerId }
             })
-            .pipe(this.processOwnerAddRemoveRequest('place-owners-remove'));
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess(
+                        `toast.place-owners-remove.success`
+                    );
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError(
+                        `toast.place-owners-remove.fail`,
+                        `toast.place-owners-remove`,
+                        err
+                    );
+                    return of(true);
+                })
+            );
     }
 }

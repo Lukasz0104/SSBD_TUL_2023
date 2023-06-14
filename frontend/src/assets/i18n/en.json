@@ -675,7 +675,7 @@
     },
     "place-owners-remove": {
       "fail": "Failed to remove owner from the place",
-      "success": "Successfully removed owner: ",
+      "success": "Successfully removed owner",
       "response": {
         "message": {
           "optimistic_lock": "List of assigned owners was changed by someone else, please reload the list and try again",

@@ -150,7 +150,7 @@
 </div>
 <div class="px-4 d-flex justify-content-between modal-footer">
     <button
-        [disabled]="!areAllValid() || loading"
+        [disabled]="!areAllValid()"
         (click)="onSubmit()"
         class="btn btn-success">
         {{ 'component.place-edit.save' | translate }}
