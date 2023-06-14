@@ -29,6 +29,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddOverdueForecastDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsOwnerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
@@ -182,10 +183,47 @@ public class MowITests extends TestContainersSetup {
 
         private static RequestSpecification secondOwnerSpec;
 
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
         @BeforeAll
         static void generateTestSpec() {
             LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
             String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            jwt = given().body(loginDto)
                 .contentType(ContentType.JSON)
                 .when()
                 .post("/login")
@@ -322,7 +360,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403WhenGettingAvailableYearsAsAdmin() {
                     given()
-                        .spec(adminSpec)
+                        .spec(onlyAdminSpec)
                         .get(createForecastUrl + "/me/years/1/place")
                         .then()
                         .statusCode(Response.Status.FORBIDDEN.getStatusCode());
@@ -331,7 +369,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403WhenGettingAvailableYearsAsManager() {
                     given()
-                        .spec(managerSpec)
+                        .spec(onlyManagerSpec)
                         .when()
                         .get(createForecastUrl + "/me/years/1/place")
                         .then()
@@ -411,7 +449,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403GettingMinMothAsAdmin() {
                     given()
-                        .spec(adminSpec)
+                        .spec(onlyAdminSpec)
                         .when()
                         .get(createForecastUrl + "/min-month/1/place?year=2022")
                         .then()
@@ -430,7 +468,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403GettingMinMothAsOwner() {
                     given()
-                        .spec(firstOwnerSpec)
+                        .spec(onlyOwnerSpec)
                         .when()
                         .get(createForecastUrl + "/min-month/1/place?year=2022")
                         .then()
@@ -485,7 +523,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403GettingMinMothAsAdmin() {
                     given()
-                        .spec(adminSpec)
+                        .spec(onlyAdminSpec)
                         .when()
                         .get(createForecastUrl + "/me/min-month/1/place?year=2022")
                         .then()
@@ -504,7 +542,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403GettingMinMothAsManager() {
                     given()
-                        .spec(managerSpec)
+                        .spec(onlyManagerSpec)
                         .when()
                         .get(createForecastUrl + "/me/min-month/1/place?year=2022")
                         .then()
@@ -563,7 +601,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403WhenCheckingReportAsAdmin() {
                     given()
-                        .spec(adminSpec)
+                        .spec(onlyAdminSpec)
                         .when()
                         .get(createReportUrl + "/place/1/is-report?year=2022")
                         .then()
@@ -573,7 +611,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403WhenCheckingReportAsOwner() {
                     given()
-                        .spec(firstOwnerSpec)
+                        .spec(onlyOwnerSpec)
                         .when()
                         .get(createReportUrl + "/place/1/is-report?year=2022")
                         .then()
@@ -636,7 +674,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403WhenCheckingReportAsAdmin() {
                     given()
-                        .spec(adminSpec)
+                        .spec(onlyAdminSpec)
                         .when()
                         .get(createReportUrl + "/me/place/2/is-report?year=2022")
                         .then()
@@ -646,7 +684,7 @@ public class MowITests extends TestContainersSetup {
                 @Test
                 void shouldReturnSC403WhenCheckingReportAsManager() {
                     given()
-                        .spec(managerSpec)
+                        .spec(onlyManagerSpec)
                         .when()
                         .get(createReportUrl + "/me/place/2/is-report?year=2022")
                         .then()
@@ -681,12 +719,50 @@ public class MowITests extends TestContainersSetup {
     class MOW8 {
         private static final String createReportUrl = "/reports";
         private static RequestSpecification firstOwnerSpec;
+
         private static RequestSpecification secondOwnerSpec;
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
 
         @BeforeAll
         static void generateTestSpec() {
             LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
             String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            jwt = given().body(loginDto)
                 .contentType(ContentType.JSON)
                 .when()
                 .post("/login")
@@ -749,7 +825,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsAdmin() {
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .when()
                     .get(createReportUrl + "/place/1/report/year?year=2022")
                     .then()
@@ -759,7 +835,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsOwner() {
                 given()
-                    .spec(firstOwnerSpec)
+                    .spec(onlyOwnerSpec)
                     .when()
                     .get(createReportUrl + "/place/1/report/year?year=2022")
                     .then()
@@ -828,7 +904,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsAdmin() {
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .when()
                     .get(createReportUrl + "/me/place/1/report/year?year=2022")
                     .then()
@@ -838,7 +914,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsManager() {
                 given()
-                    .spec(managerSpec)
+                    .spec(onlyManagerSpec)
                     .when()
                     .get(createReportUrl + "/me/place/1/report/year?year=2022")
                     .then()
@@ -1001,7 +1077,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsAdmin() {
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .when()
                     .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
                     .then()
@@ -1011,7 +1087,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsOwner() {
                 given()
-                    .spec(secondOwnerSpec)
+                    .spec(onlyOwnerSpec)
                     .when()
                     .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
                     .then()
@@ -1162,7 +1238,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsAdmin() {
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .when()
                     .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
                     .then()
@@ -1172,7 +1248,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingReportAsManager() {
                 given()
-                    .spec(managerSpec)
+                    .spec(onlyManagerSpec)
                     .when()
                     .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
                     .then()
@@ -2866,6 +2942,46 @@ public class MowITests extends TestContainersSetup {
 
         private static final String createMetersUrl = "/meters";
 
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
         @Nested
         class PositiveCases {
 
@@ -3344,7 +3460,7 @@ public class MowITests extends TestContainersSetup {
                 addCategoryDto.setNewReading(null);
 
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .contentType(ContentType.JSON)
                     .body(addCategoryDto)
                     .when()
@@ -3361,7 +3477,7 @@ public class MowITests extends TestContainersSetup {
                 addCategoryDto.setNewReading(null);
 
                 given()
-                    .spec(ownerSpec)
+                    .spec(onlyOwnerSpec)
                     .contentType(ContentType.JSON)
                     .body(addCategoryDto)
                     .when()
@@ -3401,7 +3517,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsAdmin() {
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .when()
                     .get(createPlacesUrl + "/3/category/required_reading?categoryId=4")
                     .then()
@@ -3411,7 +3527,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsOwner() {
                 given()
-                    .spec(ownerSpec)
+                    .spec(onlyOwnerSpec)
                     .when()
                     .get(createPlacesUrl + "/3/category/required_reading?categoryId=-20")
                     .then()
@@ -3430,7 +3546,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingMissingCategoriesAsAdmin() {
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .when()
                     .get(createPlacesUrl + "/3/categories/missing")
                     .then()
@@ -3440,7 +3556,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenGettingMissingCategoriesAsOwner() {
                 given()
-                    .spec(ownerSpec)
+                    .spec(onlyOwnerSpec)
                     .when()
                     .get(createPlacesUrl + "/3/categories/missing")
                     .then()
@@ -3465,19 +3581,41 @@ public class MowITests extends TestContainersSetup {
         private static final String createPlacesUrl = "/places";
 
         private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
 
         @BeforeAll
         static void generateTestSpec() {
-            LoginDto loginDto = new LoginDto("dchmielewski", "P@ssw0rd");
-
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
             String jwt = given().body(loginDto)
                 .contentType(ContentType.JSON)
                 .when()
                 .post("/login")
                 .jsonPath()
                 .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
 
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
             onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
         }
@@ -3726,7 +3864,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenRemovingCategoryAsAdmin() {
                 given()
-                    .spec(adminSpec)
+                    .spec(onlyAdminSpec)
                     .when()
                     .delete(createPlacesUrl + "/5/categories/6")
                     .then()
@@ -3736,7 +3874,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenRemovingCategoryAsOwner() {
                 given()
-                    .spec(ownerSpec)
+                    .spec(onlyOwnerSpec)
                     .when()
                     .delete(createPlacesUrl + "/5/categories/6")
                     .then()
@@ -4191,6 +4329,341 @@ public class MowITests extends TestContainersSetup {
                     .put("/places/" + id)
                     .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW30 {
+
+        private static final String createForecastUrl = "/forecasts";
+        private static final String createReportUrl = "/reports";
+
+        private static final String createPlacesUrl = "/places";
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+
+            @Test
+            void shouldCreateForecastForCurrentMonth() {
+
+                LocalDate now = LocalDate.now();
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(9L);
+                addCategoryDto.setCategoryId(1L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.maintenance")));
+
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.maintenance")));
+            }
+
+            @Test
+            void shouldReturnOneSC204WhenCreatingForecastForCurrentMonth()
+                throws BrokenBarrierException, InterruptedException {
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(9L);
+                addCategoryDto.setCategoryId(2L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                        AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                        addOverdueForecastDto.setCategoryId(2L);
+                        addOverdueForecastDto.setPlaceId(9L);
+                        addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                        int statusCode = given().spec(onlyManagerSpec)
+                            .contentType(ContentType.JSON)
+                            .body(addOverdueForecastDto)
+                            .when()
+                            .post(createForecastUrl + "/add-current")
+                            .getStatusCode();
+
+                        if (statusCode == 204) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                LocalDate now = LocalDate.now();
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.repair")));
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturnSC403WhenCreatingForecastForOwnPlace() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(10L);
+                addOverdueForecastDto.setPlaceId(5L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.ILLEGAL_SELF_ACTION));
+            }
+
+            @Test
+            void shouldReturnSC409WhenCreatingForecastForInactivePlace() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(3L);
+                addOverdueForecastDto.setPlaceId(8L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACTIVE_PLACE));
+            }
+
+            @Test
+            void shouldReturnSC409WhenCreatingForecastForCategoryThatIsNotInUse() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(6L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_IN_USE));
+            }
+
+            @Test
+            void shouldReturnSC404WhenCreatingForecastForNotExistingPlace() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(2L);
+                addOverdueForecastDto.setPlaceId(2137L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC409WhenCreatingForecastThatAlreadyExists() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.FORECAST_ALREADY_EXISTS));
+            }
+
+            @Test
+            void shouldReturnSC400WhenPassingNullOrNegativeValueAsAmount() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(null);
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(-123.234));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingCurrentForecastAsAdmin() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(4L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyAdminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingCurrentForecastAsOwner() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(4L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingCurrentForecastAsGuest() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(4L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given()
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
         }
     }
