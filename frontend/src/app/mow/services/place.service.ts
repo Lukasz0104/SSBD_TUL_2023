@@ -214,4 +214,43 @@ export class PlaceService {
             `${this.BASE_URL}/${placeId}/owners`
         );
     }
+
+    getPlaceNotOwners(placeId: number): Observable<PlaceOwner[]> {
+        return this.http.get<PlaceOwner[]>(
+            `${this.BASE_URL}/${placeId}/not-owners`
+        );
+    }
+
+    processOwnerAddRemoveRequest(component: string) {
+        return (
+            tap(() => {
+                this.toastService.showSuccess(`toast.${component}.success`);
+            }),
+            map(() => true),
+            catchError((err: HttpErrorResponse) => {
+                this.handleError(
+                    `toast.${component}.fail`,
+                    `toast.${component}`,
+                    err
+                );
+                return of(true);
+            })
+        );
+    }
+
+    addOwner(ownerId: number, placeId: number) {
+        return this.http
+            .post(`${this.BASE_URL}/${placeId}/owners`, {
+                params: { ownerId: ownerId }
+            })
+            .pipe(this.processOwnerAddRemoveRequest('place-owners-add'));
+    }
+
+    removeOwner(ownerId: number, placeId: number) {
+        return this.http
+            .delete(`${this.BASE_URL}/${placeId}/owners`, {
+                params: { ownerId: ownerId }
+            })
+            .pipe(this.processOwnerAddRemoveRequest('place-owners-remove'));
+    }
 }

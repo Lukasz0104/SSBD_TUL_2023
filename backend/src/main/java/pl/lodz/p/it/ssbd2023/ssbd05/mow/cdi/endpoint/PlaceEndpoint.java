@@ -34,7 +34,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.FunctionThrows;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.MeterDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
@@ -179,10 +178,11 @@ public class PlaceEndpoint {
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response addOwnerToPlace(@PathParam("id") Long id, @NotNull @QueryParam("login") String login)
+    public Response addOwnerToPlace(@PathParam("id") Long id, @NotNull @QueryParam("ownerId") Long ownerId)
         throws AppBaseException {
+        String managerLogin = securityContext.getUserPrincipal().getName();
         return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
-            () -> placeManager.addOwnerToPlace(id, login),
+            () -> placeManager.addOwnerToPlace(id, ownerId, managerLogin),
             placeManager
         ).build();
     }
@@ -193,8 +193,10 @@ public class PlaceEndpoint {
     @RolesAllowed(MANAGER)
     public Response getOwnerNotOwningPlace(@PathParam("id") Long id) throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> placeManager.getOwnerNotOwningPlace(id).stream()
-                .map(AccountDtoConverter::createAccountDto).toList(),
+            () -> placeManager.getOwnerNotOwningPlace(id)
+                .stream()
+                .map(PlaceDtoConverter::createPlaceOwnerDtoFromOwnerData)
+                .toList(),
             placeManager
         ).build();
     }
@@ -203,10 +205,11 @@ public class PlaceEndpoint {
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response removeOwnerFromPlace(@PathParam("id") Long id, @NotNull @QueryParam("login") String login)
+    public Response removeOwnerFromPlace(@PathParam("id") Long id, @NotNull @QueryParam("ownerId") Long ownerId)
         throws AppBaseException {
+        String managerLogin = securityContext.getUserPrincipal().getName();
         return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
-            () -> placeManager.removeOwnerFromPlace(id, login),
+            () -> placeManager.removeOwnerFromPlace(id, ownerId, managerLogin),
             placeManager
         ).build();
     }

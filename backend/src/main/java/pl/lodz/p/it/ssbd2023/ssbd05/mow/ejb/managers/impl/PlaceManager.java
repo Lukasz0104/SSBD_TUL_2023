@@ -45,6 +45,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.ForecastUtils;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.functionalinterfaces.FunctionThrowsVoidTwoArgs;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -158,44 +159,49 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void addOwnerToPlace(Long id, String login) throws AppBaseException {
-        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+    public List<OwnerData> getOwnerNotOwningPlace(Long id) throws AppBaseException {
+        return placeFacade.findByNotInLogins(id);
+    }
+
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void addOwnerToPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException {
+        addRemoveOwnerPlace((Place place, Optional<AccessLevel> ownerData) -> {
+            if (ownerData.isEmpty()) {
+                throw new BadAccessLevelException();
+            } else {
+                place.getOwners().add((OwnerData) ownerData.get());
+                placeFacade.edit(place);
+            }
+        }, ownerId, managerLogin, id);
+    }
+
+    @RolesAllowed(MANAGER)
+    private void addRemoveOwnerPlace(FunctionThrowsVoidTwoArgs<Place, Optional<AccessLevel>> func,
+                                     Long ownerId, String managerLogin, Long id) throws AppBaseException {
+        Account account = accountFacade.findByOwnerId(ownerId).orElseThrow(AccountNotFoundException::new);
+        if (managerLogin.equals(account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
         Optional<AccessLevel> ownerData = account
             .getAccessLevels()
             .stream()
             .filter(x -> x.isValidAccessLevel(AccessType.OWNER))
             .findFirst();
         Place place = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
-        if (ownerData.isEmpty()) {
-            throw new BadAccessLevelException();
-        } else {
-            place.getOwners().add((OwnerData) ownerData.get());
-            placeFacade.edit(place);
-        }
+        func.apply(place, ownerData);
     }
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<Account> getOwnerNotOwningPlace(Long id) throws AppBaseException {
-        List<Account> accounts = placeFacade.findByNotInLogins(id);
-        System.out.println(accounts);
-        return accounts;
-    }
-
-    @Override
-    @RolesAllowed(MANAGER)
-    public void removeOwnerFromPlace(Long id, String login) throws AppBaseException {
-        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
-        Optional<AccessLevel> ownerData = account
-            .getAccessLevels()
-            .stream()
-            .filter(x -> x.isValidAccessLevel(AccessType.OWNER))
-            .findFirst();
-        Place place = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
-        if (ownerData.isPresent()) {
-            place.getOwners().remove((OwnerData) ownerData.get());
-            placeFacade.edit(place);
-        }
+    public void removeOwnerFromPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException {
+        addRemoveOwnerPlace((Place place, Optional<AccessLevel> ownerData) -> {
+            if (ownerData.isPresent()) {
+                place.getOwners().remove((OwnerData) ownerData.get());
+                placeFacade.edit(place);
+            }
+        }, ownerId, managerLogin, id);
     }
 
     @Override

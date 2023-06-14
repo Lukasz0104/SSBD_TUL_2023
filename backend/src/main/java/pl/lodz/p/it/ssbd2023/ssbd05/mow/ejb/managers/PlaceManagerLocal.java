@@ -1,7 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
 import jakarta.ejb.Local;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
@@ -37,11 +36,11 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
 
     List<OwnerData> getPlaceOwners(Long id) throws AppBaseException;
 
-    void addOwnerToPlace(Long id, String login) throws AppBaseException;
+    void addOwnerToPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException;
 
-    List<Account> getOwnerNotOwningPlace(Long id) throws AppBaseException;
+    List<OwnerData> getOwnerNotOwningPlace(Long id) throws AppBaseException;
 
-    void removeOwnerFromPlace(Long id, String login) throws AppBaseException;
+    void removeOwnerFromPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException;
 
     List<Rate> getCurrentRatesFromPlace(Long id) throws AppBaseException;
 

@@ -206,7 +206,17 @@ import java.util.Set;
             SELECT a FROM Account a
             WHERE a.active = true
                   AND a.verified = true
-                  AND a.activityTracker.lastSuccessfulLogin < :lastSuccessfulLogin""")
+                  AND a.activityTracker.lastSuccessfulLogin < :lastSuccessfulLogin"""),
+    @NamedQuery(
+        name = "Account.findByOwnerId",
+        query = """
+            SELECT a FROM Account a
+            JOIN OwnerData od ON od.account = a
+            WHERE a.verified = true
+            AND od.verified = true
+            AND od.active = true
+            AND od.id = :ownerId
+            """)
 })
 @Getter
 @Setter

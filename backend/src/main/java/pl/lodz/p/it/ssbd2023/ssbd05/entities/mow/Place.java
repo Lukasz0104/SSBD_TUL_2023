@@ -125,10 +125,10 @@ import java.util.Set;
             WHERE p.id = :placeId AND :login IN (SELECT o.account.login FROM p.owners o)
             AND cr.id = r.id) ORDER BY r.category.name ASC"""),
     @NamedQuery(
-        name = "Place.findAccountsNotOwners",
+        name = "Place.findOwnerDataByNotOwnersOfPlaceId",
         query = """
-            SELECT a FROM Account a WHERE a.login NOT IN
-            (SELECT DISTINCT b2.account.login FROM Place p JOIN p.owners b2 WHERE p.id = :placeId)
+            SELECT od FROM OwnerData od WHERE od.id NOT IN
+            (SELECT DISTINCT b2.id FROM Place p JOIN p.owners b2 WHERE p.id = :placeId)
         """)
 })
 @EntityListeners({EntityControlListenerMOW.class})

@@ -22,4 +22,10 @@ export class PlaceOwnersComponent implements OnInit {
     getOwners() {
         this.owners$ = this.placeService.getPlaceOwners(this.placeId);
     }
+
+    removeOwner(ownerDataId: number) {
+        this.placeService
+            .removeOwner(ownerDataId, this.placeId)
+            .subscribe(() => this.getOwners());
+    }
 }
