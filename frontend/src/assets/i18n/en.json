@@ -102,6 +102,18 @@
     "placeNumber": {
       "min": "Place number must be positive",
       "required": "Place number is required"
+    },
+    "place-number": {
+      "required": "Place number is required.",
+      "min": "Place number must be greater than or equal to "
+    },
+    "square-footage": {
+      "required": "Square footage is required.",
+      "min": "Square footage must be greater than or equal to "
+    },
+    "residents-number": {
+      "required": "Residents number is required.",
+      "min": "Number of residents must be greater than or equal to "
     }
   },
   "form": {
@@ -279,7 +291,10 @@
       "show-categories": "Show payment categories",
       "loading": "Loading ...",
       "data": "Place",
-      "edit-place": "Edit place"
+      "edit-place": "Edit place",
+      "owners": {
+        "tab-name": "Owners"
+      }
     },
     "fields": {
       "login": "Login",
@@ -323,7 +338,8 @@
     "buildings": {
       "places": "Places",
       "reports": "Reports",
-      "loading": "Loading buildings..."
+      "loading": "Loading buildings...",
+      "refresh": "Refresh building list"
     },
     "costs": {
       "month": "Month",
@@ -399,7 +415,10 @@
     },
     "places": {
       "loading": "Loading places...",
-      "empty": "Building does not exists or it does not have any places."
+      "empty": "Building does not exists or it does not have any places.",
+      "add": "Add place",
+      "list": "List of places in building",
+      "refresh": "Refresh places list"
     },
     "add-reading": {
       "add": "Add reading",
@@ -456,6 +475,14 @@
       "active": "In use",
       "loading": "Loading ... ",
       "save": "Save"
+    },
+    "place-owners": {
+      "active": "Active",
+      "remove": "Remove",
+      "loading": "Loading owners...",
+      "empty": "There aren't any owners assigned to this place.",
+      "add": "Assign owner to this place",
+      "refresh": "Refresh owners list"
     }
   },
   "accounting-rule": {
@@ -484,7 +511,18 @@
       "remove-rate-danger": "This action cannot be undone!",
       "add-rate": "Are you sure, you want to add this rate?",
       "add-reading": "Are you sure, you want to add this reading?",
-      "place-edit": "Are you sure, you want update this place?"
+      "place-edit": "Are you sure, you want update this place?",
+      "add-place": "Confirm adding new place."
+    },
+    "add-place": {
+      "title": "Add new place",
+      "cancel": "Cancel",
+      "add": "Add",
+      "success": "Place was added.",
+      "response.message": {
+        "place_number_already_taken": "Place number was already used in this building.",
+        "building_not_found": "Place was not added because the building does not exist."
+      }
     }
   },
   "access-levels": {

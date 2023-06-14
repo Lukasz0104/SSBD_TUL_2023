@@ -1,5 +1,5 @@
 import { AccountingRule } from './accounting-rule';
-import { ControlledEntity } from './controlled-entity';
+import { ControlledEntity } from '../../shared/model/controlled-entity';
 
 export interface Rate extends ControlledEntity {
     id: number;

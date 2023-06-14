@@ -1,4 +1,4 @@
-import { AccountingRule } from '../../shared/model/accounting-rule';
+import { AccountingRule } from './accounting-rule';
 
 export interface PlaceReportMonth {
     year: number;

@@ -4,7 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, of, tap } from 'rxjs';
 import { ResponseMessage } from '../../shared/model/response-message.enum';
 import { ToastService } from '../../shared/services/toast.service';
-import { AddRate } from '../../shared/model/rate';
+import { AddRate } from '../model/rate';
 
 @Injectable({
     providedIn: 'root'

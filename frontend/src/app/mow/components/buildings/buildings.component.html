@@ -3,7 +3,7 @@
     class="table-responsive">
     <table class="table text-center table-hover align-middle">
         <thead>
-            <tr class="bg-light-subtle">
+            <tr class="bg-light-subtle align-middle">
                 <th scope="col">#</th>
                 <th
                     scope="col"
@@ -25,10 +25,16 @@
                     class="col-2">
                     {{ 'component.fields.postal-code' | translate }}
                 </th>
-                <th scope="col"></th>
                 <th
                     *ngIf="auth.isManager()"
                     scope="col"></th>
+                <th scope="col">
+                    <i
+                        (click)="refreshBuildingList()"
+                        placement="right bottom"
+                        [ngbTooltip]="'component.buildings.refresh' | translate"
+                        class="bi bi-arrow-clockwise fs-5 cursor-pointer"></i>
+                </th>
             </tr>
         </thead>
         <tbody>

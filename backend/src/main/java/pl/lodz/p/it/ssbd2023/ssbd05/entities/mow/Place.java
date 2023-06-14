@@ -36,7 +36,13 @@ import java.util.Map;
 import java.util.Set;
 
 @Entity
-@Table(name = "place", uniqueConstraints = {@UniqueConstraint(columnNames = {"place_number", "building_id"})})
+@Table(
+    name = "place",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "place_number_building_id",
+            columnNames = {"place_number", "building_id"})
+    })
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -222,4 +228,3 @@ public class Place extends AbstractEntity implements Serializable {
         this.active = active;
     }
 }
-

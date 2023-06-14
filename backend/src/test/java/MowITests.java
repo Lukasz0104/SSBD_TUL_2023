@@ -2,6 +2,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,6 +27,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsOwnerDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
@@ -2096,6 +2098,265 @@ public class MowITests extends TestContainersSetup {
 
             @Test
             void shouldFailToGetPlacesInBuildingAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+        }
+    }
+
+    @Nested
+    class MOW21 {
+        private static final String CREATE_PLACE_URL = "/places";
+        private static CreatePlaceDTO dto;
+
+        @Nested
+        class CreatePlacePositiveTest {
+            private static final long buildingId = 1;
+            private static final String RETRIEVE_LIST_URL = "/buildings/%d/places".formatted(buildingId);
+
+            @Test
+            void shouldCreatePlaceAsManagerWithStatusCode200Test() {
+                int count = given(managerSpec)
+                    .when()
+                    .get(RETRIEVE_LIST_URL)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .jsonPath().getInt("$.size()");
+
+                dto = new CreatePlaceDTO(4, BigDecimal.valueOf(38.93), 2, buildingId);
+
+                given(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(CREATE_PLACE_URL)
+                    .then()
+                    .statusCode(204);
+
+                given(managerSpec)
+                    .when()
+                    .get(RETRIEVE_LIST_URL)
+                    .then()
+                    .statusCode(200)
+                    .body("$.size()", is(count + 1));
+            }
+        }
+
+        @Nested
+        class CreatePlaceForbiddenTest {
+            @Test
+            void shouldFailToCreatePlaceAsAdminWithStatusCode403Test() {
+                given(adminSpec)
+                    .body(dto)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post(CREATE_PLACE_URL)
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToCreatePlaceAsOwnerWithStatusCode403Test() {
+                given(ownerSpec)
+                    .body(dto)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post(CREATE_PLACE_URL)
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToCreatePlaceAsGuestWithStatusCode403Test() {
+                given()
+                    .body(dto)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post(CREATE_PLACE_URL)
+                    .then()
+                    .statusCode(403);
+            }
+        }
+
+        @Nested
+        class CreatePlaceNegativeTest {
+
+            @Test
+            void shouldFailToCreatePlaceWhenBuildingDoesNotExistWithStatusCode404Test() {
+                dto = new CreatePlaceDTO(123, BigDecimal.valueOf(68.93), 3, -123L);
+
+                given(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(CREATE_PLACE_URL)
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.BUILDING_NOT_FOUND));
+            }
+
+            @Test
+            void shouldFailToCreatePlaceWhenNumberIsAlreadyTakenInABuildingWithStatusCode409Test() {
+                dto = new CreatePlaceDTO(4, BigDecimal.valueOf(68.93), 3, 2L);
+
+                given(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(CREATE_PLACE_URL)
+                    .then()
+                    .statusCode(409)
+                    .body("message", is(I18n.PLACE_NUMBER_ALREADY_TAKEN));
+            }
+
+            @Nested
+            class CreatePlaceConstraintViolationTest {
+                @ParameterizedTest
+                @ValueSource(ints = {-100, -1, 0})
+                @NullSource
+                void shouldFailToCreatePlaceDueToInvalidPlaceNumberWithStatusCode400Test(Integer placeNumber) {
+                    dto = new CreatePlaceDTO(placeNumber, BigDecimal.valueOf(53.45), 2, 1L);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .post(CREATE_PLACE_URL)
+                        .then()
+                        .statusCode(400)
+                        .body("message", in(List.of(
+                            "placeNumber: must be greater than 0;",
+                            "placeNumber: must not be null;"
+                        )));
+                }
+
+                @ParameterizedTest
+                @ValueSource(doubles = {-100.0, -1.0, 0.0})
+                @NullSource
+                void shouldFailToCreatePlaceDueToInvalidSquareFootageWithStatusCode400Test(Double squareFootage) {
+                    BigDecimal sf = squareFootage == null ? null : BigDecimal.valueOf(squareFootage);
+                    dto = new CreatePlaceDTO(1234, sf, 2, 1L);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .post(CREATE_PLACE_URL)
+                        .then()
+                        .statusCode(400)
+                        .body("message", in(List.of(
+                            "squareFootage: must be greater than 0;",
+                            "squareFootage: must not be null;")));
+                }
+
+                @ParameterizedTest
+                @ValueSource(ints = {-100, -1})
+                @NullSource
+                void shouldFailToCreatePlaceDueToInvalidResidentsNumberWithStatusCode400Test(Integer residents) {
+                    dto = new CreatePlaceDTO(1234, BigDecimal.valueOf(33.21), residents, 1L);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .post(CREATE_PLACE_URL)
+                        .then()
+                        .statusCode(400)
+                        .body("message", in(List.of(
+                            "residentsNumber: must be greater than or equal to 0;",
+                            "residentsNumber: must not be null;")));
+                }
+
+                @ParameterizedTest
+                @NullSource
+                void shouldFailToCreatePlaceDueToInvalidBuildingIdWithStatusCode400Test(Long buildingId) {
+                    dto = new CreatePlaceDTO(1234, BigDecimal.valueOf(33.21), 1, buildingId);
+
+                    given(managerSpec)
+                        .contentType(ContentType.JSON)
+                        .body(dto)
+                        .when()
+                        .post(CREATE_PLACE_URL)
+                        .then()
+                        .statusCode(400)
+                        .body("message", in(List.of("buildingId: must not be null;")));
+                }
+            }
+        }
+    }
+
+    @Nested
+    class MOW22 {
+        private static final String BASE_URL = "/places/%d/owners";
+
+        @Nested
+        class GetPlaceOwnersPositiveTest {
+            @Test
+            void shouldGetPlaceOwnersAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(3))
+                    .then()
+                    .statusCode(200)
+                    .body("$.size()", is(2));
+            }
+
+            @Test
+            void shouldGetPlaceOwnersReturnEmptyListWhenPlaceHasNoOwnersWithStatusCode200Test() {
+                CreatePlaceDTO dto =
+                    new CreatePlaceDTO(444, BigDecimal.valueOf(38.93), 2, 1L);
+
+                given(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post("/places")
+                    .then()
+                    .statusCode(204);
+
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(8))
+                    .then()
+                    .statusCode(200)
+                    .body("$.size()", is(0));
+            }
+
+            @Test
+            void shouldFailToGetPlaceOwnersAsManagerWhenPlaceDoesNotExistWithStatusCode204Test() {
+                given(managerSpec)
+                    .when()
+                    .get(BASE_URL.formatted(-123))
+                    .then()
+                    .statusCode(404)
+                    .body("message", is(I18n.PLACE_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GetPlaceOwnersForbiddenTest {
+            @Test
+            void shouldFailToGetPlaceOwnersAsAdminWithStatusCode403Test() {
+                given(adminSpec).when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceOwnersAsOwnerWithStatusCode403Test() {
+                given(ownerSpec).when()
+                    .get(BASE_URL.formatted(1))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetPlaceOwnersAsGuestWithStatusCode403Test() {
                 given()
                     .when()
                     .get(BASE_URL.formatted(1))
