@@ -95,7 +95,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Override
     @RolesAllowed(OWNER)
     public List<Place> getOwnPlaces(String login) throws AppBaseException {
-        return placeFacade.findByLogin(login);
+        return placeFacade.findActiveByLogin(login);
     }
 
     @Override
@@ -251,10 +251,10 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     meterFacade.create(meter);
                 }
             }
-            forecastUtils.calculateForecastsForMeter(meter);
+            forecastUtils.calculateForecastsForMeter(meter, rate, false);
             place.getMeters().add(meter);
         } else {
-            forecastUtils.calculateForecasts(place, rate);
+            forecastUtils.calculateForecasts(place, rate, false);
         }
         place.getCurrentRates().add(rate);
         placeFacade.edit(place);

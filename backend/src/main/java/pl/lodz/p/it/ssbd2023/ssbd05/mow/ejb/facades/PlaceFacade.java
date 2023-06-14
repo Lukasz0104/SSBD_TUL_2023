@@ -51,22 +51,16 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em;
     }
 
+    @Override
+    @PermitAll
+    public void edit(Place entity) throws AppBaseException {
+        super.edit(entity);
+    }
+
+    @Override
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
         return super.findAll();
-    }
-
-
-    @Override
-    @PermitAll
-    public Optional<Place> find(Long id) {
-        return super.find(id);
-    }
-
-    @Override
-    @RolesAllowed(MANAGER)
-    public void edit(Place entity) throws AppBaseException {
-        super.edit(entity);
     }
 
     @RolesAllowed({OWNER})
@@ -91,6 +85,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
     @RolesAllowed(OWNER)
     public List<Place> findByLogin(String login) {
         TypedQuery<Place> tq = em.createNamedQuery("Place.findByOwnerLogin", Place.class);
+        tq.setParameter("login", login);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(OWNER)
+    public List<Place> findActiveByLogin(String login) {
+        TypedQuery<Place> tq = em.createNamedQuery("Place.findActiveByOwnerLogin", Place.class);
         tq.setParameter("login", login);
         return tq.getResultList();
     }

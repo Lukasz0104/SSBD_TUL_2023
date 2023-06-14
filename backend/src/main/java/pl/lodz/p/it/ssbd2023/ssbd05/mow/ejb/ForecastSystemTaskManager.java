@@ -15,6 +15,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ForecastManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,23 +49,43 @@ public class ForecastSystemTaskManager {
                 for (Rate rate : place.getCurrentRates()) {
                     try {
                         rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
-                            () -> forecastManager.createForecastsForPlaceAndRateAndYear(place, rate,
+                            () -> forecastManager.createForecastsForPlaceAndRateAndYear(place.getId(), rate.getId(),
                                 year), forecastManager);
                     } catch (Exception e) {
                         LOGGER.log(Level.SEVERE,
                             "Exception while creating forecasts for place with id: "
                                 + place.getId() + ", and rate id: "
-                                + rate.getId());
+                                + rate.getId() + ", exception: " + e);
                     }
                 }
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE,
-                "Exception while creating forecasts for year: " + year.getValue());
+                "Exception while creating forecasts for year: " + year.getValue() + ", exception: " + e);
         }
     }
 
+    @Schedule(minute = "10", dayOfMonth = "1")
     private void recalculateForecasts() {
-        throw new UnsupportedOperationException();
+        try {
+            List<Place> places = placeFacade.findByActive(true);
+            for (Place place : places) {
+                for (Rate rate : place.getCurrentRates()) {
+                    try {
+                        rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+                            () -> forecastManager.recalculateForecastsForPlaceAndRate(place.getId(), rate.getId()),
+                            forecastManager);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE,
+                            "Exception while recalculating forecasts for place with id: "
+                                + place.getId() + ", and rate id: "
+                                + rate.getId() + ", exception: " + e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE,
+                "Unexpected exception during recalculating forecasts, : " + LocalDateTime.now() + ", exception: " + e);
+        }
     }
 }

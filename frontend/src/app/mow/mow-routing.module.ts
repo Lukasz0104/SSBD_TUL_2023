@@ -10,6 +10,7 @@ import { canActivateAuthenticated } from '../shared/guards/authentication.guard'
 import { CostsComponent } from './components/costs/costs.component';
 import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
 import { PlacesComponent } from './components/places/places.component';
+import { CommunityReportsComponent } from './components/community-reports/community-reports.component';
 
 export const routes: Routes = [
     {
@@ -56,6 +57,14 @@ export const routes: Routes = [
         component: CostsComponent,
         data: {
             title: 'Costs'
+        },
+        canMatch: [canMatchManager]
+    },
+    {
+        path: 'community-reports',
+        component: CommunityReportsComponent,
+        data: {
+            title: 'Community reports'
         },
         canMatch: [canMatchManager]
     }
