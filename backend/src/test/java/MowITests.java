@@ -45,6 +45,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -998,6 +999,57 @@ public class MowITests extends TestContainersSetup {
             }
         }
 
+    }
+
+    @Nested
+    class MOW19 {
+        private static final String communityReportYearsUrl = "/reports/community";
+
+        @Test
+        void shouldPassGettingAllCommunityReportYears() {
+            io.restassured.response.Response response = given().spec(managerSpec)
+                .when()
+                .get(communityReportYearsUrl).thenReturn();
+
+            assertEquals(response.statusCode(), Response.Status.OK.getStatusCode());
+            assertEquals(response.contentType(), ContentType.JSON.toString());
+            Map<Integer, List<Integer>> yearsAndMonths =
+                response.getBody().as(Map.class);
+            assertTrue(yearsAndMonths.size() >= 1);
+            assertEquals(12, yearsAndMonths.get("2022").size());
+            assertEquals(12, yearsAndMonths.get("2023").size());
+
+        }
+
+        @Test
+        void shouldReturnSC403WHenGettingAllCommunityReportYearsAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get(communityReportYearsUrl)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC403WHenGettingAllCommunityReportYearsAsAdmin() {
+            given().spec(adminSpec)
+                .when()
+                .get(communityReportYearsUrl)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC403WHenGettingAllCommunityReportYearsAsGuest() {
+            given()
+                .when()
+                .get(communityReportYearsUrl)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
     }
 
     @Nested

@@ -25,6 +25,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.time.Month;
 import java.time.Year;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -227,6 +228,20 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
             obj -> ((Year) obj[0]).getValue(),
             obj -> ((Long) obj[1]).intValue()
         ));
+    }
+
+    @RolesAllowed(MANAGER)
+    public Map<Integer, List<Integer>> findYearsAndMonths() {
+        TypedQuery<Object[]> tq = em.createNamedQuery("Forecast.findYearsAndMonths", Object[].class);
+        Map<Integer, List<Integer>> ret = new HashMap<>();
+
+        tq.getResultStream().forEach((obj) -> ret.putIfAbsent(((Year) obj[0]).getValue(),
+                tq.getResultStream().filter(o -> ((Year) o[0]).getValue() == ((Year) obj[0]).getValue())
+                    .map(x -> ((Month) x[1]).getValue()).collect(
+                        Collectors.toList())
+            )
+        );
+        return ret;
     }
 
     @RolesAllowed({OWNER, MANAGER, ADMIN})

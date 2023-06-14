@@ -57,7 +57,9 @@ public class ReportEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response getAllCommunityReports() throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> reportManager.getAllCommunityReportsYearsAndMonths(),
+            reportManager).build();
     }
 
     @GET

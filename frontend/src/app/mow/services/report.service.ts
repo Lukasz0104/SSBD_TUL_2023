@@ -4,13 +4,12 @@ import { AppConfigService } from '../../shared/services/app-config.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { PlaceReportYear } from '../model/place-report-year';
 import { PlaceReportMonth } from '../model/place-report-month';
-import { catchError, EMPTY } from 'rxjs';
+import { catchError, EMPTY, Observable } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
 import {
     BuildingReport,
     BuildingReportYearAndMonths
 } from '../model/building-report';
-import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -89,6 +88,12 @@ export class ReportService {
     ): Observable<BuildingReportYearAndMonths[] | null> {
         return this.http.get<BuildingReportYearAndMonths[]>(
             `${this.BUILDING_URL}/${buildingId}/reports`
+        );
+    }
+
+    getYears(): Observable<Map<string, number[]> | null> {
+        return this.http.get<Map<string, number[]> | null>(
+            `${this.reportUrl}/community`
         );
     }
 

@@ -1,0 +1,70 @@
+<div class="card text-center">
+    <div class="card-header text-center fs-4">
+        <div class="row">
+            <div class="col text-start">
+                <b>{{ 'component.report.title' | translate }}</b>
+                <div
+                    ngbDropdown
+                    container="body"
+                    class="d-inline me-2">
+                    <span
+                        class="cursor-pointer"
+                        ngbDropdownToggle>
+                        {{
+                            'component.report.month.' + currentMonth | translate
+                        }}
+                    </span>
+                    <div
+                        class="dropdown-menu"
+                        ngbDropdownMenu>
+                        <div *ngFor="let month of getMonths()">
+                            <span
+                                ngbDropdownItem
+                                *ngIf="month !== currentMonth"
+                                (click)="changeCurrentMonth(month)">
+                                {{
+                                    'component.report.month.' + month
+                                        | translate
+                                }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    ngbDropdown
+                    container="body"
+                    class="d-inline">
+                    <span
+                        class="cursor-pointer"
+                        *ngIf="currentYear && years.length > 1"
+                        ngbDropdownToggle>
+                        <b> {{ currentYear }} </b>
+                    </span>
+                    <div
+                        class="dropdown-menu"
+                        ngbDropdownMenu>
+                        <div *ngFor="let year of years">
+                            <span
+                                ngbDropdownItem
+                                *ngIf="year !== currentYear"
+                                (click)="changeCurrentYear(year)">
+                                {{ year }}
+                            </span>
+                        </div>
+                    </div>
+                    <b *ngIf="currentYear && !(years.length > 1)">
+                        {{ currentYear }}
+                    </b>
+                </div>
+            </div>
+            <div class="col text-end">
+                <i
+                    class="bi bi-arrow-clockwise cursor-pointer"
+                    (click)="onReload()"></i>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <ng-container></ng-container>
+    </div>
+</div>
