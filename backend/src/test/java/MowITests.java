@@ -1215,6 +1215,7 @@ public class MowITests extends TestContainersSetup {
         private static RequestSpecification onlyManagerSpec;
         private static RequestSpecification onlyAdminSpec;
         private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification onlyOwnerWithInactiveMeterSpec;
         private static RequestSpecification managerOwnerSpec;
 
         @BeforeAll
@@ -1227,6 +1228,17 @@ public class MowITests extends TestContainersSetup {
                 .jsonPath()
                 .get("jwt");
             onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerWithInactiveMeterSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
 
@@ -1262,6 +1274,14 @@ public class MowITests extends TestContainersSetup {
             managerOwnerSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
+
+            String deleteCategoryFromPlaceUrl = "/places/3/categories/5";
+            given()
+                .spec(managerOwnerSpec)
+                .when()
+                .delete(deleteCategoryFromPlaceUrl)
+                .then()
+                .statusCode(204);
         }
 
         static String convertDtoToString(AddReadingAsManagerDto addReadingAsManagerDto) {
@@ -1288,6 +1308,15 @@ public class MowITests extends TestContainersSetup {
                     .post(createReadingUrl + "/me")
                     .then()
                     .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
 
                 PlaceReportMonthDto placeReportMonthDto1 = given()
                     .spec(managerOwnerSpec)
@@ -1424,7 +1453,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1454,7 +1483,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1471,7 +1500,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1487,7 +1516,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1503,7 +1532,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1519,7 +1548,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1535,7 +1564,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1551,7 +1580,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1567,7 +1596,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -1583,8 +1612,72 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingToInactiveMeterAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(5L, BigDecimal.valueOf(456));
+
+                given()
+                    .spec(onlyOwnerWithInactiveMeterSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingToInactiveMeterAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(5L, BigDecimal.valueOf(456), LocalDate.now());
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingSmallerThanInitialAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(9L, BigDecimal.valueOf(0.5), LocalDate.now());
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingHigherThanFutureAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(9L, BigDecimal.valueOf(1500));
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
         }
@@ -2834,6 +2927,15 @@ public class MowITests extends TestContainersSetup {
                 given().spec(onlyOwnerSpec)
                     .when()
                     .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingPlaceMeterReadingsAsManager() {
+                given().spec(managerSpec)
+                    .when()
+                    .get("/meters/384575/readings")
                     .then()
                     .statusCode(Response.Status.NOT_FOUND.getStatusCode());
             }

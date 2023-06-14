@@ -13,4 +13,8 @@ export class OwnPlacesComponent {
     constructor(private placeService: PlaceService) {
         this.ownPlaces$ = this.placeService.getOwnPlaces();
     }
+
+    refresh() {
+        this.ownPlaces$ = this.placeService.getOwnPlaces();
+    }
 }
