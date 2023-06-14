@@ -42,10 +42,15 @@ export class ReportService {
             );
     }
 
-    getReportForPlaceAndYearAndMonth(id: number, year: number, month: number) {
+    getReportForPlaceAndYearAndMonth(
+        id: number,
+        year: number,
+        month: number,
+        full: boolean
+    ) {
         return this.http
             .get<PlaceReportMonth>(
-                `${this.transformUrl()}/place/${id}/report/month?year=${year}&month=${month}`
+                `${this.transformUrl()}/place/${id}/report/month?year=${year}&month=${month}&full=${full}`
             )
             .pipe(
                 catchError((err: HttpErrorResponse) => {

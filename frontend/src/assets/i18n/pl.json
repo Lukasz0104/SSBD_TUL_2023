@@ -427,6 +427,7 @@
     },
     "report": {
       "month": {
+        "-1": "Aktualny",
         "0": "Całkowity",
         "1": "Styczeń",
         "2": "Luty",
@@ -457,7 +458,9 @@
       "sum": "Suma",
       "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
       "title": "Raport",
-      "loading": "Ładowanie raportów"
+      "loading": "Ładowanie raportów",
+      "balance": "Saldo",
+      "average-rate": "Średnia stawka"
     },
     "place-rates": {
       "loading": "Ładowanie stawek...",
@@ -624,7 +627,8 @@
     "forecast": {
       "get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu",
       "add-current-forecast-success": "Nowa prognoza została dodana",
-      "add-current-forecast-fail": "Bład podczas dodawania prognozy dla wybranej kategorii"
+      "add-current-forecast-fail": "Bład podczas dodawania prognozy dla wybranej kategorii",
+      "get-min-months-fail": "Błąd podczas pobierania miesięcy"
     },
     "report": {
       "get-place-report-fail": "Bład podczas pobierania raportu",
@@ -804,7 +808,8 @@
         "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
         "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu",
         "forecast_not_found": "Nie znaleziono prognozy",
-        "report_not_found": "Nie znaleziono raportu"
+        "report_not_found": "Nie znaleziono raportu",
+        "place_not_found": "Nie znaleziono wybranego lokalu"
       }
     }
   },
@@ -821,6 +826,14 @@
       "message": {
         "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
         "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu"
+      }
+    }
+  },
+  "get-min-month": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "forecast_not_found": "Nie znaleziono prognozy dla wybranego miejsca"
       }
     }
   },
