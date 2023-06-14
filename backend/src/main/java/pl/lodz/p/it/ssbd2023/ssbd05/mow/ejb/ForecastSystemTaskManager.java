@@ -55,13 +55,13 @@ public class ForecastSystemTaskManager {
                         LOGGER.log(Level.SEVERE,
                             "Exception while creating forecasts for place with id: "
                                 + place.getId() + ", and rate id: "
-                                + rate.getId());
+                                + rate.getId() + ", exception: " + e);
                     }
                 }
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE,
-                "Exception while creating forecasts for year: " + year.getValue());
+                "Exception while creating forecasts for year: " + year.getValue() + ", exception: " + e);
         }
     }
 
@@ -79,13 +79,13 @@ public class ForecastSystemTaskManager {
                         LOGGER.log(Level.SEVERE,
                             "Exception while recalculating forecasts for place with id: "
                                 + place.getId() + ", and rate id: "
-                                + rate.getId());
+                                + rate.getId() + ", exception: " + e);
                     }
                 }
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE,
-                "Unexpected exception during recalculating forecasts, : " + LocalDateTime.now());
+                "Unexpected exception during recalculating forecasts, : " + LocalDateTime.now() + ", exception: " + e);
         }
     }
 }
