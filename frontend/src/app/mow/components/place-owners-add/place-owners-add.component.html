@@ -1,1 +1,80 @@
-<p>place-ownerss-add works!</p>
+<div class="modal-header">
+    <h4
+        class="modal-title"
+        id="modal-basic-title">
+        {{ 'component.place-owners-add.title' | translate }}
+    </h4>
+</div>
+<div class="modal-body px-4 py-2">
+    <ng-container
+        *ngIf="notOwners$ | async as notOwners; else loading"
+        class="table-responsive">
+        <table class="table text-center table-hover align-middle">
+            <thead>
+                <tr class="bg-light-subtle align-middle">
+                    <th
+                        scope="col"
+                        class="col">
+                        #
+                    </th>
+                    <th
+                        scope="col"
+                        class="col-3 text-nowrap">
+                        {{ 'component.fields.first-name' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="col-3 text-nowrap">
+                        {{ 'component.fields.last-name' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="col-3 text-nowrap">
+                        {{ 'component.fields.address' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="col text-nowrap"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let owner of notOwners; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ owner.firstName }}</td>
+                    <td>{{ owner.lastName }}</td>
+                    <td class="text-nowrap">{{ owner.address | address }}</td>
+                    <td>
+                        <button
+                            class="btn btn-success"
+                            (click)="addOwner(owner.ownerDataId)">
+                            {{ 'component.place-owners-add.add' | translate }}
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </ng-container>
+    <ng-template #loading>
+        <div
+            style="min-height: 400px"
+            class="d-flex flex-column justify-content-center align-items-center">
+            <h3 class="m-3">
+                {{ 'component.place-owners-add.loading' | translate }}
+            </h3>
+        </div>
+    </ng-template>
+</div>
+<div class="px-4 d-flex justify-content-between modal-footer">
+    <button
+        (click)="getNotOwners()"
+        class="btn-outline-primary btn"
+        placement="right bottom"
+        [ngbTooltip]="'component.place-owners-add.refresh' | translate">
+        <i class="bi bi-arrow-clockwise"></i>
+    </button>
+    <div
+        (click)="activeModal.close()"
+        class="btn btn-outline-secondary">
+        {{ 'component.place-owners-add.close' | translate }}
+    </div>
+</div>

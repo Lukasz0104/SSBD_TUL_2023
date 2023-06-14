@@ -47,7 +47,6 @@
             </p>
             <button
                 *ngIf="authService.isManager()"
-                type="button"
                 class="btn btn-outline-primary"
                 (click)="editPlace(place.id)">
                 {{ 'component.place.edit-place' | translate }}

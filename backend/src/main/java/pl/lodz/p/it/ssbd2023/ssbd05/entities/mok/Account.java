@@ -212,8 +212,7 @@ import java.util.Set;
         query = """
             SELECT a FROM Account a
             JOIN OwnerData od ON od.account = a
-            WHERE a.verified = true
-            AND od.verified = true
+            WHERE od.verified = true
             AND od.active = true
             AND od.id = :ownerId
             """)

@@ -481,6 +481,13 @@
       "empty": "Lokal nie posiada przypisanych właścicieli",
       "add": "Przypisz właściciela do lokalu",
       "refresh": "Odśwież listę właścicieli"
+    },
+    "place-owners-add": {
+      "add": "Przypisz tego właściciela",
+      "loading": "Wczytywanie nieprzypisanych kont właścicieli ...",
+      "title": "Nieprzypisani właściciele",
+      "refresh": "Odśwież listę właścicieli",
+      "close": "Zamknij"
     }
   },
   "accounting-rule": {
@@ -643,6 +650,26 @@
           "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu",
           "inactive_meter": "Nie udało się dodać odczytu, licznik jest nieaktywny",
           "own_place_reading_attempt": "Nie udało się dodać odczytu, ponieważ jesteś właścicielem tego lokalu. Spróbuj ponownie z widoku interfejsu właściciela"
+        }
+      }
+    },
+    "place-owners-add": {
+      "response": {
+        "message": {
+          "optimistic_lock": "List właścicieli nie przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
+        }
+      }
+    },
+    "place-owners-remove": {
+      "response": {
+        "message": {
+          "optimistic_lock": "List właścicieli przypisanych została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
         }
       }
     }

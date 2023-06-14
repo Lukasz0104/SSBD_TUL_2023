@@ -180,8 +180,6 @@ export class PlaceService {
     ): void {
         if (response.status == 500 || response.error.message == null) {
             this.toastService.showDanger(genericMessageKey);
-        } else if (response.status == 404) {
-            this.toastService.showDanger('toast.place.not-found');
         } else {
             this.toastService.showDanger(method + '.' + response.error.message);
         }
@@ -240,7 +238,7 @@ export class PlaceService {
 
     addOwner(ownerId: number, placeId: number) {
         return this.http
-            .post(`${this.BASE_URL}/${placeId}/owners`, {
+            .post(`${this.BASE_URL}/${placeId}/owners`, null, {
                 params: { ownerId: ownerId }
             })
             .pipe(this.processOwnerAddRemoveRequest('place-owners-add'));
