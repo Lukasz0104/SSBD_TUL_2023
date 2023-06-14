@@ -127,6 +127,21 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
             cost.getMonth(), cost.getYear(), cost.getCategory().getId());
 
         for (Forecast forecast : forecastList) {
+
+            BigDecimal oldMapBalance = forecast.getPlace()
+                .getBalance().get(YearMonth.of(forecast.getYear().getValue(),
+                    forecast.getMonth()));
+
+            if (oldMapBalance != null) {
+                BigDecimal currentMapBalance = oldMapBalance.add(forecast.getRealValue());
+
+                for (int j = forecast.getMonth().getValue(); j < 13; j++) {
+                    forecast.getPlace().getBalance().put(YearMonth.of(forecast
+                            .getYear().getValue(), Month.of(j)),
+                        currentMapBalance);
+                }
+            }
+
             forecast.setRealValue(BigDecimal.ZERO);
             forecastFacade.edit(forecast);
         }
