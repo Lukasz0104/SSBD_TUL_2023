@@ -15,6 +15,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -193,6 +194,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em.createNamedQuery("Place.findByBuildingId", Place.class)
             .setParameter("buildingId", id)
             .getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public List<Account> findByNotInLogins(Long id) {
+        TypedQuery<Account> tq = em.createNamedQuery("Place.findAccountsNotOwners", Account.class);
+        tq.setParameter("placeId", id);
+        return tq.getResultList();
     }
 
     @RolesAllowed(MANAGER)

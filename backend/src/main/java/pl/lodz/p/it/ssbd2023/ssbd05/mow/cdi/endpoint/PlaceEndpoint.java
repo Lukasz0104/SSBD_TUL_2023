@@ -34,6 +34,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.FunctionThrows;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.MeterDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
@@ -186,12 +187,28 @@ public class PlaceEndpoint {
         ).build();
     }
 
+    @GET
+    @Path("/{id}/not-owners")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(MANAGER)
+    public Response getOwnerNotOwningPlace(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> placeManager.getOwnerNotOwningPlace(id).stream()
+                .map(AccountDtoConverter::createAccountDto).toList(),
+            placeManager
+        ).build();
+    }
+
     @DELETE
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response removeOwnerFromPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response removeOwnerFromPlace(@PathParam("id") Long id, @NotNull @QueryParam("login") String login)
+        throws AppBaseException {
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.removeOwnerFromPlace(id, login),
+            placeManager
+        ).build();
     }
 
     @GET

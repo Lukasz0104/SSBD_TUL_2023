@@ -25,7 +25,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.CategoryNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryNotInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InitialReadingRequiredException;
@@ -38,6 +37,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.AccountFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
@@ -176,8 +176,26 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void removeOwnerFromPlace(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public List<Account> getOwnerNotOwningPlace(Long id) throws AppBaseException {
+        List<Account> accounts = placeFacade.findByNotInLogins(id);
+        System.out.println(accounts);
+        return accounts;
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void removeOwnerFromPlace(Long id, String login) throws AppBaseException {
+        Account account = accountFacade.findByLogin(login).orElseThrow(AccountNotFoundException::new);
+        Optional<AccessLevel> ownerData = account
+            .getAccessLevels()
+            .stream()
+            .filter(x -> x.isValidAccessLevel(AccessType.OWNER))
+            .findFirst();
+        Place place = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
+        if (ownerData.isPresent()) {
+            place.getOwners().remove((OwnerData) ownerData.get());
+            placeFacade.edit(place);
+        }
     }
 
     @Override
@@ -194,7 +212,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
+    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) throws AppBaseException {
         return placeFacade.findCurrentRateByPlaceIdNotMatch(id);
     }
 
@@ -252,7 +270,8 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
         }
     }
 
-    private Place checkIfNotSelfActionAndActivePlaceAndCategoryInUse(Long placeId, Long categoryId, String login) throws AppBaseException {
+    private Place checkIfNotSelfActionAndActivePlaceAndCategoryInUse(Long placeId, Long categoryId, String login)
+        throws AppBaseException {
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
         if (place.getOwners().stream().anyMatch((owner) -> owner.getAccount().getLogin().equals(login))) {
             throw new IllegalSelfActionException();

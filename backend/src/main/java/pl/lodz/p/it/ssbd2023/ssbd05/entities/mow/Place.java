@@ -123,7 +123,13 @@ import java.util.Set;
             WHERE r2.effectiveDate < :now AND r.category = r2.category)
             AND EXISTS (SELECT p FROM Place p JOIN p.currentRates cr
             WHERE p.id = :placeId AND :login IN (SELECT o.account.login FROM p.owners o)
-            AND cr.id = r.id) ORDER BY r.category.name ASC""")
+            AND cr.id = r.id) ORDER BY r.category.name ASC"""),
+    @NamedQuery(
+        name = "Place.findAccountsNotOwners",
+        query = """
+            SELECT a FROM Account a WHERE a.login NOT IN
+            (SELECT DISTINCT b2.account.login FROM Place p JOIN p.owners b2 WHERE p.id = :placeId)
+        """)
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {

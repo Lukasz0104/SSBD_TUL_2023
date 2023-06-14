@@ -63,8 +63,8 @@ import java.util.Set;
     @NamedQuery(
         name = "Account.findAllAccountsByActiveAsc",
         query = """
-            SELECT a FROM Account a 
-            WHERE a.active = :active 
+            SELECT a FROM Account a
+            WHERE a.active = :active
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
                     LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
@@ -84,12 +84,12 @@ import java.util.Set;
                 )
                 AND (
                     LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
-                ) 
+                )
             ORDER BY a.login DESC"""),
     @NamedQuery(
         name = "Account.countAllAccountsByActive",
         query = """
-            SELECT count(a.id) FROM Account a 
+            SELECT count(a.id) FROM Account a
             WHERE a.active = :active
                 AND (
                     LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR

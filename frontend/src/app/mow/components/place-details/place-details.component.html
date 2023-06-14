@@ -45,33 +45,13 @@
             <p>
                 {{ place.building.address | address }}
             </p>
-            <div
+            <button
                 *ngIf="authService.isManager()"
-                class="d-inline-block"
-                ngbDropdown
-                container="body">
-                <button
-                    class="btn btn-outline-primary"
-                    id="dropdownBasic1"
-                    ngbDropdownToggle
-                    type="button">
-                    {{ 'component.fields.actions' | translate }}
-                </button>
-                <div
-                    aria-labelledby="dropdownBasic1"
-                    ngbDropdownMenu>
-                    <button
-                        ngbDropdownItem
-                        (click)="placeCategories(place.id)">
-                        {{ 'component.place.show-categories' | translate }}
-                    </button>
-                    <button
-                        ngbDropdownItem
-                        (click)="editPlace(place.id)">
-                        {{ 'component.place.edit-place' | translate }}
-                    </button>
-                </div>
-            </div>
+                type="button"
+                class="btn btn-outline-primary"
+                (click)="editPlace(place.id)">
+                {{ 'component.place.edit-place' | translate }}
+            </button>
         </div>
     </div>
 </ng-container>
