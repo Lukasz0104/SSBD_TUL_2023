@@ -484,7 +484,14 @@
       "loading": "Loading owners...",
       "empty": "There aren't any owners assigned to this place.",
       "add": "Assign owner to this place",
-      "refresh": "Refresh owners list"
+      "refresh": "Refresh owners' list"
+    },
+    "place-owners-add": {
+      "add": "Assign this owner",
+      "loading": "Loading available owners...",
+      "title": "Available owners",
+      "refresh": "Refresh available owners' list",
+      "close": "Close"
     }
   },
   "accounting-rule": {
@@ -515,7 +522,9 @@
       "add-rate": "Are you sure, you want to add this rate?",
       "add-reading": "Are you sure, you want to add this reading?",
       "place-edit": "Are you sure, you want update this place?",
-      "add-place": "Confirm adding new place."
+      "add-place": "Confirm adding new place.",
+      "place-owners-add": "Are you sure, you want to add selected owner to this place?",
+      "place-owners-remove": "Are you sure, you want to remove selected owner from this place?"
     },
     "add-place": {
       "title": "Add new place",
@@ -611,7 +620,7 @@
       "response": {
         "message": {
           "place_number_already_taken": "Given place number already exist in a chosen building",
-          "optimistic_lock": "Place has been already edited by someone else, please reload the page and try again"
+          "optimistic_lock": "Place has been already changed by someone else, please reload the page and try again"
         }
       }
     },
@@ -650,6 +659,30 @@
           "not_enough_days_after_initial_reading": "Reading date must be at least 1 day after initial reading",
           "inactive_meter": "Failed to add reading, meter is inactive",
           "own_place_reading_attempt": "Failed to add reading, you are owner of this place. Try again from owner view."
+        }
+      }
+    },
+    "place-owners-add": {
+      "fail": "Failed to add owner to the place",
+      "success": "Successfully added a new owner: ",
+      "response": {
+        "message": {
+          "optimistic_lock": "List of not assigned owners was changed by someone else, please reload the list and try again",
+          "place_not_found": "Place not found",
+          "account_not_found": "Account not found",
+          "illegal_self_action": "Can't add as an owner self to this place"
+        }
+      }
+    },
+    "place-owners-remove": {
+      "fail": "Failed to remove owner from the place",
+      "success": "Successfully removed owner",
+      "response": {
+        "message": {
+          "optimistic_lock": "List of assigned owners was changed by someone else, please reload the list and try again",
+          "place_not_found": "Place not found",
+          "account_not_found": "Account not found",
+          "illegal_self_action": "You can't remove yourself from owners"
         }
       }
     }

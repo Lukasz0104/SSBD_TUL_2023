@@ -485,6 +485,13 @@
       "empty": "Lokal nie posiada przypisanych właścicieli",
       "add": "Przypisz właściciela do lokalu",
       "refresh": "Odśwież listę właścicieli"
+    },
+    "place-owners-add": {
+      "add": "Przypisz tego właściciela",
+      "loading": "Wczytywanie nieprzypisanych kont właścicieli ...",
+      "title": "Nieprzypisani właściciele",
+      "refresh": "Odśwież listę właścicieli",
+      "close": "Zamknij"
     }
   },
   "accounting-rule": {
@@ -515,7 +522,9 @@
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
       "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
-      "add-place": "Potwierdź dodanie nowego lokalu."
+      "add-place": "Potwierdź dodanie nowego lokalu.",
+      "place-owners-add": "Czy na pewno chcesz dodać wybranego właściciela do lokalu?",
+      "place-owners-remove": "Czy na pewno chcesz usunąć wybranego właściciela z lokalu?"
     },
     "add-place": {
       "title": "Dodaj nowy lokal",
@@ -650,6 +659,30 @@
           "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu",
           "inactive_meter": "Nie udało się dodać odczytu, licznik jest nieaktywny",
           "own_place_reading_attempt": "Nie udało się dodać odczytu, ponieważ jesteś właścicielem tego lokalu. Spróbuj ponownie z widoku interfejsu właściciela"
+        }
+      }
+    },
+    "place-owners-add": {
+      "fail": "Nie udało się przypisanie właściciela",
+      "success": "Udało się przypisać nowego właściciela",
+      "response": {
+        "message": {
+          "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
+        }
+      }
+    },
+    "place-owners-remove": {
+      "fail": "Nie udało się odłączenie właściciela",
+      "success": "Udało się odłączyć właściciela: ",
+      "response": {
+        "message": {
+          "optimistic_lock": "Lista przypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
         }
       }
     }

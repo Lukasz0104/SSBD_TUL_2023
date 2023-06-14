@@ -1,7 +1,9 @@
 <ng-container *ngIf="owners$ | async as owners; else loadingOwners">
     <div class="mb-3">
         <div class="btn-group">
-            <button class="btn btn-success">
+            <button
+                class="btn btn-success"
+                (click)="addOwners()">
                 {{ 'component.place-owners.add' | translate }}
             </button>
             <button
@@ -66,7 +68,9 @@
                         </i>
                     </td>
                     <td>
-                        <button class="btn btn-danger">
+                        <button
+                            class="btn btn-danger"
+                            (click)="removeOwner(owner.ownerDataId)">
                             {{ 'component.place-owners.remove' | translate }}
                         </button>
                     </td>

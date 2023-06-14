@@ -4051,6 +4051,299 @@ public class MowITests extends TestContainersSetup {
         }
     }
 
+
+    @Nested
+    class MOW23 {
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification ownerManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            ownerManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldAddOwnerToPlace() {
+                Long id = -60L;
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", id)
+                    .post("places/2/owners")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                given().
+                    spec(onlyManagerSpec)
+                    .when()
+                    .get("places/1/owners");
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                String login = "pduda";
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn404SCWhenAddingManagerOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -21)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenAddingAdminOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -45)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenAddingInactiveOwner() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -23)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn403WhenAddingSelfToPlace() {
+                given()
+                    .spec(ownerManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW24 {
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification ownerManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            ownerManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldRemoveOwnerFromPlace() {
+                Long id = -60L;
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", id)
+                    .delete("places/8/owners")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                String login = "pduda";
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingManagerOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -21)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingAdminOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -45)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingInactiveOwner() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -23)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn403WhenRemovingSelfToPlace() {
+                given()
+                    .spec(ownerManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .delete("places/5/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
     @Nested
     class MOW28 {
 
