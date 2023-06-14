@@ -3,6 +3,7 @@ import { NgbActiveModal, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { threeDecimalPlacesValidator } from '../../../shared/validators/three-decimal-places.validator';
 import { AuthService } from '../../../shared/services/auth.service';
+import { AccountingRule } from '../../model/accounting-rule';
 
 @Component({
     selector: 'app-add-initial-reading',
@@ -12,6 +13,7 @@ export class AddInitialReadingComponent {
     today: NgbDate;
     initial: NgbDate;
     @Input() public value: boolean | undefined;
+    @Input() public accountingRule: AccountingRule | undefined;
     addReadingForm = new FormGroup({
         readingValue: new FormControl(0.001, {
             validators: [
@@ -49,5 +51,9 @@ export class AddInitialReadingComponent {
 
     protected get valueControl() {
         return this.addReadingForm.controls['readingValue'];
+    }
+
+    public get RULE(): typeof AccountingRule {
+        return AccountingRule;
     }
 }

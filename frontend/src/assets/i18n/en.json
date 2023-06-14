@@ -490,7 +490,8 @@
   "accounting-rule": {
     "pln": "PLN",
     "person": "pp",
-    "month": "pm"
+    "month": "pm",
+    "unit": "unit"
   },
   "modal": {
     "access-level": "Choose access level",
@@ -878,7 +879,6 @@
         "inactive_place": "Chosen place is inactive",
         "category_not_in_use": "Chosen place doesn't have category, you want to assign forecast to",
         "rate_not_found": "Could not find rate for chosen place and category",
-        "amount_required": "In order to add forecast for this category, you need to provide consumption",
         "forecast_already_exists": "There is already a forecast for chosen category in this month"
       }
     }

@@ -10,6 +10,7 @@ import { AuthService } from '../shared/services/auth.service';
 import { Router } from '@angular/router';
 import { ToastService } from '../shared/services/toast.service';
 import { AppConfigService } from '../shared/services/app-config.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -17,7 +18,8 @@ export class JwtInterceptor implements HttpInterceptor {
         private authService: AuthService,
         private router: Router,
         private toastService: ToastService,
-        private appConfig: AppConfigService
+        private appConfig: AppConfigService,
+        private modalService: NgbModal
     ) {}
 
     intercept(
@@ -40,6 +42,7 @@ export class JwtInterceptor implements HttpInterceptor {
                         !this.authService.isJwtValid(this.authService.getJwt())
                     ) {
                         this.logout();
+                        this.modalService.dismissAll();
                     }
                     throw err;
                 })
