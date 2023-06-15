@@ -23,6 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CommunityReportDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CostFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
@@ -72,8 +73,30 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed({MANAGER, OWNER})
-    public Report getReportDetails(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public CommunityReportDto getReportDetails(Integer year, Integer month) throws AppBaseException {
+        var yearMonth = YearMonth.of(year, month);
+        var balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(yearMonth);
+        var dto = new CommunityReportDto(balance);
+
+        var categories = categoryFacade.findAll();
+        var monthObj = Month.of(month);
+        var yearObj = Year.of(year);
+        for (var category : categories) {
+            var forecasts = forecastFacade.findByMonthAndYearAndCategory(monthObj, yearObj, category.getId());
+            var rate = forecasts.get(0).getRate();
+            var rye = new ReportYearEntry(rate.getValue(), rate.getAccountingRule(), category.getName());
+            forecasts.forEach(f -> rye.addPred(f.getValue(), f.getAmount()));
+
+            if (yearMonth.isBefore(YearMonth.from(LocalDateTime.now()))) {
+                rye.setRealAmount(costFacade.sumConsumptionForCategoryAndMonth(yearObj, category.getId(), monthObj));
+
+                rye.setRealValue(forecasts.stream()
+                    .map(Forecast::getRealValue)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+            }
+            dto.addReport(rye);
+        }
+        return dto;
     }
 
     @Override
@@ -84,15 +107,20 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<ReportYearEntry> getCommunityReportByYear(Integer year) throws AppBaseException {
+    public CommunityReportDto getCommunityReportByYear(Integer year) throws AppBaseException {
         var yearObject = Year.of(year);
         var reports = reportFacade.findByYear(yearObject);
 
+        List<ReportYearEntry> reportEntries;
+        BigDecimal balance;
         if (!reports.isEmpty()) {
-            return getCommunityReportForYearWithReports(yearObject, reports);
+            reportEntries = getCommunityReportForYearWithReports(yearObject, reports);
+            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, 12));
+        } else {
+            reportEntries = calculateCommunityReportForOngoingYear(yearObject);
+            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, reportEntries.size()));
         }
-
-        return calculateCommunityReportForOngoingYear(yearObject);
+        return new CommunityReportDto(balance, reportEntries);
     }
 
     private List<ReportYearEntry> getCommunityReportForYearWithReports(Year year, List<Report> reports) {
@@ -161,7 +189,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
             forecasts.forEach(f -> rye.addMonth(f.getValue(), f.getAmount(), f.getRealValue()));
 
-            var consumption = costFacade.sumConsumptionForCategoryAndMonthBefore(year,category.getId(),lastMonth);
+            var consumption = costFacade.sumConsumptionForCategoryAndMonthBefore(year, category.getId(), lastMonth);
 
             rye.setRealAmount(consumption);
             yearlyCommunityReports.add(rye);

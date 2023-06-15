@@ -9,7 +9,7 @@ import { ToastService } from '../../shared/services/toast.service';
 import {
     BuildingReport,
     BuildingReportYearAndMonths,
-    ReportEntry
+    CommunityReport
 } from '../model/building-report';
 
 @Injectable({
@@ -123,8 +123,14 @@ export class ReportService {
     }
 
     getCommunityReportForYear(year: number) {
-        return this.http.get<ReportEntry[]>(
+        return this.http.get<CommunityReport>(
             `${this.reportUrl}/community/${year}`
+        );
+    }
+
+    getCommunityReportForYearAndMonth(year: number, month: number) {
+        return this.http.get<CommunityReport>(
+            `${this.reportUrl}/community/${year}/${month}`
         );
     }
 }

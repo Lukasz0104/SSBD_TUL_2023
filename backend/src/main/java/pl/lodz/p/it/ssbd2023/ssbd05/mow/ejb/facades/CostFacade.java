@@ -247,4 +247,17 @@ public class CostFacade extends AbstractFacade<Cost> {
             return BigDecimal.ZERO;
         }
     }
+
+    @RolesAllowed(MANAGER)
+    public BigDecimal sumConsumptionForCategoryAndMonth(Year year, Long categoryId, Month month) {
+        try {
+            return em.createNamedQuery("Cost.sumConsumptionForCategoryAndYearAndMonth", BigDecimal.class)
+                .setParameter("year", year)
+                .setParameter("categoryId", categoryId)
+                .setParameter("month", month)
+                .getSingleResult();
+        } catch (NoResultException nre) {
+            return BigDecimal.ZERO;
+        }
+    }
 }

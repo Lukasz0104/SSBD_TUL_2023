@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReportService } from '../../services/report.service';
 import { BehaviorSubject } from 'rxjs';
-import { ReportEntry } from '../../model/building-report';
+import { CommunityReport, ReportEntry } from '../../model/building-report';
 import { PlaceService } from '../../services/place.service';
 import { AccountingRule } from '../../model/accounting-rule';
 
@@ -15,7 +15,7 @@ export class CommunityReportsComponent implements OnInit {
     currentYear;
     currentMonth;
 
-    protected report$ = new BehaviorSubject<ReportEntry[]>([]);
+    protected report$ = new BehaviorSubject<CommunityReport | null>(null);
 
     constructor(
         private reportService: ReportService,
@@ -46,9 +46,18 @@ export class CommunityReportsComponent implements OnInit {
     }
 
     loadReport() {
-        this.reportService
-            .getCommunityReportForYear(this.currentYear)
-            .subscribe((report) => this.report$.next(report));
+        if (this.currentMonth === 0)
+            this.reportService
+                .getCommunityReportForYear(this.currentYear)
+                .subscribe((report) => this.report$.next(report));
+        else {
+            this.reportService
+                .getCommunityReportForYearAndMonth(
+                    this.currentYear,
+                    this.currentMonth
+                )
+                .subscribe((report) => this.report$.next(report));
+        }
     }
 
     getYears() {

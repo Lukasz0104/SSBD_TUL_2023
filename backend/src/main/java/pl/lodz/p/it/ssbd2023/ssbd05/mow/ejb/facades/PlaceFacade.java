@@ -25,6 +25,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -206,5 +207,16 @@ public class PlaceFacade extends AbstractFacade<Place> {
     @Override
     public void create(Place entity) throws AppBaseException {
         super.create(entity);
+    }
+
+    @RolesAllowed(MANAGER)
+    public BigDecimal sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth yearMonth) {
+        try {
+            return em.createNamedQuery("sumBalanceForMonthAndYearAcrossAllPlaces", BigDecimal.class)
+                .setParameter(1, LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), 1))
+                .getSingleResult();
+        } catch (NoResultException nre) {
+            return BigDecimal.ZERO;
+        }
     }
 }

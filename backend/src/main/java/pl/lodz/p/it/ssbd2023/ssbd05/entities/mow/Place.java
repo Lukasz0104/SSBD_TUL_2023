@@ -13,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -132,6 +133,13 @@ import java.util.Set;
             WHERE p.id = :placeId AND :login IN (SELECT o.account.login FROM p.owners o)
             AND cr.id = r.id) ORDER BY r.category.name ASC""")
 })
+@NamedNativeQuery(
+    name = "sumBalanceForMonthAndYearAcrossAllPlaces",
+    query = """
+        SELECT SUM(mb.balance)
+        FROM monthly_balance mb
+        WHERE mb.year_month = ?
+        """)
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {
 

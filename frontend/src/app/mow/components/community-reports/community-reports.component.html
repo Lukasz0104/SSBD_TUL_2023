@@ -103,7 +103,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let entry of report">
+                        <tr *ngFor="let entry of report.reportsPerCategory">
                             <td>
                                 <i
                                     class="bi"
@@ -177,23 +177,24 @@
                                 {{ 'component.report.sum' | translate }}
                             </td>
                             <td>
-                                {{ realValueSum(report) | number : '.2-2' }}
+                                {{
+                                    realValueSum(report.reportsPerCategory)
+                                        | number : '.2-2'
+                                }}
                             </td>
                             <td>
-                                {{ predValueSum(report) | number : '.2-2' }}
+                                {{
+                                    predValueSum(report.reportsPerCategory)
+                                        | number : '.2-2'
+                                }}
                             </td>
                             <td
                                 [class]="
-                                    predValueSum(report) -
-                                        realValueSum(report) >
-                                    0
+                                    report.balance > 0
                                         ? 'text-success'
                                         : 'text-danger'
                                 ">
-                                {{
-                                    predValueSum(report) - realValueSum(report)
-                                        | number : '.2-2'
-                                }}
+                                {{ report.balance | number : '.2-2' }}
                             </td>
                             <td colspan="3"></td>
                         </tr>

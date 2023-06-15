@@ -124,7 +124,17 @@ import java.time.Year;
             WHERE
                 c.year = :year
                 AND c.category.id = :categoryId
-                AND c.month < :month""")
+                AND c.month < :month"""),
+    @NamedQuery(
+        name = "Cost.sumConsumptionForCategoryAndYearAndMonth",
+        query = """
+            SELECT SUM(c.totalConsumption)
+            FROM Cost c
+            WHERE
+                c.year = :year
+                AND c.category.id = :categoryId
+                AND c.month = :month""")
+
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})
