@@ -39,7 +39,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingYearsAndMonthsReports;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
@@ -5674,7 +5673,7 @@ public class MowITests extends TestContainersSetup {
             List<PlaceCategoryDTO> placeCategoryDTOList =
                 List.of(response.getBody().as(PlaceCategoryDTO[].class));
 
-            Assert.notEmpty(placeCategoryDTOList);
+            Assertions.assertNotEquals(placeCategoryDTOList.size(), 0);
         }
     }
 
