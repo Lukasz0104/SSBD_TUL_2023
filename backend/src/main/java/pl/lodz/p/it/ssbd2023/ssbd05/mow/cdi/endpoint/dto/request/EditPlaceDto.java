@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -18,10 +19,10 @@ public class EditPlaceDto extends PlaceSignableDto {
     @NotNull @Positive
     private Integer placeNumber;
 
-    @NotNull @Positive
+    @NotNull @Positive @Max(1000000)
     private BigDecimal squareFootage;
 
-    @NotNull @Positive
+    @NotNull @Positive @Max(1000000)
     private Integer residentsNumber;
 
     @NotNull

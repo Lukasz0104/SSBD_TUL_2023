@@ -2,12 +2,14 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 
 import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReportYearEntry {
     private BigDecimal predValue;
     private BigDecimal predAmount;

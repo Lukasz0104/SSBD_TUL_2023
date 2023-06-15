@@ -18,11 +18,13 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppInternalServerErrorException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.InaccessibleReportException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.BuildingNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
@@ -61,6 +63,9 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @Inject
     private ForecastFacade forecastFacade;
 
+    @Inject
+    private BuildingFacade buildingFacade;
+
     @Override
     @RolesAllowed(MANAGER)
     public Map<Integer, List<Integer>> getAllCommunityReportsYearsAndMonths() throws AppBaseException {
@@ -76,6 +81,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
     public Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException {
+        buildingFacade.find(id).orElseThrow(BuildingNotFoundException::new);
         return forecastFacade
             .findYearsAndMonthsByBuildingId(id)
             .entrySet()
@@ -89,6 +95,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
     public BuildingReportYearlyDto getYearlyReportForBuilding(Long id, Year year) throws AppBaseException {
+        buildingFacade.find(id).orElseThrow(BuildingNotFoundException::new);
         List<Report> reports = reportFacade.findByYear(year);
         if (reports.isEmpty()) {
             return this.getUnfullYearlyReportForBuilding(id, year);
@@ -164,6 +171,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @RolesAllowed({MANAGER, OWNER, ADMIN})
     public BuildingReportYearlyDto getMonthlyReportForBuilding(Long id, Year year, Month month)
         throws AppBaseException {
+        buildingFacade.find(id).orElseThrow(BuildingNotFoundException::new);
         List<Place> places = placeFacade.findByBuildingId(id);
         YearMonth yearMonth = YearMonth.of(year.getValue(), month);
         BigDecimal balance = places
