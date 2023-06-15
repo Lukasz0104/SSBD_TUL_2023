@@ -238,95 +238,70 @@
                         </td>
                     </tr>
                 </tbody>
-
-                <div class="rounded shadow mt-2">
-                    <div class="row">
-                        <div class="col-sm text-start m-2">
-                            <b>{{ 'component.report.sum' | translate }}: </b>
-                        </div>
-                        <div class="col mb-1">
-                            <b>
-                                {{
-                                    'component.report.total-real-cost'
-                                        | translate
-                                }}:<br />
-                                {{ report.sumRealValue | number : '.2-2' }}
-                                {{ 'accounting-rule.pln' | translate }}
-                            </b>
-                        </div>
-                        <div class="col mb-1">
-                            <b>
-                                {{
-                                    'component.report.total-forecasted-cost'
-                                        | translate
-                                }}:<br />
-                                {{ report.sumPredValue | number : '.2-2' }}
-                                {{ 'accounting-rule.pln' | translate }}
-                            </b>
-                        </div>
-                        <div
-                            class="col mb-1"
-                            [ngClass]="{
-                                'text-success': report.diff > 0,
-                                'text-danger': report.diff < 0
-                            }">
-                            <b *ngIf="report.diff < 0">
-                                {{
-                                    'component.report.underpayment' | translate
-                                }}:<br />
-                            </b>
-                            <b *ngIf="report.diff > 0">
-                                {{
-                                    'component.report.overpayment' | translate
-                                }}:
-                            </b>
-                            <b *ngIf="report.diff === 0">
-                                {{ 'component.report.payed' | translate }}:
-                            </b>
-                            <span>
-                                {{ report.diff | number : '.2-2' }}
-                                {{ 'accounting-rule.pln' | translate }}
-                            </span>
-                        </div>
-                        <div
-                            class="col mb-1"
-                            [ngClass]="{
-                                'text-success': report.balance > 0,
-                                'text-danger': report.balance < 0
-                            }">
-                            <b>Saldo:<br /></b>
-                            <span>
-                                {{ report.balance | number : '.2-2' }}
-                                {{ 'accounting-rule.pln' | translate }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
             </table>
         </div>
-    </ng-container>
-    <ng-template #loadingReport>
-        <div
-            class="d-flex flex-column justify-content-center align-items-center">
-            <span class="spinner-border"></span>
-            <span class="mt-3 text-dark-emphasis">
-                <b>{{ 'component.building-report.loading' | translate }} </b>
-            </span>
+        <div class="rounded shadow mt-2">
+            <div class="row ms-4">
+                <div class="col ms-3 mb-1">
+                    <b>
+                        {{
+                            'component.report.total-real-cost' | translate
+                        }}:<br />
+                        {{ report.sumRealValue | number : '.2-2' }}
+                        {{ 'accounting-rule.pln' | translate }}
+                    </b>
+                </div>
+                <div class="col mb-1">
+                    <b>
+                        {{
+                            'component.report.total-forecasted-cost'
+                                | translate
+                        }}:<br />
+                        {{ report.sumPredValue | number : '.2-2' }}
+                        {{ 'accounting-rule.pln' | translate }}
+                    </b>
+                </div>
+                <div
+                    class="col mb-1"
+                    [ngClass]="{
+                        'text-success': report.diff > 0,
+                        'text-danger': report.diff < 0
+                    }">
+                    <b *ngIf="report.diff < 0">
+                        {{ 'component.report.underpayment' | translate }}:<br />
+                    </b>
+                    <b *ngIf="report.diff > 0">
+                        {{ 'component.report.overpayment' | translate }}:
+                    </b>
+                    <b *ngIf="report.diff === 0">
+                        {{ 'component.report.payed' | translate }}:
+                    </b>
+                    <span>
+                        {{ report.diff | number : '.2-2' }}
+                        {{ 'accounting-rule.pln' | translate }}
+                    </span>
+                </div>
+                <div
+                    class="col mb-1"
+                    [ngClass]="{
+                        'text-success': report.balance > 0,
+                        'text-danger': report.balance < 0
+                    }">
+                    <b>Saldo:</b>
+                    <span>
+                        {{ report.balance | number : '.2-2' }}
+                        {{ 'accounting-rule.pln' | translate }}
+                    </span>
+                </div>
+            </div>
         </div>
-    </ng-template>
+    </ng-container>
 </ng-container>
 
 <div *ngIf="year === undefined">
     <div class="d-flex flex-column justify-content-center align-items-center">
         <span class="mt-3 text-dark-emphasis">
             <b> {{ 'component.building-report.loading-year' | translate }} </b>
-        </span>
-    </div>
-</div>
-<div *ngIf="notFullYear && year !== undefined">
-    <div class="d-flex flex-column justify-content-center align-items-center">
-        <span class="mt-3 text-dark-emphasis">
-            <b>{{ 'component.building-report.not-full-year' | translate }}</b>
         </span>
     </div>
 </div>
