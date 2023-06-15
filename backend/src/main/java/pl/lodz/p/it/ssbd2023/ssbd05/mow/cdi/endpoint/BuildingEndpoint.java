@@ -21,7 +21,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.ReportDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
@@ -63,14 +62,4 @@ public class BuildingEndpoint {
             .build();
     }
 
-    @GET
-    @Path("/{id}/reports")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({MANAGER, OWNER, ADMIN})
-    public Response getYearsAndMonthsForReports(@PathParam("id") Long id) throws AppBaseException {
-        return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> ReportDtoConverter.mapToListOfBuildingReports(reportManager.getYearsAndMonthsForReports(id)),
-            buildingManager
-        ).build();
-    }
 }

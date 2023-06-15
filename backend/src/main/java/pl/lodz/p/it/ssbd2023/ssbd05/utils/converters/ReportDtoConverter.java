@@ -3,7 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportsDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingYearsAndMonthsReports;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
@@ -165,20 +165,20 @@ public class ReportDtoConverter {
         return value;
     }
 
-    public static BuildingReportYearlyDto mapToBuildingReportYearlyDto(Map<String, ReportYearEntry> categories) {
+    public static BuildingReportYearlyDto mapToBuildingReportYearlyDto(Map<String, ReportYearEntry> categories,
+                                                                       BigDecimal balance) {
         BigDecimal sumPredValue = BigDecimal.ZERO;
         BigDecimal sumRealValue = BigDecimal.ZERO;
-        BigDecimal sumBalance = BigDecimal.ZERO;
         for (ReportYearEntry entry : categories.values()) {
             sumPredValue = sumPredValue.add(entry.getPredValue());
             sumRealValue = sumRealValue.add(entry.getRealValue());
-            sumBalance = sumBalance.add(entry.getBalance());
         }
         return new BuildingReportYearlyDto(categories.values().stream().toList(),
-            sumPredValue, sumRealValue, sumPredValue.subtract(sumRealValue), sumBalance);
+            sumPredValue, sumRealValue, sumPredValue.subtract(sumRealValue), balance);
     }
 
-    public static List<BuildingReportsDto> mapToListOfBuildingReports(Map<Integer, List<Integer>> maps) {
-        return maps.entrySet().stream().map(e -> new BuildingReportsDto(e.getKey(), e.getValue())).toList();
+    public static List<BuildingYearsAndMonthsReports> mapToBuildingYearsAndMonthsReports(
+        Map<Integer, List<Integer>> maps) {
+        return maps.entrySet().stream().map(e -> new BuildingYearsAndMonthsReports(e.getKey(), e.getValue())).toList();
     }
 }

@@ -306,4 +306,17 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         tq.executeUpdate();
         em.flush();
     }
+
+    @PermitAll
+    public List<Object[]> getMapCategoryNameToRateAndValueAndRealValueAndAmount(Long id,
+                                                                                         Year year, Month month) {
+        TypedQuery<Object[]> tq =
+            em.createNamedQuery("Forecast.getMapCategoryNameToRateAndValueAndRealValueAndAmount",
+                Object[].class);
+        tq.setParameter("buildingId", id);
+        tq.setParameter("year", year);
+        tq.setParameter("month", month);
+
+        return tq.getResultList();
+    }
 }

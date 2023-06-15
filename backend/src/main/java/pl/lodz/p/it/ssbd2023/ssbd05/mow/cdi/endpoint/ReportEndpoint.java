@@ -172,6 +172,18 @@ public class ReportEndpoint {
 
 
     @GET
+    @Path("/buildings/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
+    public Response getYearsAndMonthsForReports(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> ReportDtoConverter.mapToBuildingYearsAndMonthsReports(
+                reportManager.getYearsAndMonthsForReports(id)),
+            reportManager
+        ).build();
+    }
+
+    @GET
     @Path("/buildings/{id}/{year}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER, OWNER, ADMIN})
@@ -186,7 +198,7 @@ public class ReportEndpoint {
         }
 
         return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> ReportDtoConverter.mapToBuildingReportYearlyDto(reportManager.getYearlyReportForBuilding(id, year)),
+            () -> reportManager.getYearlyReportForBuilding(id, year),
             reportManager
         ).build();
     }
@@ -209,8 +221,7 @@ public class ReportEndpoint {
         }
 
         return rollbackUtils.rollBackTXBasicWithOkStatus(
-            () -> ReportDtoConverter.mapToBuildingReportYearlyDto(
-                reportManager.getMonthlyReportForBuilding(id, year, month)),
+            () -> reportManager.getMonthlyReportForBuilding(id, year, month),
             reportManager
         ).build();
     }

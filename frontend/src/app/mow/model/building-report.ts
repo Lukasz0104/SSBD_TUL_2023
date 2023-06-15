@@ -14,6 +14,7 @@ export interface BuildingReport {
     diff: number;
     sumPredValue: number;
     sumRealValue: number;
+    balance: number;
     categories: ReportEntry[];
 }
 

@@ -47,9 +47,4 @@ public class ReportYearEntry {
         return this;
     }
 
-    public ReportYearEntry addBalance(BigDecimal balance) {
-        this.balance = balance;
-        return this;
-    }
-
 }

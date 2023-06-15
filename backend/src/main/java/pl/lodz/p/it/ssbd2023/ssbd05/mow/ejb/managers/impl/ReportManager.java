@@ -22,7 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
@@ -30,8 +30,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.ReportDtoConverter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
@@ -86,13 +88,54 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
-    public Map<String, ReportYearEntry> getYearlyReportForBuilding(Long id, Year year) throws AppBaseException {
-        Map<String, ReportYearEntry> result = new HashMap<>();
-        List<Forecast> forecasts;
-        List<Report> reports;
+    public BuildingReportYearlyDto getYearlyReportForBuilding(Long id, Year year) throws AppBaseException {
+        List<Report> reports = reportFacade.findByYear(year);
+        if (reports.isEmpty()) {
+            return this.getUnfullYearlyReportForBuilding(id, year);
+        }
+        return this.getFullYearlyReportForBuilding(id, year);
+    }
 
-        forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
-        reports = reportFacade.findByBuildingIdAndYear(id, year);
+    private BuildingReportYearlyDto getUnfullYearlyReportForBuilding(Long id, Year year) throws AppBaseException {
+        Month lastMonth = LocalDateTime.now().getMonth().minus(1);
+        Map<String, ReportYearEntry> result = new HashMap<>();
+        List<Place> places = placeFacade.findByBuildingId(id);
+        YearMonth yearMonth = YearMonth.of(year.getValue(), lastMonth);
+        BigDecimal balance = places
+            .stream()
+            .filter((v) -> v.getBalance().containsKey(yearMonth))
+            .map(v -> v.getBalance().get(yearMonth))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<Forecast> forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
+        for (Forecast forecast : forecasts) {
+            String cat = forecast.getRate().getCategory().getName();
+            BigDecimal realValue = forecast.getRealValue();
+            if (realValue == null) {
+                realValue = BigDecimal.ZERO;
+            }
+            result.put(cat,
+                result.getOrDefault(cat, new ReportYearEntry(forecast.getRate().getValue(),
+                        forecast.getRate().getAccountingRule(), cat))
+                    .addPred(forecast.getValue(), forecast.getAmount())
+                    .addReal(realValue, BigDecimal.ZERO)
+            );
+        }
+
+        return ReportDtoConverter.mapToBuildingReportYearlyDto(result, balance);
+    }
+
+    private BuildingReportYearlyDto getFullYearlyReportForBuilding(Long id, Year year) throws AppBaseException {
+        Map<String, ReportYearEntry> result = new HashMap<>();
+        List<Forecast> forecasts = forecastFacade.findByBuildingIdAndYear(id, year);
+        List<Report> reports = reportFacade.findByBuildingIdAndYear(id, year);
+        List<Place> places = placeFacade.findByBuildingId(id);
+        YearMonth yearMonth = YearMonth.of(year.getValue(), 12);
+        BigDecimal balance = places
+            .stream()
+            .filter((v) -> v.getBalance().containsKey(yearMonth))
+            .map(v -> v.getBalance().get(yearMonth))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         for (Forecast forecast : forecasts) {
             String cat = forecast.getRate().getCategory().getName();
@@ -114,13 +157,20 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
             }
         }
 
-        return result;
+        return ReportDtoConverter.mapToBuildingReportYearlyDto(result, balance);
     }
 
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
-    public Map<String, ReportYearEntry> getMonthlyReportForBuilding(Long id, Year year, Month month)
+    public BuildingReportYearlyDto getMonthlyReportForBuilding(Long id, Year year, Month month)
         throws AppBaseException {
+        List<Place> places = placeFacade.findByBuildingId(id);
+        YearMonth yearMonth = YearMonth.of(year.getValue(), month);
+        BigDecimal balance = places
+            .stream()
+            .filter((v) -> v.getBalance().containsKey(yearMonth))
+            .map(v -> v.getBalance().get(yearMonth))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, ReportYearEntry> result = new HashMap<>();
         List<Forecast> forecasts = forecastFacade.findByBuildingIdAndYearAndMonth(id, year, month);
@@ -137,8 +187,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
                     .addMonth(forecast.getValue(), forecast.getAmount(), realValue)
             );
         }
-
-        return result;
+        return ReportDtoConverter.mapToBuildingReportYearlyDto(result, balance);
     }
 
     @Override

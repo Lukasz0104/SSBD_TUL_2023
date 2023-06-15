@@ -180,8 +180,6 @@ export class PlaceService {
     ): void {
         if (response.status == 500 || response.error.message == null) {
             this.toastService.showDanger(genericMessageKey);
-        } else if (response.status == 404) {
-            this.toastService.showDanger('toast.place.not-found');
         } else {
             this.toastService.showDanger(method + '.' + response.error.message);
         }

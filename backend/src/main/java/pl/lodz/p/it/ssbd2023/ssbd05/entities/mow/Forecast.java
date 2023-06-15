@@ -174,7 +174,22 @@ import java.time.Year;
             AND f.place.id = :placeId
             AND f.year = :year
             AND f.month > :month
-            """)
+            """),
+    @NamedQuery(
+        name = "Forecast.getMapCategoryNameToRateAndValueAndRealValueAndAmount",
+        query = """
+                SELECT
+                    f.rate.category.name,
+                    f.rate.accountingRule,
+                    AVG(f.rate.value),
+                    SUM(f.value),
+                    SUM(f.realValue),
+                    SUM(f.amount)
+                 FROM Forecast f
+                    WHERE f.place.building.id = :buildingId
+                    AND f.year = :year AND f.month = :month
+                    GROUP BY f.rate.category.id, f.rate.accountingRule
+        """)
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {

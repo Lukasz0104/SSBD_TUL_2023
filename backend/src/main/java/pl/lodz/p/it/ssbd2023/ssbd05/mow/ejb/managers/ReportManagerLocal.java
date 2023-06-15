@@ -3,7 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 import jakarta.ejb.Local;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
@@ -20,10 +20,10 @@ public interface ReportManagerLocal extends CommonManagerInterface {
 
     Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException;
 
-    Map<String, ReportYearEntry> getYearlyReportForBuilding(Long id, Year year)
+    BuildingReportYearlyDto getYearlyReportForBuilding(Long id, Year year)
         throws AppBaseException;
 
-    Map<String, ReportYearEntry> getMonthlyReportForBuilding(Long id, Year year, Month month)
+    BuildingReportYearlyDto getMonthlyReportForBuilding(Long id, Year year, Month month)
         throws AppBaseException;
 
     Report getCommunityReportByYear(Long year) throws AppBaseException;
