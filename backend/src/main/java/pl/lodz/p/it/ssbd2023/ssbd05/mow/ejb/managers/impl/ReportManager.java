@@ -39,7 +39,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.ReportDtoConverter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.Month;

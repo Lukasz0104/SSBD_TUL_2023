@@ -93,11 +93,13 @@
     "residentsNumber": {
       "min": "Number of residents must not be negative",
       "required": "Number of residents is required",
-      "pattern": "Number of residents must be a whole number"
+      "pattern": "Number of residents must be a whole number",
+      "max": "Number of residents must be less than 1000000"
     },
     "squareFootage": {
       "min": "Square footage must be positive",
-      "required": "Square footage is required"
+      "required": "Square footage is required",
+      "max": "Square footage must be less than 1000000"
     },
     "placeNumber": {
       "min": "Place number must be positive",
