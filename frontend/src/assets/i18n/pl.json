@@ -93,11 +93,13 @@
     "residentsNumber": {
       "min": "Liczba mieszkańców nie może być ujemna",
       "required": "Liczba mieszkanców jest wymagana",
-      "pattern": "Liczba mieszkańców musi być liczbą całkowitą"
+      "pattern": "Liczba mieszkańców musi być liczbą całkowitą",
+      "max": "Liczba mieszkańców musi być mniejsza niż 1000000"
     },
     "squareFootage": {
       "min": "Powierzchnia lokalu musi być dodatnia",
-      "required": "Powierzchnia lokalu jest wymagana"
+      "required": "Powierzchnia lokalu jest wymagana",
+      "max": "Powierzchnia lokalu musi być mniejsza niż 1000000"
     },
     "placeNumber": {
       "min": "Numer lokalu musi być dodatni",
@@ -116,6 +118,14 @@
       "required": "Liczba lokatorów jest wymagana.",
       "min": "Liczba lokatorów musi być większa bądź równa ",
       "max": "Liczba lokatorów musi być nie większa niż"
+    },
+    "total-consumption": {
+      "required": "Wartość całkowitego zużycia jest wymagana.",
+      "min": "Całkowite zużycie musi być większe bądź równe "
+    },
+    "real-rate": {
+      "required": "Wartość rzeczywistej stawki jest wymagana.",
+      "min": "Rzeczywista stawka musi być większa bądź równa "
     }
   },
   "form": {
@@ -347,8 +357,8 @@
     "costs": {
       "month": "Miesiąc",
       "year": "Rok",
-      "realRate": "Stawka",
-      "totalConsumption": "Łączne zużycie",
+      "realRate": "Rzeczywista stawka",
+      "totalConsumption": "Całkowite zużycie",
       "months": {
         "january": "Styczeń",
         "february": "Luty",
@@ -366,9 +376,28 @@
       "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
       "chooseYear": "Wybierz rok",
       "chooseCategory": "Wybierz kategorię",
+      "chooseMonth": "Wybierz miesiąc",
       "category": "Kategoria kosztu",
       "cost-data": "Informacje o koszcie",
-      "details": "Szczegóły"
+      "details": "Szczegóły",
+      "remove-cost": "Usuń koszt"
+    },
+    "add-cost": {
+      "title": "Dodaj koszt",
+      "create": "Zapisz koszt",
+      "cancel": "Anuluj",
+      "months-0": "Styczeń",
+      "months-1": "Luty",
+      "months-2": "Marzec",
+      "months-3": "Kwiecień",
+      "months-4": "Maj",
+      "months-5": "Czerwiec",
+      "months-6": "Lipiec",
+      "months-7": "Sierpień",
+      "months-8": "Wrzesień",
+      "months-9": "Październik",
+      "months-10": "Listopad",
+      "months-11": "Grudzień"
     },
     "meters": {
       "add-reading": "Wybierz licznik, aby dodać odczyt",
@@ -392,6 +421,7 @@
       "year": "Rok",
       "chooseYear": "Wybierz rok",
       "yearly": "Raport roczny",
+      "current": "Aktualny raport",
       "category": "Kategoria opłaty",
       "pred-amount": "Przewidywane zużycie",
       "pred-value": "Przewidywany koszt",
@@ -525,6 +555,8 @@
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
       "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
       "add-place": "Potwierdź dodanie nowego lokalu.",
+      "add-cost": "Czy na pewno chcesz dodać nowy koszt?",
+      "remove-cost": "Czy na pewno chcesz usunąć dany koszt?",
       "place-owners-add": "Czy na pewno chcesz dodać wybranego właściciela do lokalu?",
       "place-owners-remove": "Czy na pewno chcesz usunąć wybranego właściciela z lokalu?"
     },
@@ -685,6 +717,18 @@
           "place_not_found": "Nie znaleziono lokalu",
           "account_not_found": "Nie znaleziono konta użytkownika",
           "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Pomyślnie dodano koszt",
+      "add-fail": "Nie udało się dodać kosztu. Spróbuj ponownie później",
+      "remove-success": "Pomyślnie usunięto koszt",
+      "remove-fail": "Nie udało się usunąć kosztu. Spróbuj ponownie później",
+      "response":{
+        "message": {
+          "cost_already_exists": "Koszt dla wybranych wartości już istnieje",
+          "cost_not_found": "Nie znaleziono kosztu"
         }
       }
     }

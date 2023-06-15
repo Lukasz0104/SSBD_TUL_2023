@@ -17,7 +17,6 @@ import {
 })
 export class ReportService {
     private readonly reportUrl = `${this.config.apiUrl}/reports`;
-    private readonly BUILDING_URL = `${this.config.apiUrl}/buildings`;
 
     constructor(
         private http: HttpClient,
@@ -89,17 +88,17 @@ export class ReportService {
         return this.reportUrl;
     }
 
+    getYears(): Observable<Map<string, number[]> | null> {
+        return this.http.get<Map<string, number[]> | null>(
+            `${this.reportUrl}/community`
+        );
+    }
+
     getYearsAndMonths(
         buildingId: number
     ): Observable<BuildingReportYearAndMonths[] | null> {
         return this.http.get<BuildingReportYearAndMonths[]>(
-            `${this.BUILDING_URL}/${buildingId}/reports`
-        );
-    }
-
-    getYears(): Observable<Map<string, number[]> | null> {
-        return this.http.get<Map<string, number[]> | null>(
-            `${this.reportUrl}/community`
+            `${this.reportUrl}/buildings/${buildingId}`
         );
     }
 
@@ -108,7 +107,7 @@ export class ReportService {
         year: number
     ): Observable<BuildingReport | null> {
         return this.http.get<BuildingReport>(
-            `${this.BUILDING_URL}/${buildingId}/reports/${year}`
+            `${this.reportUrl}/buildings/${buildingId}/${year}`
         );
     }
 
@@ -118,7 +117,7 @@ export class ReportService {
         month: number
     ): Observable<BuildingReport | null> {
         return this.http.get<BuildingReport>(
-            `${this.BUILDING_URL}/${buildingId}/reports/${year}/${month}`
+            `${this.reportUrl}/buildings/${buildingId}/${year}/${month}`
         );
     }
 

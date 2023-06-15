@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BuildingReportsDto {
+public class BuildingYearsAndMonthsReports {
 
     @PositiveOrZero
     private Integer year;

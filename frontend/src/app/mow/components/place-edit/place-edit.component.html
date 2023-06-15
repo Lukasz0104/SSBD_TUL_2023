@@ -69,6 +69,11 @@
                         class="mb-0">
                         {{ 'validation.squareFootage.min' | translate }}
                     </p>
+                    <p
+                        *ngIf="squareFootageControl.errors['max']"
+                        class="mb-0">
+                        {{ 'validation.squareFootage.max' | translate }}
+                    </p>
                 </div>
             </div>
 
@@ -99,6 +104,11 @@
                         *ngIf="residentsNumberControl.errors['min']"
                         class="mb-0">
                         {{ 'validation.residentsNumber.min' | translate }}
+                    </p>
+                    <p
+                        *ngIf="residentsNumberControl.errors['max']"
+                        class="mb-0">
+                        {{ 'validation.residentsNumber.max' | translate }}
                     </p>
                     <p
                         *ngIf="residentsNumberControl.errors['pattern']"
