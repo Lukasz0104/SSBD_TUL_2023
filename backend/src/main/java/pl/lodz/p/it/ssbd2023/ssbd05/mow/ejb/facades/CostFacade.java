@@ -4,22 +4,27 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.CostFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
+import java.math.BigDecimal;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
@@ -30,6 +35,7 @@ import java.util.Optional;
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
     GenericFacadeExceptionsInterceptor.class,
+    CostFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class
 })
 public class CostFacade extends AbstractFacade<Cost> {
@@ -102,7 +108,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Cost> findByYearAndCategoryId(Year year, Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYearAndCategoryId", Cost.class);
@@ -221,6 +227,18 @@ public class CostFacade extends AbstractFacade<Cost> {
         return super.find(id);
     }
 
+    @Override
+    @RolesAllowed({MANAGER})
+    public void create(Cost entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public void remove(Cost entity) throws AppBaseException {
+        super.remove(entity);
+    }
+
     @RolesAllowed({MANAGER})
     public List<Year> findDistinctYears() {
         TypedQuery<Year> tq = em.createNamedQuery("Cost.findDistinctYears", Year.class);
@@ -233,5 +251,29 @@ public class CostFacade extends AbstractFacade<Cost> {
         return tq.getResultList();
     }
 
+    @RolesAllowed(MANAGER)
+    public BigDecimal sumConsumptionForCategoryAndMonthBefore(Year year, Long categoryId, Month month) {
+        try {
+            return em.createNamedQuery("Cost.sumConsumptionForCategoryAndYearAndMonthBefore", BigDecimal.class)
+                .setParameter("year", year)
+                .setParameter("categoryId", categoryId)
+                .setParameter("month", month)
+                .getSingleResult();
+        } catch (NoResultException nre) {
+            return BigDecimal.ZERO;
+        }
+    }
 
+    @RolesAllowed(MANAGER)
+    public BigDecimal sumConsumptionForCategoryAndMonth(Year year, Long categoryId, Month month) {
+        try {
+            return em.createNamedQuery("Cost.sumConsumptionForCategoryAndYearAndMonth", BigDecimal.class)
+                .setParameter("year", year)
+                .setParameter("categoryId", categoryId)
+                .setParameter("month", month)
+                .getSingleResult();
+        } catch (NoResultException nre) {
+            return BigDecimal.ZERO;
+        }
+    }
 }

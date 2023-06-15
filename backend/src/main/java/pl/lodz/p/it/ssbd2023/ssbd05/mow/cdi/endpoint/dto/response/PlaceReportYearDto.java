@@ -16,4 +16,5 @@ public class PlaceReportYearDto {
     private BigDecimal totalCostSum;
     private BigDecimal differential;
     private List<PlaceCategoryReportYearDto> details;
+    private BigDecimal balance;
 }

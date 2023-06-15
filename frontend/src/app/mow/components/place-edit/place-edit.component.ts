@@ -27,7 +27,8 @@ export class PlaceEditComponent {
             active: this.fb.control(true, [Validators.required]),
             squareFootage: this.fb.control(1, [
                 Validators.required,
-                Validators.min(0.001)
+                Validators.min(0.001),
+                Validators.max(1000000)
             ]),
             placeNumber: this.fb.control(1, [
                 Validators.required,
@@ -36,6 +37,7 @@ export class PlaceEditComponent {
             residentsNumber: this.fb.control(1, [
                 Validators.required,
                 Validators.min(0),
+                Validators.max(1000000),
                 Validators.pattern('^[0-9]*$')
             ])
         });

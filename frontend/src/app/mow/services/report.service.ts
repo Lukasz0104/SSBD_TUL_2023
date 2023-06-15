@@ -4,20 +4,19 @@ import { AppConfigService } from '../../shared/services/app-config.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { PlaceReportYear } from '../model/place-report-year';
 import { PlaceReportMonth } from '../model/place-report-month';
-import { catchError, EMPTY } from 'rxjs';
+import { catchError, EMPTY, Observable } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
 import {
     BuildingReport,
-    BuildingReportYearAndMonths
+    BuildingReportYearAndMonths,
+    CommunityReport
 } from '../model/building-report';
-import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ReportService {
     private readonly reportUrl = `${this.config.apiUrl}/reports`;
-    private readonly BUILDING_URL = `${this.config.apiUrl}/buildings`;
 
     constructor(
         private http: HttpClient,
@@ -43,10 +42,15 @@ export class ReportService {
             );
     }
 
-    getReportForPlaceAndYearAndMonth(id: number, year: number, month: number) {
+    getReportForPlaceAndYearAndMonth(
+        id: number,
+        year: number,
+        month: number,
+        full: boolean
+    ) {
         return this.http
             .get<PlaceReportMonth>(
-                `${this.transformUrl()}/place/${id}/report/month?year=${year}&month=${month}`
+                `${this.transformUrl()}/place/${id}/report/month?year=${year}&month=${month}&full=${full}`
             )
             .pipe(
                 catchError((err: HttpErrorResponse) => {
@@ -84,11 +88,17 @@ export class ReportService {
         return this.reportUrl;
     }
 
+    getYears(): Observable<Map<string, number[]> | null> {
+        return this.http.get<Map<string, number[]> | null>(
+            `${this.reportUrl}/community`
+        );
+    }
+
     getYearsAndMonths(
         buildingId: number
     ): Observable<BuildingReportYearAndMonths[] | null> {
         return this.http.get<BuildingReportYearAndMonths[]>(
-            `${this.BUILDING_URL}/${buildingId}/reports`
+            `${this.reportUrl}/buildings/${buildingId}`
         );
     }
 
@@ -97,7 +107,7 @@ export class ReportService {
         year: number
     ): Observable<BuildingReport | null> {
         return this.http.get<BuildingReport>(
-            `${this.BUILDING_URL}/${buildingId}/reports/${year}`
+            `${this.reportUrl}/buildings/${buildingId}/${year}`
         );
     }
 
@@ -107,7 +117,19 @@ export class ReportService {
         month: number
     ): Observable<BuildingReport | null> {
         return this.http.get<BuildingReport>(
-            `${this.BUILDING_URL}/${buildingId}/reports/${year}/${month}`
+            `${this.reportUrl}/buildings/${buildingId}/${year}/${month}`
+        );
+    }
+
+    getCommunityReportForYear(year: number) {
+        return this.http.get<CommunityReport>(
+            `${this.reportUrl}/community/${year}`
+        );
+    }
+
+    getCommunityReportForYearAndMonth(year: number, month: number) {
+        return this.http.get<CommunityReport>(
+            `${this.reportUrl}/community/${year}/${month}`
         );
     }
 }

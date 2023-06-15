@@ -39,7 +39,7 @@ export class ForecastService {
         amount: number | null
     ) {
         return this.http
-            .post(`${this.forecastUrl}/add-overdue`, {
+            .post(`${this.forecastUrl}/add-current`, {
                 placeId,
                 categoryId,
                 amount
@@ -54,6 +54,23 @@ export class ForecastService {
                     this.toastService.handleError(
                         'toast.forecast.add-current-forecast-fail',
                         'add-current-forecast',
+                        err
+                    );
+                    return EMPTY;
+                })
+            );
+    }
+
+    getMinMonthForPlaceAndYear(id: number, year: number) {
+        return this.http
+            .get<number>(
+                `${this.transformUrl()}/min-month/${id}/place?year=${year}`
+            )
+            .pipe(
+                catchError((err: HttpErrorResponse) => {
+                    this.toastService.handleError(
+                        'toast.forecast.get-min-months-fail',
+                        'get-min-month',
                         err
                     );
                     return EMPTY;

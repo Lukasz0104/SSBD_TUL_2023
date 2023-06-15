@@ -12,6 +12,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockExcepti
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.functionalinterfaces.FunctionNoReturnWithThrows;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.functionalinterfaces.FunctionReturnRWithThrows;
 
 @ApplicationScoped
 @Interceptors(LoggerInterceptor.class)

@@ -6,6 +6,7 @@ export interface PlaceReportYear {
     totalCostSum: number;
     differential: number;
     details: PlaceCategoryReportYear[];
+    balance: number;
 }
 
 interface PlaceCategoryReportYear {
@@ -17,4 +18,5 @@ interface PlaceCategoryReportYear {
     forecastValueSum: number;
     costDifferential: number;
     consumptionDifferential: number;
+    averageRate: number;
 }

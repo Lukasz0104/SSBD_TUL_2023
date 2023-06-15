@@ -19,7 +19,7 @@ export class PlaceCategoriesComponent implements OnInit {
     @Input() public id: number | undefined;
     editing = false;
     chosen = -1;
-    isMeter = false;
+    accountingRule = AccountingRule.UNIT;
 
     constructor(
         private placeService: PlaceService,
@@ -51,11 +51,10 @@ export class PlaceCategoriesComponent implements OnInit {
         if (this.editing) {
             if (this.chosen === id) {
                 this.chosen = -1;
-                this.isMeter = false;
             } else {
                 this.chosen = id;
-                this.isMeter = rule == AccountingRule.METER;
             }
+            this.accountingRule = rule;
         }
     }
 
@@ -74,7 +73,7 @@ export class PlaceCategoriesComponent implements OnInit {
                     .subscribe(() => {
                         this.getPlaceCategories();
                         this.chosen = -1;
-                        this.isMeter = false;
+                        this.accountingRule = AccountingRule.UNIT;
                     });
             }
         });
@@ -83,7 +82,7 @@ export class PlaceCategoriesComponent implements OnInit {
     stopEdit() {
         this.editing = false;
         this.chosen = -1;
-        this.isMeter = false;
+        this.accountingRule = AccountingRule.UNIT;
     }
 
     addCategory() {
@@ -98,22 +97,17 @@ export class PlaceCategoriesComponent implements OnInit {
     }
 
     addOverdueForecast() {
-        if (this.isMeter) {
-            const modalRef: NgbModalRef = this.modalService.open(
-                AddInitialReadingComponent,
-                { centered: true }
-            );
-            modalRef.componentInstance.value = false;
-            modalRef.closed.subscribe((result) => {
-                if (result > 0 && this.id) {
-                    this.confirm(this.id, this.chosen, result);
-                }
-            });
-        } else {
+        const modalRef: NgbModalRef = this.modalService.open(
+            AddInitialReadingComponent,
+            { centered: true }
+        );
+        modalRef.componentInstance.value = false;
+        modalRef.componentInstance.accountingRule = this.accountingRule;
+        modalRef.closed.subscribe((result) => {
             if (this.id) {
-                this.confirm(this.id, this.chosen, null);
+                this.confirm(this.id, this.chosen, result);
             }
-        }
+        });
     }
 
     confirm(placeId: number, categoryId: number, amount: number | null) {
@@ -133,7 +127,7 @@ export class PlaceCategoriesComponent implements OnInit {
                     .subscribe(() => {
                         this.getPlaceCategories();
                         this.chosen = -1;
-                        this.isMeter = false;
+                        this.accountingRule = AccountingRule.UNIT;
                     });
             }
         });

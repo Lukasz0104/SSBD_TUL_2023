@@ -93,11 +93,13 @@
     "residentsNumber": {
       "min": "Number of residents must not be negative",
       "required": "Number of residents is required",
-      "pattern": "Number of residents must be a whole number"
+      "pattern": "Number of residents must be a whole number",
+      "max": "Number of residents must be less than 1000000"
     },
     "squareFootage": {
       "min": "Square footage must be positive",
-      "required": "Square footage is required"
+      "required": "Square footage is required",
+      "max": "Square footage must be less than 1000000"
     },
     "placeNumber": {
       "min": "Place number must be positive",
@@ -109,11 +111,21 @@
     },
     "square-footage": {
       "required": "Square footage is required.",
-      "min": "Square footage must be greater than or equal to "
+      "min": "Square footage must be greater than or equal to ",
+      "max": "Square footage must not be greater than "
     },
     "residents-number": {
       "required": "Residents number is required.",
-      "min": "Number of residents must be greater than or equal to "
+      "min": "Number of residents must be greater than or equal to ",
+      "max": "Number of residents must not be greater than "
+    },
+    "total-consumption": {
+      "required": "Total consumption is required.",
+      "min": "Total consumption must be greater than or equal to "
+    },
+    "real-rate": {
+      "required": "Real rate is required.",
+      "min": "Real rate must be greater than or equal to "
     }
   },
   "form": {
@@ -200,7 +212,8 @@
       "rates": "Rates",
       "no-places": "You don't have any places",
       "show-place-details": "Show information",
-      "hide-place-details": "Hide information"
+      "hide-place-details": "Hide information",
+      "count": "Number of your places: "
     },
     "accounts": {
       "display": {
@@ -344,7 +357,7 @@
     "costs": {
       "month": "Month",
       "year": "Year",
-      "realRate": "Real rate ",
+      "realRate": "Real rate",
       "totalConsumption": "Total consumption",
       "months": {
         "january": "January",
@@ -362,10 +375,29 @@
       },
       "loading": "Choose year and category, to see the costs table",
       "chooseYear": "Choose year",
+      "chooseMonth": "Choose month",
       "chooseCategory": "Choose category",
       "category": "Cost category",
       "cost-data": "Cost data",
-      "details": "Cost details"
+      "details": "Cost details",
+      "remove-cost": "Remove cost"
+    },
+    "add-cost": {
+      "title": "Add cost",
+      "create": "Save new cost",
+      "cancel": "Cancel",
+      "months-0": "January",
+      "months-1": "February",
+      "months-2": "March",
+      "months-3": "April",
+      "months-4": "May",
+      "months-5": "June",
+      "months-6": "July",
+      "months-7": "August",
+      "months-8": "September",
+      "months-9": "October",
+      "months-10": "November",
+      "months-11": "December"
     },
     "meters": {
       "add-reading": "Choose a meter to add reading",
@@ -389,6 +421,7 @@
       "year": "Year",
       "chooseYear": "Chose year",
       "yearly": "Yearly report",
+      "current": "Current report",
       "category": "Category",
       "pred-amount": "Predicted amount",
       "pred-value": "Predicted cost",
@@ -427,6 +460,7 @@
     },
     "report": {
       "month": {
+        "-1": "Current",
         "0": "Total",
         "1": "January",
         "2": "February",
@@ -457,7 +491,9 @@
       "sum": "Sum",
       "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
       "title": "Report",
-      "loading": "Loading reports"
+      "loading": "Loading reports",
+      "balance": "Balance",
+      "average-rate": "Average rate"
     },
     "place-rates": {
       "loading": "Loading rates...",
@@ -480,13 +516,21 @@
       "loading": "Loading owners...",
       "empty": "There aren't any owners assigned to this place.",
       "add": "Assign owner to this place",
-      "refresh": "Refresh owners list"
+      "refresh": "Refresh owners' list"
+    },
+    "place-owners-add": {
+      "add": "Assign this owner",
+      "loading": "Loading available owners...",
+      "title": "Available owners",
+      "refresh": "Refresh available owners' list",
+      "close": "Close"
     }
   },
   "accounting-rule": {
     "pln": "PLN",
     "person": "pp",
-    "month": "pm"
+    "month": "pm",
+    "unit": "unit"
   },
   "modal": {
     "access-level": "Choose access level",
@@ -510,7 +554,11 @@
       "add-rate": "Are you sure, you want to add this rate?",
       "add-reading": "Are you sure, you want to add this reading?",
       "place-edit": "Are you sure, you want update this place?",
-      "add-place": "Confirm adding new place."
+      "add-place": "Confirm adding new place.",
+      "add-cost": "Are you sure, you want to add this cost?",
+      "remove-cost": "Are you sure, you want to remove this cost?",
+      "place-owners-add": "Are you sure, you want to add selected owner to this place?",
+      "place-owners-remove": "Are you sure, you want to remove selected owner from this place?"
     },
     "add-place": {
       "title": "Add new place",
@@ -544,7 +592,8 @@
     "place": "Place",
     "costs": "Costs",
     "cost": "Cost",
-    "reports": "Reports"
+    "reports": "Reports",
+    "community-reports": "Community reports"
   },
   "toast": {
     "auth": {
@@ -605,7 +654,7 @@
       "response": {
         "message": {
           "place_number_already_taken": "Given place number already exist in a chosen building",
-          "optimistic_lock": "Place has been already edited by someone else, please reload the page and try again"
+          "optimistic_lock": "Place has been already changed by someone else, please reload the page and try again"
         }
       }
     },
@@ -623,7 +672,8 @@
     "forecast": {
       "get-years-by-place-fail": "Could not get available report years for given place",
       "add-current-forecast-success": "New forecast has been added",
-      "add-current-forecast-fail": "Could not add forecast for chosen category"
+      "add-current-forecast-fail": "Could not add forecast for chosen category",
+      "get-min-months-fail": "Could not get months"
     },
     "report": {
       "get-place-report-fail": "Could not get report",
@@ -643,6 +693,42 @@
           "not_enough_days_after_initial_reading": "Reading date must be at least 1 day after initial reading",
           "inactive_meter": "Failed to add reading, meter is inactive",
           "own_place_reading_attempt": "Failed to add reading, you are owner of this place. Try again from owner view."
+        }
+      }
+    },
+    "place-owners-add": {
+      "fail": "Failed to add owner to the place",
+      "success": "Successfully added a new owner: ",
+      "response": {
+        "message": {
+          "optimistic_lock": "List of not assigned owners was changed by someone else, please reload the list and try again",
+          "place_not_found": "Place not found",
+          "account_not_found": "Account not found",
+          "illegal_self_action": "Can't add as an owner self to this place"
+        }
+      }
+    },
+    "place-owners-remove": {
+      "fail": "Failed to remove owner from the place",
+      "success": "Successfully removed owner",
+      "response": {
+        "message": {
+          "optimistic_lock": "List of assigned owners was changed by someone else, please reload the list and try again",
+          "place_not_found": "Place not found",
+          "account_not_found": "Account not found",
+          "illegal_self_action": "You can't remove yourself from owners"
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Cost added successfully",
+      "add-fail": "Adding cost failed. Try again later",
+      "remove-success": "Cost removed successfully",
+      "remove-fail": "Removing cost failed. Try again later",
+      "response":{
+        "message": {
+          "cost_already_exists": "Cost with chosen values already exists",
+          "cost_not_found": "Cost not found"
         }
       }
     }
@@ -803,7 +889,8 @@
         "inaccessible_report": "Could not access report, you do not own chosen place",
         "inaccessible_forecast": "Could not access forecast, you do not own chosen place",
         "forecast_not_found": "Forecast not found",
-        "report_not_found": "Report not found"
+        "report_not_found": "Report not found",
+        "place_not_found": "Nie znaleziono wybranego lokalu"
       }
     }
   },
@@ -820,6 +907,14 @@
       "message": {
         "inaccessible_report": "Could not access report, you do not own chosen place",
         "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
+  "get-min-month": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "forecast_not_found": "Could not find forecast for chosen place"
       }
     }
   },
@@ -863,7 +958,6 @@
         "inactive_place": "Chosen place is inactive",
         "category_not_in_use": "Chosen place doesn't have category, you want to assign forecast to",
         "rate_not_found": "Could not find rate for chosen place and category",
-        "amount_required": "In order to add forecast for this category, you need to provide consumption",
         "forecast_already_exists": "There is already a forecast for chosen category in this month"
       }
     }

@@ -1,12 +1,12 @@
-<ng-container *ngIf="place$; else loading">
-    <div class="modal-header">
-        <h4
-            class="modal-title"
-            id="modal-basic-title">
-            {{ 'component.place-edit.title' | translate }}
-        </h4>
-    </div>
-    <div class="modal-body px-4 py-2">
+<div class="modal-header">
+    <h4
+        class="modal-title"
+        id="modal-basic-title">
+        {{ 'component.place-edit.title' | translate }}
+    </h4>
+</div>
+<div class="modal-body px-4 py-2">
+    <ng-container *ngIf="place$; else loading">
         <form
             [formGroup]="editPlaceFormGroup"
             (ngSubmit)="onSubmit()">
@@ -69,6 +69,11 @@
                         class="mb-0">
                         {{ 'validation.squareFootage.min' | translate }}
                     </p>
+                    <p
+                        *ngIf="squareFootageControl.errors['max']"
+                        class="mb-0">
+                        {{ 'validation.squareFootage.max' | translate }}
+                    </p>
                 </div>
             </div>
 
@@ -99,6 +104,11 @@
                         *ngIf="residentsNumberControl.errors['min']"
                         class="mb-0">
                         {{ 'validation.residentsNumber.min' | translate }}
+                    </p>
+                    <p
+                        *ngIf="residentsNumberControl.errors['max']"
+                        class="mb-0">
+                        {{ 'validation.residentsNumber.max' | translate }}
                     </p>
                     <p
                         *ngIf="residentsNumberControl.errors['pattern']"
@@ -137,21 +147,22 @@
                 </div>
             </div>
         </form>
-    </div>
-
-    <div class="px-4 d-flex justify-content-between modal-footer">
-        <button
-            [disabled]="!areAllValid()"
-            (click)="onSubmit()"
-            class="btn btn-success">
-            {{ 'component.place-edit.save' | translate }}
-        </button>
-    </div>
-</ng-container>
-<ng-template #loading>
-    <div
-        style="min-height: 400px"
-        class="d-flex flex-column justify-content-center align-items-center">
-        <h3 class="m-3">{{ 'component.place-edit.loading' | translate }}</h3>
-    </div>
-</ng-template>
+    </ng-container>
+    <ng-template #loading>
+        <div
+            style="min-height: 400px"
+            class="d-flex flex-column justify-content-center align-items-center">
+            <h3 class="m-3">
+                {{ 'component.place-edit.loading' | translate }}
+            </h3>
+        </div>
+    </ng-template>
+</div>
+<div class="px-4 d-flex justify-content-between modal-footer">
+    <button
+        [disabled]="!areAllValid()"
+        (click)="onSubmit()"
+        class="btn btn-success">
+        {{ 'component.place-edit.save' | translate }}
+    </button>
+</div>

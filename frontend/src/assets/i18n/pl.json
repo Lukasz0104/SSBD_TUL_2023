@@ -93,11 +93,13 @@
     "residentsNumber": {
       "min": "Liczba mieszkańców nie może być ujemna",
       "required": "Liczba mieszkanców jest wymagana",
-      "pattern": "Liczba mieszkańców musi być liczbą całkowitą"
+      "pattern": "Liczba mieszkańców musi być liczbą całkowitą",
+      "max": "Liczba mieszkańców musi być mniejsza niż 1000000"
     },
     "squareFootage": {
       "min": "Powierzchnia lokalu musi być dodatnia",
-      "required": "Powierzchnia lokalu jest wymagana"
+      "required": "Powierzchnia lokalu jest wymagana",
+      "max": "Powierzchnia lokalu musi być mniejsza niż 1000000"
     },
     "placeNumber": {
       "min": "Numer lokalu musi być dodatni",
@@ -109,11 +111,21 @@
     },
     "square-footage": {
       "required": "Powierzchnia jest wymagana.",
-      "min": "Powierzchnia musi być większa bądź równa "
+      "min": "Powierzchnia musi być większa bądź równa ",
+      "max": "Powierzchnia musi być nie większa niż "
     },
     "residents-number": {
       "required": "Liczba lokatorów jest wymagana.",
-      "min": "Liczba lokatorów musi być większa bądź równa "
+      "min": "Liczba lokatorów musi być większa bądź równa ",
+      "max": "Liczba lokatorów musi być nie większa niż"
+    },
+    "total-consumption": {
+      "required": "Wartość całkowitego zużycia jest wymagana.",
+      "min": "Całkowite zużycie musi być większe bądź równe "
+    },
+    "real-rate": {
+      "required": "Wartość rzeczywistej stawki jest wymagana.",
+      "min": "Rzeczywista stawka musi być większa bądź równa "
     }
   },
   "form": {
@@ -200,7 +212,8 @@
       "rates": "Stawki",
       "no-places": "Nie posiadasz żadnych lokali",
       "show-place-details": "Wyświetl informacje",
-      "hide-place-details": "Ukryj informacje"
+      "hide-place-details": "Ukryj informacje",
+      "count": "Liczba posiadanych lokali: "
     },
     "accounts": {
       "display": {
@@ -344,8 +357,8 @@
     "costs": {
       "month": "Miesiąc",
       "year": "Rok",
-      "realRate": "Stawka",
-      "totalConsumption": "Łączne zużycie",
+      "realRate": "Rzeczywista stawka",
+      "totalConsumption": "Całkowite zużycie",
       "months": {
         "january": "Styczeń",
         "february": "Luty",
@@ -363,9 +376,28 @@
       "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
       "chooseYear": "Wybierz rok",
       "chooseCategory": "Wybierz kategorię",
+      "chooseMonth": "Wybierz miesiąc",
       "category": "Kategoria kosztu",
       "cost-data": "Informacje o koszcie",
-      "details": "Szczegóły"
+      "details": "Szczegóły",
+      "remove-cost": "Usuń koszt"
+    },
+    "add-cost": {
+      "title": "Dodaj koszt",
+      "create": "Zapisz koszt",
+      "cancel": "Anuluj",
+      "months-0": "Styczeń",
+      "months-1": "Luty",
+      "months-2": "Marzec",
+      "months-3": "Kwiecień",
+      "months-4": "Maj",
+      "months-5": "Czerwiec",
+      "months-6": "Lipiec",
+      "months-7": "Sierpień",
+      "months-8": "Wrzesień",
+      "months-9": "Październik",
+      "months-10": "Listopad",
+      "months-11": "Grudzień"
     },
     "meters": {
       "add-reading": "Wybierz licznik, aby dodać odczyt",
@@ -389,6 +421,7 @@
       "year": "Rok",
       "chooseYear": "Wybierz rok",
       "yearly": "Raport roczny",
+      "current": "Aktualny raport",
       "category": "Kategoria opłaty",
       "pred-amount": "Przewidywane zużycie",
       "pred-value": "Przewidywany koszt",
@@ -427,6 +460,7 @@
     },
     "report": {
       "month": {
+        "-1": "Aktualny",
         "0": "Całkowity",
         "1": "Styczeń",
         "2": "Luty",
@@ -457,7 +491,9 @@
       "sum": "Suma",
       "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
       "title": "Raport",
-      "loading": "Ładowanie raportów"
+      "loading": "Ładowanie raportów",
+      "balance": "Saldo",
+      "average-rate": "Średnia stawka"
     },
     "place-rates": {
       "loading": "Ładowanie stawek...",
@@ -481,12 +517,20 @@
       "empty": "Lokal nie posiada przypisanych właścicieli",
       "add": "Przypisz właściciela do lokalu",
       "refresh": "Odśwież listę właścicieli"
+    },
+    "place-owners-add": {
+      "add": "Przypisz tego właściciela",
+      "loading": "Wczytywanie nieprzypisanych kont właścicieli ...",
+      "title": "Nieprzypisani właściciele",
+      "refresh": "Odśwież listę właścicieli",
+      "close": "Zamknij"
     }
   },
   "accounting-rule": {
     "pln": "zł",
     "person": "os",
-    "month": "mies"
+    "month": "mies",
+    "unit": "sztuka"
   },
   "modal": {
     "access-level": "Wybierz poziom dostępu",
@@ -510,7 +554,11 @@
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
       "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
-      "add-place": "Potwierdź dodanie nowego lokalu."
+      "add-place": "Potwierdź dodanie nowego lokalu.",
+      "add-cost": "Czy na pewno chcesz dodać nowy koszt?",
+      "remove-cost": "Czy na pewno chcesz usunąć dany koszt?",
+      "place-owners-add": "Czy na pewno chcesz dodać wybranego właściciela do lokalu?",
+      "place-owners-remove": "Czy na pewno chcesz usunąć wybranego właściciela z lokalu?"
     },
     "add-place": {
       "title": "Dodaj nowy lokal",
@@ -544,7 +592,8 @@
     "buildings": "Budynki",
     "costs": "Koszty",
     "cost": "Koszt",
-    "place": "Lokal"
+    "place": "Lokal",
+    "community-reports": "Raporty wspólnoty"
   },
   "toast": {
     "auth": {
@@ -623,7 +672,8 @@
     "forecast": {
       "get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu",
       "add-current-forecast-success": "Nowa prognoza została dodana",
-      "add-current-forecast-fail": "Bład podczas dodawania prognozy dla wybranej kategorii"
+      "add-current-forecast-fail": "Bład podczas dodawania prognozy dla wybranej kategorii",
+      "get-min-months-fail": "Błąd podczas pobierania miesięcy"
     },
     "report": {
       "get-place-report-fail": "Bład podczas pobierania raportu",
@@ -643,6 +693,42 @@
           "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu",
           "inactive_meter": "Nie udało się dodać odczytu, licznik jest nieaktywny",
           "own_place_reading_attempt": "Nie udało się dodać odczytu, ponieważ jesteś właścicielem tego lokalu. Spróbuj ponownie z widoku interfejsu właściciela"
+        }
+      }
+    },
+    "place-owners-add": {
+      "fail": "Nie udało się przypisanie właściciela",
+      "success": "Udało się przypisać nowego właściciela",
+      "response": {
+        "message": {
+          "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
+        }
+      }
+    },
+    "place-owners-remove": {
+      "fail": "Nie udało się odłączenie właściciela",
+      "success": "Udało się odłączyć właściciela: ",
+      "response": {
+        "message": {
+          "optimistic_lock": "Lista przypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Pomyślnie dodano koszt",
+      "add-fail": "Nie udało się dodać kosztu. Spróbuj ponownie później",
+      "remove-success": "Pomyślnie usunięto koszt",
+      "remove-fail": "Nie udało się usunąć kosztu. Spróbuj ponownie później",
+      "response":{
+        "message": {
+          "cost_already_exists": "Koszt dla wybranych wartości już istnieje",
+          "cost_not_found": "Nie znaleziono kosztu"
         }
       }
     }
@@ -803,7 +889,8 @@
         "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
         "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu",
         "forecast_not_found": "Nie znaleziono prognozy",
-        "report_not_found": "Nie znaleziono raportu"
+        "report_not_found": "Nie znaleziono raportu",
+        "place_not_found": "Nie znaleziono wybranego lokalu"
       }
     }
   },
@@ -820,6 +907,14 @@
       "message": {
         "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
         "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu"
+      }
+    }
+  },
+  "get-min-month": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "forecast_not_found": "Nie znaleziono prognozy dla wybranego miejsca"
       }
     }
   },
@@ -863,7 +958,6 @@
         "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
         "category_not_in_use": "Wybrane miejsce nie posiada kategorii, dla której chcesz dodać prognozę",
         "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
-        "amount_required": "Aby dodać prognozę dla wybranej kategorii, podaj zużycie",
         "forecast_already_exists": "Już istnieje prognoza na aktualny miesiąc dla wybranej kategorii"
       }
     }

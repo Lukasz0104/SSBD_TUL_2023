@@ -4,8 +4,11 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.restassured.builder.RequestSpecBuilder;
@@ -13,6 +16,7 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.specification.RequestSpecification;
 import jakarta.ws.rs.core.Response;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,17 +27,26 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddOverdueForecastDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsOwnerDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateCostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingYearsAndMonthsReports;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CostDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RateDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.RatePublicDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.ReadingDto;
@@ -41,10 +54,12 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -165,12 +180,73 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
-    class MOW10 {
-        private static final String createReadingUrl = "/readings";
+    class MOW3 {
+        private static final String buildingReportYearsUrl = "/reports/buildings";
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("azloty", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassGettingAllBuildingReportYears() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec)
+                .when()
+                .get(buildingReportYearsUrl + "/1");
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            List<BuildingYearsAndMonthsReports> yearsAndMonths
+                = List.of(response.as(BuildingYearsAndMonthsReports[].class));
+            Assertions.assertNotNull(yearsAndMonths);
+            Assertions.assertTrue(yearsAndMonths.stream().anyMatch(x -> x.getYear() == 2022));
+            Assertions.assertTrue(yearsAndMonths.stream().anyMatch(x -> x.getYear() == 2023));
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllBuildingReportYearsAsGuest() {
+            given()
+                .when()
+                .get(buildingReportYearsUrl + "/1")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC404WhenAllBuildingReportYearsForBuildingThatDoesntExist() {
+            given()
+                .spec(onlyManagerSpec)
+                .when()
+                .get(buildingReportYearsUrl + "/999")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.BUILDING_NOT_FOUND));
+        }
+    }
+
+    @Nested
+    class MOW7 {
+        private static final String createForecastUrl = "/forecasts";
+
+        private static final String createReportUrl = "/reports";
+        private static RequestSpecification firstOwnerSpec;
+
+        private static RequestSpecification secondOwnerSpec;
+
         private static RequestSpecification onlyManagerSpec;
         private static RequestSpecification onlyAdminSpec;
         private static RequestSpecification onlyOwnerSpec;
-        private static RequestSpecification managerOwnerSpec;
 
         @BeforeAll
         static void generateTestSpec() {
@@ -207,6 +283,1116 @@ public class MowITests extends TestContainersSetup {
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
 
+            loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            firstOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("ikaminski", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            secondOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetForecastYearsTest {
+
+            @Nested
+            class AvaliableYearsForPlace {
+                @Test
+                void shouldReturnAvailableYearsForPlaceWhenPlaceHasForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/years/5/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 2);
+                    assertTrue(years.contains(2022));
+                    assertTrue(years.contains(2023));
+                }
+
+                @Test
+                void shouldReturnNoAvailableYearsForPlaceHasNoForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/years/7/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertTrue(years.size() <= 1);
+                }
+
+                @Test
+                void shouldReturnNoAvailableYearsForPlaceThatDoesntExist() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/years/-2/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 0);
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsAdmin() {
+                    given()
+                        .spec(adminSpec)
+                        .when()
+                        .get(createForecastUrl + "/years/5/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsOwner() {
+                    given()
+                        .spec(ownerSpec)
+                        .when()
+                        .get(createForecastUrl + "/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+
+            @Nested
+            class AvailableYearsForOwnPlace {
+                @Test
+                void shouldReturnAvailableYearsForPlaceWhenPlaceHasForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createForecastUrl + "/me/years/2/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertEquals(years.size(), 2);
+                    assertTrue(years.contains(2022));
+                    assertTrue(years.contains(2023));
+                }
+
+                @Test
+                void shouldReturnNoAvailableYearsForPlaceHasNoForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(firstOwnerSpec)
+                        .when().get(createForecastUrl + "/me/years/7/place");
+                    List<Integer> years = Arrays.asList(response.as(Integer[].class));
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(years);
+                    assertTrue(years.size() <= 1);
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsForPlaceThatOwnerDoesntOwn() {
+                    given()
+                        .spec(firstOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                        .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsAdmin() {
+                    given()
+                        .spec(onlyAdminSpec)
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsManager() {
+                    given()
+                        .spec(onlyManagerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenGettingAvailableYearsAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/me/years/1/place")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+        }
+
+        @Nested
+        class GetMinMonthForPlaceAndYear {
+
+            @Nested
+            class MinMonthForPlace {
+
+                @Test
+                void shouldReturnMinMonthForPlaceWithForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createForecastUrl + "/min-month/1/place?year=2022");
+                    Integer minMonth = response.as(Integer.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(minMonth);
+                    assertEquals(minMonth, 1);
+                }
+
+                @Test
+                void shouldReturnSC404WhenPlaceHasNoForecastsForYear() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/7/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.FORECAST_NOT_FOUND));
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/7/place?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/7/place?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC404WhenPlaceNotExists() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/-10232321321323/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.FORECAST_NOT_FOUND));
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsAdmin() {
+                    given()
+                        .spec(onlyAdminSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsOwner() {
+                    given()
+                        .spec(onlyOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+
+            @Nested
+            class MinMonthForOwnPlace {
+
+                @Test
+                void shouldReturnMinMonthForPlaceWithForecasts() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createForecastUrl + "/me/min-month/2/place?year=2022");
+                    Integer minMonth = response.as(Integer.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(minMonth);
+                    assertEquals(minMonth, 1);
+                }
+
+                @Test
+                void shouldReturnSC403OwnerDoesntOwnPlace() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/3/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/2/place?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/2/place?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsAdmin() {
+                    given()
+                        .spec(onlyAdminSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsGuest() {
+                    given()
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403GettingMinMothAsManager() {
+                    given()
+                        .spec(onlyManagerSpec)
+                        .when()
+                        .get(createForecastUrl + "/me/min-month/1/place?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+        }
+
+        @Nested
+        class IsReportForPlace {
+
+            @Nested
+            class ForPlace {
+
+                @Test
+                void shouldReturnTrueWhenReportIs() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createReportUrl + "/place/1/is-report?year=2022");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, true);
+                }
+
+                @Test
+                void shouldReturnFalseWhenReportIsNot() {
+                    io.restassured.response.Response response = given()
+                        .spec(managerSpec)
+                        .when().get(createReportUrl + "/place/1/is-report?year=2023");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, false);
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(managerSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsAdmin() {
+                    given()
+                        .spec(onlyAdminSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsOwner() {
+                    given()
+                        .spec(onlyOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsGuest() {
+                    given()
+                        .when()
+                        .get(createReportUrl + "/place/1/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+            }
+
+            @Nested
+            class ForOwnPlace {
+                @Test
+                void shouldReturnTrueWhenReportIs() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createReportUrl + "/me/place/2/is-report?year=2022");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, true);
+                }
+
+                @Test
+                void shouldReturnFalseWhenReportIsNot() {
+                    io.restassured.response.Response response = given()
+                        .spec(secondOwnerSpec)
+                        .when().get(createReportUrl + "/me/place/2/is-report?year=2023");
+                    Boolean isReport = response.as(Boolean.class);
+
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertNotNull(isReport);
+                    assertEquals(isReport, false);
+                }
+
+                @Test
+                void shouldReturnSC400WhenYearNotValid() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2019")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=3000")
+                        .then()
+                        .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsAdmin() {
+                    given()
+                        .spec(onlyAdminSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsManager() {
+                    given()
+                        .spec(onlyManagerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportAsGuest() {
+                    given()
+                        .when()
+                        .get(createReportUrl + "/me/place/2/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+                }
+
+                @Test
+                void shouldReturnSC403WhenCheckingReportForNotOwnedPlace() {
+                    given()
+                        .spec(secondOwnerSpec)
+                        .when()
+                        .get(createReportUrl + "/me/place/3/is-report?year=2022")
+                        .then()
+                        .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                        .assertThat()
+                        .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+                }
+            }
+        }
+    }
+
+    @Nested
+    class MOW8 {
+        private static final String createReportUrl = "/reports";
+        private static RequestSpecification secondOwnerSpec;
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("ikaminski", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            secondOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetYearlyReports {
+
+            @Test
+            void shouldReturnYearlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/1/report/year?year=2022");
+                PlaceReportYearDto placeReportYearDto = response.as(PlaceReportYearDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportYearDto);
+                assertEquals(placeReportYearDto.getYear(), 2022);
+                assertNotNull(placeReportYearDto.getDetails());
+                assertTrue(placeReportYearDto.getDetails().size() > 0);
+                assertNotNull(placeReportYearDto.getBalance());
+                assertNotNull(placeReportYearDto.getTotalCostSum());
+                assertNotNull(placeReportYearDto.getDifferential());
+                assertNotNull(placeReportYearDto.getForecastedCostSum());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2019")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=3000")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/645643/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GetOwnYearlyReports {
+            @Test
+            void shouldReturnYearlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/year?year=2022");
+                PlaceReportYearDto placeReportYearDto = response.as(PlaceReportYearDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportYearDto);
+                assertEquals(placeReportYearDto.getYear(), 2022);
+                assertNotNull(placeReportYearDto.getDetails());
+                assertTrue(placeReportYearDto.getDetails().size() > 0);
+                assertNotNull(placeReportYearDto.getBalance());
+                assertNotNull(placeReportYearDto.getTotalCostSum());
+                assertNotNull(placeReportYearDto.getDifferential());
+                assertNotNull(placeReportYearDto.getForecastedCostSum());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/year?year=2019")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/year?year=3000")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsManager() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/me/place/1/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/45454545/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingYearlyReportForNotOwnPlace() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/4/report/year?year=2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+            }
+        }
+
+        @Nested
+        class GetMonthlyReports {
+            @Test
+            void shouldReturnMonthlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2022&month=1");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto.getYear(), 2022);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertTrue(placeReportMonthDto.isCompleteMonth());
+            }
+
+            @Test
+            void shouldReturnSumMonthlyReportWhenFullIsTrue() {
+
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2023&month=1");
+                PlaceReportMonthDto placeReportMonthDto1 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto1);
+                assertEquals(placeReportMonthDto1.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto1.getYear(), 2023);
+                assertNotNull(placeReportMonthDto1.getDetails());
+                assertTrue(placeReportMonthDto1.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto1.getBalance());
+                assertNotNull(placeReportMonthDto1.getTotalRealValue());
+                assertNotNull(placeReportMonthDto1.getDifferential());
+                assertNotNull(placeReportMonthDto1.getTotalValue());
+
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2023&month=2");
+                PlaceReportMonthDto placeReportMonthDto2 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto2);
+                assertEquals(placeReportMonthDto2.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto2.getYear(), 2023);
+                assertNotNull(placeReportMonthDto2.getDetails());
+                assertTrue(placeReportMonthDto2.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto2.getBalance());
+                assertNotNull(placeReportMonthDto2.getTotalRealValue());
+                assertNotNull(placeReportMonthDto2.getDifferential());
+                assertNotNull(placeReportMonthDto2.getTotalValue());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(createReportUrl + "/place/2/report/month?year=2023&month=2&full=true");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto.getYear(), 2023);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertEquals(placeReportMonthDto.getTotalValue(),
+                    placeReportMonthDto1.getTotalValue().add(placeReportMonthDto2.getTotalValue()));
+                assertEquals(placeReportMonthDto.getTotalRealValue()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto1.getTotalRealValue().add(placeReportMonthDto2.getTotalRealValue())
+                        .setScale(0, RoundingMode.CEILING));
+                assertEquals(placeReportMonthDto.getBalance()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto2.getBalance()
+                        .setScale(0, RoundingMode.CEILING));
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2019&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=3000&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenMonthNotValid() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=13")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=-1")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createReportUrl + "/place/2452145252/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GetOwnMonthlyReports {
+            @Test
+            void shouldReturnMonthlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2022&month=1");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto.getYear(), 2022);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertTrue(placeReportMonthDto.isCompleteMonth());
+            }
+
+            @Test
+            void shouldReturnSumMonthlyReportWhenFullIsTrue() {
+
+                io.restassured.response.Response response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2023&month=1");
+                PlaceReportMonthDto placeReportMonthDto1 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto1);
+                assertEquals(placeReportMonthDto1.getMonth().getValue(), 1);
+                assertEquals(placeReportMonthDto1.getYear(), 2023);
+                assertNotNull(placeReportMonthDto1.getDetails());
+                assertTrue(placeReportMonthDto1.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto1.getBalance());
+                assertNotNull(placeReportMonthDto1.getTotalRealValue());
+                assertNotNull(placeReportMonthDto1.getDifferential());
+                assertNotNull(placeReportMonthDto1.getTotalValue());
+
+
+                response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2023&month=2");
+                PlaceReportMonthDto placeReportMonthDto2 = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto2);
+                assertEquals(placeReportMonthDto2.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto2.getYear(), 2023);
+                assertNotNull(placeReportMonthDto2.getDetails());
+                assertTrue(placeReportMonthDto2.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto2.getBalance());
+                assertNotNull(placeReportMonthDto2.getTotalRealValue());
+                assertNotNull(placeReportMonthDto2.getDifferential());
+                assertNotNull(placeReportMonthDto2.getTotalValue());
+
+                response = given()
+                    .spec(secondOwnerSpec)
+                    .when().get(createReportUrl + "/me/place/2/report/month?year=2023&month=2&full=true");
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(placeReportMonthDto);
+                assertEquals(placeReportMonthDto.getMonth().getValue(), 2);
+                assertEquals(placeReportMonthDto.getYear(), 2023);
+                assertNotNull(placeReportMonthDto.getDetails());
+                assertTrue(placeReportMonthDto.getDetails().size() > 0);
+                assertNotNull(placeReportMonthDto.getBalance());
+                assertNotNull(placeReportMonthDto.getTotalRealValue());
+                assertNotNull(placeReportMonthDto.getDifferential());
+                assertNotNull(placeReportMonthDto.getTotalValue());
+                assertEquals(placeReportMonthDto.getTotalValue(),
+                    placeReportMonthDto1.getTotalValue().add(placeReportMonthDto2.getTotalValue()));
+                assertEquals(placeReportMonthDto.getTotalRealValue()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto1.getTotalRealValue().add(placeReportMonthDto2.getTotalRealValue())
+                        .setScale(0, RoundingMode.CEILING));
+                assertEquals(placeReportMonthDto.getBalance()
+                        .setScale(0, RoundingMode.CEILING),
+                    placeReportMonthDto2.getBalance()
+                        .setScale(0, RoundingMode.CEILING));
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2019&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=3000&month=2")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenMonthNotValid() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=13")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=-1")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsAdmin() {
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsManager() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(createReportUrl + "/me/place/2/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForPlaceThatDoesntExist() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/2452145252/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingReportForNotOwnPlace() {
+                given()
+                    .spec(secondOwnerSpec)
+                    .when()
+                    .get(createReportUrl + "/me/place/4/report/month?year=2022&month=1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACCESSIBLE_REPORT));
+            }
+        }
+    }
+
+    @Nested
+    class MOW10 {
+        private static final String createReadingUrl = "/readings";
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification onlyOwnerWithInactiveMeterSpec;
+        private static RequestSpecification managerOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerWithInactiveMeterSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
             loginDto = new LoginDto("pduda", "P@ssw0rd");
             jwt = given().body(loginDto)
                 .contentType(ContentType.JSON)
@@ -217,6 +1403,14 @@ public class MowITests extends TestContainersSetup {
             managerOwnerSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
+
+            String deleteCategoryFromPlaceUrl = "/places/3/categories/5";
+            given()
+                .spec(managerOwnerSpec)
+                .when()
+                .delete(deleteCategoryFromPlaceUrl)
+                .then()
+                .statusCode(204);
         }
 
         static String convertDtoToString(AddReadingAsManagerDto addReadingAsManagerDto) {
@@ -243,6 +1437,15 @@ public class MowITests extends TestContainersSetup {
                     .post(createReadingUrl + "/me")
                     .then()
                     .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
 
                 PlaceReportMonthDto placeReportMonthDto1 = given()
                     .spec(managerOwnerSpec)
@@ -302,7 +1505,7 @@ public class MowITests extends TestContainersSetup {
                     .findFirst()
                     .orElseThrow();
 
-                assertEquals(821.22, coldWaterForecast.getValue().doubleValue());
+                assertEquals(821.23, coldWaterForecast.getValue().doubleValue());
                 assertEquals(117.318, coldWaterForecast.getAmount().doubleValue());
             }
         }
@@ -371,7 +1574,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC403WhenAddingReadingToOwnPlaceAsManager() {
                 AddReadingAsManagerDto dto =
-                    new AddReadingAsManagerDto(8L, BigDecimal.valueOf(620), LocalDate.now());
+                    new AddReadingAsManagerDto(10L, BigDecimal.valueOf(620), LocalDate.now());
 
                 given()
                     .spec(managerSpec)
@@ -379,7 +1582,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -409,7 +1612,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -426,7 +1629,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -442,7 +1645,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -458,7 +1661,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -474,7 +1677,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -490,7 +1693,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -506,7 +1709,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -522,7 +1725,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
@@ -538,8 +1741,72 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingToInactiveMeterAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(5L, BigDecimal.valueOf(456));
+
+                given()
+                    .spec(onlyOwnerWithInactiveMeterSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingToInactiveMeterAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(5L, BigDecimal.valueOf(456), LocalDate.now());
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingSmallerThanInitialAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(9L, BigDecimal.valueOf(0.5), LocalDate.now());
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingReadingHigherThanFutureAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(9L, BigDecimal.valueOf(1500));
+
+                given()
+                    .spec(managerOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
                     .contentType(ContentType.JSON);
             }
         }
@@ -1001,6 +2268,57 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
+    class MOW19 {
+        private static final String communityReportYearsUrl = "/reports/community";
+
+        @Test
+        void shouldPassGettingAllCommunityReportYears() {
+            io.restassured.response.Response response = given().spec(managerSpec)
+                .when()
+                .get(communityReportYearsUrl).thenReturn();
+
+            assertEquals(response.statusCode(), Response.Status.OK.getStatusCode());
+            assertEquals(response.contentType(), ContentType.JSON.toString());
+            Map<Integer, List<Integer>> yearsAndMonths =
+                response.getBody().as(Map.class);
+            assertTrue(yearsAndMonths.size() >= 1);
+            assertEquals(12, yearsAndMonths.get("2022").size());
+            assertEquals(12, yearsAndMonths.get("2023").size());
+
+        }
+
+        @Test
+        void shouldReturnSC403WHenGettingAllCommunityReportYearsAsOwner() {
+            given().spec(ownerSpec)
+                .when()
+                .get(communityReportYearsUrl)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC403WHenGettingAllCommunityReportYearsAsAdmin() {
+            given().spec(adminSpec)
+                .when()
+                .get(communityReportYearsUrl)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC403WHenGettingAllCommunityReportYearsAsGuest() {
+            given()
+                .when()
+                .get(communityReportYearsUrl)
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+    }
+
+    @Nested
     class MOW20 {
         private static final String BASE_URL = "/buildings/%d/places";
 
@@ -1082,7 +2400,7 @@ public class MowITests extends TestContainersSetup {
                     .extract()
                     .jsonPath().getInt("$.size()");
 
-                dto = new CreatePlaceDTO(4, BigDecimal.valueOf(38.93), 2, buildingId);
+                dto = new CreatePlaceDTO(2137, BigDecimal.valueOf(38.93), 2, buildingId);
 
                 given(managerSpec)
                     .contentType(ContentType.JSON)
@@ -1663,6 +2981,966 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
+    class MOW26 {
+
+        private static final String createPlacesUrl = "/places";
+
+        private static final String createReportUrl = "/reports";
+
+        private static final String createMetersUrl = "/meters";
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+
+            @Test
+            void shouldAddNonMeterCategoryAndGenerateForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
+
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.elevator")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/2/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.elevator")));
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(2L);
+                addCategoryDto.setCategoryId(8L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.elevator")));
+
+                if (!december) {
+                    response = given()
+                        .spec(managerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .anyMatch(r -> r.getCategoryName().equals("categories.elevator")));
+                }
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/2/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.elevator")));
+            }
+
+            @Test
+            void shouldAddCategoryWhenMeterExistsAndGenerateForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
+
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.hot_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.hot_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                List<MeterDto> meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                MeterDto meterDto = meterDtos.get(0);
+                assertFalse(meterDto.isActive());
+
+                response = given().spec(managerSpec).when()
+                    .get(createMetersUrl + "/" + meterDto.getId() + "/readings?page=1&pageSzie=100");
+                Page<ReadingDto> readingDtos = response.as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertEquals(readingDtos.getData().size(), 0);
+
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(7L);
+                addCategoryDto.setCategoryId(4L);
+                addCategoryDto.setNewReading(BigDecimal.valueOf(323.123));
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.hot_water")));
+
+                if (!december) {
+                    response = given()
+                        .spec(managerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .anyMatch(r -> r.getCategoryName().equals("categories.hot_water")));
+                }
+
+                response = given().spec(managerSpec).when().get("/places/7/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.hot_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.hot_water")).findFirst().get()
+                        .isActive());
+
+                response = given().spec(managerSpec).when()
+                    .get(createMetersUrl + "/" + meterDto.getId() + "/readings?page=1&pageSzie=100");
+                readingDtos = response.as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertEquals(readingDtos.getData().size(), 1);
+            }
+
+            @Test
+            void shouldAddMeterAndCategoryWhenMeterDoesntExistAndGenerateForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
+
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                List<MeterDto> meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                List<MeterDto> finalMeterDtos = meterDtos;
+                assertThrows(MeterNotFoundException.class, () -> finalMeterDtos.stream()
+                    .filter(m -> m.getCategory()
+                        .equals("categories.cold_water"))
+                    .findFirst().orElseThrow(MeterNotFoundException::new));
+
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(7L);
+                addCategoryDto.setCategoryId(5L);
+                addCategoryDto.setNewReading(BigDecimal.valueOf(323.123));
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+
+                if (!december) {
+                    response = given()
+                        .spec(managerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .anyMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+                }
+
+                response = given().spec(managerSpec).when().get("/places/7/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(managerSpec).when().get(createPlacesUrl + "/7/meters");
+                meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water"))
+                        .findFirst().get().isActive());
+
+                MeterDto meterDto =
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water")).findFirst()
+                        .get();
+
+                response = given().spec(managerSpec).when()
+                    .get(createMetersUrl + "/" + meterDto.getId() + "/readings?page=1&pageSzie=100");
+                Page<ReadingDto> readingDtos = response.as(Page.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertEquals(readingDtos.getData().size(), 1);
+            }
+
+            @Test
+            void shouldAddCategoryOnceWhenConcurrentAdd() throws BrokenBarrierException, InterruptedException {
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                        AddCategoryDto addCategoryDto = new AddCategoryDto();
+                        addCategoryDto.setPlaceId(2L);
+                        addCategoryDto.setCategoryId(9L);
+                        addCategoryDto.setNewReading(null);
+
+                        int statusCode = given()
+                            .spec(managerSpec)
+                            .contentType(ContentType.JSON)
+                            .body(addCategoryDto)
+                            .when()
+                            .post(createPlacesUrl + "/add/category")
+                            .getStatusCode();
+
+                        if (statusCode == 204) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response response =
+                    given().spec(managerSpec).when().get(createPlacesUrl + "/2/categories");
+                List<PlaceCategoryDTO> categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.satellite_tv")));
+            }
+
+            @Test
+            void shouldGetMissingCategoriesForPlace() {
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(createPlacesUrl + "/3/categories/missing");
+                List<PlaceCategoryDTO> placeCategoryDTO = Arrays.asList(response.as(PlaceCategoryDTO[].class));
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertEquals(placeCategoryDTO.size(), 3);
+            }
+        }
+
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryToOwnPlace() {
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(6L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.ILLEGAL_SELF_ACTION));
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingCategoryThatIsInUse() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(1L);
+                addCategoryDto.setCategoryId(4L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_IN_USE));
+            }
+
+            @Test
+            void shouldReturnSC409WhenAddingCategoryToInactivePlace() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(8L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACTIVE_PLACE));
+            }
+
+            @Test
+            void shouldReturnSC400WhenCategoryNotFound() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(4L);
+                addCategoryDto.setCategoryId(-20L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC409WhenInitialReadingRequiredButNotProvided() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(4L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INITIAL_READING_REQUIRED));
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryAsAdmin() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(onlyAdminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryAsOwner() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(onlyOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenAddingCategoryAsGuest() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(3L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenCheckingIfCategoryRequiresReadingAndNotExists() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=-20")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsAdmin() {
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=4")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=-20")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCheckingIfCategoryRequiresReadingAsGuest() {
+                given()
+                    .when()
+                    .get(createPlacesUrl + "/3/category/required_reading?categoryId=-20")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingMissingCategoriesAsAdmin() {
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/categories/missing")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingMissingCategoriesAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .get(createPlacesUrl + "/3/categories/missing")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenGettingMissingCategoriesAsGuest() {
+                given()
+                    .when()
+                    .get(createPlacesUrl + "/3/categories/missing")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW27 {
+
+        private static final String createReportUrl = "/reports";
+        private static final String createPlacesUrl = "/places";
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+
+            @Test
+            void shouldRemoveNonMeterCategoryFromPlaceAndDeleteFutureForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck;
+
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
+
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.parking")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.parking")));
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/10")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                if (!december) {
+                    response = given()
+                        .spec(onlyManagerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .noneMatch(r -> r.getCategoryName().equals("categories.parking")));
+                }
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.parking")));
+            }
+
+            @Test
+            void shouldRemoveMeterCategoryMarkMeterAsInactiveAndDeleteFutureForecasts() {
+                LocalDate now = LocalDate.now();
+                Integer currentYear = now.getYear();
+                Integer monthToCheck = now.getMonthValue() + 1;
+
+                boolean december = false;
+                if (now.getMonthValue() == 12) {
+                    december = true;
+                    monthToCheck = now.getMonthValue();
+                } else {
+                    monthToCheck = now.getMonthValue() + 1;
+                }
+
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                List<PlaceCategoryDTO> categories =
+                    List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().anyMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/meters");
+                List<MeterDto> meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(meterDtos.stream().anyMatch(m -> m.getCategory().equals("categories.cold_water")));
+                assertTrue(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water")).findFirst().get()
+                        .isActive());
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/5")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                if (!december) {
+                    response = given()
+                        .spec(onlyManagerSpec)
+                        .when().get(
+                            createReportUrl +
+                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                    placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                    response.then().statusCode(Response.Status.OK.getStatusCode());
+                    assertTrue(placeReportMonthDto.getDetails().stream()
+                        .noneMatch(r -> r.getCategoryName().equals("categories.cold_water")));
+                }
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.cold_water")));
+
+                response = given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/meters");
+                meterDtos = List.of(response.getBody().as(MeterDto[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertNotNull(meterDtos);
+                assertTrue(meterDtos.stream().anyMatch(m -> m.getCategory().equals("categories.cold_water")));
+                assertFalse(
+                    meterDtos.stream().filter(m -> m.getCategory().equals("categories.cold_water")).findFirst().get()
+                        .isActive());
+            }
+
+            @Test
+            void shouldReturnOneSC204WhenRemovingConcurrently() throws BrokenBarrierException, InterruptedException {
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .spec(onlyManagerSpec)
+                            .when()
+                            .delete(createPlacesUrl + "/5/categories/1")
+                            .getStatusCode();
+
+                        if (statusCode == 204) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                io.restassured.response.Response response =
+                    given().spec(onlyManagerSpec).when().get(createPlacesUrl + "/5/categories");
+                List<PlaceCategoryDTO> categories = List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(categories);
+                assertTrue(categories.stream().noneMatch(c -> c.getCategoryName().equals("categories.maintenance")));
+            }
+
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturnSC404WhenRemovingCategoryFromNonExistingPlace() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/2137/categories/1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryFromOwnPlace() {
+                given()
+                    .spec(managerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/1")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.ILLEGAL_SELF_ACTION));
+            }
+
+            @Test
+            void shouldReturnSC409WhenRemovingCategoryFromInactivePlace() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/8/categories/1")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACTIVE_PLACE));
+            }
+
+            @Test
+            void shouldReturnSC409WhenRemovingCategoryThatIsNotInUse() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_IN_USE));
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryAsAdmin() {
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenRemovingCategoryAsGuest() {
+                given()
+                    .when()
+                    .delete(createPlacesUrl + "/5/categories/6")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+
+    }
+
+    @Nested
     class MOW29 {
 
         private static RequestSpecification onlyManagerSpec;
@@ -1793,6 +4071,15 @@ public class MowITests extends TestContainersSetup {
                     .statusCode(Response.Status.NOT_FOUND.getStatusCode());
             }
 
+            @Test
+            void shouldReturnSC404WhenGettingPlaceMeterReadingsAsManager() {
+                given().spec(managerSpec)
+                    .when()
+                    .get("/meters/384575/readings")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+
             @ParameterizedTest
             @ValueSource(ints = {1, 2, 3, 4, 6, 7})
             void shouldReturnSC403WhenGettingAnyMeterReadingsAsGuest(int id) {
@@ -1805,6 +4092,299 @@ public class MowITests extends TestContainersSetup {
                 given().spec(onlyAdminSpec)
                     .when()
                     .get("/meters/me/" + id + "/readings")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+
+    @Nested
+    class MOW23 {
+
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification ownerManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            ownerManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldAddOwnerToPlace() {
+                Long id = -60L;
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", id)
+                    .post("places/2/owners")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                given().
+                    spec(onlyManagerSpec)
+                    .when()
+                    .get("places/1/owners");
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                String login = "pduda";
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn404SCWhenAddingManagerOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -21)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenAddingAdminOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -45)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenAddingInactiveOwner() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -23)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn403WhenAddingSelfToPlace() {
+                given()
+                    .spec(ownerManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .post("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW24 {
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+        private static RequestSpecification ownerManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+            loginDto = new LoginDto("pduda", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            ownerManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+            @Test
+            void shouldRemoveOwnerFromPlace() {
+                Long id = -60L;
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", id)
+                    .delete("places/8/owners")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                String login = "pduda";
+                given()
+                    .spec(onlyAdminSpec)
+                    .when()
+                    .queryParam("login", login)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                given()
+                    .spec(onlyOwnerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingManagerOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -21)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingAdminOnly() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -45)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn404SCWhenRemovingInactiveOwner() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -23)
+                    .delete("places/1/owners")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .body("message", Matchers.equalTo("response.message.account_not_found"));
+            }
+
+            @Test
+            void shouldReturn403WhenRemovingSelfToPlace() {
+                given()
+                    .spec(ownerManagerSpec)
+                    .when()
+                    .queryParam("ownerId", -4)
+                    .delete("places/5/owners")
                     .then()
                     .statusCode(Response.Status.FORBIDDEN.getStatusCode());
             }
@@ -2090,6 +4670,1178 @@ public class MowITests extends TestContainersSetup {
                     .then()
                     .statusCode(Response.Status.CONFLICT.getStatusCode());
             }
+        }
+    }
+
+    @Nested
+    class MOW30 {
+
+        private static final String createForecastUrl = "/forecasts";
+        private static final String createReportUrl = "/reports";
+
+        private static final String createPlacesUrl = "/places";
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class PositiveCases {
+
+            @Test
+            void shouldCreateForecastForCurrentMonth() {
+
+                LocalDate now = LocalDate.now();
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(9L);
+                addCategoryDto.setCategoryId(1L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .noneMatch(r -> r.getCategoryName().equals("categories.maintenance")));
+
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.maintenance")));
+            }
+
+            @Test
+            void shouldReturnOneSC204WhenConcurrentlyCreatingForecastForCurrentMonth()
+                throws BrokenBarrierException, InterruptedException {
+
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(9L);
+                addCategoryDto.setCategoryId(2L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+                int threadNumber = 50;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+                        AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                        addOverdueForecastDto.setCategoryId(2L);
+                        addOverdueForecastDto.setPlaceId(9L);
+                        addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                        int statusCode = given().spec(onlyManagerSpec)
+                            .contentType(ContentType.JSON)
+                            .body(addOverdueForecastDto)
+                            .when()
+                            .post(createForecastUrl + "/add-current")
+                            .getStatusCode();
+
+                        if (statusCode == 204) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                LocalDate now = LocalDate.now();
+                io.restassured.response.Response response = given()
+                    .spec(managerSpec)
+                    .when().get(
+                        createReportUrl +
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+
+                assertTrue(placeReportMonthDto.getDetails().stream()
+                    .anyMatch(r -> r.getCategoryName().equals("categories.repair")));
+            }
+        }
+
+        @Nested
+        class NegativeCases {
+
+            @Test
+            void shouldReturnSC403WhenCreatingForecastForOwnPlace() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(10L);
+                addOverdueForecastDto.setPlaceId(5L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.ILLEGAL_SELF_ACTION));
+            }
+
+            @Test
+            void shouldReturnSC409WhenCreatingForecastForInactivePlace() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(3L);
+                addOverdueForecastDto.setPlaceId(8L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.INACTIVE_PLACE));
+            }
+
+            @Test
+            void shouldReturnSC409WhenCreatingForecastForCategoryThatIsNotInUse() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(6L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.CATEGORY_NOT_IN_USE));
+            }
+
+            @Test
+            void shouldReturnSC404WhenCreatingForecastForNotExistingPlace() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(2L);
+                addOverdueForecastDto.setPlaceId(2137L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.PLACE_NOT_FOUND));
+            }
+
+            @Test
+            void shouldReturnSC409WhenCreatingForecastThatAlreadyExists() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.FORECAST_ALREADY_EXISTS));
+            }
+
+            @Test
+            void shouldReturnSC400WhenPassingNullOrNegativeValueAsAmount() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(null);
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(-123.234));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingCurrentForecastAsAdmin() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(4L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyAdminSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingCurrentForecastAsOwner() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(4L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given().spec(onlyOwnerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenCreatingCurrentForecastAsGuest() {
+                AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
+                addOverdueForecastDto.setCategoryId(4L);
+                addOverdueForecastDto.setPlaceId(9L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(21.37));
+                given()
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW35 {
+        private static final String YEARLY_REPORT_URL = "/reports/community/%d";
+        private static final String MONTHLY_REPORT_URL = YEARLY_REPORT_URL + "/%d";
+
+        @Nested
+        class GetCommunityReportsPositiveTest {
+            @Test
+            void shouldGetYearlyReportAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(200)
+                    .body(
+                        "balance", notNullValue(),
+                        "reportsPerCategory.size()", greaterThan(0));
+            }
+
+            @Test
+            void shouldGetMonthlyReportAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(200)
+                    .body(
+                        "balance", notNullValue(),
+                        "reportsPerCategory.size()", greaterThan(0));
+            }
+        }
+
+        @Nested
+        class GetCommunityReportsForbiddenTest {
+            @Test
+            void shouldFailToGetYearlyCommunityReportAsAdminWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetYearlyCommunityReportAsOwnerWithStatusCode403Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetYearlyCommunityReportAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetMonthlyCommunityReportAsAdminWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetMonthlyCommunityReportAsOwnerWithStatusCode403Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetMonthlyCommunityReportAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(403);
+            }
+        }
+
+        @Nested
+        class GetCommunityReportsNegativeTest {
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, 0, 13})
+            void shouldFailToGetCommunityReportsDueToInvalidMonthWithStatusCode400Test(Integer month) {
+                given(managerSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2023, month))
+                    .then()
+                    .statusCode(400);
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {2021, 2024})
+            void shouldGetYearlyReportZeroBalanceAndEmptyReportsDueToInvalidYearWithStatusCode200Test(
+                Integer year) {
+                given(managerSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(year))
+                    .then()
+                    .statusCode(200)
+                    .body(
+                        "balance", is(0),
+                        "reportsPerCategory.size()", is(0));
+            }
+        }
+    }
+
+    @Nested
+    class MOW33 {
+        private static final String buildingReportsURL = "/reports/buildings";
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("azloty", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetYearlyReports {
+
+            @Test
+            void shouldReturnYearlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(buildingReportsURL + "/1/2022");
+                BuildingReportYearlyDto report = response.as(BuildingReportYearlyDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(report);
+                assertTrue(report.getCategories().size() > 0);
+                assertNotNull(report.getBalance());
+                assertNotNull(report.getSumRealValue());
+                assertNotNull(report.getSumPredValue());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/3000")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2019")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(buildingReportsURL + "/1/2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForBuildingThatDoesntExist() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/999/2022")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.BUILDING_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GetMonthlyReports {
+            @Test
+            void shouldReturnMonthlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(buildingReportsURL + "/1/2022/2");
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                BuildingReportYearlyDto report = response.as(BuildingReportYearlyDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(report);
+                assertTrue(report.getCategories().size() > 0);
+                assertNotNull(report.getBalance());
+                assertNotNull(report.getSumRealValue());
+                assertNotNull(report.getSumPredValue());
+            }
+
+            @Test
+            void shouldReturnSC400WhenMonthNotValid() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2022/0")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2022/33")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/3000/3")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2019/3")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(buildingReportsURL + "/1/2022/2")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForBuildingThatDoesntExist() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/999/2022/1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.BUILDING_NOT_FOUND));
+            }
+        }
+
+    }
+
+    @Nested
+    class MOW16 {
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class UnauthorizedTests {
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                CreateCostDto costDto = new CreateCostDto(2022, (short) 1, 6L,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                CreateCostDto costDto = new CreateCostDto(2022, (short) 1, 6L,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+
+        @Nested
+        class ConstraintTests {
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, 15})
+            void shouldReturn400SCWhenInvalidMonth(Integer month) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, month, 6L,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @NullSource
+            @ParameterizedTest
+            void shouldReturn400SCWhenInvalidCategoryId(Long categoryId) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, categoryId,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, -10})
+            void shouldReturn400SCWhenInvalidTotalConsumption(Integer tc) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, 2L,
+                    BigDecimal.valueOf(tc), BigDecimal.valueOf(1));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, 0})
+            void shouldReturn400SCWhenInvalidRealRate(Integer rr) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, 2L,
+                    BigDecimal.valueOf(2), BigDecimal.valueOf(rr));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn400SCWhenCostDtoEmpty() {
+
+                CreateCostDto costDto = new CreateCostDto();
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn409SCWhenCostAlreadyExists() {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, 2L,
+                    BigDecimal.valueOf(2), BigDecimal.valueOf(2));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class PositiveTests {
+
+            @Test
+            void shouldReturn204WhenCreatingPastNotExistingCost() {
+                CreateCostDto costDto = new CreateCostDto(2000, 6, 6L,
+                    BigDecimal.valueOf(100.345), BigDecimal.valueOf(3));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn204WhenCreatingCostsForVariousCategories() {
+                String categoriesURL = "/categories";
+                io.restassured.response.Response response = given().spec(managerSpec).when().get(categoriesURL);
+                List<CategoryDTO> categories =
+                    List.of(response.getBody().as(CategoryDTO[].class));
+
+                for (CategoryDTO dto : categories) {
+                    CreateCostDto costDto = new CreateCostDto(2000, 7, dto.getId(),
+                        BigDecimal.valueOf(100.345), BigDecimal.valueOf(10));
+
+                    given().spec(onlyManagerSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(costDto)
+                        .post("/costs")
+                        .then()
+                        .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+                }
+            }
+        }
+    }
+
+    @Nested
+    class MOW18 {
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class UnauthorizedTests {
+            @Test
+            void shouldReturn403SCWhenRequestAsGuest() {
+
+                given()
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + 123)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + 123)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + 123)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+
+        @Nested
+        class ConstraintTests {
+
+            @Test
+            void shouldReturn400SCWhenInvalidCostId() {
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + Integer.MIN_VALUE)
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW6 {
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response = given().when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response = given().spec(adminSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsManager() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldGetEmptyListByNotExistingPlaceId() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+
+            List<PlaceCategoryDTO> categories =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+            assertNotNull(categories);
+            assertEquals(0, categories.size());
+        }
+
+        @Test
+        void shouldGetListByExistingPlaceId() {
+            io.restassured.response.Response response =
+                given().spec(ownerSpec).when().get("places/me/3/categories");
+
+            List<PlaceCategoryDTO> placeCategoryDTOList =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+            Assertions.assertNotEquals(placeCategoryDTOList.size(), 0);
+        }
+    }
+
+    @Nested
+    class MOW15 {
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response =
+                given().contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsOwner() {
+            io.restassured.response.Response response =
+                given().spec(ownerSpec).contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response =
+                given().spec(adminSpec).contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldPassWhenRequestAsManager() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("costs?page=0" +
+                "&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+
+            Page<CostDto> costDtoPage = response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(costDtoPage);
+            assertTrue(costDtoPage.getTotalSize() >= 0);
+            assertTrue(costDtoPage.getCurrentPage() >= 0);
+            assertTrue(costDtoPage.getPageSize() >= 0);
+            assertTrue(costDtoPage.getData().size() > 0);
+        }
+
+    }
+
+    @Nested
+    class MOW17 {
+
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response = given().when()
+                .get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsOwner() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response =
+                given().spec(adminSpec).when().get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {1, 2, 10, 100})
+        void shouldReturn204WhenRequestAsManager(Integer id) {
+            io.restassured.response.Response response =
+                given().spec(onlyManagerSpec).when().get("costs/" + id);
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            CostDto costDto = response.getBody().as(CostDto.class);
+            Assertions.assertNotNull(costDto);
+        }
+
+        @Test
+        void shouldReturn404WhenNotFound() {
+            io.restassured.response.Response response =
+                given().spec(onlyManagerSpec).when().get("costs/-12345");
+            response.then().statusCode(Response.Status.NOT_FOUND.getStatusCode());
         }
     }
 }

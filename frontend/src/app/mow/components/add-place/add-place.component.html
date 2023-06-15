@@ -71,6 +71,12 @@
                     {{ 'validation.square-footage.min' | translate }}
                     {{ sqMinError['min'] }}.
                 </p>
+                <p
+                    *ngIf="sqErrors['max'] as sqMaxError"
+                    class="mb-0">
+                    {{ 'validation.square-footage.max' | translate }}
+                    {{ sqMaxError['max'] }}.
+                </p>
             </div>
         </div>
         <div class="mb-2 has-validation">
@@ -102,6 +108,12 @@
                     class="mb-0">
                     {{ 'validation.residents-number.min' | translate }}
                     {{ rnMinError['min'] }}.
+                </p>
+                <p
+                    *ngIf="rnErrors['max'] as rnMinError"
+                    class="mb-0">
+                    {{ 'validation.residents-number.max' | translate }}
+                    {{ rnMinError['max'] }}.
                 </p>
             </div>
         </div>

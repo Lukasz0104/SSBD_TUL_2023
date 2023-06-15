@@ -80,4 +80,15 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
         return tq.getResultList();
     }
+
+    @RolesAllowed(MANAGER)
+    public Optional<Account> findByOwnerId(Long ownerId) {
+        try {
+            TypedQuery<Account> tq = em.createNamedQuery("Account.findByOwnerId", Account.class);
+            tq.setParameter("ownerId", ownerId);
+            return Optional.of(tq.getSingleResult());
+        } catch (PersistenceException e) {
+            return Optional.empty();
+        }
+    }
 }

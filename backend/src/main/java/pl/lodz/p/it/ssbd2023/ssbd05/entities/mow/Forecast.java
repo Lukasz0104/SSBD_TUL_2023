@@ -54,7 +54,23 @@ import java.time.Year;
             AND f.year = :year
             AND f.month > :month
             """),
-
+    @NamedQuery(
+        name = "Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterOrEqualMonth",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.place.id = :place
+            AND f.rate.category.id = :categoryId
+            AND f.year = :year
+            AND f.month >= :month
+            """),
+    @NamedQuery(
+        name = "Forecast.findByPlaceIdAndYearAndBeforeMonth",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.place.id = :placeId
+            AND f.year = :year
+            AND f.month <= :month
+            """),
     // place queries
     @NamedQuery(
         name = "Forecast.findByPlaceId",
@@ -72,8 +88,24 @@ import java.time.Year;
     @NamedQuery(
         name = "Forecast.findByPlaceIdAndYearAndMonth",
         query = """
+            SELECT f FROM Forecast f
+            WHERE f.place.id = :place
+            AND f.month = :month
+            AND f.year = :year
+            ORDER BY f.rate.category.name ASC"""),
+    @NamedQuery(
+        name = "Forecast.findMinMonthByPlaceIdAndYear",
+        query = """
+            SELECT min(f.month) FROM Forecast f
+            WHERE f.place.id = :id
+            AND f.year = :year
+            """),
+    @NamedQuery(
+        name = "Forecast.findByPlaceIdAndCategoryIdAndYearAndMonth",
+        query = """
             SELECT f FROM Forecast f 
-            WHERE f.place.id = :place 
+            WHERE f.place.id = :place
+            AND f.rate.category.id = :categoryId
             AND f.month = :month 
             AND f.year = :year 
             ORDER BY f.rate.category.name ASC"""),
@@ -81,6 +113,19 @@ import java.time.Year;
     @NamedQuery(
         name = "Forecast.findByCategoryId",
         query = "SELECT f FROM Forecast f WHERE f.rate.category.id = :categoryId"),
+    @NamedQuery(
+        name = "Forecast.findByYearAndCategoryName",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.year = :year AND f.rate.category.name = :categoryName"""),
+    @NamedQuery(
+        name = "Forecast.findByYearAndCategoryNameAndMonthBefore",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE
+                f.year = :year
+                AND f.rate.category.name = :categoryName
+                AND f.month < :month"""),
     @NamedQuery(
         name = "Forecast.findByYearAndCategoryId",
         query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.rate.category.id = :categoryId"),
@@ -120,6 +165,14 @@ import java.time.Year;
         name = "Forecast.findDistinctYearsById",
         query = "SELECT DISTINCT f.year FROM Forecast f WHERE f.place.building.id = :id ORDER BY f.year"),
     @NamedQuery(
+        name = "Forecast.findYearsAndMonths",
+        query = """
+            SELECT f.year AS year, f.month AS month
+                FROM Forecast f
+                GROUP BY f.year, f.month
+                ORDER BY f.year, f.month
+            """),
+    @NamedQuery(
         name = "Forecast.findYearsAndMonthsByBuildingId",
         query = """
             SELECT f.year AS year, COUNT(DISTINCT f.month) AS months
@@ -148,35 +201,29 @@ import java.time.Year;
 @EntityListeners({EntityControlListenerMOW.class})
 public class Forecast extends AbstractEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     @NotNull
     @Basic(optional = false)
     @Column(name = "year", nullable = false)
     @Getter
     @Setter
     private Year year;
-
     @NotNull
     @Basic(optional = false)
     @Column(name = "month", nullable = false)
     @Getter
     @Setter
     private Month month;
-
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false, scale = 2, precision = 38)
+    @Column(name = "value", nullable = false, scale = 6, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
-
     @PositiveOrZero
-    @Column(name = "real_value", scale = 2, precision = 38)
+    @Column(name = "real_value", scale = 6, precision = 38)
     @Getter
     @Setter
     private BigDecimal realValue = BigDecimal.ZERO;
-
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
@@ -184,20 +231,19 @@ public class Forecast extends AbstractEntity implements Serializable {
     @Getter
     @Setter
     private BigDecimal amount;
-
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "place_id", referencedColumnName = "id", updatable = false, nullable = false)
     @Getter
     @Setter
     private Place place;
-
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "rate_id", referencedColumnName = "id", updatable = false, nullable = false)
+    @JoinColumn(name = "rate_id", referencedColumnName = "id", nullable = false)
     @Getter
     @Setter
     private Rate rate;
+    private static final long serialVersionUID = 1L;
 
     public Forecast(Year year, Month month, BigDecimal value, BigDecimal realValue, BigDecimal amount, Place place,
                     Rate rate) {

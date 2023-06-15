@@ -6,6 +6,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { CostComponent } from '../cost/cost.component';
 import { Page } from '../../../shared/model/page';
 import { Cost } from '../../model/cost';
+import { AddCostComponent } from '../add-cost/add-cost.component';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-costs',
@@ -61,6 +63,30 @@ export class CostsComponent implements OnInit {
             })
             .catch(() => EMPTY);
         this.getCosts();
+    }
+
+    addCost() {
+        const modalRef: NgbModalRef = this.modalService.open(AddCostComponent, {
+            centered: true,
+            scrollable: true
+        });
+        modalRef.result.then().catch(() => EMPTY);
+    }
+
+    removeCost(id: number) {
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'modal.confirm-action.remove-cost';
+        modalRef.closed.subscribe((res: boolean) => {
+            if (res) {
+                this.costsService.removeCost(id).subscribe(() => {
+                    this.getCosts();
+                });
+            }
+        });
     }
 
     protected onSortChange() {

@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
@@ -11,6 +12,9 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
@@ -26,21 +30,25 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryNotInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InitialReadingRequiredException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.BadAccessLevelException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.BuildingNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.AccountFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.BuildingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.MeterFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.ForecastUtils;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.functionalinterfaces.FunctionThrowsVoidTwoArgs;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,6 +56,7 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Stateful
@@ -63,6 +72,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     private PlaceFacade placeFacade;
 
     @Inject
+    private AccountFacade accountFacade;
+
+    @Inject
     private MeterFacade meterFacade;
 
     @Inject
@@ -72,16 +84,16 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     private ForecastFacade forecastFacade;
 
     @Inject
-    private AppProperties appProperties;
-
-    @Inject
     private ForecastUtils forecastUtils;
 
     @Inject
     private BuildingFacade buildingFacade;
 
+    @Inject
+    private ReadingFacade readingFacade;
+
     @Override
-    @RolesAllowed(MANAGER)
+    @PermitAll
     public List<Place> getAllPlaces() throws AppBaseException {
         return placeFacade.findAll();
     }
@@ -89,7 +101,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @Override
     @RolesAllowed(OWNER)
     public List<Place> getOwnPlaces(String login) throws AppBaseException {
-        return placeFacade.findByLogin(login);
+        return placeFacade.findActiveByLogin(login);
     }
 
     @Override
@@ -153,14 +165,49 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public void addOwnerToPlace(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public List<OwnerData> getOwnerNotOwningPlace(Long id) throws AppBaseException {
+        return placeFacade.findByNotInLogins(id);
+    }
+
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void addOwnerToPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException {
+        addRemoveOwnerPlace((Place place, Optional<AccessLevel> ownerData) -> {
+            if (ownerData.isEmpty()) {
+                throw new BadAccessLevelException();
+            } else {
+                place.getOwners().add((OwnerData) ownerData.get());
+                placeFacade.edit(place);
+            }
+        }, ownerId, managerLogin, id);
+    }
+
+    @RolesAllowed(MANAGER)
+    private void addRemoveOwnerPlace(FunctionThrowsVoidTwoArgs<Place, Optional<AccessLevel>> func,
+                                     Long ownerId, String managerLogin, Long id) throws AppBaseException {
+        Account account = accountFacade.findByOwnerId(ownerId).orElseThrow(AccountNotFoundException::new);
+        if (managerLogin.equals(account.getLogin())) {
+            throw new IllegalSelfActionException();
+        }
+        Optional<AccessLevel> ownerData = account
+            .getAccessLevels()
+            .stream()
+            .filter(x -> x.isValidAccessLevel(AccessType.OWNER))
+            .findFirst();
+        Place place = placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
+        func.apply(place, ownerData);
     }
 
     @Override
     @RolesAllowed(MANAGER)
-    public void removeOwnerFromPlace(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public void removeOwnerFromPlace(Long id, Long ownerId, String managerLogin) throws AppBaseException {
+        addRemoveOwnerPlace((Place place, Optional<AccessLevel> ownerData) -> {
+            if (ownerData.isPresent()) {
+                place.getOwners().remove((OwnerData) ownerData.get());
+                placeFacade.edit(place);
+            }
+        }, ownerId, managerLogin, id);
     }
 
     @Override
@@ -177,7 +224,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
 
     @Override
     @RolesAllowed(MANAGER)
-    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) {
+    public List<Rate> findCurrentRateByPlaceIdNotMatch(Long id) throws AppBaseException {
         return placeFacade.findCurrentRateByPlaceIdNotMatch(id);
     }
 
@@ -205,7 +252,9 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     if (value == null) {
                         throw new InitialReadingRequiredException();
                     } else {
-                        meter.getReadings().add(new Reading(LocalDateTime.now(), value, meter));
+                        Reading reading = new Reading(LocalDateTime.now(), value, meter);
+                        readingFacade.create(reading);
+                        meter.getReadings().add(reading);
                     }
                 }
                 meter.setActive(true);
@@ -219,10 +268,10 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
                     meterFacade.create(meter);
                 }
             }
-            forecastUtils.calculateForecastsForMeter(meter);
+            forecastUtils.calculateForecastsForMeter(meter, rate, false);
             place.getMeters().add(meter);
         } else {
-            forecastUtils.calculateForecasts(place, rate);
+            forecastUtils.calculateForecasts(place, rate, false);
         }
         place.getCurrentRates().add(rate);
         placeFacade.edit(place);

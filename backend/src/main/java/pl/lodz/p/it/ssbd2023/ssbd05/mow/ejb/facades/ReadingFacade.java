@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -233,5 +234,15 @@ public class ReadingFacade extends AbstractFacade<Reading> {
         } catch (PersistenceException e) {
             throw new AppDatabaseException("Reading.findByPlaceIdAndDateBefore , Database Exception", e);
         }
+    }
+
+    @PermitAll
+    public List<Reading> findReliableReadingsFromLastDayOfYear(Long placeId, Long categoryId, Integer year) {
+        return em.createNamedQuery("Reading.findReliableReadingsFromLastDayOfYear", Reading.class)
+            .setParameter("placeId", placeId)
+            .setParameter("categoryId", categoryId)
+            .setParameter("year", year)
+            .setMaxResults(2)
+            .getResultList();
     }
 }
