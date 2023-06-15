@@ -22,7 +22,6 @@ export class BuildingReportsComponent implements OnInit {
     year: number | undefined;
     month: number | undefined;
     months: number[] | undefined;
-    notFullYear = true;
 
     constructor(
         private reportService: ReportService,
@@ -73,16 +72,10 @@ export class BuildingReportsComponent implements OnInit {
 
     getYearReport() {
         if (this.year && this.buildingId) {
-            if (this.months?.length == 12) {
-                this.report$ = this.reportService.getBuildingReportByYear(
-                    this.buildingId,
-                    this.year
-                );
-                this.notFullYear = false;
-            } else {
-                this.notFullYear = true;
-                this.report$ = undefined;
-            }
+            this.report$ = this.reportService.getBuildingReportByYear(
+                this.buildingId,
+                this.year
+            );
         }
     }
 

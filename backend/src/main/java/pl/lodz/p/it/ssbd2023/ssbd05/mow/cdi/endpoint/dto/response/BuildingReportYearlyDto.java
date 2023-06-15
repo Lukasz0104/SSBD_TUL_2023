@@ -26,4 +26,7 @@ public class BuildingReportYearlyDto {
 
     @NotNull
     private BigDecimal diff;
+
+    @NotNull
+    private BigDecimal balance;
 }

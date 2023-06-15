@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.jsonwebtoken.lang.Assert;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -38,6 +37,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateCostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingYearsAndMonthsReports;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
@@ -175,6 +177,62 @@ public class MowITests extends TestContainersSetup {
                     .then()
                     .statusCode(403);
             }
+        }
+    }
+
+    @Nested
+    class MOW3 {
+        private static final String buildingReportYearsUrl = "/reports/buildings";
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("azloty", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassGettingAllBuildingReportYears() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec)
+                .when()
+                .get(buildingReportYearsUrl + "/1");
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            List<BuildingYearsAndMonthsReports> yearsAndMonths
+                = List.of(response.as(BuildingYearsAndMonthsReports[].class));
+            Assertions.assertNotNull(yearsAndMonths);
+            Assertions.assertTrue(yearsAndMonths.stream().anyMatch(x -> x.getYear() == 2022));
+            Assertions.assertTrue(yearsAndMonths.stream().anyMatch(x -> x.getYear() == 2023));
+        }
+
+        @Test
+        void shouldReturnSC403WhenGettingAllBuildingReportYearsAsGuest() {
+            given()
+                .when()
+                .get(buildingReportYearsUrl + "/1")
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        }
+
+        @Test
+        void shouldReturnSC404WhenAllBuildingReportYearsForBuildingThatDoesntExist() {
+            given()
+                .spec(onlyManagerSpec)
+                .when()
+                .get(buildingReportYearsUrl + "/999")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                .assertThat()
+                .body("message", Matchers.equalTo(I18n.BUILDING_NOT_FOUND));
         }
     }
 
@@ -722,8 +780,6 @@ public class MowITests extends TestContainersSetup {
     @Nested
     class MOW8 {
         private static final String createReportUrl = "/reports";
-        private static RequestSpecification firstOwnerSpec;
-
         private static RequestSpecification secondOwnerSpec;
 
         private static RequestSpecification onlyManagerSpec;
@@ -762,17 +818,6 @@ public class MowITests extends TestContainersSetup {
                 .jsonPath()
                 .get("jwt");
             onlyAdminSpec = new RequestSpecBuilder()
-                .addHeader("Authorization", "Bearer " + jwt)
-                .build();
-
-            loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
-            jwt = given().body(loginDto)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/login")
-                .jsonPath()
-                .get("jwt");
-            firstOwnerSpec = new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
 
@@ -1293,7 +1338,6 @@ public class MowITests extends TestContainersSetup {
             }
         }
     }
-
 
     @Nested
     class MOW10 {
@@ -5081,6 +5125,164 @@ public class MowITests extends TestContainersSetup {
                         "reportsPerCategory.size()", is(0));
             }
         }
+    }
+
+    @Nested
+    class MOW33 {
+        private static final String buildingReportsURL = "/reports/buildings";
+        private static RequestSpecification onlyManagerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("azloty", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class GetYearlyReports {
+
+            @Test
+            void shouldReturnYearlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(buildingReportsURL + "/1/2022");
+                BuildingReportYearlyDto report = response.as(BuildingReportYearlyDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(report);
+                assertTrue(report.getCategories().size() > 0);
+                assertNotNull(report.getBalance());
+                assertNotNull(report.getSumRealValue());
+                assertNotNull(report.getSumPredValue());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/3000")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2019")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(buildingReportsURL + "/1/2022")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForBuildingThatDoesntExist() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/999/2022")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.BUILDING_NOT_FOUND));
+            }
+        }
+
+        @Nested
+        class GetMonthlyReports {
+            @Test
+            void shouldReturnMonthlyReport() {
+                io.restassured.response.Response response = given()
+                    .spec(onlyManagerSpec)
+                    .when().get(buildingReportsURL + "/1/2022/2");
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                BuildingReportYearlyDto report = response.as(BuildingReportYearlyDto.class);
+
+                response.then().statusCode(Response.Status.OK.getStatusCode());
+                assertNotNull(report);
+                assertTrue(report.getCategories().size() > 0);
+                assertNotNull(report.getBalance());
+                assertNotNull(report.getSumRealValue());
+                assertNotNull(report.getSumPredValue());
+            }
+
+            @Test
+            void shouldReturnSC400WhenMonthNotValid() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2022/0")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2022/33")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC400WhenYearNotValid() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/3000/3")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/1/2019/3")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+
+            @Test
+            void shouldReturnSC403WhenGettingReportAsGuest() {
+                given()
+                    .when()
+                    .get(buildingReportsURL + "/1/2022/2")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC404WhenGettingReportForBuildingThatDoesntExist() {
+                given()
+                    .spec(onlyManagerSpec)
+                    .when()
+                    .get(buildingReportsURL + "/999/2022/1")
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode())
+                    .assertThat()
+                    .body("message", Matchers.equalTo(I18n.BUILDING_NOT_FOUND));
+            }
+        }
+
     }
 
     @Nested
