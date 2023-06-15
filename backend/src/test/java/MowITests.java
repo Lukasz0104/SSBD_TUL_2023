@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.jsonwebtoken.lang.Assert;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -32,6 +33,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
@@ -3552,6 +3554,17 @@ public class MowITests extends TestContainersSetup {
         @Nested
         class UnauthorizedTests {
             @Test
+            void shouldReturn403SCWhenRequestAsGuest() {
+
+                given()
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + 123)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
             void shouldReturn403SCWhenRequestAsOwner() {
 
                 given().spec(onlyOwnerSpec)
@@ -3585,6 +3598,267 @@ public class MowITests extends TestContainersSetup {
                     .then()
                     .statusCode(Response.Status.NOT_FOUND.getStatusCode());
             }
+        }
+    }
+
+    @Nested
+    class MOW6 {
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response = given().when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response = given().spec(adminSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsManager() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldGetEmptyListByNotExistingPlaceId() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+
+            List<PlaceCategoryDTO> categories =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+            assertNotNull(categories);
+            assertEquals(0, categories.size());
+        }
+
+        @Test
+        void shouldGetListByExistingPlaceId() {
+            io.restassured.response.Response response =
+                given().spec(ownerSpec).when().get("places/me/3/categories");
+
+            List<PlaceCategoryDTO> placeCategoryDTOList =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+            Assert.notEmpty(placeCategoryDTOList);
+        }
+    }
+
+    @Nested
+    class MOW15 {
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response =
+                given().when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            Page<CostDto> costDtoPage = response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsOwner() {
+            io.restassured.response.Response response =
+                given().spec(ownerSpec).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            Page<CostDto> costDtoPage = response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response =
+                given().spec(adminSpec).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            Page<CostDto> costDtoPage = response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldPassWhenRequestAsManager() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("costs?page=0" +
+                "&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+
+            Page<CostDto> costDtoPage = response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(costDtoPage);
+            assertTrue(costDtoPage.getTotalSize() >= 0);
+            assertTrue(costDtoPage.getCurrentPage() >= 0);
+            assertTrue(costDtoPage.getPageSize() >= 0);
+            assertTrue(costDtoPage.getData().size() > 0);
+        }
+
+    }
+
+    @Nested
+    class MOW17 {
+
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response = given().when()
+                .get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsOwner() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response =
+                given().spec(adminSpec).when().get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {1, 2, 10, 100})
+        void shouldReturn204WhenRequestAsManager(Integer id) {
+            io.restassured.response.Response response =
+                given().spec(onlyManagerSpec).when().get("costs/" + id);
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            CostDto costDto = response.getBody().as(CostDto.class);
+            Assertions.assertNotNull(costDto);
+        }
+
+        @Test
+        void shouldReturn404WhenNotFound() {
+            io.restassured.response.Response response =
+                given().spec(onlyManagerSpec).when().get("costs/-12345");
+            response.then().statusCode(Response.Status.NOT_FOUND.getStatusCode());
         }
     }
 }
