@@ -8,7 +8,8 @@ import { catchError, EMPTY, Observable } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
 import {
     BuildingReport,
-    BuildingReportYearAndMonths
+    BuildingReportYearAndMonths,
+    CommunityReport
 } from '../model/building-report';
 
 @Injectable({
@@ -118,6 +119,18 @@ export class ReportService {
     ): Observable<BuildingReport | null> {
         return this.http.get<BuildingReport>(
             `${this.BUILDING_URL}/${buildingId}/reports/${year}/${month}`
+        );
+    }
+
+    getCommunityReportForYear(year: number) {
+        return this.http.get<CommunityReport>(
+            `${this.reportUrl}/community/${year}`
+        );
+    }
+
+    getCommunityReportForYearAndMonth(year: number, month: number) {
+        return this.http.get<CommunityReport>(
+            `${this.reportUrl}/community/${year}/${month}`
         );
     }
 }

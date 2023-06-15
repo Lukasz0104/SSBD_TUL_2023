@@ -13,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -134,12 +135,19 @@ import java.util.Set;
     @NamedQuery(
         name = "Place.findOwnerDataByNotOwnersOfPlaceId",
         query = """
-            SELECT od FROM OwnerData od
-            WHERE od.id NOT IN (SELECT DISTINCT b2.id FROM Place p JOIN p.owners b2 WHERE p.id = :placeId)
-            AND od.active = true
-            AND od.verified = true
-        """)
+                SELECT od FROM OwnerData od
+                WHERE od.id NOT IN (SELECT DISTINCT b2.id FROM Place p JOIN p.owners b2 WHERE p.id = :placeId)
+                AND od.active = true
+                AND od.verified = true
+            """)
 })
+@NamedNativeQuery(
+    name = "sumBalanceForMonthAndYearAcrossAllPlaces",
+    query = """
+        SELECT COALESCE(SUM(mb.balance), 0)
+        FROM monthly_balance mb
+        WHERE mb.year_month = ?
+        """)
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {
 

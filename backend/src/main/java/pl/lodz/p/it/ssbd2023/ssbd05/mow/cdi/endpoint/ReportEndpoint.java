@@ -45,11 +45,16 @@ public class ReportEndpoint {
     private SecurityContext securityContext;
 
     @GET
-    @Path("/{id}")
+    @Path("community/{year}/{month}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({MANAGER, OWNER})
-    public Response getReportDetails(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response getReportDetails(
+        @PathParam("year") @NotNull Integer year,
+        @PathParam("month") @Min(1) @Max(12) @NotNull Integer month) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> reportManager.getReportDetails(year, month),
+            reportManager
+        ).build();
     }
 
     @GET
@@ -66,8 +71,11 @@ public class ReportEndpoint {
     @Path("/community/{year}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response getCommunityReportByYear(@PathParam("year") Long year) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response getCommunityReportByYear(@PathParam("year") Integer year) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> reportManager.getCommunityReportByYear(year),
+            reportManager
+        ).build();
     }
 
     @GET
