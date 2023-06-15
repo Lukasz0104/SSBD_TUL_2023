@@ -298,8 +298,8 @@ insert into public.place (active, place_number, residents_number, square_footage
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 1, 5, 117, 1, 2);
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 2, 2, 68, 1, 2);
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 3, 3, 97, 1, 2);
-
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 4, 10, 180, 1, 2);
+insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (false, 4, 3, 97, 1, 1);
 --endregion
 
 --region place_owner
@@ -314,6 +314,7 @@ insert into public.place_owner (place_id, owner_id) values (6, -4);
 
 insert into public.place_owner (place_id, owner_id) values (7, -20);
 insert into public.place_owner (place_id, owner_id) values (7, -60);
+insert into public.place_owner (place_id, owner_id) values (8, -60);
 --endregion
 
 --region categories
@@ -424,11 +425,11 @@ INSERT INTO public.meter (version, category_id, place_id, created_time, created_
 INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 5, '2021-12-01 12:22:03.000000', -4, true);
 INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 4, 6, '2021-12-01 12:22:03.000000', -4, true);
 INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 5, 6, '2021-12-01 12:22:03.000000', -4, true);
+INSERT INTO public.meter (version, category_id, place_id, created_time, created_by, active) VALUES (1, 4, 7, '2021-12-01 12:22:03.000000', -4, false);
 --endregion
 
 --region reading
 -- Readings
-INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2023-06-11 13:54:06.280587', '2023-06-11 13:54:06.268741', true, null, 0.001, 1, 11, -4, null);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2023-06-11 13:53:43.656307', '2023-05-11 00:00:00.000000', true, '2023-06-11 13:53:43.658588', 300.000, 2, 10, -4, -4);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2023-06-11 13:53:27.072216', '2023-06-01 00:00:00.000000', true, '2023-06-11 13:53:27.074353', 250.556, 2, 9, -4, -4);
 INSERT INTO public.reading (created_time, date, reliable, updated_time, value, version, meter_id, created_by, updated_by) VALUES ('2023-06-11 13:53:08.638076', '2023-05-05 00:00:00.000000', true, '2023-06-11 13:53:08.640170', 299.000, 2, 8, -4, -4);

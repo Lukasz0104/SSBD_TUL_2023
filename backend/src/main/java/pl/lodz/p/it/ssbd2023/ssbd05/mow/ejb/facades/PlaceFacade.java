@@ -15,6 +15,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -58,6 +59,12 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @Override
+    @PermitAll
+    public Optional<Place> find(Long id) {
+        return super.find(id);
+    }
+
+    @Override
     @RolesAllowed(MANAGER)
     public List<Place> findAll() {
         return super.findAll();
@@ -73,12 +80,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
         } catch (NoResultException nre) {
             return Optional.empty();
         }
-    }
-
-    @Override
-    @PermitAll
-    public Optional<Place> find(Long id) {
-        return super.find(id);
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -201,6 +202,13 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return em.createNamedQuery("Place.findByBuildingId", Place.class)
             .setParameter("buildingId", id)
             .getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public List<OwnerData> findByNotInLogins(Long id) {
+        TypedQuery<OwnerData> tq = em.createNamedQuery("Place.findOwnerDataByNotOwnersOfPlaceId", OwnerData.class);
+        tq.setParameter("placeId", id);
+        return tq.getResultList();
     }
 
     @RolesAllowed(MANAGER)
