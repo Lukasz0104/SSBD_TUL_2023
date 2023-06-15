@@ -216,6 +216,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @Override
     @RolesAllowed({MANAGER, OWNER, ADMIN})
     public Map<Integer, List<Integer>> getYearsAndMonthsForReports(Long id) throws AppBaseException {
+        buildingFacade.find(id).orElseThrow(BuildingNotFoundException::new);
         return forecastFacade
             .findYearsAndMonthsByBuildingId(id)
             .entrySet()
