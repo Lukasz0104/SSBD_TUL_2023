@@ -135,16 +135,16 @@ import java.util.Set;
     @NamedQuery(
         name = "Place.findOwnerDataByNotOwnersOfPlaceId",
         query = """
-            SELECT od FROM OwnerData od
-            WHERE od.id NOT IN (SELECT DISTINCT b2.id FROM Place p JOIN p.owners b2 WHERE p.id = :placeId)
-            AND od.active = true
-            AND od.verified = true
-        """)
+                SELECT od FROM OwnerData od
+                WHERE od.id NOT IN (SELECT DISTINCT b2.id FROM Place p JOIN p.owners b2 WHERE p.id = :placeId)
+                AND od.active = true
+                AND od.verified = true
+            """)
 })
 @NamedNativeQuery(
     name = "sumBalanceForMonthAndYearAcrossAllPlaces",
     query = """
-        SELECT SUM(mb.balance)
+        SELECT COALESCE(SUM(mb.balance), 0)
         FROM monthly_balance mb
         WHERE mb.year_month = ?
         """)

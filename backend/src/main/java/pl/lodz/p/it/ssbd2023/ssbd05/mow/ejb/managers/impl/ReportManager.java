@@ -83,6 +83,9 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         var yearObj = Year.of(year);
         for (var category : categories) {
             var forecasts = forecastFacade.findByMonthAndYearAndCategory(monthObj, yearObj, category.getId());
+            if (forecasts.isEmpty()) {
+                continue;
+            }
             var rate = forecasts.get(0).getRate();
             var rye = new ReportYearEntry(rate.getValue(), rate.getAccountingRule(), category.getName());
             forecasts.forEach(f -> rye.addPred(f.getValue(), f.getAmount()));
@@ -118,7 +121,8 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
             balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, 12));
         } else {
             reportEntries = calculateCommunityReportForOngoingYear(yearObject);
-            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, reportEntries.size()));
+            int month = reportEntries.isEmpty() ? 1 : reportEntries.size();
+            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, month));
         }
         return new CommunityReportDto(balance, reportEntries);
     }
@@ -170,6 +174,10 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
         for (var category : categories) {
             var forecasts = forecastFacade.findByYearAndCategoryNameAndMonthBefore(year, category.getName(), lastMonth);
+
+            if (forecasts.isEmpty()) {
+                continue;
+            }
 
             BigDecimal averageForecastedRate = forecasts.stream()
                 .map(Forecast::getRate)
