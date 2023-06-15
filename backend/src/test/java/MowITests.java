@@ -4731,7 +4731,7 @@ public class MowITests extends TestContainersSetup {
             }
 
             @Test
-            void shouldReturnOneSC204WhenCreatingForecastForCurrentMonth()
+            void shouldReturnOneSC204WhenConcurrentlyCreatingForecastForCurrentMonth()
                 throws BrokenBarrierException, InterruptedException {
 
                 AddCategoryDto addCategoryDto = new AddCategoryDto();
