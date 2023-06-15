@@ -101,7 +101,7 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
             BigDecimal oldMapBalance = place.getBalance()
                 .getOrDefault(YearMonth.of(year.getValue(), month), BigDecimal.ZERO);
 
-            BigDecimal currentMapBalance = oldMapBalance.add(realValue.subtract(placeForecast.getValue()));
+            BigDecimal currentMapBalance = oldMapBalance.add(placeForecast.getValue().subtract(realValue));
 
             for (int j = month.getValue(); j < 13; j++) {
                 place.getBalance().put(YearMonth.of(year.getValue(), Month.of(j)),
@@ -132,14 +132,13 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
                 .getBalance().get(YearMonth.of(forecast.getYear().getValue(),
                     forecast.getMonth()));
 
-            if (oldMapBalance != null) {
-                BigDecimal currentMapBalance = oldMapBalance.add(forecast.getRealValue());
+            BigDecimal currentMapBalance = oldMapBalance
+                .subtract(forecast.getValue().subtract(forecast.getRealValue()));
 
-                for (int j = forecast.getMonth().getValue(); j < 13; j++) {
-                    forecast.getPlace().getBalance().put(YearMonth.of(forecast
-                            .getYear().getValue(), Month.of(j)),
-                        currentMapBalance);
-                }
+            for (int j = forecast.getMonth().getValue(); j < 13; j++) {
+                forecast.getPlace().getBalance().put(YearMonth.of(forecast
+                        .getYear().getValue(), Month.of(j)),
+                    currentMapBalance);
             }
 
             forecast.setRealValue(BigDecimal.ZERO);
