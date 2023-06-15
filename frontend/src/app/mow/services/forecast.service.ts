@@ -39,7 +39,7 @@ export class ForecastService {
         amount: number | null
     ) {
         return this.http
-            .post(`${this.forecastUrl}/add-overdue`, {
+            .post(`${this.forecastUrl}/add-current`, {
                 placeId,
                 categoryId,
                 amount

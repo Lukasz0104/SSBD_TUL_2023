@@ -20,5 +20,6 @@ public class AddOverdueForecastDto {
     private Long categoryId;
 
     @Positive
+    @NotNull
     private BigDecimal amount;
 }

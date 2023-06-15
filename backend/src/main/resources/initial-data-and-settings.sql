@@ -300,6 +300,7 @@ insert into public.place (active, place_number, residents_number, square_footage
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 3, 3, 97, 1, 2);
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 4, 10, 180, 1, 2);
 insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (false, 4, 3, 97, 1, 1);
+insert into public.place (active, place_number, residents_number, square_footage, version, building_id) values (true, 5, 3, 97, 1, 1);
 --endregion
 
 --region place_owner

@@ -497,7 +497,8 @@
   "accounting-rule": {
     "pln": "zł",
     "person": "os",
-    "month": "mies"
+    "month": "mies",
+    "unit": "sztuka"
   },
   "modal": {
     "access-level": "Wybierz poziom dostępu",
@@ -911,7 +912,6 @@
         "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
         "category_not_in_use": "Wybrane miejsce nie posiada kategorii, dla której chcesz dodać prognozę",
         "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
-        "amount_required": "Aby dodać prognozę dla wybranej kategorii, podaj zużycie",
         "forecast_already_exists": "Już istnieje prognoza na aktualny miesiąc dla wybranej kategorii"
       }
     }
