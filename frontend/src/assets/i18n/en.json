@@ -109,11 +109,13 @@
     },
     "square-footage": {
       "required": "Square footage is required.",
-      "min": "Square footage must be greater than or equal to "
+      "min": "Square footage must be greater than or equal to ",
+      "max": "Square footage must not be greater than "
     },
     "residents-number": {
       "required": "Residents number is required.",
-      "min": "Number of residents must be greater than or equal to "
+      "min": "Number of residents must be greater than or equal to ",
+      "max": "Number of residents must not be greater than "
     }
   },
   "form": {

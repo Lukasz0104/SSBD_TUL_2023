@@ -21,11 +21,13 @@ export class AddPlaceComponent {
         ]),
         squareFootage: this.fb.control(0.0, [
             Validators.required,
-            Validators.min(0.01)
+            Validators.min(0.01),
+            Validators.max(1000000)
         ]),
         residentsNumber: this.fb.control(0, [
             Validators.required,
-            Validators.min(0)
+            Validators.min(0),
+            Validators.max(100)
         ])
     });
 
