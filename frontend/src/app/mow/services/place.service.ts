@@ -212,4 +212,56 @@ export class PlaceService {
             `${this.BASE_URL}/${placeId}/owners`
         );
     }
+
+    getPlaceNotOwners(placeId: number): Observable<PlaceOwner[]> {
+        return this.http.get<PlaceOwner[]>(
+            `${this.BASE_URL}/${placeId}/not-owners`
+        );
+    }
+
+    addOwner(ownerId: number, placeId: number) {
+        return this.http
+            .post(`${this.BASE_URL}/${placeId}/owners`, null, {
+                params: { ownerId: ownerId }
+            })
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess(
+                        `toast.place-owners-add.success`
+                    );
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError(
+                        `toast.place-owners-add.fail`,
+                        `toast.place-owners-add`,
+                        err
+                    );
+                    return of(true);
+                })
+            );
+    }
+
+    removeOwner(ownerId: number, placeId: number) {
+        return this.http
+            .delete(`${this.BASE_URL}/${placeId}/owners`, {
+                params: { ownerId: ownerId }
+            })
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess(
+                        `toast.place-owners-remove.success`
+                    );
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError(
+                        `toast.place-owners-remove.fail`,
+                        `toast.place-owners-remove`,
+                        err
+                    );
+                    return of(true);
+                })
+            );
+    }
 }

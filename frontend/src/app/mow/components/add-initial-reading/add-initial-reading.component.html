@@ -18,7 +18,18 @@
                             for="readingValueInput"
                             class="form-label mb-0">
                             {{ 'component.meter.value' | translate }}
-                            [m<sup>3</sup>]
+                            <span *ngIf="accountingRule === RULE.METER">
+                                [m<sup>3</sup>]
+                            </span>
+                            <span *ngIf="accountingRule === RULE.PERSON">
+                                [.{{ 'accounting-rule.person' | translate }}]
+                            </span>
+                            <span *ngIf="accountingRule === RULE.SURFACE">
+                                [m<sup>2</sup>]
+                            </span>
+                            <span *ngIf="accountingRule === RULE.UNIT">
+                                [.{{ 'accounting-rule.unit' | translate }}]
+                            </span>
                         </label>
                         <input
                             type="number"
