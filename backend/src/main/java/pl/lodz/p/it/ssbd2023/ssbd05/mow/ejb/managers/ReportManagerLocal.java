@@ -1,9 +1,9 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
 import jakarta.ejb.Local;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CommunityReportDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Local
 public interface ReportManagerLocal extends CommonManagerInterface {
-    Report getReportDetails(Long id) throws AppBaseException;
+    CommunityReportDto getReportDetails(Integer year, Integer month) throws AppBaseException;
 
     Map<Integer, List<Integer>> getAllCommunityReportsYearsAndMonths() throws AppBaseException;
 
@@ -27,7 +27,7 @@ public interface ReportManagerLocal extends CommonManagerInterface {
     Map<String, ReportYearEntry> getBuildingReportByYearAndMonth(Long id, Year year, Month month)
         throws AppBaseException;
 
-    Report getCommunityReportByYear(Long year) throws AppBaseException;
+    CommunityReportDto getCommunityReportByYear(Integer year) throws AppBaseException;
 
     ReportPlaceForecastYear getAllOwnReportsDataByPlaceAndYear(Long placeId, Year year, String login)
         throws AppBaseException;

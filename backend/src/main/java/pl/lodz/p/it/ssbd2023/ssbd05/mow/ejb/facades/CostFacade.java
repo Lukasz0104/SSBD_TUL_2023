@@ -11,6 +11,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
@@ -21,6 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
+import java.math.BigDecimal;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
@@ -234,5 +236,29 @@ public class CostFacade extends AbstractFacade<Cost> {
         return tq.getResultList();
     }
 
+    @RolesAllowed(MANAGER)
+    public BigDecimal sumConsumptionForCategoryAndMonthBefore(Year year, Long categoryId, Month month) {
+        try {
+            return em.createNamedQuery("Cost.sumConsumptionForCategoryAndYearAndMonthBefore", BigDecimal.class)
+                .setParameter("year", year)
+                .setParameter("categoryId", categoryId)
+                .setParameter("month", month)
+                .getSingleResult();
+        } catch (NoResultException nre) {
+            return BigDecimal.ZERO;
+        }
+    }
 
+    @RolesAllowed(MANAGER)
+    public BigDecimal sumConsumptionForCategoryAndMonth(Year year, Long categoryId, Month month) {
+        try {
+            return em.createNamedQuery("Cost.sumConsumptionForCategoryAndYearAndMonth", BigDecimal.class)
+                .setParameter("year", year)
+                .setParameter("categoryId", categoryId)
+                .setParameter("month", month)
+                .getSingleResult();
+        } catch (NoResultException nre) {
+            return BigDecimal.ZERO;
+        }
+    }
 }
