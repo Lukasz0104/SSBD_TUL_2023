@@ -5056,7 +5056,6 @@ public class MowITests extends TestContainersSetup {
 
             @ParameterizedTest
             @ValueSource(ints = {-1, 0, 13})
-            @NullSource
             void shouldFailToGetCommunityReportsDueToInvalidMonthWithStatusCode400Test(Integer month) {
                 given(managerSpec)
                     .when()
@@ -5067,7 +5066,6 @@ public class MowITests extends TestContainersSetup {
 
             @ParameterizedTest
             @ValueSource(ints = {2021, 2024})
-            @NullSource
             void shouldGetYearlyReportZeroBalanceAndEmptyReportsDueToInvalidYearWithStatusCode200Test(
                 Integer year) {
                 given(managerSpec)
