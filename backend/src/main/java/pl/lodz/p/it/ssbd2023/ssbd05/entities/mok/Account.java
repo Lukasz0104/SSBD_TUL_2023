@@ -2,12 +2,16 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -20,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.EntityControlListenerMOK;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -53,47 +58,168 @@ import java.util.Set;
         name = "Account.findByLanguage",
         query = "SELECT a FROM Account a WHERE a.language = :language"),
     @NamedQuery(
-        name = "Account.findAllVerifiedAccounts",
-        query = "SELECT a FROM Account a WHERE a.verified = TRUE"),
+        name = "Account.findAllAccountsByVerified",
+        query = "SELECT a FROM Account a WHERE a.verified = :verified"),
     @NamedQuery(
-        name = "Account.findAllNotVerifiedAccounts",
-        query = "SELECT a FROM Account a WHERE a.verified = FALSE"),
-    @NamedQuery(
-        name = "Account.findAllActiveAccounts",
-        query = "SELECT a FROM Account a WHERE a.active = TRUE"),
-    @NamedQuery(
-        name = "Account.findAllNotActiveAccounts",
-        query = "SELECT a FROM Account a WHERE a.active = FALSE"),
-    @NamedQuery(
-        name = "Account.findAllActiveAccountsByAccessLevel",
+        name = "Account.findAllAccountsByActiveAsc",
         query = """
             SELECT a FROM Account a
-            JOIN AccessLevel al on al.account = a
-            WHERE a.active = TRUE
-                AND al.level = :level
-                AND al.active = TRUE
-                AND al.verified = TRUE"""),
+            WHERE a.active = :active
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
+            ORDER BY a.login ASC"""),
     @NamedQuery(
-        name = "Account.findAllInactiveAccountsByAccessLevel",
+        name = "Account.findAllAccountsByActiveDesc",
         query = """
             SELECT a FROM Account a
-            JOIN AccessLevel al on al.account = a
-            WHERE a.active = FALSE
+            WHERE a.active = :active
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
+            ORDER BY a.login DESC"""),
+    @NamedQuery(
+        name = "Account.countAllAccountsByActive",
+        query = """
+            SELECT count(a.id) FROM Account a
+            WHERE a.active = :active
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )"""),
+    @NamedQuery(
+        name = "Account.findAllAccountsByActiveAndAccessLevelAsc",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al ON al.account = a
+            WHERE a.active = :active
                 AND al.level = :level
                 AND al.active = TRUE
-                AND al.verified = TRUE"""),
+                AND al.verified = TRUE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
+                ORDER BY a.login ASC"""),
     @NamedQuery(
-        name = "Account.findAccountsThatNeedApprovalByAccessLevel",
+        name = "Account.findAllAccountsByActiveAndAccessLevelDesc",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al ON al.account = a
+            WHERE a.active = :active
+                AND al.level = :level
+                AND al.active = TRUE
+                AND al.verified = TRUE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
+                ORDER BY a.login DESC"""),
+    @NamedQuery(
+        name = "Account.countAllAccountsByActiveAndAccessLevel",
+        query = """
+            SELECT count(a.id) FROM Account a
+            JOIN AccessLevel al ON al.account = a
+            WHERE a.active = :active
+                AND al.level = :level
+                AND al.active = TRUE
+                AND al.verified = TRUE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )"""),
+    @NamedQuery(
+        name = "Account.findAccountsThatNeedApprovalByAccessLevelAsc",
+        query = """
+            SELECT a FROM Account a
+            JOIN AccessLevel al ON al.account = a
+            WHERE a.active = TRUE AND a.verified = TRUE
+                AND al.level = :level
+                AND al.active = FALSE
+                AND al.verified = FALSE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
+                ORDER BY a.login ASC"""),
+    @NamedQuery(
+        name = "Account.findAccountsThatNeedApprovalByAccessLevelDesc",
         query = """
             SELECT a FROM Account a
             JOIN AccessLevel al on al.account = a
             WHERE a.active = TRUE AND a.verified = TRUE
                 AND al.level = :level
                 AND al.active = FALSE
-                AND al.verified = FALSE"""),
+                AND al.verified = FALSE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )
+                ORDER BY a.login DESC"""),
+    @NamedQuery(
+        name = "Account.countAccountsThatNeedApprovalByAccessLevel",
+        query = """
+            SELECT count(a.id) FROM Account a
+            JOIN AccessLevel al on al.account = a
+            WHERE a.active = TRUE AND a.verified = TRUE
+                AND al.level = :level
+                AND al.active = FALSE
+                AND al.verified = FALSE
+                AND (
+                    LOWER(a.firstName) LIKE CONCAT('%',LOWER(:phrase), '%') OR
+                    LOWER(a.lastName) LIKE CONCAT('%',LOWER(:phrase), '%')
+                )
+                AND (
+                    LOWER(a.login) LIKE CONCAT('%',LOWER(:login), '%')
+                )"""),
+    @NamedQuery(name = "Account.findAccountsLoginsByLoginLike",
+        query = "SELECT a.login FROM Account a WHERE LOWER(a.login) LIKE CONCAT('%' ,LOWER(:login), '%')"),
+    @NamedQuery(
+        name = "Account.findAccountsWithoutRecentActivity",
+        query = """
+            SELECT a FROM Account a
+            WHERE a.active = true
+                  AND a.verified = true
+                  AND a.activityTracker.lastSuccessfulLogin < :lastSuccessfulLogin"""),
+    @NamedQuery(
+        name = "Account.findByOwnerId",
+        query = """
+            SELECT a FROM Account a
+            JOIN OwnerData od ON od.account = a
+            WHERE od.verified = true
+            AND od.active = true
+            AND od.id = :ownerId
+            """)
 })
 @Getter
 @Setter
+@EntityListeners({EntityControlListenerMOK.class})
 public class Account extends AbstractEntity implements Serializable {
 
     @Setter(lombok.AccessLevel.NONE)
@@ -125,6 +251,12 @@ public class Account extends AbstractEntity implements Serializable {
     @Basic(optional = false)
     @Column(name = "password", nullable = false)
     private String password;
+
+    @NotNull
+    @Column(name = "old_password")
+    @ElementCollection(targetClass = String.class)
+    @CollectionTable(name = "past_passwords", joinColumns = @JoinColumn(name = "account_id"))
+    private Set<String> pastPasswords = new HashSet<>();
 
     @NotNull
     @Basic(optional = false)
@@ -159,6 +291,15 @@ public class Account extends AbstractEntity implements Serializable {
     @Basic(optional = false)
     private Language language = Language.PL;
 
+    @NotNull
+    @Column(name = "two_factor_auth", nullable = false)
+    @Basic(optional = false)
+    private boolean twoFactorAuth = false;
+
+    @NotNull
+    @Column(name = "light_theme_preferred", nullable = false)
+    @Basic(optional = false)
+    private boolean lightThemePreferred = true;
 
     @Embedded
     private ActivityTracker activityTracker = new ActivityTracker();
@@ -210,7 +351,10 @@ public class Account extends AbstractEntity implements Serializable {
     }
 
     public boolean hasAccessLevel(AccessType accessType) {
-        return accessLevels.stream().filter(AccessLevel::isActive).anyMatch(x -> x.getLevel() == accessType);
+        return accessLevels.stream()
+            .filter(AccessLevel::isActive)
+            .filter(AccessLevel::isVerified)
+            .anyMatch(x -> x.getLevel() == accessType);
     }
 
     public boolean isAbleToAuthenticate() {

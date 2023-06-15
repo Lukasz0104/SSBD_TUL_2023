@@ -1,0 +1,133 @@
+<div class="row">
+    <div class="col">
+        <h2>
+            <span *ngIf="!editing">{{
+                'component.place.categories.title' | translate
+            }}</span>
+            <span *ngIf="editing">{{
+                'component.place.categories.title-edit' | translate
+            }}</span>
+        </h2>
+    </div>
+    <div class="col text-end fs-3">
+        <i
+            class="bi bi-arrow-clockwise"
+            (click)="onReload()"></i>
+    </div>
+</div>
+<hr />
+<div class="px-4 py-2">
+    <ng-container
+        *ngIf="placeCategories$ | async as categories; else loadingCategories">
+        <div class="row card-group">
+            <div
+                class="col-md-4 col-xl-3 col-xxl-2"
+                *ngFor="let category of categories; let i = index">
+                <div
+                    class="card m-3 rounded-3 shadow text-center"
+                    [ngClass]="{
+                        'text-success cursor-pointer':
+                            editing && chosen === category.categoryId,
+                        'opacity-50 cursor-pointer':
+                            editing && chosen !== category.categoryId
+                    }"
+                    (click)="
+                        setChosen(category.categoryId, category.accountingRule)
+                    ">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i
+                                class="bi {{
+                                    getIcon(category.categoryName)
+                                }} fs-1 mt-1"></i>
+                        </li>
+                    </ul>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">
+                            {{ category.categoryName | translate }}
+                        </h5>
+                        <span class="card-text">{{ category.rate }}</span>
+                        <span *ngIf="category.accountingRule === RULE.UNIT">
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/{{
+                                'component.place.categories.month' | translate
+                            }}
+                        </span>
+                        <span *ngIf="category.accountingRule === RULE.METER">
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/m<sup>3</sup>
+                        </span>
+                        <span *ngIf="category.accountingRule === RULE.PERSON">
+                            {{
+                                'component.place.categories.pln' | translate
+                            }}/{{
+                                'component.place.categories.person' | translate
+                            }}
+                        </span>
+                        <span *ngIf="category.accountingRule === RULE.SURFACE">
+                            {{ 'component.place.categories.pln' | translate }}
+                            /m<sup>2</sup>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="col-md-4 col-xl-3 col-xxl-2"
+                *ngIf="editing">
+                <div
+                    class="card m-3 rounded-3 shadow text-center"
+                    (click)="addCategory()">
+                    <div class="card-body">
+                        <div class="align-middle mt-4 mb-5">
+                            <i class="bi bi-plus-lg fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+    <ng-template #loadingCategories>
+        <div
+            class="d-flex flex-column justify-content-center align-items-center">
+            <span class="spinner-border"></span>
+            <span class="mt-3">{{
+                'component.place.categories.loading' | translate
+            }}</span>
+        </div>
+    </ng-template>
+</div>
+<hr />
+<div>
+    <button
+        *ngIf="!editing"
+        type="button"
+        class="btn btn-outline-success ms-2 mt-1"
+        (click)="editing = true">
+        {{ 'component.place.categories.edit' | translate }}
+    </button>
+    <button
+        *ngIf="editing"
+        type="button"
+        class="btn btn-outline-success ms-2 mt-1"
+        (click)="stopEdit()">
+        {{ 'component.place.categories.edit-close' | translate }}
+    </button>
+    <button
+        *ngIf="editing && chosen !== -1"
+        type="button"
+        class="btn btn-outline-danger ms-2 mt-1"
+        (click)="removeCategory()">
+        {{ 'component.place.categories.delete' | translate }}
+    </button>
+    <button
+        *ngIf="editing && chosen !== -1"
+        type="button"
+        class="btn btn-outline-warning ms-2 mt-1"
+        (click)="addOverdueForecast()">
+        {{
+            'component.place.categories.add-current-forecast-action' | translate
+        }}
+    </button>
+</div>

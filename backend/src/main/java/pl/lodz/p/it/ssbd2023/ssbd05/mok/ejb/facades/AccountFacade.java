@@ -1,11 +1,16 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
@@ -16,7 +21,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.AccountFacadeExceptionsIntercep
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +34,7 @@ import java.util.Optional;
     AccountFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class,
 })
+@DenyAll
 public class AccountFacade extends AbstractFacade<Account> {
 
     @PersistenceContext(unitName = "ssbd05mokPU")
@@ -42,26 +50,30 @@ public class AccountFacade extends AbstractFacade<Account> {
     }
 
     @Override
+    @PermitAll
     public void create(Account entity) throws AppBaseException {
         super.create(entity);
     }
 
     @Override
+    @PermitAll
     public void edit(Account entity) throws AppBaseException {
         super.edit(entity);
     }
 
-    public void lockAndEdit(Account account) throws AppBaseException {
-        em.lock(account, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-        em.merge(account);
-        em.flush();
-    }
-
     @Override
+    @PermitAll
     public void remove(Account entity) throws AppBaseException {
         super.remove(entity);
     }
 
+    @Override
+    @RolesAllowed({MANAGER, ADMIN})
+    public Optional<Account> find(Long id) {
+        return super.find(id);
+    }
+
+    @PermitAll
     public Optional<Account> findByLogin(String login) {
         try {
             TypedQuery<Account> tq = em.createNamedQuery("Account.findByLogin", Account.class);
@@ -72,6 +84,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
+    @PermitAll
     public Optional<Account> findByEmail(String email) {
         try {
             TypedQuery<Account> tq = em.createNamedQuery("Account.findByEmail", Account.class);
@@ -82,41 +95,122 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
+    @RolesAllowed({MANAGER, ADMIN})
     public List<Account> findByVerified(boolean verified) {
         TypedQuery<Account> tq;
-        if (verified) {
-            tq = em.createNamedQuery("Account.findAllVerifiedAccounts", Account.class);
-        } else {
-            tq = em.createNamedQuery("Account.findAllNotVerifiedAccounts", Account.class);
-        }
+        tq = em.createNamedQuery("Account.findAllAccountsByVerified", Account.class);
+        tq.setParameter("verified", verified);
         return tq.getResultList();
     }
 
-    public List<Account> findByActive(boolean active) {
+    @RolesAllowed({ADMIN, MANAGER})
+    public Page<Account> findByActive(boolean active, int page, int pageSize, boolean asc, String phrase,
+                                      String login) {
         TypedQuery<Account> tq;
-        if (active) {
-            tq = em.createNamedQuery("Account.findAllActiveAccounts", Account.class);
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAsc", Account.class);
         } else {
-            tq = em.createNamedQuery("Account.findAllNotActiveAccounts", Account.class);
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveDesc", Account.class);
         }
-        return tq.getResultList();
+        tq.setParameter("active", active);
+        tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countByActive(active, phrase, login);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
     }
 
-    public List<Account> findByActiveAccessLevel(AccessType accessType, boolean active) {
+    @RolesAllowed({ADMIN, MANAGER})
+    public Long countByActive(boolean active, String phrase, String login) {
+        TypedQuery<Long> tq;
+        tq = em.createNamedQuery("Account.countAllAccountsByActive", Long.class);
+        tq.setParameter("active", active);
+        tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
+        return tq.getSingleResult();
+    }
+
+    @RolesAllowed({ADMIN, MANAGER})
+    public Page<Account> findByActiveAccessLevel(AccessType accessType, boolean active, int page, int pageSize,
+                                                 boolean asc, String phrase, String login) {
         TypedQuery<Account> tq;
-        if (active) {
-            tq = em.createNamedQuery("Account.findAllActiveAccountsByAccessLevel", Account.class);
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAndAccessLevelAsc", Account.class);
         } else {
-            tq = em.createNamedQuery("Account.findAllInactiveAccountsByAccessLevel", Account.class);
+            tq = em.createNamedQuery("Account.findAllAccountsByActiveAndAccessLevelDesc", Account.class);
+        }
+        tq.setParameter("active", active);
+        tq.setParameter("phrase", phrase);
+        tq.setParameter("level", accessType);
+        tq.setParameter("login", login);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countByActiveAccessLevel(active, accessType, phrase, login);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
+    }
+
+    @RolesAllowed({ADMIN, MANAGER})
+    public Long countByActiveAccessLevel(boolean active, AccessType accessType, String phrase, String login) {
+        TypedQuery<Long> tq;
+        tq = em.createNamedQuery("Account.countAllAccountsByActiveAndAccessLevel", Long.class);
+        tq.setParameter("active", active);
+        tq.setParameter("phrase", phrase);
+        tq.setParameter("level", accessType);
+        tq.setParameter("login", login);
+        return tq.getSingleResult();
+    }
+
+    @RolesAllowed({ADMIN, MANAGER})
+    public Page<Account> findAccountsThatNeedApprovalByAccessLevel(AccessType accessType, int page, int pageSize,
+                                                                   boolean asc, String phrase, String login) {
+        TypedQuery<Account> tq;
+        if (asc) {
+            tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevelAsc", Account.class);
+        } else {
+            tq = em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevelDesc", Account.class);
         }
         tq.setParameter("level", accessType);
+        tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
+
+        tq.setFirstResult(page * pageSize);
+        tq.setMaxResults(pageSize);
+
+        Long count = countAccountsThatNeedApprovalByAccessLevel(accessType, phrase, login);
+
+        return new Page<>(tq.getResultList(), count, pageSize, page);
+    }
+
+    @RolesAllowed({ADMIN, MANAGER})
+    public Long countAccountsThatNeedApprovalByAccessLevel(AccessType accessType, String phrase, String login) {
+        TypedQuery<Long> tq =
+            em.createNamedQuery("Account.countAccountsThatNeedApprovalByAccessLevel", Long.class);
+        tq.setParameter("level", accessType);
+        tq.setParameter("phrase", phrase);
+        tq.setParameter("login", login);
+        return tq.getSingleResult();
+    }
+
+    @RolesAllowed({ADMIN, MANAGER})
+    public List<String> findAccountsLoginsByLoginLike(String login) {
+        TypedQuery<String> tq =
+            em.createNamedQuery("Account.findAccountsLoginsByLoginLike", String.class);
+        tq.setParameter("login", login);
+        tq.setMaxResults(10);
         return tq.getResultList();
     }
 
-    public List<Account> findByActiveAndVerifiedAccessLevel(AccessType accessType) {
-        TypedQuery<Account> tq =
-            em.createNamedQuery("Account.findAccountsThatNeedApprovalByAccessLevel", Account.class);
-        tq.setParameter("level", accessType);
-        return tq.getResultList();
+    @PermitAll
+    public List<Account> findAccountsWithoutRecentActivity(LocalDateTime lastSuccessfulLoginBefore) {
+        return em.createNamedQuery("Account.findAccountsWithoutRecentActivity", Account.class)
+            .setParameter("lastSuccessfulLogin", lastSuccessfulLoginBefore)
+            .getResultList();
     }
 }

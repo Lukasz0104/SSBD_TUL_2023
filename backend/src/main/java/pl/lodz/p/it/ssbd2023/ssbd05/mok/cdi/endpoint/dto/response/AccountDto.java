@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.AccessLevelDto;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -35,8 +36,21 @@ public class AccountDto extends OwnAccountDto {
                       @NotNull @Size(min = 2, max = 2) String language,
                       boolean verified,
                       boolean active,
+                      boolean twoFactorAuth,
                       ActivityTrackerDto activityTracker) {
-        super(id, version, accessLevels, email, login, firstName, lastName, language);
+        super(id, version, accessLevels, email, login, firstName, lastName, language, twoFactorAuth);
+        this.verified = verified;
+        this.active = active;
+        this.activityTracker = activityTracker;
+    }
+
+    public AccountDto(Long id, Long version, Set<AccessLevelDto> accessLevels, String email,
+                      String login, String firstName, String lastName, String language, boolean twoFactorAuth,
+                      LocalDateTime createdTime, String createdBy, LocalDateTime updatedTime,
+                      String updatedBy, boolean verified, boolean active, ActivityTrackerDto activityTracker) {
+        super(id, version, accessLevels, email, login, firstName, lastName, language, twoFactorAuth, createdTime,
+            createdBy,
+            updatedTime, updatedBy);
         this.verified = verified;
         this.active = active;
         this.activityTracker = activityTracker;

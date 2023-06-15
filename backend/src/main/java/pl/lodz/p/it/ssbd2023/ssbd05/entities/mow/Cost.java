@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -85,9 +87,57 @@ import java.time.Year;
             SELECT c FROM Cost c
             WHERE c.year = :year
                   AND c.month = :month
-                  AND c.category.name = :categoryName""")
+                  AND c.category.name = :categoryName"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndCategoryNameAsc",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND LOWER(c.category.name) LIKE LOWER(CONCAT('%', :categoryName, '%'))
+                  ORDER BY c.month ASC"""),
+    @NamedQuery(
+        name = "Cost.findByYearAndCategoryNameDesc",
+        query = """
+            SELECT c FROM Cost c
+            WHERE c.year = :year
+                  AND LOWER(c.category.name) LIKE LOWER(CONCAT('%', :categoryName, '%'))
+                  ORDER BY c.month DESC"""),
+    @NamedQuery(
+        name = "Cost.countByYearAndCategoryName",
+        query = """
+            SELECT COUNT(c) FROM Cost c
+            WHERE c.year = :year
+                  AND LOWER(c.category.name) LIKE LOWER(CONCAT('%', :categoryName, '%'))"""),
+    @NamedQuery(
+        name = "Cost.findDistinctYears",
+        query = """
+            SELECT DISTINCT c.year FROM Cost c ORDER BY c.year"""),
+    @NamedQuery(
+        name = "Cost.findDistinctCategoryNames",
+        query = """
+            SELECT DISTINCT c.category.name FROM Cost c"""),
+    @NamedQuery(
+        name = "Cost.sumConsumptionForCategoryAndYearAndMonthBefore",
+        query = """
+            SELECT SUM(c.totalConsumption)
+            FROM Cost c
+            WHERE
+                c.year = :year
+                AND c.category.id = :categoryId
+                AND c.month < :month"""),
+    @NamedQuery(
+        name = "Cost.sumConsumptionForCategoryAndYearAndMonth",
+        query = """
+            SELECT SUM(c.totalConsumption)
+            FROM Cost c
+            WHERE
+                c.year = :year
+                AND c.category.id = :categoryId
+                AND c.month = :month""")
+
 })
 @NoArgsConstructor
+@EntityListeners({EntityControlListenerMOW.class})
 public class Cost extends AbstractEntity implements Serializable {
 
     @NotNull
@@ -113,7 +163,7 @@ public class Cost extends AbstractEntity implements Serializable {
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "real_rate", nullable = false, scale = 3, precision = 38)
+    @Column(name = "real_rate", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal realRate;

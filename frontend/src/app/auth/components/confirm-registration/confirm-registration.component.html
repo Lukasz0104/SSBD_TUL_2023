@@ -1,0 +1,66 @@
+<div class="bg-calculator h-100">
+    <div class="container h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="rounded-5 shadow-lg p-4 p-sm-5 glass">
+                    <ng-container *ngIf="!loading; else loadingBlock">
+                        <ng-container *ngIf="success; else fail">
+                            <h2 class="fw-bold mb-4 text-body-emphasis">
+                                {{
+                                    'form.confirm-registration.confirmation'
+                                        | translate
+                                }}
+                            </h2>
+                            <p class="">
+                                {{
+                                    'form.confirm-registration.message'
+                                        | translate
+                                }}
+                            </p>
+                            <div>
+                                <p class="mb-0 text-center">
+                                    {{
+                                        'form.confirm-registration.go-to'
+                                            | translate
+                                    }}
+                                    <a
+                                        class="text-primary fw-bold"
+                                        routerLink="/"
+                                        >{{
+                                            'form.confirm-registration.go-to-where'
+                                                | translate
+                                        }}</a
+                                    >
+                                </p>
+                            </div>
+                        </ng-container>
+                        <ng-template #fail>
+                            <h2 class="fw-bold mb-4 text-body-emphasis">
+                                {{
+                                    'form.confirm-registration.fail' | translate
+                                }}
+                            </h2>
+                            <p class="text-center">
+                                {{ 'confirm-register.' + response | translate }}
+                            </p>
+                        </ng-template>
+                    </ng-container>
+                    <ng-template #loadingBlock>
+                        <h2 class="fw-bold mb-4">
+                            {{ 'form.confirm-registration.action' | translate }}
+                        </h2>
+                        <p class="text-center">
+                            <span
+                                class="spinner-border spinner-border-sm"
+                                role="status">
+                            </span>
+                            {{
+                                'form.confirm-registration.loading' | translate
+                            }}
+                        </p>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

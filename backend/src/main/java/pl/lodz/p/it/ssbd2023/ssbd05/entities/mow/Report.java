@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -89,7 +91,7 @@ import java.time.Year;
         query = """
             SELECT r FROM Report r
             WHERE r.place.id = :placeId
-                  AND r.year = :year
+                  AND r.year = :year ORDER BY r.category.name ASC
             """),
     @NamedQuery(
         name = "Report.findByPlaceNumberAndBuildingIdAndYear",
@@ -139,8 +141,19 @@ import java.time.Year;
             WHERE r.place.placeNumber = :placeNumber
                   AND r.place.building.id = :buildingId
                   AND r.category.name = :categoryName
-                  AND r.year = :year""")
+                  AND r.year = :year"""),
+    @NamedQuery(
+        name = "Report.findByBuildingIdAndYear",
+        query = """
+            SELECT r FROM Report r
+            WHERE r.place.building.id = :buildingId
+                  AND r.year = :year
+            """),
+    @NamedQuery(
+        name = "Report.findYearsByPlaceId",
+        query = "SELECT DISTINCT r.year FROM Report r WHERE r.place.id = :placeId")
 })
+@EntityListeners({EntityControlListenerMOW.class})
 public class Report extends AbstractEntity implements Serializable {
 
     @NotNull
@@ -153,7 +166,7 @@ public class Report extends AbstractEntity implements Serializable {
     @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "total_cost", nullable = false, scale = 3, precision = 38)
+    @Column(name = "total_cost", nullable = false, scale = 6, precision = 38)
     @Getter
     @Setter
     private BigDecimal totalCost;

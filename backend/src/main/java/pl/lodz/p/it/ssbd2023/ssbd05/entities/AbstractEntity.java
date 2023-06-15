@@ -5,12 +5,18 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+
+import java.time.LocalDateTime;
 
 @MappedSuperclass
 @NoArgsConstructor
@@ -30,7 +36,35 @@ public abstract class AbstractEntity {
     @Getter
     private long version;
 
+    @Getter
+    @Setter
+    @Basic(optional = false)
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
+
+    @Getter
+    @Setter
+    @OneToOne
+    @JoinColumn(name = "created_by")
+    private Account createdBy;
+
+    @Getter
+    @Setter
+    @Column(name = "updated_time")
+    private LocalDateTime updatedTime;
+
+    @Getter
+    @Setter
+    @OneToOne()
+    @JoinColumn(name = "updated_by")
+    private Account updatedBy;
+
     public AbstractEntity(long version) {
+        this.version = version;
+    }
+
+    public AbstractEntity(Long id, long version) {
+        this.id = id;
         this.version = version;
     }
 

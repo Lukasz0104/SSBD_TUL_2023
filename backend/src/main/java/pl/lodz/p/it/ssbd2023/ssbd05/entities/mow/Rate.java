@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
@@ -10,19 +11,23 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "rate")
+@Table(name = "rate", uniqueConstraints = {
+    @UniqueConstraint(name = "unq_rate_0", columnNames = {"effective_date", "category_id"})})
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
@@ -35,7 +40,18 @@ import java.time.LocalDate;
         name = "Rate.findCurrentRates",
         query = """
             SELECT r FROM Rate r
-            WHERE r.effectiveDate = (SELECT max(r1.effectiveDate) FROM Rate r1 WHERE r1.category = r.category)
+            WHERE r.effectiveDate = 
+                (SELECT max(r1.effectiveDate) 
+                 FROM Rate r1 WHERE r1.effectiveDate <= CURRENT_DATE AND r1.category = r.category)
+            """),
+    @NamedQuery(
+        name = "Rate.findCurrentRateByCategoryId",
+        query = """
+            SELECT r FROM Rate r
+            WHERE r.effectiveDate =
+                (SELECT max(r1.effectiveDate)
+                 FROM Rate r1 WHERE r1.effectiveDate <= CURRENT_DATE AND r1.category = r.category)
+            AND r.category.id = :categoryId
             """),
 
     // accounting_rule queries
@@ -56,6 +72,12 @@ import java.time.LocalDate;
     @NamedQuery(
         name = "Rate.findByCategory",
         query = "SELECT r FROM Rate r WHERE r.category = :category"),
+    @NamedQuery(
+        name = "Rate.findByCategoryId",
+        query = "SELECT r FROM Rate r WHERE r.category.id = :categoryId ORDER BY r.effectiveDate DESC"),
+    @NamedQuery(
+        name = "Rate.countByCategoryId",
+        query = "SELECT count(r.id) FROM Rate r WHERE r.category.id = :categoryId"),
     @NamedQuery(
         name = "Rate.findByEffectiveDateAndCategory",
         query = "SELECT r FROM Rate r WHERE r.effectiveDate = :effectiveDate AND r.category = :category"),
@@ -102,15 +124,23 @@ import java.time.LocalDate;
     @NamedQuery(
         name = "Rate.findByEffectiveDateAfter",
         query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate"),
+    // other
+    @NamedQuery(
+        name = "Rate.findByEffectiveDateBeforeOrderedByDate",
+        query = """
+            SELECT r FROM Rate r
+            WHERE r.effectiveDate >= :effectiveDate AND r.category.id = :categoryId
+            ORDER BY r.effectiveDate ASC""")
 })
+@EntityListeners({EntityControlListenerMOW.class})
 public class Rate extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Positive
+    @PositiveOrZero
     @NotNull
     @Basic(optional = false)
-    @Column(name = "value", nullable = false, scale = 3, precision = 38)
+    @Column(name = "value", nullable = false, scale = 2, precision = 38)
     @Getter
     @Setter
     private BigDecimal value;
@@ -124,6 +154,7 @@ public class Rate extends AbstractEntity implements Serializable {
     private AccountingRule accountingRule;
 
     @NotNull
+    @Future
     @Basic(optional = false)
     @Column(name = "effective_date", nullable = false)
     @Getter

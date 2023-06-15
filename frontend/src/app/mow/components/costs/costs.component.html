@@ -1,0 +1,164 @@
+<div class="row">
+    <div class="btn-group mb-3 flex-column-reverse justify-content-start">
+        <div
+            (click)="getCosts()"
+            class="btn btn-primary align-items-center rounded-2 my-1"
+            style="max-width: 50px">
+            <i class="bi bi-arrow-clockwise"></i>
+        </div>
+        <div>
+            <button
+                (click)="addCost()"
+                class="btn btn-warning my-1">
+                {{ 'component.add-cost.title' | translate }}
+            </button>
+        </div>
+        <div>
+            <select
+                class="form-select w-auto my-1"
+                [(ngModel)]="year"
+                (ngModelChange)="changeYear($event)">
+                <option [ngValue]="undefined">
+                    {{ 'component.costs.chooseYear' | translate }}
+                </option>
+                <option
+                    *ngFor="let year of years"
+                    [ngValue]="year"
+                    (click)="getCosts()">
+                    {{ year }}
+                </option>
+            </select>
+        </div>
+        <div>
+            <select
+                class="form-select w-auto my-1"
+                [(ngModel)]="categoryName"
+                (ngModelChange)="changeCategoryName($event)">
+                <option [ngValue]="undefined">
+                    {{ 'component.costs.chooseCategory' | translate }}
+                </option>
+                <option
+                    *ngFor="let name of categoryNames"
+                    [ngValue]="name"
+                    (click)="getCosts()">
+                    {{ name | translate }}
+                </option>
+            </select>
+        </div>
+    </div>
+</div>
+<ng-container *ngIf="costs$ | async as costs; else loadingCosts">
+    <div
+        class="d-flex flex-column justify-content-between table-responsive border rounded"
+        style="min-height: 300px">
+        <table
+            class="table text-center table-hover"
+            *ngIf="costs.data?.length">
+            <thead>
+                <tr class="bg-light-subtle">
+                    <th scope="col">
+                        {{ 'component.costs.month' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.costs.realRate' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.costs.totalConsumption' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.actions' | translate }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let cost of costs.data"
+                    class="cursor-pointer align-middle">
+                    <td>
+                        {{
+                            'component.costs.months.' +
+                                cost.month.toLocaleLowerCase() | translate
+                        }}
+                    </td>
+                    <td>
+                        {{ cost.realRate | number : '.2-2' }}
+                        {{ 'component.place.categories.pln' | translate }}
+                    </td>
+                    <td>{{ cost.totalConsumption }}</td>
+                    <td>
+                        <div
+                            class="d-inline-block"
+                            ngbDropdown
+                            container="body">
+                            <button
+                                class="btn btn-outline-primary"
+                                id="dropdownBasic1"
+                                ngbDropdownToggle
+                                type="button">
+                                {{ 'component.fields.actions' | translate }}
+                            </button>
+                            <div
+                                aria-labelledby="dropdownBasic1"
+                                ngbDropdownMenu>
+                                <button
+                                    (click)="openCostDetails(cost.id)"
+                                    ngbDropdownItem>
+                                    {{ 'component.costs.details' | translate }}
+                                </button>
+                                <button
+                                    (click)="removeCost(cost.id)"
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.costs.remove-cost'
+                                            | translate
+                                    }}
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div
+            class="d-sm-flex justify-content-between m-2"
+            *ngIf="costs.data?.length">
+            <div>
+                <ngb-pagination
+                    [(page)]="page"
+                    [collectionSize]="costs.totalSize"
+                    [pageSize]="pageSize"
+                    (pageChange)="getCosts()">
+                </ngb-pagination>
+            </div>
+            <div *ngIf="costs.data?.length">
+                <select
+                    [(ngModel)]="pageSize"
+                    (ngModelChange)="getCosts()"
+                    class="form-select w-auto">
+                    <option [ngValue]="5">
+                        {{
+                            'component.accounts.display.five-items' | translate
+                        }}
+                    </option>
+                    <option [ngValue]="10">
+                        {{ 'component.accounts.display.ten-items' | translate }}
+                    </option>
+                    <option [ngValue]="15">
+                        {{
+                            'component.accounts.display.fifteen-items'
+                                | translate
+                        }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #loadingCosts>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="mt-3 fw-bold fs-4">{{
+            'component.costs.loading' | translate
+        }}</span>
+    </div>
+</ng-template>

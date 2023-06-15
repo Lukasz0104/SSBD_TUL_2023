@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
     selector: 'app-sidebar',
@@ -14,6 +14,7 @@ export class SidebarComponent {
             this.hidden = JSON.parse(temp) === true;
         } else {
             this.hidden = false;
+            localStorage.setItem('sidebar', String(this.hidden));
         }
     }
 

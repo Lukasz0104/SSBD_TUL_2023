@@ -1,10 +1,20 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
+
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -14,6 +24,7 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,32 +35,36 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Stateless
+@DenyAll
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Interceptors(LoggerInterceptor.class)
 public class EmailService {
 
+    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
     @Inject
-    private Properties applicationProperties;
+    private AppProperties appProperties;
     private Session session;
     private MimeMessage mimeMessage;
-    protected static final Logger LOGGER = Logger.getLogger(EmailService.class.getName());
 
     @PostConstruct
     private void init() {
-        java.util.Properties mailProperties = new java.util.Properties();
-        mailProperties.put("mail.smtp.host", applicationProperties.getSmtpHost());
-        mailProperties.put("mail.smtp.starttls.enable", applicationProperties.isSmtpStarttls());
-        mailProperties.put("mail.smtp.ssl.enable", applicationProperties.isSmtpSsl());
-        mailProperties.put("mail.smtp.auth", applicationProperties.isSmtpAuth());
-        mailProperties.put("mail.smtp.port", applicationProperties.getSmtpPort());
+        Properties mailProperties = new java.util.Properties();
+        mailProperties.put("mail.smtp.host", appProperties.getSmtpHost());
+        mailProperties.put("mail.smtp.starttls.enable", appProperties.isSmtpStarttls());
+        mailProperties.put("mail.smtp.ssl.enable", appProperties.isSmtpSsl());
+        mailProperties.put("mail.smtp.auth", appProperties.isSmtpAuth());
+        mailProperties.put("mail.smtp.port", appProperties.getSmtpPort());
 
         Authenticator authenticator = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(applicationProperties.getSender(),
-                    applicationProperties.getSenderPassword());
+                return new PasswordAuthentication(appProperties.getSender(),
+                    appProperties.getSenderPassword());
             }
         };
 
@@ -63,6 +78,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void resetPasswordEmail(String to, String name, String link, String language) {
         this.sendMessageWithLink(
             to,
@@ -77,6 +93,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void sendConfirmRegistrationEmail(
         String receiverAddress, String name, String linkToAction, String language) {
         this.sendMessageWithLink(
@@ -93,6 +110,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public void changeEmailAddress(String receiverAddress, String name, String link, String language) {
         this.sendMessageWithLink(
             receiverAddress,
@@ -108,6 +126,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void notifyAboutAdminLogin(String receiverAddress, String name, String language,
                                       String ip, LocalDateTime timestamp) {
         DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
@@ -129,6 +148,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void notifyBlockedAccIncorrectLoginLimit(String receiver, String name, String lang) {
         this.sendMessageWithoutLink(
             receiver, name,
@@ -141,6 +161,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({ADMIN})
     public void forcePasswordChangeEmail(String receiver, String name, String language, String link) {
         this.sendMessageWithLink(receiver, name,
             I18n.getMessage(I18n.EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_MESSAGE, language),
@@ -166,6 +187,7 @@ public class EmailService {
      * @param title           Title.
      * @param greeting        Greeting.
      */
+    @PermitAll
     private void sendMessageWithLink(
         String receiverAddress, String name, String content, String signature,
         String action, String link, String subject, String title, String greeting) {
@@ -193,6 +215,7 @@ public class EmailService {
      * @param title           Title.
      * @param greeting        Greeting.
      */
+    @PermitAll
     private void sendMessageWithoutLink(
         String receiverAddress, String name, String content, String signature,
         String subject, String title, String greeting) {
@@ -214,6 +237,7 @@ public class EmailService {
      * @param subject         Subject of the message.
      * @param message         Message with filled in data.
      */
+    @PermitAll
     private void sendMimeMessage(String receiverAddress, String subject, String message) {
         try {
             InternetAddress[] addresses = {new InternetAddress(receiverAddress)};
@@ -232,6 +256,7 @@ public class EmailService {
      * @param templateName Name of the template.
      * @return Content of the template.
      */
+    @PermitAll
     private String loadTemplate(String templateName) {
         StringBuilder builder = new StringBuilder();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("templates/" + templateName);
@@ -247,6 +272,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void changeActiveStatusEmail(String to, String name, String language, boolean status) {
 
         if (!status) {
@@ -292,6 +318,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @PermitAll
     public void sendConfirmRegistrationFailEmail(
         String receiverAddress, String name, String language) {
         this.sendMessageWithoutLink(
@@ -306,6 +333,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({ADMIN, MANAGER})
     public void notifyAboutNewAccessLevel(String receiver, String name, String language, AccessType accessType) {
         String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
         String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_GRANTED_MESSAGE, language)
@@ -321,6 +349,7 @@ public class EmailService {
     }
 
     @Asynchronous
+    @RolesAllowed({ADMIN, MANAGER})
     public void notifyAboutRevokedAccessLevel(String receiver, String name, String language, AccessType accessType) {
         String localizedName = I18n.getMessage(accessType.getLocalizedNameKey(), language);
         String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_MESSAGE, language)
@@ -331,6 +360,43 @@ public class EmailService {
             I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_SUBJECT, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_ACCESS_LEVEL_REVOKED_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
+    @PermitAll
+    public void twoFactorAuthEmail(String receiver, String name, String language, String code) {
+        this.sendMessageWithoutLink(receiver, name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_MESSAGE, language)
+                .replace("$CODE", code),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
+        );
+    }
+
+    /**
+     * Send message to given user to notify that their account was locked due to lack of successful logins.
+     *
+     * @param receiver Email address of the receiver
+     * @param name     Full name of the receiver
+     * @param link     Link with token to unlock account
+     * @param language User's preferred language.
+     * @param days     Number of days without login required to lock account
+     */
+    @PermitAll
+    @Asynchronous
+    public void notifyAboutAccountLockedDueToLackOfRecentLogins(
+        String receiver, String name, String link, String language, int days) {
+        this.sendMessageWithLink(receiver, name,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_MESSAGE, language)
+                .replace("$DAYS", String.valueOf(days)),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_SIGNATURE, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_ACTION, language),
+            link,
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_SUBJECT, language),
+            I18n.getMessage(I18n.EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_TITLE, language),
             I18n.getMessage(I18n.EMAIL_MESSAGE_GREETING, language)
         );
     }

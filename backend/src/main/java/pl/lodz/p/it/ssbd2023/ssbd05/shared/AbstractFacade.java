@@ -34,17 +34,17 @@ public abstract class AbstractFacade<T> {
         getEntityManager().flush();
     }
 
-    public Optional<T> find(Object id) {
+    protected Optional<T> find(Long id) {
         return Optional.ofNullable(getEntityManager().find(entityClass, id));
     }
 
-    public List<T> findAll() {
+    protected List<T> findAll() {
         CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
         cq.select(cq.from(entityClass));
         return getEntityManager().createQuery(cq).getResultList();
     }
 
-    public List<T> findRange(int[] range) {
+    protected List<T> findRange(int[] range) {
         CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
         cq.select(cq.from(entityClass));
         Query q = getEntityManager().createQuery(cq);
@@ -53,7 +53,7 @@ public abstract class AbstractFacade<T> {
         return q.getResultList();
     }
 
-    public int count() {
+    protected int count() {
         CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
         Root<T> rt = cq.from(entityClass);
         cq.select(getEntityManager().getCriteriaBuilder().count(rt));

@@ -6,17 +6,20 @@ import {
     HttpRequest
 } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
-import { AuthService } from '../services/auth.service';
-import { environment } from '../../environments/environment';
+import { AuthService } from '../shared/services/auth.service';
 import { Router } from '@angular/router';
-import { ToastService } from '../services/toast.service';
+import { ToastService } from '../shared/services/toast.service';
+import { AppConfigService } from '../shared/services/app-config.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
     constructor(
         private authService: AuthService,
         private router: Router,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private appConfig: AppConfigService,
+        private modalService: NgbModal
     ) {}
 
     intercept(
@@ -24,7 +27,7 @@ export class JwtInterceptor implements HttpInterceptor {
         next: HttpHandler
     ): Observable<HttpEvent<unknown>> {
         if (
-            request.url.startsWith(environment.apiUrl) &&
+            request.url.startsWith(this.appConfig.apiUrl) &&
             this.authService.isAuthenticated()
         ) {
             const cloned = request.clone({
@@ -39,15 +42,7 @@ export class JwtInterceptor implements HttpInterceptor {
                         !this.authService.isJwtValid(this.authService.getJwt())
                     ) {
                         this.logout();
-                    } else if (
-                        err.status === 403 &&
-                        this.authService.isJwtValid(this.authService.getJwt())
-                    ) {
-                        this.router
-                            .navigate(['/dashboard'])
-                            .then(() =>
-                                this.toastService.showDanger('Access denied')
-                            );
+                        this.modalService.dismissAll();
                     }
                     throw err;
                 })

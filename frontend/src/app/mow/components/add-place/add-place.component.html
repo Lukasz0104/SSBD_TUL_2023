@@ -1,0 +1,138 @@
+<div class="modal-header">
+    <h4>
+        {{ 'modal.add-place.title' | translate }}
+    </h4>
+</div>
+
+<div class="modal-body">
+    <form
+        [formGroup]="addPlaceForm"
+        (ngSubmit)="addPlace()">
+        <div class="mb-2 has-validation">
+            <label
+                for="placeNumberInput"
+                class="form-label">
+                {{ 'component.fields.place-number' | translate }}
+            </label>
+            <input
+                formControlName="placeNumber"
+                min="1"
+                required
+                type="number"
+                class="form-control"
+                [ngClass]="{
+                    'is-valid': placeNumberCtl.valid,
+                    'is-invalid': placeNumberCtl.invalid
+                }" />
+            <div
+                *ngIf="placeNumberCtl.errors as pnErrors"
+                class="invalid-feedback">
+                <p
+                    *ngIf="pnErrors['required']"
+                    class="mb-0">
+                    {{ 'validation.place-number.required' | translate }}
+                </p>
+                <p
+                    *ngIf="pnErrors['min'] as pnMinError"
+                    class="mb-0">
+                    {{ 'validation.place-number.min' | translate }}
+                    {{ pnMinError['min'] }}.
+                </p>
+            </div>
+        </div>
+        <div class="mb-2 has-validation">
+            <label
+                for="squareFootageInput"
+                class="form-label">
+                {{ 'component.fields.square-footage' | translate }}
+            </label>
+            <input
+                formControlName="squareFootage"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                class="form-control"
+                [ngClass]="{
+                    'is-valid': squareFootageCtl.valid,
+                    'is-invalid': squareFootageCtl.invalid
+                }" />
+            <div
+                *ngIf="squareFootageCtl.errors as sqErrors"
+                class="invalid-feedback">
+                <p
+                    *ngIf="sqErrors['required']"
+                    class="mb-0">
+                    {{ 'validation.square-footage.required' | translate }}
+                </p>
+                <p
+                    *ngIf="sqErrors['min'] as sqMinError"
+                    class="mb-0">
+                    {{ 'validation.square-footage.min' | translate }}
+                    {{ sqMinError['min'] }}.
+                </p>
+                <p
+                    *ngIf="sqErrors['max'] as sqMaxError"
+                    class="mb-0">
+                    {{ 'validation.square-footage.max' | translate }}
+                    {{ sqMaxError['max'] }}.
+                </p>
+            </div>
+        </div>
+        <div class="mb-2 has-validation">
+            <label
+                for="residentsNumberInput"
+                class="form-label">
+                {{ 'component.fields.residents-number' | translate }}
+            </label>
+            <input
+                formControlName="residentsNumber"
+                min="0"
+                required
+                type="number"
+                [ngClass]="{
+                    'is-valid': residentsNumberCtl.valid,
+                    'is-invalid': residentsNumberCtl.invalid
+                }"
+                class="form-control" />
+            <div
+                *ngIf="residentsNumberCtl.errors as rnErrors"
+                class="invalid-feedback">
+                <p
+                    *ngIf="rnErrors['required']"
+                    class="mb-0">
+                    {{ 'validation.residents-number.required' | translate }}
+                </p>
+                <p
+                    *ngIf="rnErrors['min'] as rnMinError"
+                    class="mb-0">
+                    {{ 'validation.residents-number.min' | translate }}
+                    {{ rnMinError['min'] }}.
+                </p>
+                <p
+                    *ngIf="rnErrors['max'] as rnMinError"
+                    class="mb-0">
+                    {{ 'validation.residents-number.max' | translate }}
+                    {{ rnMinError['max'] }}.
+                </p>
+            </div>
+        </div>
+        <button
+            class="d-none"
+            type="submit"></button>
+    </form>
+</div>
+
+<div class="modal-footer justify-content-between">
+    <button
+        (click)="activeModal.dismiss()"
+        class="btn btn-outline-secondary">
+        {{ 'modal.add-place.cancel' | translate }}
+    </button>
+    <button
+        (click)="addPlace()"
+        [disabled]="addPlaceForm.invalid"
+        class="btn btn-success">
+        {{ 'modal.add-place.add' | translate }}
+    </button>
+</div>

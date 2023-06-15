@@ -1,0 +1,993 @@
+{
+  "validation": {
+    "password": {
+      "required": "Password is required.",
+      "length": "Password must be at least 8 characters.",
+      "strength": "Password is too weak.",
+      "message": "Password must be at least 8 characters long and must contain a lower case letter, upper case letter, digit and a symbol.",
+      "match": "Password and repeat password must match"
+    },
+    "repeat-password": {
+      "required": "Repeated password is required.",
+      "match": "Repeated password doesn't match password."
+    },
+    "login": {
+      "required": "Login is required.",
+      "min-length": "Login must be at least 3 characters long.",
+      "max-length": "Login must be at most 100 characters long."
+    },
+    "email": {
+      "required": "Email is required.",
+      "valid": "Email address must be valid.",
+      "max-length": "Email address must be at most 320 characters long."
+    },
+    "first-name": {
+      "required": "First name is required.",
+      "min-length": "First name must be at least 1 character long.",
+      "max-length": "First name must be at most 100 characters long."
+    },
+    "last-name": {
+      "required": "Last name is required.",
+      "min-length": "Last name must be at least 1 character long.",
+      "max-length": "Last name must be at most 100 characters long."
+    },
+    "street": {
+      "required": "Street is required.",
+      "length": "Street must be at most 85 characters long."
+    },
+    "building": {
+      "required": "Building number is required.",
+      "length": "Building number must be greater than 0."
+    },
+    "postal-code": {
+      "required": "Postal code is required.",
+      "length": "Postal code must be 6 characters long."
+    },
+    "city": {
+      "required": "City is required.",
+      "min-length": "City must be at least 2 characters long",
+      "max-length": "City must be at most 85 characters long.",
+      "pattern": "City must start with capital letter."
+    },
+    "license-number": {
+      "required": "License number is required."
+    },
+    "old-password": {
+      "required": "Old password is required",
+      "min-length": "Old password must be longer than 8 characters"
+    },
+    "new-password": {
+      "required": "New password is required",
+      "same-old": "New password cannot be the same as old password",
+      "same-new": "New passwords must be identical",
+      "strength": "New password is too weak"
+    },
+    "repeat-new-password": {
+      "required": "Repeat new password is required"
+    },
+    "rate": {
+      "required": "Rate value is required.",
+      "length": "Rate value must be greater or equal to 0.",
+      "decimal-places": "Rate value can have only up to 2 decimal places"
+    },
+    "effective-date": {
+      "required": "Effective date is required.",
+      "invalid-date": "Effective date should be the first day of month"
+    },
+    "reading": {
+      "required": "Reading value is required.",
+      "length": "Reading value must be greater than 0.",
+      "decimal-places": "Reading value can have only up to 3 decimal places",
+      "reading-date": {
+        "required": "Reading date is required"
+      }
+    },
+    "amount": {
+      "required": "Consumption value is required",
+      "length": "Consumption value must be grater than 0",
+      "decimal-places": "Consumption value can have only up to 3 decimal places"
+    },
+    "active": {
+      "required": "Field is required"
+    },
+    "residentsNumber": {
+      "min": "Number of residents must not be negative",
+      "required": "Number of residents is required",
+      "pattern": "Number of residents must be a whole number",
+      "max": "Number of residents must be less than 1000000"
+    },
+    "squareFootage": {
+      "min": "Square footage must be positive",
+      "required": "Square footage is required",
+      "max": "Square footage must be less than 1000000"
+    },
+    "placeNumber": {
+      "min": "Place number must be positive",
+      "required": "Place number is required"
+    },
+    "place-number": {
+      "required": "Place number is required.",
+      "min": "Place number must be greater than or equal to "
+    },
+    "square-footage": {
+      "required": "Square footage is required.",
+      "min": "Square footage must be greater than or equal to ",
+      "max": "Square footage must not be greater than "
+    },
+    "residents-number": {
+      "required": "Residents number is required.",
+      "min": "Number of residents must be greater than or equal to ",
+      "max": "Number of residents must not be greater than "
+    },
+    "total-consumption": {
+      "required": "Total consumption is required.",
+      "min": "Total consumption must be greater than or equal to "
+    },
+    "real-rate": {
+      "required": "Real rate is required.",
+      "min": "Real rate must be greater than or equal to "
+    }
+  },
+  "form": {
+    "login": {
+      "title": "Login to eBok",
+      "action": "Login",
+      "no-account-info": "Don't have an account?",
+      "sign-up": "Sign Up",
+      "code-enter": "Enter code",
+      "code-message": "Code has been send to your email",
+      "code-loading": "Verifying code..."
+    },
+    "forgot-password": {
+      "title": "Forgot password?",
+      "content-before-bold": "In order to reset your password, provide an",
+      "content-after-bold": "associated with your account.",
+      "action": "Send message",
+      "go-back": "Go back to",
+      "go-back-to": "Login page"
+    },
+    "forgot-password-confirm": {
+      "title": "Set your new password.",
+      "action": "Reset password",
+      "go-to": "Go to",
+      "go-to-where": "Login page"
+    },
+    "force-password-override": {
+      "action": "Set new password",
+      "content": "Set new password to unlock your account."
+    },
+    "fields": {
+      "login": "Login*",
+      "password": "Password*",
+      "email": "Email*",
+      "repeat-password": "Repeat password*"
+    },
+    "register": {
+      "sign-in": "Sign in",
+      "account-info": "Already have an account?",
+      "title": "Register to eBok",
+      "continue": "Continue",
+      "password": "Password",
+      "repeat-password": "Repeat password",
+      "back": "Back",
+      "register-as-owner": "Register as owner",
+      "register-as-manager": "Register as manager",
+      "action": "Register"
+    },
+    "change-password": {
+      "title": "Change password",
+      "current-password": "Current password",
+      "new-password": "New password",
+      "repeat-password": "Repeat password",
+      "action": "Change"
+    },
+    "give-access-level": {
+      "reject": "Reject",
+      "grant": "Grant access level",
+      "confirm": "Confirm",
+      "verify": "Verify"
+    },
+    "confirm-registration": {
+      "fail": "Failed to confirm registration",
+      "action": "Confirming your registration",
+      "loading": "Loading ...",
+      "go-to": "Go to",
+      "go-to-where": "Home page",
+      "confirmation": "Registration confirmed",
+      "message": "Now your data needs to be verified. After successful verification you will be notified on the provided email address."
+    },
+    "change-email-confirm": {
+      "title": "Confirm your email",
+      "content": "In order to confirm, provide a valid ",
+      "action": "Confirm"
+    }
+  },
+  "component": {
+    "own-places": {
+      "loading": "Loading your places..",
+      "place-number": "Place No.",
+      "details": "Details",
+      "meters": "Meters",
+      "reports": "Reports",
+      "rates": "Rates",
+      "no-places": "You don't have any places",
+      "show-place-details": "Show information",
+      "hide-place-details": "Hide information",
+      "count": "Number of your places: "
+    },
+    "accounts": {
+      "display": {
+        "all": "All",
+        "owners": "Owners",
+        "managers": "Managers",
+        "admins": "Administrators",
+        "active": "Active",
+        "inactive": "Inactive",
+        "approval": "Need approval",
+        "five-items": "5 items per page",
+        "ten-items": "10 items per page",
+        "fifteen-items": "15 items per page"
+      },
+      "loading": "Loading accounts...",
+      "password-change": "Change password",
+      "activate": "Unlock",
+      "deactivate": "Lock",
+      "edit-account": "Edit account",
+      "give-owner": "Assign Owner access level",
+      "give-manager": "Grant Manager access level",
+      "give-admin": "Grant Administrator access level",
+      "revoke-owner": "Revoke Owner access level",
+      "revoke-manager": "Revoke Manager access level",
+      "revoke-admin": "Revoke Administrator access level",
+      "verify": "Verify",
+      "filter-content": "Firstname or lastname",
+      "filter-action": "Filter",
+      "filters": "Filters"
+    },
+    "account": {
+      "created-at": "Created at",
+      "created-by": "Created by",
+      "updated-at": "Updated at",
+      "updated-by": "Updated by",
+      "language": "Language",
+      "verified": "Verified",
+      "personal-data": "Personal data",
+      "edit": "Edit",
+      "auth-data": "Authentication data",
+      "last-success-login-date": "Last successful login date",
+      "last-success-login-ip": "Last successful login IP",
+      "last-unsuccessful-login-date": "Last unsuccessful login date",
+      "last-unsuccessful-login-ip": "Last unsuccessful login IP",
+      "unsuccessful-login-chain": "Unsuccessful login chain counter",
+      "access-levels-data": "Access levels data",
+      "level": "Level",
+      "license-number": "License number",
+      "loading": "Loading account data ...",
+      "edit-your-account": "Edit your account",
+      "general": "General",
+      "save": "Save",
+      "cancel": "Cancel",
+      "two-factor-auth": "2FA Authentication",
+      "change-email": "Change email",
+      "email": "Email address",
+      "verified-true": "yes",
+      "verified-false": "no"
+    },
+    "categories": {
+      "loading": "Loading categories...",
+      "name": "Bill category name"
+    },
+    "place": {
+      "categories": {
+        "pln": "PLN",
+        "person": "pp",
+        "month": "pm",
+        "title": "Place payment categories",
+        "loading": "Loading categories ...",
+        "cancel": "Cancel",
+        "no-missing-categories": "Place has all available categories assigned",
+        "choose-missing": "Add new category to place",
+        "confirm": "Do you want to add this category?",
+        "confirm-danger": "This action will add additional charge to chosen place.",
+        "tab-name": "Categories",
+        "delete": "Delete chosen category",
+        "edit": "Edit",
+        "title-edit": "Category edit",
+        "edit-close": "Finish editing",
+        "delete-confirm": "Do you want to remove this category?",
+        "delete-confirm-danger": "This action will change the costs for this place.",
+        "add-amount": "Provide consumption",
+        "add-current-forecast-confirm": "Do you really want to add forecast for current month?",
+        "add-current-forecast-danger": "This action will change the costs for this place.",
+        "add-current-forecast-action": "Add forecast for current month"
+      },
+      "show-categories": "Show payment categories",
+      "loading": "Loading ...",
+      "data": "Place",
+      "edit-place": "Edit place",
+      "owners": {
+        "tab-name": "Owners"
+      }
+    },
+    "fields": {
+      "login": "Login",
+      "first-name": "First name",
+      "last-name": "Last name",
+      "active": "Active",
+      "details": "Details",
+      "actions": "Actions",
+      "address": "Address",
+      "street": "Street",
+      "building-number": "Building number",
+      "postal-code": "Postal code",
+      "city": "City",
+      "place-number": "Place number",
+      "residents-number": "Number of residents",
+      "square-footage": "Square footage",
+      "rate-value": "Rate value",
+      "effective-date": "Effective date"
+    },
+    "landing-page": {
+      "title": "Improve your community with eBok!",
+      "description": "The application aims to support the management of a residential community in the process of settling accounts for the units belonging to it. Each unit has an individual allocation of fee categories that are part of the settlement, and each category has a current rate and settlement principle. One of the main tasks of the system is to forecast the amount of future advances and assist the community manager in adjusting rates to minimize the difference between the projected costs incurred by unit owners and the actual costs incurred by the community.",
+      "rates": "Current rates"
+    },
+    "ratesByCategory": {
+      "ratesFor": "Rates for",
+      "value": "Rate value",
+      "effectiveDate": "Effective from",
+      "created": "Created",
+      "modified": "Modified",
+      "loading": "Loading rates",
+      "add": "Add a new rate",
+      "cancel": "Cancel",
+      "create": "Add",
+      "remove": "Remove"
+    },
+    "welcome": {
+      "welcome": "Welcome",
+      "date": "Today's date"
+    },
+    "buildings": {
+      "places": "Places",
+      "reports": "Reports",
+      "loading": "Loading buildings...",
+      "refresh": "Refresh building list"
+    },
+    "costs": {
+      "month": "Month",
+      "year": "Year",
+      "realRate": "Real rate",
+      "totalConsumption": "Total consumption",
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "loading": "Choose year and category, to see the costs table",
+      "chooseYear": "Choose year",
+      "chooseMonth": "Choose month",
+      "chooseCategory": "Choose category",
+      "category": "Cost category",
+      "cost-data": "Cost data",
+      "details": "Cost details",
+      "remove-cost": "Remove cost"
+    },
+    "add-cost": {
+      "title": "Add cost",
+      "create": "Save new cost",
+      "cancel": "Cancel",
+      "months-0": "January",
+      "months-1": "February",
+      "months-2": "March",
+      "months-3": "April",
+      "months-4": "May",
+      "months-5": "June",
+      "months-6": "July",
+      "months-7": "August",
+      "months-8": "September",
+      "months-9": "October",
+      "months-10": "November",
+      "months-11": "December"
+    },
+    "meters": {
+      "add-reading": "Choose a meter to add reading",
+      "loading": "Loading meters..",
+      "no-meters": "There are no meters in this place.",
+      "reading-needed": "There was no reading in the last 30 days. Add reading to improve forecasts accuracy."
+    },
+    "meter": {
+      "loading": "Loading readings..",
+      "no-readings": "There are no readings. Add first reading.",
+      "date": "Date",
+      "value": "Value",
+      "created": "Created",
+      "modified": "Modified",
+      "readings": "Readings of: ",
+      "add-reading": "Add reading",
+      "next-reading-date": "Next reading",
+      "inactive-meter": "Meter is inactive"
+    },
+    "building-report": {
+      "year": "Year",
+      "chooseYear": "Chose year",
+      "yearly": "Yearly report",
+      "current": "Current report",
+      "category": "Category",
+      "pred-amount": "Predicted amount",
+      "pred-value": "Predicted cost",
+      "diff": "Difference",
+      "real-value": "Real cost",
+      "real-amount": "Real amount",
+      "rate": "Rate",
+      "sum": "Sum",
+      "loading-year": "Chose year",
+      "loading": "Loading report ...",
+      "not-full-year": "Selected year does not yet have a full report",
+      "month-1": "January",
+      "month-2": "February",
+      "month-3": "March",
+      "month-4": "April",
+      "month-5": "May",
+      "month-6": "June",
+      "month-7": "July",
+      "month-8": "August",
+      "month-9": "September",
+      "month-10": "October",
+      "month-11": "November",
+      "month-12": "December"
+    },
+    "places": {
+      "loading": "Loading places...",
+      "empty": "Building does not exists or it does not have any places.",
+      "add": "Add place",
+      "list": "List of places in building",
+      "refresh": "Refresh places list"
+    },
+    "add-reading": {
+      "add": "Add reading",
+      "cancel": "Cancel",
+      "create": "Add"
+    },
+    "report": {
+      "month": {
+        "-1": "Current",
+        "0": "Total",
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      },
+      "category": "Category",
+      "real-cost": "Real cost",
+      "forecasted-cost": "Forecasted cost",
+      "cost-diff": "Cost difference",
+      "real-usage": "Real consumption",
+      "forecasted-usage": "Forecasted consumption",
+      "usage-diff": "Consumption difference",
+      "rate": "Rate",
+      "overpayment": "Overpayment",
+      "underpayment": "Underpayment",
+      "payed": "Fully payed",
+      "total-real-cost": "Total real cost",
+      "total-forecasted-cost": "Total forecasted cost",
+      "sum": "Sum",
+      "tooltip-message": "Chosen report could not be completed due to lack of invoice for given month",
+      "title": "Report",
+      "loading": "Loading reports",
+      "balance": "Balance",
+      "average-rate": "Average rate"
+    },
+    "place-rates": {
+      "loading": "Loading rates...",
+      "category": "Category",
+      "effectiveDate": "Effective Date",
+      "rate": "Rate"
+    },
+    "place-edit": {
+      "title": "Edit place",
+      "placeNumber": "Place number",
+      "squareFootage": "Square footage",
+      "residentsNumber": "Number of residents",
+      "active": "In use",
+      "loading": "Loading ... ",
+      "save": "Save"
+    },
+    "place-owners": {
+      "active": "Active",
+      "remove": "Remove",
+      "loading": "Loading owners...",
+      "empty": "There aren't any owners assigned to this place.",
+      "add": "Assign owner to this place",
+      "refresh": "Refresh owners' list"
+    },
+    "place-owners-add": {
+      "add": "Assign this owner",
+      "loading": "Loading available owners...",
+      "title": "Available owners",
+      "refresh": "Refresh available owners' list",
+      "close": "Close"
+    }
+  },
+  "accounting-rule": {
+    "pln": "PLN",
+    "person": "pp",
+    "month": "pm",
+    "unit": "unit"
+  },
+  "modal": {
+    "access-level": "Choose access level",
+    "refresh-session": {
+      "info": "Your session will expire soon. Do you want to stay logged in?",
+      "stay": "Stay",
+      "cancel": "Cancel"
+    },
+    "confirm-action": {
+      "force-password-message": "Do you want to change chosen account's password?",
+      "force-password-danger": "This action will block this account.",
+      "action": "Confirm",
+      "grant-access-level": "Confirm access level grant",
+      "revoke-access-level": "Are you sure, you want to revoke access level",
+      "edit-account": "Are you sure, you want to edit account",
+      "edit-account-danger": "This action cannot be undone!",
+      "change-password": "Are you sure, you want to change your password?",
+      "verify-negative": "Confirm negative verification.",
+      "remove-rate": "Are you sure you want to remove this rate?",
+      "remove-rate-danger": "This action cannot be undone!",
+      "add-rate": "Are you sure, you want to add this rate?",
+      "add-reading": "Are you sure, you want to add this reading?",
+      "place-edit": "Are you sure, you want update this place?",
+      "add-place": "Confirm adding new place.",
+      "add-cost": "Are you sure, you want to add this cost?",
+      "remove-cost": "Are you sure, you want to remove this cost?",
+      "place-owners-add": "Are you sure, you want to add selected owner to this place?",
+      "place-owners-remove": "Are you sure, you want to remove selected owner from this place?"
+    },
+    "add-place": {
+      "title": "Add new place",
+      "cancel": "Cancel",
+      "add": "Add",
+      "success": "Place was added.",
+      "response.message": {
+        "place_number_already_taken": "Place number was already used in this building.",
+        "building_not_found": "Place was not added because the building does not exist."
+      }
+    }
+  },
+  "access-levels": {
+    "OWNER": "Owner",
+    "MANAGER": "Manager",
+    "ADMIN": "Administrator"
+  },
+  "nav": {
+    "home": "Home",
+    "register": "Register",
+    "login": "Login",
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "logout": "Log out",
+    "account": "Account",
+    "profile": "Profile",
+    "change-access-level": "Change access level",
+    "categories": "Bill categories",
+    "buildings": "Buildings",
+    "your-places": "Your places",
+    "place": "Place",
+    "costs": "Costs",
+    "cost": "Cost",
+    "reports": "Reports",
+    "community-reports": "Community reports"
+  },
+  "toast": {
+    "auth": {
+      "expired-session": "Your session has expired",
+      "unsuccessful-login": "Login unsuccessful"
+    },
+    "account": {
+      "reset-password-message": "Reset password message has been sent",
+      "reset-password-change": "Password has been changed. You may log in now.",
+      "language-fail": "Language change failure",
+      "reset-password-message-fail": "Error while sending the message",
+      "reset-password-fail": "Error while changing the password",
+      "force-password-change-message": "Password has been changed, and chosen account has been blocked",
+      "force-password-change-override-message": "Password has been changed, and your account has been unlocked",
+      "edit-own-account-fail": "Error while editing account",
+      "two-factor-status-active": "2FA has been activated",
+      "two-factor-status-inactive": "2FA has been disabled",
+      "two-factor-status-fail": "Error while changing status",
+      "edit-own-account": "Account data modification success",
+      "confirm-register": "Register confirmation successful",
+      "confirm-register-fail": "Could not confirm registration",
+      "register-fail": "Registration failure",
+      "register": "Registration successful, confirm registration email has been sent to provided email address",
+      "edit-account-as-admin": "Account data modification success",
+      "edit-account-as-admin-fail": "Error while editing account",
+      "change-email": "Change email message has been sent",
+      "change-email-fail": "Could not send message",
+      "change-email-confirm": "Email has been changed",
+      "change-email-confirm-fail": "Could not change email",
+      "change-status": "Account's status change successful",
+      "change-status-fail": "Could not change account's status",
+      "change-password": "Account's password change successful",
+      "change-password-fail": "Could not change password",
+      "change-access-level": "Current access level has been changed",
+      "change-access-level-fail": "Could not change current access level",
+      "grant-access-level": "Access level granted successfully",
+      "revoke-access-level": "Action successful",
+      "grant-access-level-fail": "Could not grant chosen access level",
+      "revoke-access-level-fail": "Action failure",
+      "unlock-account-fail": "Could not unlock your account."
+    },
+    "guard": {
+      "access-denied": "Access denied"
+    },
+    "place": {
+      "not-found": "Place not found",
+      "add-category-fail": "Could not add category to chosen place",
+      "add-category-success": "Category added to chosen place",
+      "check-if-reading-needed-fail": "Could not verify, if category needs reading",
+      "get-missing-categories-fail": "Could not get missing categories",
+      "remove-category-fail": "Could not remove category from chosen place",
+      "remove-category-success": "Category has been removed from chosen place",
+      "fail": "Error loading place"
+    },
+    "place-edit": {
+      "fail": "Error editing place",
+      "success": "Place updated successfully",
+      "response": {
+        "message": {
+          "place_number_already_taken": "Given place number already exist in a chosen building",
+          "optimistic_lock": "Place has been already changed by someone else, please reload the page and try again"
+        }
+      }
+    },
+    "rate": {
+      "remove-success": "Successfully removed the rate",
+      "add-success": "Rate added successfully",
+      "remove-fail": "Something went wrong while removing the rate!",
+      "response": {
+        "message": {
+          "rate_already-effective": "Can't remove this rate, because it's already effective!",
+          "rate_not_unique": "Rate with same effective date within this category already exists!"
+        }
+      }
+    },
+    "forecast": {
+      "get-years-by-place-fail": "Could not get available report years for given place",
+      "add-current-forecast-success": "New forecast has been added",
+      "add-current-forecast-fail": "Could not add forecast for chosen category",
+      "get-min-months-fail": "Could not get months"
+    },
+    "report": {
+      "get-place-report-fail": "Could not get report",
+      "is-report-for-place-fail": "Could not validate year",
+      "not-found": "Report not found"
+    },
+    "reading": {
+      "add-fail": "Adding reading failed. Try again later",
+      "add-success": "Reading added successfully",
+      "response": {
+        "message": {
+          "reading_value_smaller_than_previous": "Reading value must be higher than value of previous reading",
+          "not_enough_days_between_reliable_readings": "Not enough days since last reading",
+          "reading_value_higher_than_future": "Reading value must be lower than values of future readings",
+          "reading_date_before_initial_reading": "Reading date must be after the date of initial reading",
+          "reading_value_smaller_than_initial": "Reading value must be higher than value of initial reading",
+          "not_enough_days_after_initial_reading": "Reading date must be at least 1 day after initial reading",
+          "inactive_meter": "Failed to add reading, meter is inactive",
+          "own_place_reading_attempt": "Failed to add reading, you are owner of this place. Try again from owner view."
+        }
+      }
+    },
+    "place-owners-add": {
+      "fail": "Failed to add owner to the place",
+      "success": "Successfully added a new owner: ",
+      "response": {
+        "message": {
+          "optimistic_lock": "List of not assigned owners was changed by someone else, please reload the list and try again",
+          "place_not_found": "Place not found",
+          "account_not_found": "Account not found",
+          "illegal_self_action": "Can't add as an owner self to this place"
+        }
+      }
+    },
+    "place-owners-remove": {
+      "fail": "Failed to remove owner from the place",
+      "success": "Successfully removed owner",
+      "response": {
+        "message": {
+          "optimistic_lock": "List of assigned owners was changed by someone else, please reload the list and try again",
+          "place_not_found": "Place not found",
+          "account_not_found": "Account not found",
+          "illegal_self_action": "You can't remove yourself from owners"
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Cost added successfully",
+      "add-fail": "Adding cost failed. Try again later",
+      "remove-success": "Cost removed successfully",
+      "remove-fail": "Removing cost failed. Try again later",
+      "response":{
+        "message": {
+          "cost_already_exists": "Cost with chosen values already exists",
+          "cost_not_found": "Cost not found"
+        }
+      }
+    }
+  },
+  "password-change": {
+    "response": {
+      "message": {
+        "token_not_found": "Link has been used",
+        "expired_token": "Link has expired",
+        "inactive_account": "Account has been blocked",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again",
+        "repeated_password": "New password cannot be the same as old password"
+      }
+    }
+  },
+  "force-password-change": {
+    "response": {
+      "message": {
+        "inactive_account": "Chosen account is blocked",
+        "unverified_account": "Chosen account is unverified",
+        "rollback.limit.exceeded": "Request timed out",
+        "illegal_self_action": "Cannot execute action on your own account",
+        "optimistic_lock": "Cannot change password, account data has changed since form submission, try again"
+      }
+    }
+  },
+  "edit-own-profile": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Cannot edit account, violation of unmodifiable data",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot edit account, account data has changed since opening form, try again",
+        "account_not_found": "Modified account does not exist",
+        "license-number-already-taken": "Chosen license is in use"
+      }
+    }
+  },
+  "change-two-factor-status": {
+    "response": {
+      "message": {
+        "account_not_found": "Could not find your account",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not change status, please try again"
+      }
+    }
+  },
+  "two-factor-auth": {
+    "response": {
+      "message": {
+        "authentication_exception": "Login unsuccessful",
+        "token_not_found": "Provided code is wrong",
+        "expired_token": "Code expired, log in again",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Login unsuccessful, please try again"
+      }
+    }
+  },
+  "register": {
+    "response": {
+      "message": {
+        "invalid_captcha": "Invalid captcha code",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Register unsuccessful, please try again",
+        "license-number-already-taken": "License number already taken",
+        "email-address-already-taken": "Email address already taken",
+        "login-already-taken": "Login already taken"
+      }
+    }
+  },
+  "confirm-register": {
+    "response": {
+      "message": {
+        "token_not_found": "Link was used",
+        "expired_token": "Link has expired",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Register confirmation failed",
+        "no-token": "Token for confirming registration was not provided."
+      }
+    }
+  },
+  "edit-as-admin": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Cannot edit account, violation of unmodifiable data",
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Cannot edit account, account data has changed since opening form, try again",
+        "account_not_found": "Modified account does not exist",
+        "illegal_self_action": "Cannot modify your own account as administrator",
+        "email-address-already-taken": "Cannot modify, this email address is already in use"
+      }
+    }
+  },
+  "change-email": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not send message, try again",
+        "account_not_found": "This account could not be found"
+      }
+    }
+  },
+  "change-email-confirm": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not set new email, please try again",
+        "email-address-already-taken": "This email address is already in use",
+        "token_not_found": "Link has been used",
+        "invalid_token_type": "Link was not valid"
+      }
+    }
+  },
+  "change-status": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not change this account's status, please try again",
+        "bad-access-level": "As Manager you cannot change status of Admin and other Managers",
+        "account_not_found": "This account could not be found",
+        "illegal_self_action": "Cannot change status of your own account"
+      }
+    }
+  },
+  "change-password": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not change your password, please try again",
+        "account_not_found": "This account could not be found",
+        "invalid_password": "Provided old password is not correct",
+        "repeated_password": "New password cannot be the same as old password"
+      }
+    }
+  },
+  "change-access-level": {
+    "response": {
+      "message": {
+        "account_not_found": "This account could not be found",
+        "no_access_level": "Your account does not have chosen access level"
+      }
+    }
+  },
+  "grant-access-level": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Request timed out",
+        "optimistic_lock": "Could not grant access level to chosen account, please try again",
+        "access-management-self": "Cannot grant access level to your own account",
+        "account_not_found": "This account could not be found",
+        "license-number-already-taken": "License number already taken"
+      }
+    }
+  },
+  "get-report-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place",
+        "forecast_not_found": "Forecast not found",
+        "report_not_found": "Report not found",
+        "place_not_found": "Nie znaleziono wybranego lokalu"
+      }
+    }
+  },
+  "is-report-for-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
+  "get-years-by-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "inaccessible_forecast": "Could not access forecast, you do not own chosen place"
+      }
+    }
+  },
+  "get-min-month": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Could not access report, you do not own chosen place",
+        "forecast_not_found": "Could not find forecast for chosen place"
+      }
+    }
+  },
+  "add-category": {
+    "response": {
+      "message": {
+        "illegal_self_action": "You cannot edit your own places",
+        "category_in_use": "Chosen category is already assigned to this place",
+        "inactive_place": "Chosen place is inactive",
+        "rate_not_found": "Could not find rate for chosen place and category",
+        "meter_not_found": "Could not find meter for chosen place and category",
+        "initial_reading_required": "Initial reading for this category meter is required",
+        "optimistic_lock": "Could not add category to chosen place, please try again",
+        "rollback.limit.exceeded": "Request timed out",
+        "category_not_found": "Could not find chosen category for place",
+        "place_not_found": "Chosen place does not exists"
+      }
+    }
+  },
+  "remove-category": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Could not add category to chosen place, please try again",
+        "rollback.limit.exceeded": "Request timed out",
+        "illegal_self_action": "You cannot perform action on your own place",
+        "inactive_place": "Chosen place is inactive",
+        "category_not_in_use": "Chosen place doesn't have category, you want to delete",
+        "category_not_found": "Could not find chosen category for place",
+        "meter_not_found": "Could not find meter for chosen place and category",
+        "place_not_found": "Chosen place does not exists"
+      }
+    }
+  },
+  "add-current-forecast": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Could not add forecast, please try again",
+        "rollback.limit.exceeded": "Request timed out",
+        "place_not_found": "Chosen place does not exists",
+        "illegal_self_action": "You cannot perform action on your own place",
+        "inactive_place": "Chosen place is inactive",
+        "category_not_in_use": "Chosen place doesn't have category, you want to assign forecast to",
+        "rate_not_found": "Could not find rate for chosen place and category",
+        "forecast_already_exists": "There is already a forecast for chosen category in this month"
+      }
+    }
+  },
+  "unlock-account": {
+    "confirmation": "Account unlocked",
+    "message": "Your account was unlocked. Now you can login again.",
+    "go-to": "Go to",
+    "go-to-where": "Login page",
+    "fail": "Failed to unlock account",
+    "action": "Unlocking your account",
+    "loading": "Loading...",
+    "response": {
+      "message": {
+        "no-token": "Token not provided",
+        "token_not_found": "Invalid token",
+        "invalid_token_type": "Invalid token"
+      }
+    }
+  },
+  "categories": {
+    "maintenance": "Maintenance fee",
+    "repair": "Repair fee",
+    "heating": "Heating fee",
+    "hot_water": "Hot water fee",
+    "cold_water": "Cold water fee",
+    "intercom": "Intercom fee",
+    "garbage": "Garbage fee",
+    "elevator": "Elevator fee",
+    "satellite_tv": "Satellite TV fee",
+    "parking": "Parking fee"
+  }
+}

@@ -1,0 +1,133 @@
+<div
+    class="h-100 d-flex justify-content-center align-items-center bg-calculator">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="rounded-5 shadow-lg glass">
+                    <div class="p-4 p-sm-5 rounded-5">
+                        <form
+                            (submit)="onSubmit()"
+                            [formGroup]="loginForm"
+                            class="mb-3 md-4">
+                            <h2 class="fw-bold mb-4 text-body-emphasis">
+                                {{ 'form.login.title' | translate }}
+                            </h2>
+                            <div class="mb-3">
+                                <label
+                                    class="form-label"
+                                    for="login"
+                                    >{{
+                                        'form.fields.login' | translate
+                                    }}</label
+                                >
+                                <input
+                                    [ngClass]="{
+                                        'is-valid':
+                                            login &&
+                                            login.touched &&
+                                            login.valid,
+                                        'is-invalid':
+                                            login &&
+                                            login.touched &&
+                                            login.invalid
+                                    }"
+                                    class="form-control"
+                                    formControlName="login"
+                                    id="login"
+                                    type="text" />
+                                <span
+                                    *ngIf="
+                                        login && login.touched && login.invalid
+                                    "
+                                    class="validation-message"
+                                    >{{
+                                        'validation.login.required' | translate
+                                    }}</span
+                                >
+                            </div>
+                            <div class="mb-3">
+                                <label
+                                    class="form-label"
+                                    for="password"
+                                    i18n
+                                    >{{
+                                        'form.fields.password' | translate
+                                    }}</label
+                                >
+                                <input
+                                    [ngClass]="{
+                                        'is-valid':
+                                            password &&
+                                            password.touched &&
+                                            password.valid,
+                                        'is-invalid':
+                                            password &&
+                                            password.touched &&
+                                            password.invalid
+                                    }"
+                                    class="form-control"
+                                    formControlName="password"
+                                    i18n
+                                    id="password"
+                                    type="password" />
+                                <span
+                                    *ngIf="
+                                        password &&
+                                        password.touched &&
+                                        password.invalid
+                                    "
+                                    class="validation-message"
+                                    >{{
+                                        'validation.password.required'
+                                            | translate
+                                    }}</span
+                                >
+                            </div>
+                            <p
+                                class="small text-center"
+                                i18n>
+                                <a
+                                    class="text-primary"
+                                    routerLink="/reset-password"
+                                    >{{
+                                        'form.forgot-password.title' | translate
+                                    }}</a
+                                >
+                            </p>
+                            <div
+                                class="d-grid"
+                                i18n>
+                                <button
+                                    class="btn btn-primary"
+                                    type="submit">
+                                    <ng-container
+                                        *ngIf="loading; else loginButton">
+                                        <span
+                                            class="spinner-border spinner-border-sm"
+                                            role="status">
+                                        </span>
+                                    </ng-container>
+                                    <ng-template #loginButton
+                                        >{{ 'form.login.action' | translate }}
+                                    </ng-template>
+                                </button>
+                            </div>
+                        </form>
+                        <div>
+                            <p
+                                class="mb-0 text-center"
+                                i18n>
+                                {{ 'form.login.no-account-info' | translate }}
+                                <a
+                                    class="text-primary fw-bold"
+                                    routerLink="/register"
+                                    >{{ 'form.login.sign-up' | translate }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

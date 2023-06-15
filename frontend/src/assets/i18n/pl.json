@@ -1,0 +1,993 @@
+{
+  "validation": {
+    "password": {
+      "required": "Hasło jest wymagane",
+      "length": "Hasło musi mieć co najmniej 8 znaków",
+      "strength": "Hasło jest zbyt słabe",
+      "message": "Hasło musi składać się z co najmniej 8 znaków i musi zawierać małą literę, dużą literę, numer oraz symbol",
+      "match": "Hasło oraz powtórzone hasło muszą się zgadzać"
+    },
+    "repeat-password": {
+      "required": "Powtórzenie hasła jest wymagane",
+      "match": "Powtórzone hasło nie jest takie samo jak hasło"
+    },
+    "login": {
+      "required": "Login jest wymagany",
+      "min-length": "Login musi składać się z co najmniej 3 znaków.",
+      "max-length": "Login może składać się z maksymalnie 100 znaków."
+    },
+    "email": {
+      "required": "Email jest wymagany",
+      "valid": "Wprowadzona wartość musi być adresem email.",
+      "max-length": "Email może składać się z maksymalnie 320 znaków."
+    },
+    "first-name": {
+      "required": "Imię jest wymagane.",
+      "min-length": "Imię musi składać się z co najmniej 1 znaku.",
+      "max-length": "Imię może składać się z maksymalnie 100 znaków."
+    },
+    "last-name": {
+      "required": "Nazwisko jest wymagane.",
+      "min-length": "Nazwisko musi składać się z co najmniej 1 znaku.",
+      "max-length": "Nazwisko może składać się z maksymalnie 100 znaków."
+    },
+    "street": {
+      "required": "Ulica jest wymagana.",
+      "length": "Ulica może składać się z maksymalnie 85 znaków."
+    },
+    "building": {
+      "required": "Numer budynku jest wymagany.",
+      "length": "Numer budynku musi być większy niż 0."
+    },
+    "postal-code": {
+      "required": "Kod pocztowy jest wymagany.",
+      "length": "Kod pocztowy musi składać się z 6 znaków."
+    },
+    "city": {
+      "required": "Miasto jest wymagane.",
+      "min-length": "Miasto musi składać się z co najmniej 2 znaków.",
+      "max-length": "Miasto może składać się z maksymalnie 85 znaków.",
+      "pattern": "Miasto musi zaczynać się z wielkiej litery."
+    },
+    "license-number": {
+      "required": "Numer licencji jest wymagany."
+    },
+    "old-password": {
+      "required": "Stare hasło jest wymagane",
+      "min-length": "Stare hasło musi być dłuższe niż 8 znaków"
+    },
+    "new-password": {
+      "required": "Nowe hasło jest wymagane",
+      "same-old": "Nowe hasło nie może być takie samo jak stare hasło",
+      "same-new": "Nowe hasła muszą być identyczne",
+      "strength": "Nowe hasło jest zbyt słabe"
+    },
+    "repeat-new-password": {
+      "required": "Powtórzenie nowego hasła jest wymagane"
+    },
+    "rate": {
+      "required": "Wysokość stawki jest wymagana.",
+      "length": "Wysokość stawki musi być większa lub równa 0.",
+      "decimal-places": "Wysokość stawki może mieć tylko do 2 miejsc po przecinku"
+    },
+    "effective-date": {
+      "required": "Data obowiązywania jest wymagana.",
+      "invalid-date": "Data obowiązywania stawki musi być pierwszym dniem miesiąca"
+    },
+    "reading": {
+      "required": "Wartość odczytu jest wymagana.",
+      "length": "Wartość odczytu musi być większa od 0",
+      "decimal-places": "Wartość odczytu może mieć tylko do 3 miejsc po przecinku",
+      "reading-date": {
+        "required": "Data odczytu jest wymagana"
+      }
+    },
+    "amount": {
+      "required": "Wartość zużycia jest wymagana.",
+      "length": "Wartość zużycia musi być większa od 0",
+      "decimal-places": "Wartość zużycia może mieć tylko do 3 miejsc po przecinku"
+    },
+    "active": {
+      "required": "Pole jest wymagane"
+    },
+    "residentsNumber": {
+      "min": "Liczba mieszkańców nie może być ujemna",
+      "required": "Liczba mieszkanców jest wymagana",
+      "pattern": "Liczba mieszkańców musi być liczbą całkowitą",
+      "max": "Liczba mieszkańców musi być mniejsza niż 1000000"
+    },
+    "squareFootage": {
+      "min": "Powierzchnia lokalu musi być dodatnia",
+      "required": "Powierzchnia lokalu jest wymagana",
+      "max": "Powierzchnia lokalu musi być mniejsza niż 1000000"
+    },
+    "placeNumber": {
+      "min": "Numer lokalu musi być dodatni",
+      "required": "Numer lokalu jest wymagany"
+    },
+    "place-number": {
+      "required": "Numer lokalu jest wymagany.",
+      "min": "Numer lokalu musi być większy bądź równy "
+    },
+    "square-footage": {
+      "required": "Powierzchnia jest wymagana.",
+      "min": "Powierzchnia musi być większa bądź równa ",
+      "max": "Powierzchnia musi być nie większa niż "
+    },
+    "residents-number": {
+      "required": "Liczba lokatorów jest wymagana.",
+      "min": "Liczba lokatorów musi być większa bądź równa ",
+      "max": "Liczba lokatorów musi być nie większa niż"
+    },
+    "total-consumption": {
+      "required": "Wartość całkowitego zużycia jest wymagana.",
+      "min": "Całkowite zużycie musi być większe bądź równe "
+    },
+    "real-rate": {
+      "required": "Wartość rzeczywistej stawki jest wymagana.",
+      "min": "Rzeczywista stawka musi być większa bądź równa "
+    }
+  },
+  "form": {
+    "login": {
+      "title": "Zaloguj się do eBok",
+      "action": "Zaloguj",
+      "no-account-info": "Nie masz jeszcze konta?",
+      "sign-up": "Zarejestruj się",
+      "code-enter": "Wprowadź kod",
+      "code-message": "Kod został wysłany na adres email",
+      "code-loading": "Weryfikowanie kodu..."
+    },
+    "forgot-password": {
+      "title": "Zapomniałeś hasła?",
+      "content-before-bold": "Aby zresetować swoje hasło, podaj adres",
+      "content-after-bold": "powiązany z twoim kontem.",
+      "action": "Wyślij wiadomość",
+      "go-back": "Powróć do",
+      "go-back-to": "Strony logowania"
+    },
+    "forgot-password-confirm": {
+      "title": "Wprowadź nowe hasło.",
+      "action": "Zresetuj hasło",
+      "go-to": "Przejdź do",
+      "go-to-where": "Strony logowania"
+    },
+    "force-password-override": {
+      "action": "Ustaw nowe hasło",
+      "content": "Ustaw nowe hasło aby odblokować swoje konto."
+    },
+    "fields": {
+      "login": "Login*",
+      "password": "Hasło*",
+      "email": "Email*",
+      "repeat-password": "Powtórz hasło*"
+    },
+    "register": {
+      "sign-in": "Zaloguj się",
+      "account-info": "Masz już konto?",
+      "title": "Zarejestruj się do eBok",
+      "continue": "Kontynuuj",
+      "password": "Hasło",
+      "repeat-password": "Powtórz hasło",
+      "back": "Powróć",
+      "register-as-owner": "Zarejestruj się jako właściciel",
+      "register-as-manager": "Zarejestruj się jako zarządca",
+      "action": "Zarejestruj się"
+    },
+    "change-password": {
+      "title": "Zmień hasło",
+      "current-password": "Aktualne hasło",
+      "new-password": "Nowe hasło",
+      "repeat-password": "Powtórz hasło",
+      "action": "Zmień"
+    },
+    "give-access-level": {
+      "reject": "Odrzuć",
+      "grant": "Nadaj poziom dostępu",
+      "confirm": "Potwierdź",
+      "verify": "Zweryfikuj"
+    },
+    "confirm-registration": {
+      "fail": "Nie udało się potwierdzić rejestracji",
+      "action": "Potwierdzanie twojej rejestracji",
+      "loading": "Ładowanie ...",
+      "go-to": "Przejdź do",
+      "go-to-where": "Strony głównej",
+      "confirmation": "Rejestracja potwierdzona",
+      "message": "Teraz twoje dane muszą zostać zweryfikowane. Otrzymasz informację o pomyślnej weryfikacji na podany adres email."
+    },
+    "change-email-confirm": {
+      "title": "Potwierdź email",
+      "content": "Aby potwierdzić, podaj poprawny",
+      "action": "Potwierdź"
+    }
+  },
+  "component": {
+    "own-places": {
+      "loading": "Ładowanie twoich lokali..",
+      "place-number": "Lokal nr",
+      "details": "Szczegóły",
+      "meters": "Liczniki",
+      "reports": "Raporty",
+      "rates": "Stawki",
+      "no-places": "Nie posiadasz żadnych lokali",
+      "show-place-details": "Wyświetl informacje",
+      "hide-place-details": "Ukryj informacje",
+      "count": "Liczba posiadanych lokali: "
+    },
+    "accounts": {
+      "display": {
+        "all": "Wszyscy",
+        "owners": "Właściciele",
+        "managers": "Zarządcy",
+        "admins": "Administratorzy",
+        "active": "Aktywni",
+        "inactive": "Nieaktywni",
+        "approval": "Oczekujący na potwierdzenie",
+        "five-items": "5 elementów na stronę",
+        "ten-items": "10 elementów na stronę",
+        "fifteen-items": "15 elementów na stronę"
+      },
+      "loading": "Ładowanie kont...",
+      "password-change": "Zmień hasło",
+      "activate": "Odblokuj",
+      "deactivate": "Zablokuj",
+      "edit-account": "Edytuj konto",
+      "give-owner": "Nadaj poziom dostępu Właściciel",
+      "give-manager": "Nadaj poziom dostępu Zarządca",
+      "give-admin": "Nadaj poziom dostępu Administrator",
+      "revoke-owner": "Odbierz poziom dostępu Właściciel",
+      "revoke-manager": "Odbierz poziom dostępu Zarządca",
+      "revoke-admin": "Odbierz poziom dostępu Administrator",
+      "verify": "Zweryfikuj",
+      "filter-content": "Imię lub nazwisko",
+      "filter-action": "Filtruj",
+      "filters": "Filtry"
+    },
+    "account": {
+      "created-at": "Czas utworzenia",
+      "created-by": "Utworzony przez",
+      "updated-at": "Ostatnia modyfikacja",
+      "updated-by": "Ostatnio zmodyfikowany przez",
+      "language": "Język",
+      "verified": "Zweryfikowany",
+      "personal-data": "Dane personalne",
+      "edit": "Edytuj",
+      "auth-data": "Dane o logowaniu",
+      "last-success-login-date": "Data ostatniego udanego logowania",
+      "last-success-login-ip": "Adres IP ostatniego udanego logowania",
+      "last-unsuccessful-login-date": "Data ostatniego nieudanego logowania",
+      "last-unsuccessful-login-ip": "Adres IP ostatniego nieudanego logowania",
+      "unsuccessful-login-chain": "Ilość nieudanych prób logowania z rzędu",
+      "access-levels-data": "Dane o poziomach dostępu",
+      "level": "Poziom dostępu",
+      "license-number": "Numer licencji",
+      "loading": "Ładowanie danych konta ...",
+      "edit-your-account": "Edytuj swoje konto",
+      "general": "Ogólne",
+      "save": "Zapisz",
+      "cancel": "Anuluj",
+      "two-factor-auth": "Uwierzytelnianie dwuetapowe",
+      "change-email": "Zmień email",
+      "email": "Adres email",
+      "verified-true": "tak",
+      "verified-false": "nie"
+    },
+    "categories": {
+      "loading": "Ładowanie kategorii...",
+      "name": "Nazwa kategorii opłat"
+    },
+    "place": {
+      "categories": {
+        "pln": "zł",
+        "person": "os",
+        "month": "mies",
+        "title": "Kategorie opłat lokalu",
+        "loading": "Ładowanie kategorii ...",
+        "cancel": "Anuluj",
+        "no-missing-categories": "Lokal ma przypisane wszystkie dostępne kategorie",
+        "choose-missing": "Dodaj nową kategorię do lokalu",
+        "confirm": "Czy napewno chcesz dodać tą kategorię?",
+        "confirm-danger": "Ta akcja obciąży lokal dodatkowymi kosztami.",
+        "tab-name": "Kategorie",
+        "delete": "Usuń wybraną kategorię",
+        "edit": "Edytuj",
+        "title-edit": "Edycja kategorii",
+        "edit-close": "Zakończ edycję",
+        "delete-confirm": "Czy napewno chcesz usunąć wybraną kategorię z lokalu?",
+        "delete-confirm-danger": "Ta akcja wpłynie na wartość opłat lokalu.",
+        "add-amount": "Podaj zużycie",
+        "add-current-forecast-confirm": "Czy napewno chcesz dodać prognozę na aktualny miesiąc?",
+        "add-current-forecast-danger": "Ta akcja wpływanie na wartość opłat lokalu.",
+        "add-current-forecast-action": "Dodaj prognozę na aktualny miesiąc"
+      },
+      "show-categories": "Wyświetl kategorie opłat",
+      "loading": "Ładowanie ...",
+      "data": "Lokal",
+      "edit-place": "Edytuj lokal",
+      "owners": {
+        "tab-name": "Właściciele"
+      }
+    },
+    "fields": {
+      "login": "Login",
+      "first-name": "Imię",
+      "last-name": "Nazwisko",
+      "active": "Status",
+      "details": "Szczegóły",
+      "actions": "Akcje",
+      "address": "Adres",
+      "street": "Ulica",
+      "building-number": "Numer budynku",
+      "postal-code": "Kod pocztowy",
+      "city": "Miasto",
+      "place-number": "Numer lokalu",
+      "residents-number": "Liczba lokatorów",
+      "square-footage": "Powierzchnia",
+      "rate-value": "Wysokość stawki",
+      "effective-date": "Data obowiązywania"
+    },
+    "landing-page": {
+      "title": "Zmień oblicze swojej wspólnoty z eBok!",
+      "description": "Aplikacja eBok ma na celu wspomaganie prowadzenia wspólnoty mieszkaniowej w zakresie rozliczania lokali do niej należących. Każdy lokal posiada indywidualny przydział kategorii opłat, które wchodzą w skład rozliczenia, a każda kategoria ma aktualną stawkę oraz zasadę rozliczania. Jednym z głównych zadań systemu jest prognozowanie wysokości przyszłych zaliczek oraz wspomaganie w korygowaniu stawek przez zarządcę wspólnoty tak, by zminimalizować różnicę pomiędzy prognozowanymi kosztami poniesionymi przez właścicieli lokali, a realnymi kosztami poniesionymi przez wspólnotę.",
+      "rates": "Aktualne stawki"
+    },
+    "ratesByCategory": {
+      "ratesFor": "Stawki dla",
+      "value": "Wysokość stawki",
+      "effectiveDate": "Obowiązuje od",
+      "created": "Utworzona",
+      "modified": "Zmodyfikowana",
+      "remove": "Usuń",
+      "loading": "Wczytywanie stawek",
+      "add": "Dodaj nową stawkę",
+      "cancel": "Anuluj",
+      "create": "Dodaj"
+    },
+    "welcome": {
+      "welcome": "Witaj",
+      "date": "Dzisiejsza data"
+    },
+    "buildings": {
+      "places": "Lokale",
+      "reports": "Raporty",
+      "loading": "Ładowanie budynków...",
+      "refresh": "Odśwież listę budynków"
+    },
+    "costs": {
+      "month": "Miesiąc",
+      "year": "Rok",
+      "realRate": "Rzeczywista stawka",
+      "totalConsumption": "Całkowite zużycie",
+      "months": {
+        "january": "Styczeń",
+        "february": "Luty",
+        "march": "Marzec",
+        "april": "Kwiecień",
+        "may": "Maj",
+        "june": "Czerwiec",
+        "july": "Lipiec",
+        "august": "Sierpień",
+        "september": "Wrzesień",
+        "october": "Październik",
+        "november": "Listopad",
+        "december": "Grudzień"
+      },
+      "loading": "Wybierz rok i kategorię, aby zobaczyć tabelę z kosztami",
+      "chooseYear": "Wybierz rok",
+      "chooseCategory": "Wybierz kategorię",
+      "chooseMonth": "Wybierz miesiąc",
+      "category": "Kategoria kosztu",
+      "cost-data": "Informacje o koszcie",
+      "details": "Szczegóły",
+      "remove-cost": "Usuń koszt"
+    },
+    "add-cost": {
+      "title": "Dodaj koszt",
+      "create": "Zapisz koszt",
+      "cancel": "Anuluj",
+      "months-0": "Styczeń",
+      "months-1": "Luty",
+      "months-2": "Marzec",
+      "months-3": "Kwiecień",
+      "months-4": "Maj",
+      "months-5": "Czerwiec",
+      "months-6": "Lipiec",
+      "months-7": "Sierpień",
+      "months-8": "Wrzesień",
+      "months-9": "Październik",
+      "months-10": "Listopad",
+      "months-11": "Grudzień"
+    },
+    "meters": {
+      "add-reading": "Wybierz licznik, aby dodać odczyt",
+      "loading": "Ładowanie liczników..",
+      "no-meters": "W tym lokalu nie ma żadnych liczników.",
+      "reading-needed": "Nie wprowadzono żadnych odczytów tego licznika w ciągu ostatnich 30 dni. Dodaj odczyt, by zwiększyć dokładność prognoz."
+    },
+    "meter": {
+      "loading": "Ładowanie odczytów..",
+      "no-readings": "Nie ma żadnych odczytów tego licznika. Dodaj pierwszy odczyt.",
+      "date": "Data odczytu",
+      "value": "Wartość",
+      "created": "Utworzony",
+      "modified": "Zmodyfikowany",
+      "readings": "Odczyty licznika: ",
+      "add-reading": "Dodaj odczyt",
+      "next-reading-date": "Następny odczyt",
+      "inactive-meter": "Licznik jest nieaktywny"
+    },
+    "building-report": {
+      "year": "Rok",
+      "chooseYear": "Wybierz rok",
+      "yearly": "Raport roczny",
+      "current": "Aktualny raport",
+      "category": "Kategoria opłaty",
+      "pred-amount": "Przewidywane zużycie",
+      "pred-value": "Przewidywany koszt",
+      "diff": "Różnica",
+      "real-value": "Koszt rzeczywisty",
+      "real-amount": "Zużycie rzeczywiste",
+      "rate": "Stawka",
+      "sum": "Suma",
+      "loading-year": "Wybierz rok",
+      "loading": "Ładowanie raportu ...",
+      "not-full-year": "Wybrany rok nie posiada jeszcze pełnego raportu",
+      "month-1": "Styczeń",
+      "month-2": "Luty",
+      "month-3": "Marzec",
+      "month-4": "Kwiecień",
+      "month-5": "Maj",
+      "month-6": "Czerwiec",
+      "month-7": "Lipiec",
+      "month-8": "Sierpień",
+      "month-9": "Wrzesień",
+      "month-10": "Październik",
+      "month-11": "Listopad",
+      "month-12": "Grudzień"
+    },
+    "places": {
+      "loading": "Wczytywanie lokali...",
+      "empty": "Budynek nie istnieje lub nie posiada lokali.",
+      "add": "Dodaj lokal",
+      "list": "Lista lokali w budynku",
+      "refresh": "Odśwież listę lokali"
+    },
+    "add-reading": {
+      "add": "Dodaj odczyt",
+      "cancel": "Anuluj",
+      "create": "Dodaj"
+    },
+    "report": {
+      "month": {
+        "-1": "Aktualny",
+        "0": "Całkowity",
+        "1": "Styczeń",
+        "2": "Luty",
+        "3": "Marzec",
+        "4": "Kwiecień",
+        "5": "Maj",
+        "6": "Czerwiec",
+        "7": "Lipiec",
+        "8": "Sierpień",
+        "9": "Wrzesień",
+        "10": "Październik",
+        "11": "Listopad",
+        "12": "Grudzień"
+      },
+      "category": "Kategoria",
+      "real-cost": "Faktyczny koszt",
+      "forecasted-cost": "Przewidywany koszt",
+      "cost-diff": "Różnica kosztów",
+      "real-usage": "Faktyczne zużycie",
+      "forecasted-usage": "Przewidywane zużycie",
+      "usage-diff": "Różnica zużycia",
+      "rate": "Stawka",
+      "overpayment": "Nadpłata",
+      "underpayment": "Niedopłata",
+      "payed": "W pełni opłacone",
+      "total-real-cost": "Całkowity faktyczny koszt",
+      "total-forecasted-cost": "Całkowity przewidywany koszt",
+      "sum": "Suma",
+      "tooltip-message": "Wybrany raport nie mógł zostać skompletowany z powodu braku faktury na podany miesiąc",
+      "title": "Raport",
+      "loading": "Ładowanie raportów",
+      "balance": "Saldo",
+      "average-rate": "Średnia stawka"
+    },
+    "place-rates": {
+      "loading": "Ładowanie stawek...",
+      "category": "Kategoria",
+      "effectiveDate": "Data ustalenia stawki",
+      "rate": "Stawka"
+    },
+    "place-edit": {
+      "title": "Edycja lokalu",
+      "placeNumber": "Numer lokalu",
+      "squareFootage": "Powierzchnia",
+      "residentsNumber": "Liczba mieszkańców",
+      "active": "Używane",
+      "loading": "Ładowanie ... ",
+      "save": "Zapisz"
+    },
+    "place-owners": {
+      "active": "Aktywny",
+      "remove": "Odłącz",
+      "loading": "Wczytywanie właściceli...",
+      "empty": "Lokal nie posiada przypisanych właścicieli",
+      "add": "Przypisz właściciela do lokalu",
+      "refresh": "Odśwież listę właścicieli"
+    },
+    "place-owners-add": {
+      "add": "Przypisz tego właściciela",
+      "loading": "Wczytywanie nieprzypisanych kont właścicieli ...",
+      "title": "Nieprzypisani właściciele",
+      "refresh": "Odśwież listę właścicieli",
+      "close": "Zamknij"
+    }
+  },
+  "accounting-rule": {
+    "pln": "zł",
+    "person": "os",
+    "month": "mies",
+    "unit": "sztuka"
+  },
+  "modal": {
+    "access-level": "Wybierz poziom dostępu",
+    "refresh-session": {
+      "info": "Twoja sesja wkrótce wygaśnie. Czy chcesz pozostać zalogowany?",
+      "stay": "Zostań",
+      "cancel": "Anuluj"
+    },
+    "confirm-action": {
+      "force-password-message": "Czy napewno chcesz zmienić hasło konta?",
+      "force-password-danger": "Ta czynność zablokuje wybrane konto.",
+      "action": "Potwierdzam",
+      "grant-access-level": "Potwierdź nadanie dostępu",
+      "revoke-access-level": "Czy na pewno chcesz usunąć poziom dostępu",
+      "edit-account": "Czy na pewno chcesz edytować konto",
+      "edit-account-danger": "Tej akcji nie można cofnąć!",
+      "change-password": "Czy na pewno chcesz zmienić swoje hasło?",
+      "verify-negative": "Potwierdź negatywną weryfikację.",
+      "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
+      "remove-rate-danger": "Tej akcji nie można cofnąć!",
+      "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
+      "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
+      "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
+      "add-place": "Potwierdź dodanie nowego lokalu.",
+      "add-cost": "Czy na pewno chcesz dodać nowy koszt?",
+      "remove-cost": "Czy na pewno chcesz usunąć dany koszt?",
+      "place-owners-add": "Czy na pewno chcesz dodać wybranego właściciela do lokalu?",
+      "place-owners-remove": "Czy na pewno chcesz usunąć wybranego właściciela z lokalu?"
+    },
+    "add-place": {
+      "title": "Dodaj nowy lokal",
+      "cancel": "Anuluj",
+      "add": "Dodaj",
+      "success": "Lokal został dodany.",
+      "response.message": {
+        "place_number_already_taken": "Podany numer lokalu już występuje w tym budynku.",
+        "building_not_found": "Nie udało się dodać lokalu, ponieważ budynek nie istnieje."
+      }
+    }
+  },
+  "access-levels": {
+    "OWNER": "Właściciel",
+    "MANAGER": "Zarządca",
+    "ADMIN": "Administrator"
+  },
+  "nav": {
+    "home": "Strona główna",
+    "register": "Rejestracja",
+    "login": "Logowanie",
+    "dashboard": "Panel główny",
+    "accounts": "Konta",
+    "logout": "Wyloguj się",
+    "account": "Konto",
+    "profile": "Profil",
+    "change-access-level": "Zmień poziom dostępu",
+    "your-places": "Twoje lokale",
+    "reports": "Raporty",
+    "categories": "Kategorie opłat",
+    "buildings": "Budynki",
+    "costs": "Koszty",
+    "cost": "Koszt",
+    "place": "Lokal",
+    "community-reports": "Raporty wspólnoty"
+  },
+  "toast": {
+    "auth": {
+      "expired-session": "Twoja sesja wygasła",
+      "unsuccessful-login": "Logowanie nie powiodło się"
+    },
+    "account": {
+      "reset-password-message": "Wiadomość do zresetowania hasła została wysłana",
+      "reset-password-change": "Hasło zostało zmienione. Możesz się teraz zalogować",
+      "language-fail": "Błąd zmiany języka",
+      "reset-password-message-fail": "Błąd wysyłania wiadomości",
+      "reset-password-fail": "Bład podczas zmiany hasła",
+      "force-password-change-message": "Hasło zostało zmienione, a wybrane konto zostało zablokowane",
+      "force-password-change-override-message": "Hasło zostało zmienione, a twoje konto zostało odblokowane",
+      "edit-own-account-fail": "Błąd podczas edycji konta",
+      "two-factor-status-active": "Dwuetapowe uwierzytelnianie zostało włączone",
+      "two-factor-status-inactive": "Dwuetapowe uwierzytelnianie zostało wyłączone",
+      "two-factor-status-fail": "Błąd podczas zmiany statusu",
+      "edit-own-account": "Edycja profilu zakończyła się sukcesem",
+      "confirm-register": "Potwierdzono rejestrację",
+      "confirm-register-fail": "Nie udało się potwierdzić rejestracji",
+      "register-fail": "Rejestracja nie powiodła się",
+      "register": "Rejestracja powiodła się, potwierdzenie rejestracji zostało wysłane na podany adres email",
+      "edit-account-as-admin": "Edycja profilu zakończyła się sukcesem",
+      "edit-account-as-admin-fail": "Bład podczas edycji konta",
+      "change-email": "Wiadomość pozwalająca na zmianę adresu email, została wysłana",
+      "change-email-fail": "Nie udało się wysłać wiadomości",
+      "change-email-confirm": "Adres email został zmieniony",
+      "change-email-confirm-fail": "Zmiana adresu email nie powiodła się",
+      "change-status": "Zmiana statusu konta powiodła się",
+      "change-status-fail": "Zmiana statusu konta nie powiodła się",
+      "change-password": "Zmiana hasła konta powiodła się",
+      "change-password-fail": "Zmiana hasła konta nie powiodła się",
+      "change-access-level": "Aktualny poziom dostępu został zmieniony",
+      "change-access-level-fail": "Zmiana aktualnego poziomu dostępu nie powiodła się",
+      "grant-access-level": "Pomyślnie nadano poziom dostępu",
+      "revoke-access-level": "Operacja zakończona sukcesem",
+      "grant-access-level-fail": "Błąd podczas nadawania wybranego poziomu dostępu",
+      "revoke-access-level-fail": "Operacja zakończona niepowodzeniem",
+      "unlock-account-fail": "Nie udało się odblokować konta."
+    },
+    "guard": {
+      "access-denied": "Odmowa dostępu"
+    },
+    "place": {
+      "not-found": "Nie znaleziono lokalu",
+      "add-category-fail": "Nie udało się dodać kategorii do wybranego lokalu",
+      "add-category-success": "Pomyślnie dodano kategorię do lokalu",
+      "check-if-reading-needed-fail": "Nie udało się zweryfikować, czy kategoria potrzebuje odczytu",
+      "get-missing-categories-fail": "Nie udało się pobrać brakujących kategorii",
+      "remove-category-fail": "Nie udało się usunąć kategorii z wybranego lokalu",
+      "remove-category-success": "Kategoria została usunięta z wybranego lokalu",
+      "fail": "Błąd przy ładowaniu danych lokalu"
+    },
+    "place-edit": {
+      "fail": "Błąd przy edycji lokalu",
+      "success": "Udało się zaktualizować lokal",
+      "response": {
+        "message": {
+          "place_number_already_taken": "Podany numer lokalu istnieje w wybranym budynku",
+          "optimistic_lock": "Lokal został edytowany przez kogoś innego, odśwież stronę i spróbuj ponownie"
+        }
+      }
+    },
+    "rate": {
+      "remove-success": "Pomyślnie usunięto stawkę",
+      "add-success": "Pomyślnie dodano nową stawkę",
+      "remove-fail": "Coś poszło nie tak podczas usuwania stawki!",
+      "response": {
+        "message": {
+          "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!",
+          "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
+        }
+      }
+    },
+    "forecast": {
+      "get-years-by-place-fail": "Błąd podczas pobierania dostępnych lat do raportu, dla lokalu",
+      "add-current-forecast-success": "Nowa prognoza została dodana",
+      "add-current-forecast-fail": "Bład podczas dodawania prognozy dla wybranej kategorii",
+      "get-min-months-fail": "Błąd podczas pobierania miesięcy"
+    },
+    "report": {
+      "get-place-report-fail": "Bład podczas pobierania raportu",
+      "is-report-for-place-fail": "Nie można zwerfikować roku",
+      "not-found": "Nie znaleziono raportu"
+    },
+    "reading": {
+      "add-fail": "Nie udało się dodać odczytu. Spróbuj ponownie później",
+      "add-success": "Pomyślnie dodano odczyt",
+      "response": {
+        "message": {
+          "reading_value_smaller_than_previous": "Wartość odczytu musi być wyższa od wartości poprzedniego odczytu",
+          "not_enough_days_between_reliable_readings": "Nie minęła wystarczająca ilość dni od ostatniego odczytu",
+          "reading_value_higher_than_future": "Wartość odczytu musi być niższa od wartości przyszłych odczytów",
+          "reading_date_before_initial_reading": "Data odczytu musi być po dacie początkowego odczytu",
+          "reading_value_smaller_than_initial": "Wartość odczytu musi być wyższa niż wartość początkowego odczytu",
+          "not_enough_days_after_initial_reading": "Data odczytu musi być oddalona o co najmniej 1 dzień od początkowego odczytu",
+          "inactive_meter": "Nie udało się dodać odczytu, licznik jest nieaktywny",
+          "own_place_reading_attempt": "Nie udało się dodać odczytu, ponieważ jesteś właścicielem tego lokalu. Spróbuj ponownie z widoku interfejsu właściciela"
+        }
+      }
+    },
+    "place-owners-add": {
+      "fail": "Nie udało się przypisanie właściciela",
+      "success": "Udało się przypisać nowego właściciela",
+      "response": {
+        "message": {
+          "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
+        }
+      }
+    },
+    "place-owners-remove": {
+      "fail": "Nie udało się odłączenie właściciela",
+      "success": "Udało się odłączyć właściciela: ",
+      "response": {
+        "message": {
+          "optimistic_lock": "Lista przypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
+          "place_not_found": "Nie znaleziono lokalu",
+          "account_not_found": "Nie znaleziono konta użytkownika",
+          "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Pomyślnie dodano koszt",
+      "add-fail": "Nie udało się dodać kosztu. Spróbuj ponownie później",
+      "remove-success": "Pomyślnie usunięto koszt",
+      "remove-fail": "Nie udało się usunąć kosztu. Spróbuj ponownie później",
+      "response":{
+        "message": {
+          "cost_already_exists": "Koszt dla wybranych wartości już istnieje",
+          "cost_not_found": "Nie znaleziono kosztu"
+        }
+      }
+    }
+  },
+  "password-change": {
+    "response": {
+      "message": {
+        "token_not_found": "Link został już wykorzystany",
+        "expired_token": "Link wygasł",
+        "inactive_account": "Konto zostało zablokowane",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie",
+        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
+      }
+    }
+  },
+  "force-password-change": {
+    "response": {
+      "message": {
+        "inactive_account": "Wybrane konto jest zablokowane",
+        "unverified_account": "Wybrane konto jest niezweryfikowane",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "illegal_self_action": "Nie można wykonać akcji na własnym koncie",
+        "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie"
+      }
+    }
+  },
+  "edit-own-profile": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
+        "account_not_found": "Modyfikowane konto nie istnieje",
+        "license-number-already-taken": "Wybrany numer licencji jest w użytku"
+      }
+    }
+  },
+  "change-two-factor-status": {
+    "response": {
+      "message": {
+        "account_not_found": "Nie znaleziono twojego konta",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można zmienić statusu, spróbuj ponownie"
+      }
+    }
+  },
+  "two-factor-auth": {
+    "response": {
+      "message": {
+        "authentication_exception": "Logowanie nie powiodło się",
+        "token_not_found": "Podano błędny kod",
+        "expired_token": "Kod wygasł, zaloguj się ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Logowanie nie powiodło się, spróbuj ponownie"
+      }
+    }
+  },
+  "register": {
+    "response": {
+      "message": {
+        "invalid_captcha": "Niepoprawny kod CAPTCHA",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Rejestracja zakończyła się niepowodzeniem, spróbuj ponownie",
+        "license-number-already-taken": "Ten numer licencji jest już zajęty",
+        "email-address-already-taken": "Ten adres email jest już zajęty",
+        "login-already-taken": "Ten login jest już zajęty"
+      }
+    }
+  },
+  "confirm-register": {
+    "response": {
+      "message": {
+        "token_not_found": "Link został już wykorzystany",
+        "expired_token": "Link wygasł",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie udało się potwierdzić rejestracji",
+        "no-token": "Brak unikalnego kodu do potwierdzenia rejestracji."
+      }
+    }
+  },
+  "edit-as-admin": {
+    "response": {
+      "message": {
+        "signature_mismatch": "Nie można edytować konta, naruszono niemodyfikowalne dane.",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można edytować konta, dane konta zostały zmienione od momentu wczytania formularza, spróbuj ponownie",
+        "account_not_found": "Modyfikowane konto nie istnieje",
+        "illegal_self_action": "Nie można modyfikować własnego konta jako administrator",
+        "email-address-already-taken": "Nie można zmodyfikować konta, podany adres email jest już używany"
+      }
+    }
+  },
+  "change-email": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można wysłać wiadomości, spróbuj ponownie",
+        "account_not_found": "To konto nie zostało znalezione"
+      }
+    }
+  },
+  "change-email-confirm": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Zmiana adresu email nie powiodła się, spróbuj ponownie",
+        "email-address-already-taken": "Ten adres email jest już w użyciu",
+        "token_not_found": "Link został już użyty",
+        "invalid_token_type": "Niepoprawny link"
+      }
+    }
+  },
+  "change-status": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Zmiana statusu konta nie powiodła się, spróbuj ponownie",
+        "bad-access-level": "Jako zarządca nie możesz zmienić statusu administratora lub innych zarządców",
+        "account_not_found": "To konto nie zostało znalezione",
+        "illegal_self_action": "Nie można zmienic statusu twojego konta"
+      }
+    }
+  },
+  "change-password": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Zmiana twojego hasła nie powiodła się, spróbuj ponownie",
+        "account_not_found": "To konto nie zostało znalezione",
+        "invalid_password": "Podane stare hasło nie jest poprawne",
+        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
+      }
+    }
+  },
+  "change-access-level": {
+    "response": {
+      "message": {
+        "account_not_found": "To konto nie zostało znalezione",
+        "no_access_level": "Twoje konta nie posiada wybranego poziomu dostępu"
+      }
+    }
+  },
+  "grant-access-level": {
+    "response": {
+      "message": {
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "optimistic_lock": "Nie można nadać poziomu dostępu, spróbuj ponownie",
+        "access-management-self": "Nie można nadać poziomu dostępu własnemu kontu",
+        "account_not_found": "To konto nie zostało znalezione",
+        "license-number-already-taken": "Ten numer licencji jest już zajęty"
+      }
+    }
+  },
+  "get-report-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu",
+        "forecast_not_found": "Nie znaleziono prognozy",
+        "report_not_found": "Nie znaleziono raportu",
+        "place_not_found": "Nie znaleziono wybranego lokalu"
+      }
+    }
+  },
+  "is-report-for-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu"
+      }
+    }
+  },
+  "get-years-by-place": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "inaccessible_forecast": "Nie można pobrać prognozy dla nieposiadanego lokalu"
+      }
+    }
+  },
+  "get-min-month": {
+    "response": {
+      "message": {
+        "inaccessible_report": "Nie można pobrać raportu, dla nieposiadanego lokalu",
+        "forecast_not_found": "Nie znaleziono prognozy dla wybranego miejsca"
+      }
+    }
+  },
+  "add-category": {
+    "response": {
+      "message": {
+        "illegal_self_action": "Nie możesz wykonać akcji na własnym lokalu",
+        "category_in_use": "Wybrana kategoria jest już przypisana do tego lokalu",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
+        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii",
+        "initial_reading_required": "Wymagane jest podanie, początkowej wartości odczytu dla licznika tej kategorii",
+        "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu",
+        "place_not_found": "Wybrany lokal nie istnieje"
+      }
+    }
+  },
+  "remove-category": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Nie udało się dodać kategorii do wybranego lokalu, spróbuj ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "illegal_self_action": "Nie możesz wykonać akcji na własnym lokalu",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "category_not_in_use": "Wybrany lokal nie posiada kategorii, którą chcesz usunąć",
+        "category_not_found": "Nie udało się znaleźć wybranej kategorii dla lokalu",
+        "meter_not_found": "Nie udało się znaleźć licznika dla wybranego lokalu i kategorii",
+        "place_not_found": "Wybrany lokal nie istnieje"
+      }
+    }
+  },
+  "add-current-forecast": {
+    "response": {
+      "message": {
+        "optimistic_lock": "Nie udało się dodać prognozy, spróbuj ponownie",
+        "rollback.limit.exceeded": "Wygasł limit czasu żądania",
+        "place_not_found": "Wybrany lokal nie istnieje",
+        "illegal_self_action": "Nie możesz wykonać akcji na własnym lokalu",
+        "inactive_place": "Wybrany lokal został oznaczony jako nieaktywny",
+        "category_not_in_use": "Wybrane miejsce nie posiada kategorii, dla której chcesz dodać prognozę",
+        "rate_not_found": "Nie udało się znaleźć stawki dla wybranego lokalu i kategorii",
+        "forecast_already_exists": "Już istnieje prognoza na aktualny miesiąc dla wybranej kategorii"
+      }
+    }
+  },
+  "unlock-account": {
+    "confirmation": "Konto zostało odblokowane",
+    "message": "Twoje konto zostało odblokowane. Teraz ponownie możesz się zalogować.",
+    "go-to": "Przejdź do",
+    "go-to-where": "Strony logowania",
+    "fail": "Nie udało się odblokować konta",
+    "action": "Trwa odblokowywanie twojego konta.",
+    "loading": "Ładowanie ...",
+    "response": {
+      "message": {
+        "no-token": "Brak unikalnego kodu.",
+        "token_not_found": "Podano błędny kod",
+        "invalid_token_type": "Podano błędny kod"
+      }
+    }
+  },
+  "categories": {
+    "maintenance": "Opłata eksploatacyjna",
+    "repair": "Opłata remontowa",
+    "heating": "Ogrzewanie",
+    "hot_water": "Woda ciepła",
+    "cold_water": "Woda zimna",
+    "intercom": "Domofon",
+    "garbage": "Śmieci",
+    "elevator": "Winda",
+    "satellite_tv": "Telewizja satelitarna",
+    "parking": "Parking"
+  }
+}

@@ -6,6 +6,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ public class Address implements Serializable {
     @NotNull
     @Basic(optional = false)
     @Size(min = 2, max = 85)
+    @Pattern(regexp = "[A-ZĄĆĘŁÓŚŹŻ]+.*")
     @Column(name = "city", nullable = false, length = 85)
     private String city;
 

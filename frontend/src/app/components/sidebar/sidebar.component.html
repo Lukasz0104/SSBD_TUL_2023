@@ -1,13 +1,14 @@
 <div
-    class="d-flex flex-column flex-shrink-0 vh-100 p-3 bg-light border fixed-top sticky-sm-top"
+    class="d-flex flex-column flex-shrink-0 sidebar p-3 bg-light-subtle border fixed-top sticky-sm-top"
     [ngClass]="{ 'd-none': hidden }"
     style="width: 280px">
-    <div class="d-flex align-items-center link-dark text-decoration-none">
+    <div class="d-flex align-items-center text-decoration-none">
         <a
             routerLink="/"
-            class="w-100 text-center fs-3 nav-link"
-            ><i class="bi bi-buildings"></i> eBok</a
-        >
+            class="w-100 text-center fs-3 nav-link link-body-emphasis">
+            <i class="bi bi-buildings"></i>
+            eBok
+        </a>
         <button
             class="btn fs-2"
             style="border-radius: 0 0 10px 0"
@@ -25,54 +26,85 @@
         <li class="nav-item">
             <a
                 routerLink="/dashboard"
-                class="nav-link link-dark"
+                class="nav-link link-body-emphasis"
                 aria-current="page"
-                routerLinkActive="active link-light"
+                routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }">
-                <i class="bi bi-buildings"></i> Dashboard
+                <i class="bi bi-buildings"></i>
+                {{ 'nav.dashboard' | translate }}
             </a>
         </li>
         <li *ngIf="authService.isAdmin() || authService.isManager()">
             <a
-                routerLink="accounts"
-                href="#"
-                class="nav-link link-dark"
-                routerLinkActive="active link-light"
+                routerLink="/dashboard/accounts"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }">
-                <i class="bi bi-people"></i> Accounts
+                <i class="bi bi-people"></i> {{ 'nav.accounts' | translate }}
+            </a>
+        </li>
+        <li *ngIf="authService.isOwner()">
+            <a
+                routerLink="/dashboard/your-places"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-door-open"></i>
+                {{ 'nav.your-places' | translate }}
+            </a>
+        </li>
+        <li *ngIf="authService.isManager()">
+            <a
+                routerLink="/dashboard/categories"
+                href="#"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-tags"></i> {{ 'nav.categories' | translate }}
+            </a>
+        </li>
+        <li *ngIf="authService.isManager()">
+            <a
+                routerLink="/dashboard/costs"
+                href="#"
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-piggy-bank"></i> {{ 'nav.costs' | translate }}
             </a>
         </li>
         <li>
             <a
+                routerLink="/dashboard/buildings"
                 href="#"
-                class="nav-link link-dark">
-                Link
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-building"></i> {{ 'nav.buildings' | translate }}
             </a>
         </li>
-        <li>
+        <li *ngIf="authService.isManager()">
             <a
+                routerLink="/dashboard/community-reports"
                 href="#"
-                class="nav-link link-dark">
-                Link
-            </a>
-        </li>
-        <li>
-            <a
-                href="#"
-                class="nav-link link-dark">
-                Link
+                class="nav-link link-body-emphasis"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                <i class="bi bi-journal-bookmark-fill"></i>
+                {{ 'nav.community-reports' | translate }}
             </a>
         </li>
     </ul>
     <hr />
     <div class="d-flex justify-content-center">
         <a
-            class="d-flex align-items-center link-dark text-decoration-none"
-            routerLink="/dashboard/profile">
+            class="d-flex align-items-center text-decoration-none link-body-emphasis"
+            routerLink="/dashboard/accounts/profile">
             <i class="fs-2 bi bi-person"></i>
             <strong class="px-2 text-center"
-                >{{ authService.getLogin() }} ({{
-                    authService.getCurrentGroup()
+                >{{ authService.getLogin() | truncate : 20 }} ({{
+                    'access-levels.' + authService.getCurrentGroup().toString()
+                        | translate
                 }})</strong
             >
         </a>
@@ -83,19 +115,22 @@
 <div
     *ngIf="hidden"
     class="d-flex d-sm-none position-fixed top-0 start-0"
-    style="z-index: 20">
+    style="z-index: 1021">
     <button
-        class="fs-2 btn bg-white border"
+        class="fs-2 btn py-2"
         style="border-radius: 0 0 10px 0"
-        (click)="toggle()">
+        (click)="toggle()"
+        [ngClass]="{
+            'text-black': authService.isManager(),
+            'text-white': !authService.isManager()
+        }">
         <i class="bi bi-chevron-double-right"></i>
     </button>
 </div>
-
 <!--Hidden sidebar-->
 <div
     *ngIf="hidden"
-    class="d-none d-sm-flex flex-column shadow vh-100">
+    class="d-none d-sm-flex flex-column shadow vh-100 fixed-top sticky-sm-top bg-light-subtle">
     <button
         class="fs-2 btn"
         (click)="toggle()">
@@ -108,25 +143,64 @@
     </button>
     <span class="nav-pills">
         <button
-            class="nav-link link-dark mx-auto p-2 m-2"
-            routerLinkActive="active link-light"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/dashboard">
             <i class="bi bi-buildings fs-2"></i>
         </button>
         <button
             *ngIf="authService.isAdmin() || authService.isManager()"
-            class="nav-link link-dark mx-auto p-2 m-2"
-            routerLinkActive="active link-light"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
-            routerLink="accounts">
+            routerLink="/dashboard/accounts">
             <i class="bi bi-people fs-2"></i>
         </button>
         <button
-            class="nav-link link-dark mx-auto p-2 m-2"
-            routerLinkActive="active link-light"
+            *ngIf="authService.isManager()"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
-            routerLink="/dashboard/profile">
+            routerLink="/dashboard/categories">
+            <i class="bi bi-tags fs-2"></i>
+        </button>
+        <button
+            *ngIf="authService.isManager()"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/costs">
+            <i class="bi bi-piggy-bank fs-2"></i>
+        </button>
+        <button
+            *ngIf="authService.isOwner()"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/your-places">
+            <i class="bi bi-door-open fs-2"></i>
+        </button>
+        <button
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/buildings">
+            <i class="bi bi-building fs-2"></i>
+        </button>
+        <button
+            *ngIf="authService.isManager()"
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/community-reports">
+            <i class="bi bi-journal-bookmark-fill fs-2"></i>
+        </button>
+        <button
+            class="nav-link mx-auto p-2 m-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/dashboard/accounts/profile">
             <i class="bi bi-person fs-2"></i>
         </button>
     </span>

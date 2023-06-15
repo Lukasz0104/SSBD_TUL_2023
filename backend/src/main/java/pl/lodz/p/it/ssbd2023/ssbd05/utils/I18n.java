@@ -78,9 +78,26 @@ public class I18n {
     public static final String EMAIL_MESSAGE_FORCE_PASSWORD_CHANGE_ACTION =
         "email.message.force-password-change.action";
 
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_MESSAGE =
+        "email.message.inactivity-account-locked.message";
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_SUBJECT =
+        "email.message.inactivity-account-locked.subject";
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_TITLE =
+        "email.message.inactivity-account-locked.title";
+    public static final String EMAIL_MESSAGE_INACTIVITY_ACCOUNT_LOCKED_ACTION =
+        "email.message.inactivity-account-locked.action";
+
+    public static final String EMAIL_MESSAGE_TWO_FACTOR_CODE_MESSAGE =
+        "email.message.two-factor-code.message";
+
+    public static final String EMAIL_MESSAGE_TWO_FACTOR_CODE_TITLE =
+        "email.message.two-factor-code.title";
+
     public static final String EXPIRED_TOKEN = "response.message.expired_token";
     public static final String INVALID_TOKEN_TYPE = "response.message.invalid_token_type";
     public static final String TOKEN_NOT_FOUND = "response.message.token_not_found";
+    public static final String CATEGORY_NOT_FOUND = "response.message.category_not_found";
+    public static final String RATE_NOT_UNIQUE = "response.message.rate_not_unique";
     public static final String PASSWORD_CONSTRAINT = "response.message.password_constraint";
     public static final String PASSWORD_NOT_MATCH = "response.message.password_not_match";
     public static final String REPEATED_PASSWORD = "response.message.repeated_password";
@@ -95,6 +112,7 @@ public class I18n {
     public static final String LICENSE_NUMBER_ALREADY_TAKEN = "response.message.license-number-already-taken";
     public static final String EMAIL_ADDRESS_ALREADY_TAKEN = "response.message.email-address-already-taken";
     public static final String LOGIN_ALREADY_TAKEN = "response.message.login-already-taken";
+    public static final String RATE_ALREADY_EFFECTIVE = "response.message.rate-already-effective";
     public static final String ACCESS_LEVEL_NOT_FOUND = "response.message.access_level_not_found";
     public static final String FORCE_PASSWORD_CHANGE_DATABASE_EXCEPTION =
         "response.message.force_password_change_database_exception";
@@ -102,6 +120,7 @@ public class I18n {
     public static final String OVERRIDE_FORCED_PASSWORD_DATABASE_EXCEPTION =
         "response.message.override_forced_password_database_exception";
     public static final String ACCESS_MANAGEMENT_SELF = "response.message.access-management-self";
+    public static final String BAD_ACCESS_LEVEL = "response.message.bad-access-level";
 
     public static final String SIGNATURE_MISMATCH = "response.message.signature_mismatch";
 
@@ -113,8 +132,44 @@ public class I18n {
     public static final String INTERNAL = "response.message.internal";
     public static final String NOT_FOUND = "response.message.not_found";
     public static final String UNAUTHORIZED = "response.message.unauthorized";
-    
+    public static final String INVALID_CAPTCHA_CODE = "response.message.invalid_captcha";
     public static final String INVALID_UUID = "response.message.invalid.uuid";
+    public static final String NO_ACCESS_LEVEL = "response.message.no_access_level";
+    public static final String ACCESS_LEVEL_ALREADY_GRANTED = "response.message.access-level-already-granted";
+
+    // MOW
+    public static final String PLACE_NOT_FOUND = "response.message.place_not_found";
+    public static final String INVALID_DATE_FORMAT = "response.message.invalid-date-format";
+    public static final String METER_NOT_FOUND = "response.message.meter_not_found";
+    public static final String READING_VALUE_SMALLER_THAN_PREVIOUS_EXCEPTION =
+        "response.message.reading_value_smaller_than_previous";
+    public static final String NOT_ENOUGH_DAYS_BETWEEN_RELIABLE_READINGS_EXCEPTION =
+        "response.message.not_enough_days_between_reliable_readings";
+    public static final String READING_VALUE_HIGHER_THAN_FUTURE_EXCEPTION =
+        "response.message.reading_value_higher_than_future";
+    public static final String FORECAST_NOT_FOUND = "response.message.forecast_not_found";
+    public static final String REPORT_NOT_FOUND = "response.message.report_not_found";
+    public static final String INACCESSIBLE_REPORT = "response.message.inaccessible_report";
+    public static final String INACCESSIBLE_FORECAST = "response.message.inaccessible_forecast";
+    public static final String CATEGORY_IN_USE = "response.message.category_in_use";
+    public static final String RATE_NOT_FOUND = "response.message.rate_not_found";
+    public static final String INACTIVE_PLACE = "response.message.inactive_place";
+    public static final String INITIAL_READING_REQUIRED = "response.message.initial_reading_required";
+    public static final String COST_NOT_FOUND = "response.message.cost_not_found";
+    public static final String READING_DATE_BEFORE_INITIAL_READING_EXCEPTION =
+        "response.message.reading_date_before_initial_reading";
+    public static final String READING_VALUE_SMALLER_THAN_INITIAL_EXCEPTION =
+        "response.message.reading_value_smaller_than_initial";
+    public static final String NOT_ENOUGH_DAYS_AFTER_INITIAL_READING_EXCEPTION =
+        "response.message.not_enough_days_after_initial_reading";
+    public static final String INACTIVE_METER = "response.message.inactive_meter";
+    public static final String OWN_PLACE_READING_ATTEMPT_EXCEPTION = "response.message.own_place_reading_attempt";
+    public static final String CATEGORY_NOT_IN_USE = "response.message.category_not_in_use";
+    public static final String FORECAST_ALREADY_EXISTS = "response.message.forecast_already_exists";
+    public static final String COST_ALREADY_EXISTS = "response.message.cost_already_exists";
+    public static final String PLACE_NUMBER_ALREADY_TAKEN = "response.message.place_number_already_taken";
+
+    public static final String BUILDING_NOT_FOUND = "response.message.building_not_found";
 
     public static String getMessage(String key, String language) {
         Locale locale = new Locale(language);

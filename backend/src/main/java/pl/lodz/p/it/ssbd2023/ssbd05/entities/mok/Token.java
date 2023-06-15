@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mok;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
@@ -17,9 +18,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.ExpiredTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mok.EntityControlListenerMOK;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Getter
@@ -77,14 +78,18 @@ import java.util.UUID;
         query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt"),
     @NamedQuery(
         name = "Token.removeTokensByAccountIdAndTokenType",
-        query = "DELETE FROM Token t WHERE t.account.id = :accountId AND t.tokenType = :tokenType")
+        query = "DELETE FROM Token t WHERE t.account.id = :accountId AND t.tokenType = :tokenType"),
+    @NamedQuery(
+        name = "Token.findByTokenTypeAndAccountId",
+        query = "SELECT t FROM Token t WHERE t.tokenType = :tokenType AND t.account.id = :accountId")
 })
+@EntityListeners({EntityControlListenerMOK.class})
 public class Token extends AbstractEntity {
 
     @NotNull
     @Basic(optional = false)
     @Column(name = "token", unique = true, updatable = false, nullable = false)
-    private UUID token;
+    private String token;
 
     @NotNull
     @ManyToOne(optional = false)
@@ -102,27 +107,15 @@ public class Token extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private TokenType tokenType;
 
-    public Token(Account account, TokenType tokenType) {
-        this(UUID.randomUUID(), account, tokenType);
+    public Token(Account account, TokenType tokenType, LocalDateTime expiresAt) {
+        this(UUID.randomUUID().toString(), account, tokenType, expiresAt);
     }
 
-    public Token(UUID token, Account account, TokenType tokenType) {
+    public Token(String token, Account account, TokenType tokenType, LocalDateTime expiresAt) {
         this.token = token;
         this.account = account;
         this.tokenType = tokenType;
-        this.expiresAt = switch (tokenType) {
-            case REFRESH_TOKEN -> LocalDateTime.now().plusHours(1);
-            case PASSWORD_RESET_TOKEN -> LocalDateTime.now().plusMinutes(15);
-            case BLOCKED_ACCOUNT_TOKEN -> LocalDateTime.now().plusHours(24);
-            default -> LocalDateTime.now().plusHours(2);
-        };
-    }
-
-    public Token(Account account, long confirmationTime, TokenType tokenType) {
-        this.token = UUID.randomUUID();
-        this.account = account;
-        this.expiresAt = LocalDateTime.now().plus(confirmationTime, ChronoUnit.MILLIS);
-        this.tokenType = tokenType;
+        this.expiresAt = expiresAt;
     }
 
     public void validateSelf(TokenType tokenType) throws AppBaseException {

@@ -1,0 +1,226 @@
+<div class="modal-header">
+    <h3
+        class="modal-title"
+        id="modal-basic-title">
+        <ng-container *ngIf="grantNewAccessLevelMode; else verifyBlock">
+            {{ 'form.give-access-level.grant' | translate }}
+            {{ 'access-levels.' + accessType | translate }}
+        </ng-container>
+        <ng-template #verifyBlock>
+            {{ 'form.give-access-level.verify' | translate }}</ng-template
+        >
+    </h3>
+</div>
+
+<div
+    *ngIf="accessType !== AccessTypeEnum.ADMIN"
+    class="modal-body px-4 py-2">
+    <form
+        [formGroup]="ownerOrManagerForm"
+        (ngSubmit)="grant()">
+        <ng-container formGroupName="address">
+            <div class="mb-2 has-validation">
+                <label
+                    for="zipcodeInput"
+                    class="form-label">
+                    {{ 'component.fields.postal-code' | translate }}
+                </label>
+                <input
+                    id="zipcodeInput"
+                    formControlName="postalCode"
+                    type="text"
+                    required
+                    class="form-control"
+                    placeholder="{{
+                        'component.fields.postal-code' | translate
+                    }}"
+                    [ngClass]="{
+                        'is-invalid': postalCodeControl.invalid,
+                        'is-valid': postalCodeControl.valid
+                    }" />
+                <div
+                    *ngIf="postalCodeControl.errors as pcErrors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="pcErrors['required']; else pcNotEmpty"
+                        class="mb-0">
+                        {{ 'validation.postal-code.required' | translate }}
+                    </p>
+                    <ng-template #pcNotEmpty>
+                        <p class="mb-0">
+                            {{ 'validation.postal-code.length' | translate }}
+                        </p>
+                    </ng-template>
+                </div>
+            </div>
+            <div class="mb-2 has-validation">
+                <label
+                    for="cityInput"
+                    class="form-label">
+                    {{ 'component.fields.city' | translate }}
+                </label>
+                <input
+                    id="cityInput"
+                    formControlName="city"
+                    placeholder="{{ 'component.fields.city' | translate }}"
+                    type="text"
+                    required
+                    class="form-control"
+                    [ngClass]="{
+                        'is-invalid': cityControl.invalid,
+                        'is-valid': cityControl.valid
+                    }" />
+                <div
+                    *ngIf="cityControl.errors as cityErrors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="cityErrors['required']; else cityNotEmpty"
+                        class="mb-0">
+                        {{ 'validation.city.required' | translate }}
+                    </p>
+                    <ng-template #cityNotEmpty>
+                        <p
+                            *ngIf="cityErrors['minlength'] as minlen"
+                            class="mb-0">
+                            {{ 'validation.city.min-length' | translate }}
+                        </p>
+                        <p
+                            *ngIf="cityErrors['maxlength'] as maxlen"
+                            class="mb-0">
+                            {{ 'validation.city.max-length' | translate }}
+                        </p>
+                    </ng-template>
+                </div>
+            </div>
+            <div class="mb-2 has-validation">
+                <label
+                    for="streetInput"
+                    class="form-label">
+                    {{ 'component.fields.street' | translate }}
+                </label>
+                <input
+                    id="streetInput"
+                    formControlName="street"
+                    type="text"
+                    required
+                    class="form-control"
+                    placeholder="{{ 'component.fields.street' | translate }}"
+                    [ngClass]="{
+                        'is-invalid': streetControl.invalid,
+                        'is-valid': streetControl.valid
+                    }" />
+                <div
+                    *ngIf="streetControl.errors as streetErrors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="streetErrors['required']"
+                        class="mb-0">
+                        {{ 'validation.street.required' | translate }}
+                    </p>
+                    <p
+                        *ngIf="streetErrors['maxlength'] as maxlen"
+                        class="mb-0">
+                        {{ 'validation.street.length' | translate }}
+                    </p>
+                </div>
+            </div>
+            <div class="mb-2 has-validation">
+                <label
+                    for="buildingNumberInput"
+                    class="form-label">
+                    {{ 'component.fields.building-number' | translate }}
+                </label>
+                <input
+                    id="buildingNumberInput"
+                    formControlName="buildingNumber"
+                    type="number"
+                    min="1"
+                    required
+                    class="form-control"
+                    placeholder="{{
+                        'component.fields.building-number' | translate
+                    }}"
+                    [ngClass]="{
+                        'is-invalid': buildingNumberControl.invalid,
+                        'is-valid': buildingNumberControl.valid
+                    }" />
+                <div
+                    *ngIf="buildingNumberControl.errors as bnErrors"
+                    class="invalid-feedback">
+                    <p
+                        *ngIf="bnErrors['required']"
+                        class="mb-0">
+                        {{ 'validation.building.required' | translate }}
+                    </p>
+                    <p
+                        *ngIf="bnErrors['min']"
+                        class="mb-0">
+                        {{ 'validation.building.length' | translate }}
+                    </p>
+                </div>
+            </div>
+        </ng-container>
+        <div
+            *ngIf="accessType === AccessTypeEnum.MANAGER"
+            class="mb-2 has-validation">
+            <label
+                for="licenseNumberInput"
+                class="form-label">
+                {{ 'component.account.license-number' | translate }}
+            </label>
+            <input
+                id="licenseNumberInput"
+                formControlName="licenseNumber"
+                type="text"
+                required
+                class="form-control"
+                placeholder="{{
+                    'component.account.license-number' | translate
+                }}"
+                [ngClass]="{
+                    'is-invalid': licenseNumberControl.invalid,
+                    'is-valid': licenseNumberControl.valid
+                }" />
+            <div
+                *ngIf="licenseNumberControl.errors"
+                class="invalid-feedback">
+                <p
+                    *ngIf="licenseNumberControl.errors['required']"
+                    class="mb-0">
+                    {{ 'validation.license-number.required' | translate }}
+                </p>
+            </div>
+        </div>
+        <!-- hidden button to allow submiting with enter -->
+        <button
+            class="d-none"
+            type="submit"></button>
+    </form>
+</div>
+
+<div class="px-4 d-flex justify-content-between modal-footer">
+    <button
+        (click)="activeModal.dismiss()"
+        class="btn btn-outline-secondary">
+        {{ 'component.account.cancel' | translate }}
+    </button>
+    <button
+        *ngIf="!grantNewAccessLevelMode"
+        class="btn btn-danger"
+        (click)="reject()">
+        {{ 'form.give-access-level.reject' | translate }}
+    </button>
+    <button
+        [disabled]="
+            accessType !== AccessTypeEnum.ADMIN && ownerOrManagerForm.invalid
+        "
+        (click)="grant()"
+        class="btn btn-success">
+        <ng-container *ngIf="grantNewAccessLevelMode; else verifyBlock">
+            {{ 'form.give-access-level.grant' | translate }}
+        </ng-container>
+        <ng-template #verifyBlock>
+            {{ 'form.give-access-level.confirm' | translate }}</ng-template
+        >
+    </button>
+</div>

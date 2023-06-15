@@ -5,22 +5,27 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import jakarta.servlet.http.HttpServletRequest;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+@ApplicationScoped
+@Interceptors(LoggerInterceptor.class)
 public class JwtUtils {
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
 
     private Key getSigningKey() {
-        byte[] keyBytes = properties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = appProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -28,12 +33,12 @@ public class JwtUtils {
 
         return Jwts.builder()
             .setSubject(account.getLogin())
-            .setIssuer(properties.getIssuer())
+            .setIssuer(appProperties.getIssuer())
             .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + properties.getJwtExpirationTime()))
+            .setExpiration(new Date(System.currentTimeMillis() + appProperties.getJwtExpirationTime()))
             .claim("groups", account.getAccessLevels()
                 .stream()
-                .filter(AccessLevel::isActive)
+                .filter((a) -> a.isActive() && a.isVerified())
                 .map(AccessLevel::getLevel)
                 .toList())
             .signWith(this.getSigningKey(), SignatureAlgorithm.HS512)

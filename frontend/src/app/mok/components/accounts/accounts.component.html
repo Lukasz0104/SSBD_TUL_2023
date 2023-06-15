@@ -1,0 +1,436 @@
+<ng-container *ngIf="authService.isAdmin() || authService.isManager()">
+    <form [formGroup]="filter">
+        <div class="mb-3 row d-flex">
+            <label
+                for="filter-phrase"
+                class="col-xs-3 col-sm-auto col-form-label mt-2"
+                ><b>{{ 'component.accounts.filters' | translate }}:</b>
+            </label>
+            <div class="col-lg mt-2">
+                <div class="input-group">
+                    <input
+                        id="filter-phrase"
+                        type="text"
+                        class="form-control"
+                        formControlName="phrase"
+                        placeholder="{{
+                            'component.accounts.filter-content' | translate
+                        }}" />
+                    <i
+                        class="input-group-text bi bi-x-lg cursor-pointer"
+                        (click)="clearFilterPhrase()"></i>
+                </div>
+            </div>
+            <div class="col-lg mt-2">
+                <div class="input-group">
+                    <input
+                        id="filter-login"
+                        type="text"
+                        class="form-control"
+                        [ngbTypeahead]="filter_type_ahead"
+                        formControlName="login"
+                        placeholder="Login" />
+                    <i
+                        class="input-group-text bi bi-x-lg cursor-pointer"
+                        (click)="clearFilterLogin()"></i>
+                </div>
+            </div>
+            <div class="col-sm mt-2">
+                <button
+                    class="btn btn-primary rounded-end-0"
+                    (click)="onFilterPhrase()">
+                    {{ 'component.accounts.filter-action' | translate }}
+                </button>
+                <button
+                    class="btn btn-outline-primary rounded-start-0"
+                    type="reset"
+                    (click)="resetFilters()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+    <div
+        aria-label="Choose access type"
+        class="btn-group mb-3 d-flex"
+        role="group">
+        <button
+            (click)="changeAccessTypeOption('ALL')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'ALL'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 &&
+                (authService.isAdmin() || authService.isManager())
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn text-truncate"
+            type="button">
+            {{ 'component.accounts.display.all' | translate }}
+        </button>
+        <button
+            (click)="changeAccessTypeOption('OWNER')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'OWNER'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn text-truncate"
+            type="button">
+            {{ 'component.accounts.display.owners' | translate }}
+        </button>
+        <button
+            *ngIf="authService.isAdmin()"
+            (click)="changeAccessTypeOption('MANAGER')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'MANAGER'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isManager()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn text-truncate"
+            type="button">
+            {{ 'component.accounts.display.managers' | translate }}
+        </button>
+        <button
+            *ngIf="authService.isAdmin()"
+            (click)="changeAccessTypeOption('ADMIN')"
+            [ngClass]="[
+                chosenAccessType.getValue() === 'ADMIN'
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenOption.getValue() === 3 && authService.isAdmin()
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn text-truncate"
+            type="button">
+            {{ 'component.accounts.display.admins' | translate }}
+        </button>
+    </div>
+</ng-container>
+<div class="row">
+    <div
+        aria-label="Choose active"
+        class="btn-group mb-3 d-flex"
+        role="group">
+        <button
+            (click)="changeStatusOption(1)"
+            [ngClass]="[
+                chosenOption.getValue() === 1
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary'
+            ]"
+            class="btn text-truncate"
+            type="button">
+            {{ 'component.accounts.display.active' | translate }}
+        </button>
+        <button
+            (click)="changeStatusOption(2)"
+            [ngClass]="[
+                chosenOption.getValue() === 2
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary'
+            ]"
+            class="btn text-truncate"
+            type="button">
+            {{ 'component.accounts.display.inactive' | translate }}
+        </button>
+        <button
+            (click)="changeStatusOption(3)"
+            [ngClass]="[
+                chosenOption.getValue() === 3
+                    ? 'btn-primary active'
+                    : 'btn-outline-primary',
+                chosenAccessType.getValue() === 'ALL' ||
+                (chosenAccessType.getValue() === 'OWNER' &&
+                    !authService.isManager()) ||
+                (chosenAccessType.getValue() === 'MANAGER' &&
+                    !authService.isAdmin()) ||
+                chosenAccessType.getValue() === 'ADMIN'
+                    ? 'disabled'
+                    : ''
+            ]"
+            class="btn text-truncate"
+            type="button">
+            {{ 'component.accounts.display.approval' | translate }}
+        </button>
+        <span
+            (click)="reload()"
+            class="btn btn-primary flex-grow-0 d-flex justify-content-center align-items-center">
+            <i class="bi bi-arrow-clockwise"></i>
+        </span>
+    </div>
+</div>
+
+<ng-container *ngIf="accountsPage$ | async as accounts; else loadingAccounts">
+    <div
+        class="d-flex flex-column justify-content-between table-responsive border rounded w-100"
+        style="min-height: 300px">
+        <table class="table text-center table-hover">
+            <thead>
+                <tr class="bg-light-subtle">
+                    <th
+                        (click)="onSortChange()"
+                        class="cursor-pointer text-nowrap"
+                        scope="col">
+                        <i
+                            [ngClass]="{
+                                'bi-arrow-up': sortDirection === 1,
+                                'bi-arrow-down': sortDirection === -1
+                            }"
+                            class="bi"></i>
+                        {{ 'component.fields.login' | translate }}
+                    </th>
+                    <th
+                        class="text-nowrap"
+                        scope="col">
+                        {{ 'component.fields.first-name' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="text-nowrap">
+                        {{ 'component.fields.last-name' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.active' | translate }}
+                    </th>
+                    <th
+                        *ngIf="authService.isAdmin()"
+                        scope="col">
+                        {{ 'component.fields.details' | translate }}
+                    </th>
+                    <th scope="col">
+                        {{ 'component.fields.actions' | translate }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let account of accounts.data"
+                    class="cursor-pointer align-middle">
+                    <td>{{ account.login }}</td>
+                    <td>{{ account.firstName }}</td>
+                    <td>{{ account.lastName }}</td>
+                    <td>
+                        <i
+                            [ngClass]="{
+                                'bi-lock-fill': !account.active,
+                                'bi-unlock-fill': account.active
+                            }"
+                            class="bi"></i>
+                    </td>
+                    <td *ngIf="authService.isAdmin()">
+                        <button
+                            [queryParams]="{ id: account.id }"
+                            [routerLink]="['account']"
+                            class="btn btn-outline-primary">
+                            {{ 'component.fields.details' | translate }}
+                        </button>
+                    </td>
+                    <td>
+                        <div
+                            *ngIf="
+                                !authService.isOwner() &&
+                                account.login !== authService.getLogin()
+                            "
+                            class="d-inline-block"
+                            ngbDropdown
+                            container="body">
+                            <button
+                                class="btn btn-outline-primary"
+                                id="dropdownBasic1"
+                                ngbDropdownToggle
+                                type="button">
+                                {{ 'component.fields.actions' | translate }}
+                            </button>
+                            <div
+                                *ngIf="!authService.isOwner()"
+                                aria-labelledby="dropdownBasic1"
+                                ngbDropdownMenu>
+                                <button
+                                    *ngIf="
+                                        authService.isAdmin() && account.active
+                                    "
+                                    (click)="forceChange(account.login)"
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.password-change'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="
+                                        account.login !==
+                                            authService.getLogin() &&
+                                        authService.isAdmin()
+                                    "
+                                    ngbDropdownItem
+                                    (click)="editPersonalDataAsAdmin(account)">
+                                    {{
+                                        'component.accounts.edit-account'
+                                            | translate
+                                    }}
+                                </button>
+                                <button ngbDropdownItem>
+                                    <app-change-active-status
+                                        (statusChangedEvent)="reload()"
+                                        [id]="account.id"
+                                        [status]="account.active">
+                                    </app-change-active-status>
+                                </button>
+                                <button
+                                    *ngIf="showGrantAdminDropdownItem(account)"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.ADMIN
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.give-admin'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="
+                                        showGrantManagerDropdownItem(account)
+                                    "
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.MANAGER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.give-manager'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="showGrantOwnerDropdownItem(account)"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.OWNER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.give-owner'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="showRevokeAdminDropdownItem(account)"
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.ADMIN
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.revoke-admin'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="
+                                        showRevokeManagerDropdownItem(account)
+                                    "
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.MANAGER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.revoke-manager'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="showRevokeOwnerDropdownItem(account)"
+                                    (click)="
+                                        openRevokeAccessLevelModal(
+                                            account,
+                                            accessTypeEnum.OWNER
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.revoke-owner'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    *ngIf="chosenOption.getValue() === 3"
+                                    (click)="
+                                        openGrantAccessLevelModal(
+                                            account,
+                                            chosenAccessType.getValue(),
+                                            false
+                                        )
+                                    "
+                                    ngbDropdownItem>
+                                    {{
+                                        'component.accounts.verify' | translate
+                                    }}
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="d-sm-flex justify-content-between m-2">
+            <div>
+                <ngb-pagination
+                    [(page)]="page"
+                    [collectionSize]="accounts.totalSize"
+                    [pageSize]="pageSize"
+                    (pageChange)="getAccounts()">
+                </ngb-pagination>
+            </div>
+
+            <div>
+                <select
+                    [(ngModel)]="pageSize"
+                    (ngModelChange)="savePageSizePreference()"
+                    class="form-select w-auto">
+                    <option [ngValue]="5">
+                        {{
+                            'component.accounts.display.five-items' | translate
+                        }}
+                    </option>
+                    <option [ngValue]="10">
+                        {{ 'component.accounts.display.ten-items' | translate }}
+                    </option>
+                    <option [ngValue]="15">
+                        {{
+                            'component.accounts.display.fifteen-items'
+                                | translate
+                        }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<ng-template #loadingAccounts>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">{{ 'component.accounts.loading' | translate }}</span>
+    </div>
+</ng-template>

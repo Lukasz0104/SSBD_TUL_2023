@@ -1,5 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAccountFromEditOwnPersonalDataDto;
@@ -7,10 +10,12 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createAddressFromDto;
 import static pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter.createOwnAccountDto;
 
+import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,10 +40,15 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.ManagerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppRollbackLimitExceededException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppTransactionRolledBackException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidCaptchaCodeException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.AccountNotFoundException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeAccessLevelDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeActiveStatusDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.ChangeEmailDto;
@@ -52,20 +62,24 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccessTypeDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.AccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.response.OwnAccountDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.ejb.managers.AccountManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.AppProperties;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.Properties;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.RecaptchaService;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidUUID;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.AccountDtoConverter;
-
-import java.util.List;
-import java.util.UUID;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
 @Path("/accounts")
+@DenyAll
+@Interceptors(LoggerInterceptor.class)
 public class AccountEndpoint {
 
     @Inject
-    private Properties properties;
+    private AppProperties appProperties;
+
+    @Inject
+    private RollbackUtils rollbackUtils;
 
     @Inject
     private AccountManagerLocal accountManager;
@@ -73,38 +87,42 @@ public class AccountEndpoint {
     @Inject
     private JwsProvider jwsProvider;
 
+    @Inject
+    private RecaptchaService recaptchaService;
+
     @Context
     private SecurityContext securityContext;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/owner")
+    @PermitAll
     public Response registerOwner(@NotNull @Valid RegisterOwnerDto registerOwnerDto) throws AppBaseException {
+        if (!recaptchaService.verifyCode(registerOwnerDto.getCaptchaCode())) {
+            throw new InvalidCaptchaCodeException();
+        }
+
         Account account = createAccountFromRegisterDto(registerOwnerDto);
         Address address = createAddressFromDto(registerOwnerDto.getAddress());
         AccessLevel accessLevel = new OwnerData(account, address);
 
         account.getAccessLevels().add(accessLevel);
 
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-
-        do {
-            accountManager.registerAccount(account);
-            rollbackTX = accountManager.isLastTransactionRollback();
-        } while (rollbackTX && --txLimit > 0);
-
-        if (rollbackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> accountManager.registerAccount(account),
+            accountManager
+        ).build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/register/manager")
+    @PermitAll
     public Response registerManager(@NotNull @Valid RegisterManagerDto registerManagerDto) throws AppBaseException {
+        if (!recaptchaService.verifyCode(registerManagerDto.getCaptchaCode())) {
+            throw new InvalidCaptchaCodeException();
+        }
+
         Account account = createAccountFromRegisterDto(registerManagerDto);
         Address address = createAddressFromDto(registerManagerDto.getAddress());
 
@@ -112,40 +130,39 @@ public class AccountEndpoint {
 
         account.getAccessLevels().add(accessLevel);
 
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-
-        do {
-            accountManager.registerAccount(account);
-            rollbackTX = accountManager.isLastTransactionRollback();
-        } while (rollbackTX && --txLimit > 0);
-
-        if (rollbackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> accountManager.registerAccount(account),
+            accountManager
+        ).build();
     }
 
     @POST
     @Path("/confirm-registration")
+    @PermitAll
     public Response confirmRegistration(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX;
         do {
             try {
-                accountManager.confirmRegistration(UUID.fromString(token));
-                rollbackTX = accountManager.isLastTransactionRollback();
+                accountManager.confirmRegistration(token, true);
+                rollBackTX = accountManager.isLastTransactionRollback();
             } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
+                rollBackTX = true;
                 if (txLimit < 2) {
                     throw aole;
                 }
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            } catch (AppDatabaseException appDatabaseException) {
+                if (appDatabaseException.getMessage().contains("city_dict_city_key")) {
+                    accountManager.confirmRegistration(token, false);
+                }
+                rollBackTX = accountManager.isLastTransactionRollback();
             }
 
-        } while (rollbackTX && --txLimit > 0);
+        } while (rollBackTX && --txLimit > 0);
 
-        if (rollbackTX && txLimit == 0) {
+        if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
@@ -157,8 +174,14 @@ public class AccountEndpoint {
     @Path("/reset-password-message")
     public Response sendResetPasswordMessage(@NotBlank @Email @QueryParam("email") String email)
         throws AppBaseException {
-        accountManager.sendResetPasswordMessage(email);
-        return Response.noContent().build();
+        try {
+            return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+                () -> accountManager.sendResetPasswordMessage(email),
+                accountManager
+            ).build();
+        } catch (AccountNotFoundException anfe) {
+            return Response.noContent().build();
+        }
     }
 
     @POST
@@ -166,373 +189,245 @@ public class AccountEndpoint {
     @PermitAll
     @Path("/reset-password")
     public Response resetPassword(@NotNull @Valid ResetPasswordDto resetPasswordDto) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-        do {
-            try {
-                accountManager.resetPassword(resetPasswordDto.getPassword(),
-                    UUID.fromString(resetPasswordDto.getToken()));
-                rollBackTX = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollBackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.resetPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken()),
+            accountManager
+        ).build();
     }
 
     @PUT
     @Path("/me/change-password")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changePassword(@Valid @NotNull ChangePasswordDto dto) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-        do {
-            try {
-                String login = securityContext.getUserPrincipal().getName();
-                accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login);
-                rollBackTX = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollBackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.changePassword(dto.getOldPassword(), dto.getNewPassword(), login),
+            accountManager
+        ).build();
     }
 
     @POST
     @Path("/me/change-email")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changeEmail() throws AppBaseException {
-
-        accountManager.changeEmail(securityContext.getUserPrincipal().getName());
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.changeEmail(securityContext.getUserPrincipal().getName()),
+            accountManager
+        ).build();
     }
 
     @PUT
     @Path("/me/confirm-email/{token}")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
-    public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto, @ValidUUID @PathParam("token") String token)
-        throws AppBaseException {
-
-        int retryTXCounter = properties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-        do {
-            try {
-                accountManager.confirmEmail(dto.getEmail(), UUID.fromString(token),
-                    securityContext.getUserPrincipal().getName());
-                rollbackTX = accountManager.isLastTransactionRollback();
-
-            } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
-                if (retryTXCounter < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollbackTX && --retryTXCounter > 0);
-
-        if (rollbackTX && retryTXCounter == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.noContent().build();
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
+    public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto,
+                                 @ValidUUID @PathParam("token") String token) throws AppBaseException {
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.confirmEmail(dto.getEmail(), token, login),
+            accountManager
+        ).build();
     }
 
     @PUT
     @Path("/manager/change-active-status")
-    @RolesAllowed({"MANAGER"})
+    @RolesAllowed({MANAGER})
     public Response changeActiveStatusAsManager(@NotNull @Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String managerLogin = securityContext.getUserPrincipal().getName();
-
-        int retryTXCounter = properties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-        do {
-            try {
-                accountManager.changeActiveStatusAsManager(managerLogin,
-                    dto.getId(), dto.getActive());
-                rollbackTX = accountManager.isLastTransactionRollback();
-
-            } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
-                if (retryTXCounter < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollbackTX && --retryTXCounter > 0);
-
-        if (rollbackTX && retryTXCounter == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.changeActiveStatusAsManager(managerLogin, dto.getId(), dto.getActive()),
+            accountManager
+        ).build();
     }
 
     @PUT
     @Path("/admin/change-active-status")
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Response changeActiveStatusAsAdmin(@NotNull @Valid ChangeActiveStatusDto dto)
         throws AppBaseException {
         String adminLogin = securityContext.getUserPrincipal().getName();
-
-        int retryTXCounter = properties.getTransactionRepeatLimit();
-        boolean rollbackTX = false;
-        do {
-            try {
-                accountManager.changeActiveStatusAsAdmin(adminLogin,
-                    dto.getId(), dto.getActive());
-                rollbackTX = accountManager.isLastTransactionRollback();
-
-            } catch (AppOptimisticLockException aole) {
-                rollbackTX = true;
-                if (retryTXCounter < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollbackTX && --retryTXCounter > 0);
-
-        if (rollbackTX && retryTXCounter == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.changeActiveStatusAsAdmin(adminLogin, dto.getId(), dto.getActive()),
+            accountManager
+        ).build();
     }
 
     @GET
     @Path("/me")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response getOwnAccountDetails() throws AppBaseException {
         String login = securityContext.getUserPrincipal().getName();
-
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        OwnAccountDto dto;
-        do {
-            dto = createOwnAccountDto(accountManager.getAccountDetails(login));
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        
+        OwnAccountDto dto = rollbackUtils.rollBackTXBasicWithReturnTypeT(
+            () -> createOwnAccountDto(accountManager.getAccountDetails(login)),
+            accountManager
+        );
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
-        return Response.ok().entity(dto).header("ETag", ifMatch).build();
+        return Response.ok(dto).header("ETag", ifMatch).build();
     }
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed(ADMIN)
     public Response getAccountDetails(@PathParam("id") Long id) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        AccountDto dto;
-        do {
-            dto = createAccountDto(accountManager.getAccountDetails(id));
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
+        AccountDto dto = rollbackUtils.rollBackTXBasicWithReturnTypeT(
+            () -> createAccountDto(accountManager.getAccountDetails(id)),
+            accountManager
+        );
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
-        return Response.ok().entity(dto).header("ETag", ifMatch).build();
+        return Response.ok(dto).header("ETag", ifMatch).build();
     }
 
     @PUT
     @Path("/me/change-access-level")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changeAccessLevel(@Valid @NotNull ChangeAccessLevelDto accessLevelDto) throws AppBaseException {
         AccessType accessType = AccessType.valueOf(accessLevelDto.getAccessType());
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> new AccessTypeDto(accountManager.changeAccessLevel(login, accessType)),
+            accountManager
+        ).build();
+    }
 
-        accessType = accountManager.changeAccessLevel(securityContext.getUserPrincipal().getName(), accessType);
-
-        return Response.ok().entity(new AccessTypeDto(accessType)).build();
+    @PUT
+    @Path("/me/theme")
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
+    public Response changePreferredTheme(@NotNull @QueryParam("light") boolean lightTheme) throws AppBaseException {
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.changePreferredTheme(login, lightTheme),
+            accountManager
+        ).build();
     }
 
     @PUT
     @Path("/me/change-language/{language}")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response changeLanguage(@NotBlank @PathParam("language") String language) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-        do {
-            try {
-                accountManager.changeAccountLanguage(securityContext.getUserPrincipal().getName(),
-                    language.toUpperCase());
-                rollBackTX = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollBackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.changeAccountLanguage(login, language.toUpperCase()),
+            accountManager
+        ).build();
     }
 
     @GET
-    @RolesAllowed({"ADMIN"})
-    public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active) throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        List<AccountDto> accounts;
-        do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAllAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(accounts).build();
+    @RolesAllowed({ADMIN, MANAGER})
+    public Response getAllAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
+                                   @DefaultValue("true") @QueryParam("asc") Boolean ascending,
+                                   @QueryParam("page") int page,
+                                   @QueryParam("pageSize") int pageSize,
+                                   @DefaultValue("") @QueryParam("phrase") String phrase,
+                                   @DefaultValue("") @QueryParam("login") String login) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> AccountDtoConverter.createAccountDtoPage(
+                accountManager.getAllAccounts(active, page, pageSize, ascending, phrase, login)),
+            accountManager
+        ).build();
     }
 
     @GET
     @Path("/owners")
-    @RolesAllowed({"ADMIN", "MANAGER"})
-    public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
+    @RolesAllowed({ADMIN, MANAGER})
+    public Response getOwnerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
+                                     @DefaultValue("true") @QueryParam("asc") Boolean ascending,
+                                     @QueryParam("page") int page,
+                                     @QueryParam("pageSize") int pageSize,
+                                     @DefaultValue("") @QueryParam("phrase") String phrase,
+                                     @DefaultValue("") @QueryParam("login") String login)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        List<AccountDto> accounts;
-        do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getOwnerAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(accounts).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> AccountDtoConverter.createAccountDtoPage(
+                accountManager.getOwnerAccounts(active, page, pageSize, ascending, phrase, login)),
+            accountManager
+        ).build();
     }
 
     @GET
     @Path("/owners/unapproved")
-    @RolesAllowed({"MANAGER"})
-    public Response getUnapprovedOwnerAccounts() throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        List<AccountDto> accounts;
-        do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedOwnerAccounts());
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(accounts).build();
+    @RolesAllowed({MANAGER})
+    public Response getUnapprovedOwnerAccounts(@DefaultValue("true") @QueryParam("asc") Boolean ascending,
+                                               @QueryParam("page") int page,
+                                               @QueryParam("pageSize") int pageSize,
+                                               @DefaultValue("") @QueryParam("phrase") String phrase,
+                                               @DefaultValue("") @QueryParam("login") String login)
+        throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> AccountDtoConverter.createAccountDtoPage(
+                accountManager.getUnapprovedOwnerAccounts(page, pageSize, ascending, phrase, login)),
+            accountManager
+        ).build();
     }
 
     @GET
     @Path("/managers")
-    @RolesAllowed({"ADMIN"})
-    public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
+    @RolesAllowed({ADMIN})
+    public Response getManagerAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
+                                       @DefaultValue("true") @QueryParam("asc") Boolean ascending,
+                                       @QueryParam("page") int page,
+                                       @QueryParam("pageSize") int pageSize,
+                                       @DefaultValue("") @QueryParam("phrase") String phrase,
+                                       @DefaultValue("") @QueryParam("login") String login)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        List<AccountDto> accounts;
-        do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getManagerAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(accounts).build();
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> AccountDtoConverter.createAccountDtoPage(
+                accountManager.getManagerAccounts(active, page, pageSize, ascending, phrase, login)),
+            accountManager
+        ).build();
     }
 
     @GET
     @Path("/managers/unapproved")
-    @RolesAllowed({"ADMIN"})
-    public Response getUnapprovedManagerAccounts() throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-
-        List<AccountDto> accounts;
-        do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getUnapprovedManagerAccounts());
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(accounts).build();
+    @RolesAllowed({ADMIN})
+    public Response getUnapprovedManagerAccounts(@DefaultValue("true") @QueryParam("asc") Boolean ascending,
+                                                 @QueryParam("page") int page,
+                                                 @QueryParam("pageSize") int pageSize,
+                                                 @DefaultValue("") @QueryParam("phrase") String phrase,
+                                                 @DefaultValue("") @QueryParam("login") String login)
+        throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> AccountDtoConverter.createAccountDtoPage(
+                accountManager.getUnapprovedManagerAccounts(page, pageSize, ascending, phrase, login)),
+            accountManager
+        ).build();
     }
 
     @GET
     @Path("/admins")
-    @RolesAllowed({"ADMIN"})
-    public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active)
+    @RolesAllowed({ADMIN})
+    public Response getAdminAccounts(@DefaultValue("true") @QueryParam("active") Boolean active,
+                                     @DefaultValue("true") @QueryParam("asc") Boolean ascending,
+                                     @QueryParam("page") int page,
+                                     @QueryParam("pageSize") int pageSize,
+                                     @DefaultValue("") @QueryParam("phrase") String phrase,
+                                     @DefaultValue("") @QueryParam("login") String login)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> AccountDtoConverter.createAccountDtoPage(
+                accountManager.getAdminAccounts(active, page, pageSize, ascending, phrase, login)),
+            accountManager
+        ).build();
+    }
 
-        List<AccountDto> accounts;
-        do {
-            accounts = AccountDtoConverter.createAccountDtoList(accountManager.getAdminAccounts(active));
-            rollBackTX = accountManager.isLastTransactionRollback();
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-        return Response.ok(accounts).build();
+    @GET
+    @Path("/logins")
+    @RolesAllowed({ADMIN, MANAGER})
+    public Response getAccountsLogins(@NotBlank @QueryParam("login") String login) {
+        return Response.ok().entity(accountManager.getAccountsLogins(login)).build();
     }
 
     @PUT
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     @Path("/force-password-change/{login}")
     public Response forcePasswordChange(@NotBlank @PathParam("login") String login) throws AppBaseException {
         if (login.equals(securityContext.getUserPrincipal().getName())) {
             throw new IllegalSelfActionException();
         }
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-        do {
-            try {
-                accountManager.forcePasswordChange(login);
-                rollBackTX = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollBackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollBackTX && --txLimit > 0);
-
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.forcePasswordChange(login),
+            accountManager
+        ).build();
     }
 
     @PUT
@@ -540,31 +435,16 @@ public class AccountEndpoint {
     @Path("/override-forced-password")
     public Response overrideForcedPassword(@Valid @NotNull ResetPasswordDto resetPasswordDto)
         throws AppBaseException {
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
-        do {
-            try {
-                accountManager.overrideForcedPassword(resetPasswordDto.getPassword(),
-                    UUID.fromString(resetPasswordDto.getToken()));
-                rollBackTX = accountManager.isLastTransactionRollback();
-            } catch (AppOptimisticLockException aole) {
-                rollBackTX = true;
-                if (txLimit < 2) {
-                    throw aole;
-                }
-            }
-        } while (rollBackTX && --txLimit > 0);
 
-        if (rollBackTX && txLimit == 0) {
-            throw new AppRollbackLimitExceededException();
-        }
-
-        return Response.noContent().build();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.overrideForcedPassword(resetPasswordDto.getPassword(), resetPasswordDto.getToken()),
+            accountManager
+        ).build();
     }
 
     @PUT
     @Path("/me")
-    @RolesAllowed({"ADMIN", "MANAGER", "OWNER"})
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response editPersonalData(
         @Valid @NotNull EditOwnPersonalDataDto editOwnPersonalDataDTO,
         @NotNull @HeaderParam("If-Match") String ifMatch)
@@ -575,26 +455,37 @@ public class AccountEndpoint {
             throw new SignatureMismatchException();
         }
 
-        int txLimit = properties.getTransactionRepeatLimit();
+        int txLimit = appProperties.getTransactionRepeatLimit();
         boolean rollBackTX = false;
         OwnAccountDto ownAccountDto = null;
         do {
-            ownAccountDto = AccountDtoConverter.createOwnAccountDto(
-                accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
-                    login));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                ownAccountDto = AccountDtoConverter.createOwnAccountDto(
+                    accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
+                        login, true));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            } catch (AppDatabaseException appDatabaseException) {
+                if (appDatabaseException.getMessage().contains("city_dict_city_key")) {
+                    ownAccountDto = AccountDtoConverter.createOwnAccountDto(
+                        accountManager.editPersonalData(createAccountFromEditOwnPersonalDataDto(editOwnPersonalDataDTO),
+                            login, false));
+                }
+                rollBackTX = accountManager.isLastTransactionRollback();
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
-        return Response.ok().entity(ownAccountDto).build();
+        return Response.ok(ownAccountDto).build();
     }
 
     @PUT
     @Path("/admin/edit-other")
-    @RolesAllowed({"ADMIN"})
+    @RolesAllowed({ADMIN})
     public Response editPersonalDataByAdmin(
         @Valid @NotNull EditAnotherPersonalDataDto dto,
         @NotNull @HeaderParam("If-Match") String ifMatch) throws AppBaseException {
@@ -610,17 +501,48 @@ public class AccountEndpoint {
         Account account = createAccountFromEditDto(dto);
         AccountDto accountDto = null;
 
-        int txLimit = properties.getTransactionRepeatLimit();
-        boolean rollBackTX = false;
+        int txLimit = appProperties.getTransactionRepeatLimit();
+        boolean rollBackTX;
         do {
-            accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account));
-            rollBackTX = accountManager.isLastTransactionRollback();
+            try {
+                accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, true));
+                rollBackTX = accountManager.isLastTransactionRollback();
+            } catch (AppTransactionRolledBackException atrbe) {
+                rollBackTX = true;
+            } catch (AppDatabaseException appDatabaseException) {
+                if (appDatabaseException.getMessage().contains("city_dict_city_key")) {
+                    accountDto = createAccountDto(accountManager.editPersonalDataByAdmin(account, false));
+                }
+                rollBackTX = accountManager.isLastTransactionRollback();
+            }
         } while (rollBackTX && --txLimit > 0);
 
         if (rollBackTX && txLimit == 0) {
             throw new AppRollbackLimitExceededException();
         }
 
-        return Response.ok().entity(accountDto).build();
+        return Response.ok(accountDto).build();
+    }
+
+    @PUT
+    @Path("/me/change_two_factor_auth_status")
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
+    public Response changeTwoFactorAuthStatus(@DefaultValue("true") @QueryParam("status") Boolean status)
+        throws AppBaseException {
+        String login = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> accountManager.changeTwoFactorAuthStatus(login, status),
+            accountManager
+        ).build();
+    }
+
+    @POST
+    @Path("unlock-account")
+    @PermitAll
+    public Response unlockAccountSelf(@ValidUUID @QueryParam("token") String token) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> accountManager.unlockOwnAccount(token),
+            accountManager
+        ).build();
     }
 }

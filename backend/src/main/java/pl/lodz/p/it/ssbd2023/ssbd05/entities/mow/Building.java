@@ -3,6 +3,7 @@ package pl.lodz.p.it.ssbd2023.ssbd05.entities.mow;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -36,6 +38,7 @@ import java.util.Set;
         name = "Building.findByBuildingNumber",
         query = "SELECT b FROM Building  b WHERE b.address.buildingNumber = :buildingNumber")
 })
+@EntityListeners({EntityControlListenerMOW.class})
 public class Building extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -52,6 +55,11 @@ public class Building extends AbstractEntity implements Serializable {
     private Address address;
 
     public Building(Address address) {
+        this.address = address;
+    }
+
+    public Building(Long id, Long version, Address address) {
+        super(version, id);
         this.address = address;
     }
 }

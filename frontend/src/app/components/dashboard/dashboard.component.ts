@@ -10,6 +10,14 @@ export class DashboardComponent {
 
     getBreadCrumbs() {
         const url = this.router.url.split('/');
+
+        if (url.includes('profile')) {
+            return [
+                new Breadcrumb('/', 'dashboard'),
+                new Breadcrumb('', 'profile')
+            ];
+        }
+
         url.shift();
         const breadcrumbs: Breadcrumb[] = [];
 
@@ -30,6 +38,13 @@ export class DashboardComponent {
     private removeParams(path: string) {
         const urlDelimitators = new RegExp(/[?,;&:#$+=]/);
         return path.slice(0).split(urlDelimitators)[0];
+    }
+
+    protected getKeyForName(name: string): string {
+        if (Number.parseInt(name)) {
+            return name;
+        }
+        return `nav.${name}`;
     }
 }
 

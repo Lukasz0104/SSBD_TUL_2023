@@ -1,5 +1,11 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
+
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
@@ -14,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Stateless
+@DenyAll
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class AccountFacade extends AbstractFacade<Account> {
 
@@ -29,6 +36,8 @@ public class AccountFacade extends AbstractFacade<Account> {
         return em;
     }
 
+
+    @PermitAll
     public Optional<Account> findByLogin(String login) {
         try {
             TypedQuery<Account> tq = em.createNamedQuery("Account.findByLogin", Account.class);
@@ -39,6 +48,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
+    @RolesAllowed({MANAGER, ADMIN})
     public Optional<Account> findByEmail(String email) {
         try {
             TypedQuery<Account> tq = em.createNamedQuery("Account.findByEmail", Account.class);
@@ -49,6 +59,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
+    @RolesAllowed({MANAGER, ADMIN})
     public List<Account> findByVerified(boolean verified) {
         TypedQuery<Account> tq;
         if (verified) {
@@ -59,6 +70,7 @@ public class AccountFacade extends AbstractFacade<Account> {
         return tq.getResultList();
     }
 
+    @RolesAllowed({MANAGER, ADMIN})
     public List<Account> findByActive(boolean active) {
         TypedQuery<Account> tq;
         if (active) {
@@ -67,5 +79,16 @@ public class AccountFacade extends AbstractFacade<Account> {
             tq = em.createNamedQuery("Account.findAllNotActiveAccounts", Account.class);
         }
         return tq.getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
+    public Optional<Account> findByOwnerId(Long ownerId) {
+        try {
+            TypedQuery<Account> tq = em.createNamedQuery("Account.findByOwnerId", Account.class);
+            tq.setParameter("ownerId", ownerId);
+            return Optional.of(tq.getSingleResult());
+        } catch (PersistenceException e) {
+            return Optional.empty();
+        }
     }
 }

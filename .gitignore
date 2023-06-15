@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+**/ssl-dhparams.pem
+**/fullchain.pem
+**/privkey.pem
+**/dist/

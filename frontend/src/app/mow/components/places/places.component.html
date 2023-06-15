@@ -1,0 +1,37 @@
+<ng-container *ngIf="places$ | async as places; else loadingPlaces">
+    <div class="mb-3">
+        <h3>{{ 'component.places.list' | translate }} {{ buildingId }}</h3>
+        <div class="btn-group">
+            <button
+                (click)="openModalToAddPlace()"
+                class="btn btn-success">
+                {{ 'component.places.add' | translate }}
+            </button>
+            <button
+                (click)="refresh()"
+                class="btn-outline-primary btn"
+                placement="right bottom"
+                [ngbTooltip]="'component.places.refresh' | translate">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+    </div>
+    <ng-container *ngIf="places.length; else noPlacesFound">
+        <div class="d-lg-flex">
+            <div class="col col-lg-12">
+                <app-place [places]="places" />
+            </div>
+        </div>
+    </ng-container>
+    <ng-template #noPlacesFound>
+        {{ 'component.places.empty' | translate }}
+    </ng-template>
+</ng-container>
+<ng-template #loadingPlaces>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">
+            {{ 'component.places.loading' | translate }}
+        </span>
+    </div>
+</ng-template>

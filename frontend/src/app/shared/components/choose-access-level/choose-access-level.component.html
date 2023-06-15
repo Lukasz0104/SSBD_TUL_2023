@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <h6
+        class="modal-title"
+        id="modal-basic-title">
+        {{ 'modal.access-level' | translate }}
+    </h6>
+    <button
+        (click)="activeModal.dismiss('Cross click')"
+        class="btn-close"
+        type="button"></button>
+</div>
+<div>
+    <div class="p-4 d-flex justify-content-around">
+        <div *ngFor="let group of groups">
+            <div
+                (click)="onClick(group)"
+                [ngClass]="{
+                    'btn-warning': group === AccessLevels.MANAGER,
+                    'btn-danger': group === AccessLevels.ADMIN,
+                    'btn-success': group === AccessLevels.OWNER
+                }"
+                class="p-2 btn">
+                {{ 'access-levels.' + group | translate }}
+            </div>
+        </div>
+    </div>
+</div>

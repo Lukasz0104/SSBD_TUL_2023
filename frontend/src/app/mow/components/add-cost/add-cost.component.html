@@ -1,0 +1,220 @@
+<div class="modal-header text-center">
+    <h2
+        class="modal-title text-center"
+        id="modal-basic-title">
+        {{ 'component.add-cost.title' | translate }}
+    </h2>
+</div>
+<div class="modal-body px-4 py-2">
+    <div>
+        <div class="row">
+            <div class="col-md">
+                <form
+                    [formGroup]="addCostForm"
+                    (ngSubmit)="confirm()">
+                    <!-- ///////////////////////////////////////////////////////////////////////////-->
+                    <div class="mb-2 has-validation">
+                        <label
+                            class="form-label"
+                            for="month">
+                            {{ 'component.costs.month' | translate }}
+                        </label>
+                        <select
+                            class="form-select"
+                            formControlName="month"
+                            id="month"
+                            type="month"
+                            required
+                            [ngClass]="{
+                                'is-invalid': monthControl.invalid,
+                                'is-valid': monthControl.valid
+                            }">
+                            <option [ngValue]="-1">
+                                {{ 'component.costs.chooseMonth' | translate }}
+                            </option>
+                            <option
+                                *ngFor="let month of months"
+                                [ngValue]="month.getMonth()">
+                                {{
+                                    'component.add-cost.months-' +
+                                        month.getMonth() | translate
+                                }}
+                            </option>
+                        </select>
+                        <div
+                            *ngIf="monthControl.errors as rnErrors"
+                            class="invalid-feedback">
+                            <p
+                                *ngIf="rnErrors['required']"
+                                class="mb-0">
+                                {{ 'validation.month.required' | translate }}
+                            </p>
+                        </div>
+                    </div>
+                    <!-- ///////////////////////////////////////////////////////////////////////////-->
+                    <div class="mb-2 has-validation">
+                        <!--  todo -->
+                        <label
+                            class="form-label"
+                            for="year">
+                            {{ 'component.costs.year' | translate }}
+                        </label>
+                        <input
+                            class="form-control"
+                            formControlName="year"
+                            min="2000"
+                            required
+                            id="year"
+                            type="number"
+                            [ngClass]="{
+                                'is-invalid': yearControl.invalid,
+                                'is-valid': yearControl.valid
+                            }" />
+                        <div
+                            *ngIf="yearControl.errors as rnErrors"
+                            class="invalid-feedback">
+                            <p
+                                *ngIf="rnErrors['required']"
+                                class="mb-0">
+                                {{ 'validation.year.required' | translate }}
+                            </p>
+                            <p
+                                *ngIf="rnErrors['min'] as rnMinError"
+                                class="mb-0">
+                                {{ 'validation.year.min' | translate }}
+                                {{ rnMinError['min'] }}.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- ///////////////////////////////////////////////////////////////////////////-->
+                    <div class="mb-2 has-validation">
+                        <label
+                            class="form-label"
+                            for="category">
+                            {{ 'component.costs.category' | translate }}
+                        </label>
+                        <select
+                            class="form-select"
+                            formControlName="category"
+                            id="category"
+                            required
+                            type="text"
+                            [ngClass]="{
+                                'is-invalid': categoryControl.invalid,
+                                'is-valid': categoryControl.valid
+                            }">
+                            <option [ngValue]="-1">
+                                {{
+                                    'component.costs.chooseCategory' | translate
+                                }}
+                            </option>
+                            <option
+                                *ngFor="let category of categoryList"
+                                [ngValue]="category.id">
+                                {{ category.name | translate }}
+                            </option>
+                        </select>
+                        <div
+                            *ngIf="categoryControl.errors as rnErrors"
+                            class="invalid-feedback">
+                            <p
+                                *ngIf="rnErrors['required']"
+                                class="mb-0">
+                                {{ 'validation.category.required' | translate }}
+                            </p>
+                        </div>
+                    </div>
+                    <!-- ///////////////////////////////////////////////////////////////////////////-->
+                    <div class="mb-2 has-validation">
+                        <label
+                            class="form-label"
+                            for="totalConsumption">
+                            {{ 'component.costs.totalConsumption' | translate }}
+                        </label>
+                        <input
+                            class="form-control"
+                            formControlName="totalConsumption"
+                            required
+                            id="totalConsumption"
+                            type="number"
+                            step="0.01"
+                            [ngClass]="{
+                                'is-invalid': totalConsumptionControl.invalid,
+                                'is-valid': totalConsumptionControl.valid
+                            }" />
+                        <div
+                            *ngIf="totalConsumptionControl.errors as rnErrors"
+                            class="invalid-feedback">
+                            <p
+                                *ngIf="rnErrors['required']"
+                                class="mb-0">
+                                {{
+                                    'validation.total-consumption.required'
+                                        | translate
+                                }}
+                            </p>
+                            <p
+                                *ngIf="rnErrors['min'] as rnMinError"
+                                class="mb-0">
+                                {{
+                                    'validation.total-consumption.min'
+                                        | translate
+                                }}
+                                {{ rnMinError['min'] }}.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- ///////////////////////////////////////////////////////////////////////////-->
+                    <div class="mb-2 has-validation">
+                        <label
+                            class="form-label"
+                            for="realRate">
+                            {{ 'component.costs.realRate' | translate }}
+                        </label>
+                        <input
+                            class="form-control"
+                            formControlName="realRate"
+                            required
+                            id="realRate"
+                            type="number"
+                            step="0.01"
+                            [ngClass]="{
+                                'is-invalid': realRateControl.invalid,
+                                'is-valid': realRateControl.valid
+                            }" />
+                        <div
+                            *ngIf="realRateControl.errors as rnErrors"
+                            class="invalid-feedback">
+                            <p
+                                *ngIf="rnErrors['required']"
+                                class="mb-0">
+                                {{
+                                    'validation.real-rate.required' | translate
+                                }}
+                            </p>
+                            <p
+                                *ngIf="rnErrors['min'] as rnMinError"
+                                class="mb-0">
+                                {{ 'validation.real-rate.min' | translate }}
+                                {{ rnMinError['min'] }}.
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="px-4 d-flex justify-content-between modal-footer">
+    <div
+        (click)="activeModal.close(false)"
+        class="btn btn-outline-secondary">
+        {{ 'component.add-cost.cancel' | translate }}
+    </div>
+    <button
+        [disabled]="!addCostForm.valid"
+        (click)="confirm()"
+        class="btn btn-success">
+        {{ 'component.add-cost.create' | translate }}
+    </button>
+</div>

@@ -1,0 +1,206 @@
+<div class="card text-center">
+    <div class="card-header text-center fs-4">
+        <div class="row">
+            <div class="col text-start">
+                <b>{{ 'component.report.title' | translate }}</b>
+                <div
+                    ngbDropdown
+                    container="body"
+                    class="d-inline me-2">
+                    <span
+                        class="cursor-pointer"
+                        ngbDropdownToggle>
+                        {{
+                            'component.report.month.' + currentMonth | translate
+                        }}
+                    </span>
+                    <div
+                        class="dropdown-menu"
+                        ngbDropdownMenu>
+                        <div *ngFor="let month of getMonths()">
+                            <span
+                                ngbDropdownItem
+                                *ngIf="month !== currentMonth"
+                                (click)="changeCurrentMonth(month)">
+                                {{
+                                    'component.report.month.' + month
+                                        | translate
+                                }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    ngbDropdown
+                    container="body"
+                    class="d-inline">
+                    <span
+                        class="cursor-pointer"
+                        *ngIf="currentYear && years.length > 1"
+                        ngbDropdownToggle>
+                        <b> {{ currentYear }} </b>
+                    </span>
+                    <div
+                        class="dropdown-menu"
+                        ngbDropdownMenu>
+                        <div *ngFor="let year of years">
+                            <span
+                                ngbDropdownItem
+                                *ngIf="year !== currentYear"
+                                (click)="changeCurrentYear(year)">
+                                {{ year }}
+                            </span>
+                        </div>
+                    </div>
+                    <b *ngIf="currentYear && !(years.length > 1)">
+                        {{ currentYear }}
+                    </b>
+                </div>
+            </div>
+            <div class="col text-end">
+                <i
+                    class="bi bi-arrow-clockwise cursor-pointer"
+                    (click)="onReload()"></i>
+            </div>
+        </div>
+    </div>
+    <div class="card-body overflow-scroll">
+        <ng-container *ngIf="report$ | async as report">
+            <div class="table-responsive">
+                <table class="table table-hover shadow text-center">
+                    <thead>
+                        <tr class="table-primary align-middle">
+                            <th>
+                                {{ 'component.report.category' | translate }}
+                            </th>
+                            <th>
+                                {{ 'component.report.real-cost' | translate }}
+                                [{{ 'accounting-rule.pln' | translate }}]
+                            </th>
+                            <th>
+                                {{
+                                    'component.report.forecasted-cost'
+                                        | translate
+                                }}
+                                [{{ 'accounting-rule.pln' | translate }}]
+                            </th>
+                            <th>
+                                {{ 'component.report.balance' | translate }}
+                                [{{ 'accounting-rule.pln' | translate }}]
+                            </th>
+                            <th>
+                                {{ 'component.report.rate' | translate }}
+                            </th>
+                            <th>
+                                {{ 'component.report.real-usage' | translate }}
+                            </th>
+                            <th>
+                                {{
+                                    'component.report.forecasted-usage'
+                                        | translate
+                                }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let entry of report.reportsPerCategory">
+                            <td>
+                                <i
+                                    class="bi"
+                                    [ngClass]="
+                                        placeService.pictureMap.get(
+                                            entry.categoryName
+                                        )
+                                    "></i>
+                                {{ entry.categoryName | translate }}
+                            </td>
+                            <td>
+                                {{ entry.realValue | number : '.2-2' }}
+                            </td>
+                            <td>
+                                {{ entry.predValue | number : '.2-2' }}
+                            </td>
+                            <td
+                                [class]="
+                                    entry.predValue - entry.realValue > 0
+                                        ? 'text-success'
+                                        : 'text-danger'
+                                ">
+                                {{
+                                    entry.predValue - entry.realValue
+                                        | number : '.2-2'
+                                }}
+                            </td>
+                            <td>
+                                {{ entry.rate | number : '.2-2' }}
+                                <span
+                                    *ngIf="
+                                        entry.accountingRule ===
+                                        AccountingRule.UNIT
+                                    ">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.month' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        entry.accountingRule ===
+                                        AccountingRule.METER
+                                    ">
+                                    {{
+                                        'accounting-rule.pln' | translate
+                                    }}/m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        entry.accountingRule ===
+                                        AccountingRule.PERSON
+                                    ">
+                                    {{ 'accounting-rule.pln' | translate }}/{{
+                                        'accounting-rule.person' | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        entry.accountingRule ===
+                                        AccountingRule.SURFACE
+                                    ">
+                                    {{ 'accounting-rule.pln' | translate }}/m
+                                    <sup>2</sup>
+                                </span>
+                            </td>
+                            <td>{{ entry.realAmount | number : '.3-3' }}</td>
+                            <td>{{ entry.predAmount | number : '.3-3' }}</td>
+                        </tr>
+                        <tr style="border-top: 2px black solid">
+                            <td class="fw-bold">
+                                {{ 'component.report.sum' | translate }}
+                            </td>
+                            <td>
+                                {{
+                                    realValueSum(report.reportsPerCategory)
+                                        | number : '.2-2'
+                                }}
+                            </td>
+                            <td>
+                                {{
+                                    predValueSum(report.reportsPerCategory)
+                                        | number : '.2-2'
+                                }}
+                            </td>
+                            <td
+                                [class]="
+                                    report.balance > 0
+                                        ? 'text-success'
+                                        : 'text-danger'
+                                ">
+                                {{ report.balance | number : '.2-2' }}
+                            </td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </ng-container>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="text-center col-lg-10 p-3 p-sm-0 mb-3">
+            <h2>{{ 'component.landing-page.rates' | translate }}</h2>
+            <div *ngIf="currentRates$ | async as rates">
+                <div class="row card-group">
+                    <div
+                        class="col-sm-4"
+                        *ngFor="let rate of rates; let i = index">
+                        <div class="card m-3 rounded-3 shadow text-center">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <i
+                                        class="bi {{
+                                            getIcon(rate.categoryName)
+                                        }} fs-1 mt-1"></i>
+                                </li>
+                            </ul>
+                            <div class="card-body">
+                                <h5 class="card-title text-truncate">
+                                    {{ rate.categoryName | translate }}
+                                </h5>
+                                <span class="card-text">{{ rate.value }}</span>
+                                <span
+                                    *ngIf="
+                                        rate.accountingRule ===
+                                        AccountingRule.UNIT
+                                    ">
+                                    {{
+                                        'component.place.categories.pln'
+                                            | translate
+                                    }}/{{
+                                        'component.place.categories.month'
+                                            | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="rate.accountingRule === RULE.METER">
+                                    {{
+                                        'component.place.categories.pln'
+                                            | translate
+                                    }}/m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="rate.accountingRule === RULE.PERSON">
+                                    {{
+                                        'component.place.categories.pln'
+                                            | translate
+                                    }}/{{
+                                        'component.place.categories.person'
+                                            | translate
+                                    }}
+                                </span>
+                                <span
+                                    *ngIf="
+                                        rate.accountingRule === RULE.SURFACE
+                                    ">
+                                    {{
+                                        'component.place.categories.pln'
+                                            | translate
+                                    }}
+                                    /m<sup>2</sup>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

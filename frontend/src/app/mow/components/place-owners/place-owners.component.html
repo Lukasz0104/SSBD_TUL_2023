@@ -1,0 +1,92 @@
+<ng-container *ngIf="owners$ | async as owners; else loadingOwners">
+    <div class="mb-3">
+        <div class="btn-group">
+            <button
+                class="btn btn-success"
+                (click)="addOwners()">
+                {{ 'component.place-owners.add' | translate }}
+            </button>
+            <button
+                (click)="getOwners()"
+                class="btn-outline-primary btn"
+                placement="right bottom"
+                [ngbTooltip]="'component.place-owners.refresh' | translate">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+    </div>
+    <div
+        *ngIf="owners.length; else emptyOwnersList"
+        class="table-responsive">
+        <table class="table text-center table-hover align-middle">
+            <thead>
+                <tr class="bg-light-subtle align-middle">
+                    <th
+                        scope="col"
+                        class="col">
+                        #
+                    </th>
+                    <th
+                        scope="col"
+                        class="col-3 text-nowrap">
+                        {{ 'component.fields.first-name' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="col-3 text-nowrap">
+                        {{ 'component.fields.last-name' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="col-3 text-nowrap">
+                        {{ 'component.fields.address' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="col text-nowrap">
+                        {{ 'component.place-owners.active' | translate }}
+                    </th>
+                    <th
+                        scope="col"
+                        class="col text-nowrap"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let owner of owners; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ owner.firstName }}</td>
+                    <td>{{ owner.lastName }}</td>
+                    <td class="text-nowrap">{{ owner.address | address }}</td>
+                    <td>
+                        <i
+                            class="bi"
+                            [ngClass]="{
+                                'bi-check-square-fill text-success':
+                                    owner.active,
+                                'bi-x-square-fill text-danger': !owner.active
+                            }">
+                        </i>
+                    </td>
+                    <td>
+                        <button
+                            class="btn btn-danger"
+                            (click)="removeOwner(owner.ownerDataId)">
+                            {{ 'component.place-owners.remove' | translate }}
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <ng-template #emptyOwnersList>
+        <p>{{ 'component.place-owners.empty' | translate }}</p>
+    </ng-template>
+</ng-container>
+<ng-template #loadingOwners>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="spinner-border"></span>
+        <span class="mt-3">{{
+            'component.place-owners.loading' | translate
+        }}</span>
+    </div>
+</ng-template>

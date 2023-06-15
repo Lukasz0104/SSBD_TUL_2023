@@ -28,4 +28,7 @@ public class RegisterAccountDto {
     @NotNull
     @Pattern(regexp = "PL|EN", flags = Pattern.Flag.CASE_INSENSITIVE)
     private String language;
+
+    @NotBlank
+    private String captchaCode;
 }

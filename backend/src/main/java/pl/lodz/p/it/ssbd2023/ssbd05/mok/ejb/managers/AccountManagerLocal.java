@@ -6,26 +6,28 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
+import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+
 
 @Local
 public interface AccountManagerLocal extends CommonManagerInterface {
     void registerAccount(Account account) throws AppBaseException;
 
-    void confirmRegistration(UUID token) throws AppBaseException;
-
     void changePassword(String oldPass, String newPass, String login) throws AppBaseException;
 
     void sendResetPasswordMessage(String email) throws AppBaseException;
 
-    void resetPassword(String password, UUID token) throws AppBaseException;
+    void resetPassword(String password, String token) throws AppBaseException;
+
+    void confirmRegistration(String confirmToken, boolean withAddressSave)
+        throws AppBaseException;
 
     void changeEmail(String login) throws AppBaseException;
 
-    void confirmEmail(String email, UUID confirmToken, String login) throws AppBaseException;
+    void confirmEmail(String email, String confirmToken, String login) throws AppBaseException;
 
     void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status) throws AppBaseException;
 
@@ -41,19 +43,29 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void forcePasswordChange(String login) throws AppBaseException;
 
-    void overrideForcedPassword(String password, UUID token) throws AppBaseException;
+    void overrideForcedPassword(String password, String token) throws AppBaseException;
 
-    List<Account> getAllAccounts(boolean active);
+    void changePreferredTheme(String login, boolean lightTheme) throws AppBaseException;
 
-    List<Account> getOwnerAccounts(boolean active);
+    Page<Account> getAllAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
+        throws AppBaseException;
 
-    List<Account> getManagerAccounts(boolean active);
+    Page<Account> getOwnerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
+        throws AppBaseException;
 
-    List<Account> getAdminAccounts(boolean active);
+    Page<Account> getManagerAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
+        throws AppBaseException;
 
-    List<Account> getUnapprovedOwnerAccounts();
+    Page<Account> getAdminAccounts(boolean active, int page, int pageSize, boolean asc, String phrase, String login)
+        throws AppBaseException;
 
-    List<Account> getUnapprovedManagerAccounts();
+    Page<Account> getUnapprovedOwnerAccounts(int page, int pageSize, boolean asc, String phrase, String login)
+        throws AppBaseException;
+
+    Page<Account> getUnapprovedManagerAccounts(int page, int pageSize, boolean asc, String phrase, String login)
+        throws AppBaseException;
+
+    List<String> getAccountsLogins(String login);
 
     void deleteUnverifiedAccounts(LocalDateTime now) throws AppBaseException;
 
@@ -61,11 +73,17 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void remindToConfirmRegistration(LocalDateTime now);
 
-    Account editPersonalDataByAdmin(Account account) throws AppBaseException;
+    Account editPersonalDataByAdmin(Account account, boolean withAddressSave) throws AppBaseException;
 
     void grantAccessLevel(Long id, AccessLevel accessLevel, String login) throws AppBaseException;
 
-    Account editPersonalData(Account account, String login) throws AppBaseException;
+    Account editPersonalData(Account account, String login, boolean withAddressSave) throws AppBaseException;
 
     void revokeAccessLevel(Long id, AccessType accessType, String login) throws AppBaseException;
+
+    void changeTwoFactorAuthStatus(String login, Boolean status) throws AppBaseException;
+
+    void lockInactiveAccountsWithoutRecentLogins() throws AppBaseException;
+
+    void unlockOwnAccount(String token) throws AppBaseException;
 }
