@@ -15,7 +15,9 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.CostFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
@@ -32,6 +34,7 @@ import java.util.Optional;
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
     GenericFacadeExceptionsInterceptor.class,
+    CostFacadeExceptionsInterceptor.class,
     LoggerInterceptor.class
 })
 public class CostFacade extends AbstractFacade<Cost> {
@@ -221,6 +224,18 @@ public class CostFacade extends AbstractFacade<Cost> {
     @RolesAllowed({MANAGER})
     public Optional<Cost> find(Long id) {
         return super.find(id);
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public void create(Cost entity) throws AppBaseException {
+        super.create(entity);
+    }
+
+    @Override
+    @RolesAllowed({MANAGER})
+    public void remove(Cost entity) throws AppBaseException {
+        super.remove(entity);
     }
 
     @RolesAllowed({MANAGER})

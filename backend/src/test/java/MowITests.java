@@ -33,13 +33,14 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddOverdueForecastDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsManagerDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddReadingAsOwnerDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateCostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingYearsAndMonthsReports;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportMonthDto;
@@ -3048,7 +3049,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3081,7 +3082,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                            "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3093,7 +3094,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                                "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3126,7 +3127,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3177,7 +3178,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3189,7 +3190,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3240,7 +3241,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3286,7 +3287,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3298,7 +3299,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3687,7 +3688,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3714,7 +3715,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(onlyManagerSpec)
                         .when().get(
                             createReportUrl +
-                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3747,7 +3748,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3785,7 +3786,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(onlyManagerSpec)
                         .when().get(
                             createReportUrl +
-                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
                     assertTrue(placeReportMonthDto.getDetails().stream()
@@ -4745,7 +4746,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -4768,7 +4769,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -4836,7 +4837,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -5281,5 +5282,566 @@ public class MowITests extends TestContainersSetup {
             }
         }
 
+    }
+
+    @Nested
+    class MOW16 {
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class UnauthorizedTests {
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+                CreateCostDto costDto = new CreateCostDto(2022, (short) 1, 6L,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                CreateCostDto costDto = new CreateCostDto(2022, (short) 1, 6L,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+                given().spec(onlyAdminSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+
+        @Nested
+        class ConstraintTests {
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, 15})
+            void shouldReturn400SCWhenInvalidMonth(Integer month) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, month, 6L,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @NullSource
+            @ParameterizedTest
+            void shouldReturn400SCWhenInvalidCategoryId(Long categoryId) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, categoryId,
+                    BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, -10})
+            void shouldReturn400SCWhenInvalidTotalConsumption(Integer tc) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, 2L,
+                    BigDecimal.valueOf(tc), BigDecimal.valueOf(1));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, 0})
+            void shouldReturn400SCWhenInvalidRealRate(Integer rr) {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, 2L,
+                    BigDecimal.valueOf(2), BigDecimal.valueOf(rr));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn400SCWhenCostDtoEmpty() {
+
+                CreateCostDto costDto = new CreateCostDto();
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn409SCWhenCostAlreadyExists() {
+
+                CreateCostDto costDto = new CreateCostDto(2022, 2, 2L,
+                    BigDecimal.valueOf(2), BigDecimal.valueOf(2));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+            }
+        }
+
+        @Nested
+        class PositiveTests {
+
+            @Test
+            void shouldReturn204WhenCreatingPastNotExistingCost() {
+                CreateCostDto costDto = new CreateCostDto(2000, 6, 6L,
+                    BigDecimal.valueOf(100.345), BigDecimal.valueOf(3));
+
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .body(costDto)
+                    .post("/costs")
+                    .then()
+                    .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn204WhenCreatingCostsForVariousCategories() {
+                String categoriesURL = "/categories";
+                io.restassured.response.Response response = given().spec(managerSpec).when().get(categoriesURL);
+                List<CategoryDTO> categories =
+                    List.of(response.getBody().as(CategoryDTO[].class));
+
+                for (CategoryDTO dto : categories) {
+                    CreateCostDto costDto = new CreateCostDto(2000, 7, dto.getId(),
+                        BigDecimal.valueOf(100.345), BigDecimal.valueOf(10));
+
+                    given().spec(onlyManagerSpec)
+                        .when()
+                        .contentType(ContentType.JSON)
+                        .body(costDto)
+                        .post("/costs")
+                        .then()
+                        .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+                }
+            }
+        }
+    }
+
+    @Nested
+    class MOW18 {
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+        private static RequestSpecification onlyOwnerSpec;
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("wplatynowy", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            onlyOwnerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Nested
+        class UnauthorizedTests {
+            @Test
+            void shouldReturn403SCWhenRequestAsGuest() {
+
+                given()
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + 123)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsOwner() {
+
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + 123)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturn403SCWhenRequestAsAdmin() {
+                given().spec(onlyOwnerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + 123)
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+
+        @Nested
+        class ConstraintTests {
+
+            @Test
+            void shouldReturn400SCWhenInvalidCostId() {
+                given().spec(onlyManagerSpec)
+                    .when()
+                    .contentType(ContentType.JSON)
+                    .delete("/costs/" + Integer.MIN_VALUE)
+                    .then()
+                    .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            }
+        }
+    }
+
+    @Nested
+    class MOW6 {
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response = given().when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response = given().spec(adminSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsManager() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldGetEmptyListByNotExistingPlaceId() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get("places/me/-1/categories");
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+
+            List<PlaceCategoryDTO> categories =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+            assertNotNull(categories);
+            assertEquals(0, categories.size());
+        }
+
+        @Test
+        void shouldGetListByExistingPlaceId() {
+            io.restassured.response.Response response =
+                given().spec(ownerSpec).when().get("places/me/3/categories");
+
+            List<PlaceCategoryDTO> placeCategoryDTOList =
+                List.of(response.getBody().as(PlaceCategoryDTO[].class));
+
+            Assertions.assertNotEquals(placeCategoryDTOList.size(), 0);
+        }
+    }
+
+    @Nested
+    class MOW15 {
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response =
+                given().contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsOwner() {
+            io.restassured.response.Response response =
+                given().spec(ownerSpec).contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response =
+                given().spec(adminSpec).contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldPassWhenRequestAsManager() {
+            io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("costs?page=0" +
+                "&pageSize=10&asc=&year=2022&month=&categoryName=");
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+
+            Page<CostDto> costDtoPage = response.getBody().as(Page.class);
+
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            assertNotNull(costDtoPage);
+            assertTrue(costDtoPage.getTotalSize() >= 0);
+            assertTrue(costDtoPage.getCurrentPage() >= 0);
+            assertTrue(costDtoPage.getPageSize() >= 0);
+            assertTrue(costDtoPage.getData().size() > 0);
+        }
+
+    }
+
+    @Nested
+    class MOW17 {
+
+        private static RequestSpecification ownerSpec;
+        private static RequestSpecification onlyManagerSpec;
+        private static RequestSpecification onlyAdminSpec;
+
+        @BeforeAll
+        static void generate() {
+            LoginDto loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            ownerSpec = new RequestSpecBuilder().setContentType(ContentType.JSON)
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("azloty", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyManagerSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+
+
+            loginDto = new LoginDto("wlokietek", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            onlyAdminSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsGuest() {
+            io.restassured.response.Response response = given().when()
+                .get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsOwner() {
+            io.restassured.response.Response response = given().spec(ownerSpec).when().get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
+        void shouldReturn403WhenRequestAsAdmin() {
+            io.restassured.response.Response response =
+                given().spec(adminSpec).when().get("costs/1");
+            response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {1, 2, 10, 100})
+        void shouldReturn204WhenRequestAsManager(Integer id) {
+            io.restassured.response.Response response =
+                given().spec(onlyManagerSpec).when().get("costs/" + id);
+            response.then().statusCode(Response.Status.OK.getStatusCode());
+            CostDto costDto = response.getBody().as(CostDto.class);
+            Assertions.assertNotNull(costDto);
+        }
+
+        @Test
+        void shouldReturn404WhenNotFound() {
+            io.restassured.response.Response response =
+                given().spec(onlyManagerSpec).when().get("costs/-12345");
+            response.then().statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
     }
 }

@@ -7,6 +7,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
@@ -20,9 +21,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateCostDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.CostManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.CostDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
+
+import java.time.Month;
+import java.time.Year;
 
 @RequestScoped
 @Path("/costs")
@@ -77,9 +82,12 @@ public class CostEndpoint {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(MANAGER)
-    public Response createCost() throws AppBaseException {
-        throw new UnsupportedOperationException();
+    @RolesAllowed({MANAGER})
+    public Response createCost(@NotNull @Valid CreateCostDto costDto) throws AppBaseException {
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> costManager.createCost(Year.of(costDto.getYear()), Month.of(costDto.getMonth()),
+                costDto.getTotalConsumption(), costDto.getRealRate(), costDto.getCategoryId()), costManager
+        ).build();
     }
 
     @GET
@@ -99,6 +107,8 @@ public class CostEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response removeCost(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> costManager.removeCost(id), costManager
+        ).build();
     }
 }

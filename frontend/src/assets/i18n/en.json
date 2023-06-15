@@ -116,6 +116,14 @@
     "residents-number": {
       "required": "Residents number is required.",
       "min": "Number of residents must be greater than or equal to "
+    },
+    "total-consumption": {
+      "required": "Total consumption is required.",
+      "min": "Total consumption must be greater than or equal to "
+    },
+    "real-rate": {
+      "required": "Real rate is required.",
+      "min": "Real rate must be greater than or equal to "
     }
   },
   "form": {
@@ -347,7 +355,7 @@
     "costs": {
       "month": "Month",
       "year": "Year",
-      "realRate": "Real rate ",
+      "realRate": "Real rate",
       "totalConsumption": "Total consumption",
       "months": {
         "january": "January",
@@ -365,10 +373,29 @@
       },
       "loading": "Choose year and category, to see the costs table",
       "chooseYear": "Choose year",
+      "chooseMonth": "Choose month",
       "chooseCategory": "Choose category",
       "category": "Cost category",
       "cost-data": "Cost data",
-      "details": "Cost details"
+      "details": "Cost details",
+      "remove-cost": "Remove cost"
+    },
+    "add-cost": {
+      "title": "Add cost",
+      "create": "Save new cost",
+      "cancel": "Cancel",
+      "months-0": "January",
+      "months-1": "February",
+      "months-2": "March",
+      "months-3": "April",
+      "months-4": "May",
+      "months-5": "June",
+      "months-6": "July",
+      "months-7": "August",
+      "months-8": "September",
+      "months-9": "October",
+      "months-10": "November",
+      "months-11": "December"
     },
     "meters": {
       "add-reading": "Choose a meter to add reading",
@@ -526,6 +553,8 @@
       "add-reading": "Are you sure, you want to add this reading?",
       "place-edit": "Are you sure, you want update this place?",
       "add-place": "Confirm adding new place.",
+      "add-cost": "Are you sure, you want to add this cost?",
+      "remove-cost": "Are you sure, you want to remove this cost?",
       "place-owners-add": "Are you sure, you want to add selected owner to this place?",
       "place-owners-remove": "Are you sure, you want to remove selected owner from this place?"
     },
@@ -686,6 +715,18 @@
           "place_not_found": "Place not found",
           "account_not_found": "Account not found",
           "illegal_self_action": "You can't remove yourself from owners"
+        }
+      }
+    },
+    "cost": {
+      "add-success": "Cost added successfully",
+      "add-fail": "Adding cost failed. Try again later",
+      "remove-success": "Cost removed successfully",
+      "remove-fail": "Removing cost failed. Try again later",
+      "response":{
+        "message": {
+          "cost_already_exists": "Cost with chosen values already exists",
+          "cost_not_found": "Cost not found"
         }
       }
     }
