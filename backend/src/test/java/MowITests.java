@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,6 +38,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingYearsAndMonthsReports;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CategoryDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.MeterDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryDTO;
@@ -3046,7 +3048,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3079,7 +3081,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                        "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3091,7 +3093,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3124,7 +3126,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3175,7 +3177,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                        "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3187,7 +3189,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3238,7 +3240,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3284,7 +3286,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                        "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3296,7 +3298,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3685,7 +3687,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3712,7 +3714,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(onlyManagerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3745,7 +3747,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3783,7 +3785,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(onlyManagerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
                     assertTrue(placeReportMonthDto.getDetails().stream()
@@ -4743,7 +4745,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -4766,7 +4768,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -4834,7 +4836,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -5006,6 +5008,124 @@ public class MowITests extends TestContainersSetup {
     }
 
     @Nested
+    class MOW35 {
+        private static final String YEARLY_REPORT_URL = "/reports/community/%d";
+        private static final String MONTHLY_REPORT_URL = YEARLY_REPORT_URL + "/%d";
+
+        @Nested
+        class GetCommunityReportsPositiveTest {
+            @Test
+            void shouldGetYearlyReportAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(200)
+                    .body(
+                        "balance", notNullValue(),
+                        "reportsPerCategory.size()", greaterThan(0));
+            }
+
+            @Test
+            void shouldGetMonthlyReportAsManagerWithStatusCode200Test() {
+                given(managerSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(200)
+                    .body(
+                        "balance", notNullValue(),
+                        "reportsPerCategory.size()", greaterThan(0));
+            }
+        }
+
+        @Nested
+        class GetCommunityReportsForbiddenTest {
+            @Test
+            void shouldFailToGetYearlyCommunityReportAsAdminWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetYearlyCommunityReportAsOwnerWithStatusCode403Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetYearlyCommunityReportAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(2022))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetMonthlyCommunityReportAsAdminWithStatusCode403Test() {
+                given(adminSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetMonthlyCommunityReportAsOwnerWithStatusCode403Test() {
+                given(ownerSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(403);
+            }
+
+            @Test
+            void shouldFailToGetMonthlyCommunityReportAsGuestWithStatusCode403Test() {
+                given()
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2022, 6))
+                    .then()
+                    .statusCode(403);
+            }
+        }
+
+        @Nested
+        class GetCommunityReportsNegativeTest {
+
+            @ParameterizedTest
+            @ValueSource(ints = {-1, 0, 13})
+            void shouldFailToGetCommunityReportsDueToInvalidMonthWithStatusCode400Test(Integer month) {
+                given(managerSpec)
+                    .when()
+                    .get(MONTHLY_REPORT_URL.formatted(2023, month))
+                    .then()
+                    .statusCode(400);
+            }
+
+            @ParameterizedTest
+            @ValueSource(ints = {2021, 2024})
+            void shouldGetYearlyReportZeroBalanceAndEmptyReportsDueToInvalidYearWithStatusCode200Test(
+                Integer year) {
+                given(managerSpec)
+                    .when()
+                    .get(YEARLY_REPORT_URL.formatted(year))
+                    .then()
+                    .statusCode(200)
+                    .body(
+                        "balance", is(0),
+                        "reportsPerCategory.size()", is(0));
+            }
+        }
+    }
+
+    @Nested
     class MOW33 {
         private static final String buildingReportsURL = "/reports/buildings";
         private static RequestSpecification onlyManagerSpec;
@@ -5162,5 +5282,4 @@ public class MowITests extends TestContainersSetup {
         }
 
     }
-
 }

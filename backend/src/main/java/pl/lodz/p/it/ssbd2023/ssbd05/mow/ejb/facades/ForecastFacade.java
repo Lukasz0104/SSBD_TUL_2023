@@ -307,16 +307,20 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
         em.flush();
     }
 
-    @PermitAll
-    public List<Object[]> getMapCategoryNameToRateAndValueAndRealValueAndAmount(Long id,
-                                                                                         Year year, Month month) {
-        TypedQuery<Object[]> tq =
-            em.createNamedQuery("Forecast.getMapCategoryNameToRateAndValueAndRealValueAndAmount",
-                Object[].class);
-        tq.setParameter("buildingId", id);
-        tq.setParameter("year", year);
-        tq.setParameter("month", month);
+    @RolesAllowed(MANAGER)
+    public List<Forecast> findByYearAndCategoryName(Year year, String categoryName) {
+        return em.createNamedQuery("Forecast.findByYearAndCategoryName", Forecast.class)
+            .setParameter("year", year)
+            .setParameter("categoryName", categoryName)
+            .getResultList();
+    }
 
-        return tq.getResultList();
+    @RolesAllowed(MANAGER)
+    public List<Forecast> findByYearAndCategoryNameAndMonthBefore(Year year, String categoryName, Month month) {
+        return em.createNamedQuery("Forecast.findByYearAndCategoryNameAndMonthBefore", Forecast.class)
+            .setParameter("year", year)
+            .setParameter("categoryName", categoryName)
+            .setParameter("month", month)
+            .getResultList();
     }
 }
