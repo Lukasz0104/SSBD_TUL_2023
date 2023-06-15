@@ -178,16 +178,40 @@ public class PlaceEndpoint {
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response addOwnerToPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response addOwnerToPlace(@PathParam("id") Long id, @NotNull @QueryParam("ownerId") Long ownerId)
+        throws AppBaseException {
+        String managerLogin = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.addOwnerToPlace(id, ownerId, managerLogin),
+            placeManager
+        ).build();
+    }
+
+    @GET
+    @Path("/{id}/not-owners")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(MANAGER)
+    public Response getOwnerNotOwningPlace(@PathParam("id") Long id) throws AppBaseException {
+        return rollbackUtils.rollBackTXBasicWithOkStatus(
+            () -> placeManager.getOwnerNotOwningPlace(id)
+                .stream()
+                .map(PlaceDtoConverter::createPlaceOwnerDtoFromOwnerData)
+                .toList(),
+            placeManager
+        ).build();
     }
 
     @DELETE
     @Path("/{id}/owners")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
-    public Response removeOwnerFromPlace(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
+    public Response removeOwnerFromPlace(@PathParam("id") Long id, @NotNull @QueryParam("ownerId") Long ownerId)
+        throws AppBaseException {
+        String managerLogin = securityContext.getUserPrincipal().getName();
+        return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+            () -> placeManager.removeOwnerFromPlace(id, ownerId, managerLogin),
+            placeManager
+        ).build();
     }
 
     @GET

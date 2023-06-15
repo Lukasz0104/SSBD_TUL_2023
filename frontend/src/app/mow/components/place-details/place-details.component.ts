@@ -1,10 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, EMPTY } from 'rxjs';
 import { Place } from '../../model/place';
 import { PlaceService } from '../../services/place.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { PlaceCategoriesComponent } from '../place-categories/place-categories.component';
 import { AuthService } from '../../../shared/services/auth.service';
 import { PlaceEditComponent } from '../place-edit/place-edit.component';
 
@@ -41,26 +40,17 @@ export class PlaceDetailsComponent implements OnInit {
         }
     }
 
-    placeCategories(id: number) {
-        const modalRef: NgbModalRef = this.modalService.open(
-            PlaceCategoriesComponent,
-            {
-                centered: true,
-                size: 'xl'
-            }
-        );
-        modalRef.componentInstance.id = id;
-    }
-
     editPlace(id: number) {
         const modalRef: NgbModalRef = this.modalService.open(
             PlaceEditComponent,
             { centered: true }
         );
         modalRef.componentInstance.setPlace(id);
-        modalRef.result.then((): void => {
-            this.getPlace(id);
-        });
+        modalRef.result
+            .then((): void => {
+                this.getPlace(id);
+            })
+            .catch(() => EMPTY);
     }
 
     getPlace(id: number) {

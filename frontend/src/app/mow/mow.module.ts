@@ -29,6 +29,7 @@ import { AddPlaceComponent } from './components/add-place/add-place.component';
 import { PlaceOwnersComponent } from './components/place-owners/place-owners.component';
 import { CommunityReportsComponent } from './components/community-reports/community-reports.component';
 import { AddCostComponent } from './components/add-cost/add-cost.component';
+import { PlaceOwnersAddComponent } from './components/place-owners-add/place-owners-add.component';
 
 @NgModule({
     declarations: [
@@ -56,8 +57,9 @@ import { AddCostComponent } from './components/add-cost/add-cost.component';
         AddPlaceComponent,
         PlaceOwnersComponent,
         CommunityReportsComponent,
-        PlaceOwnersComponent,
-        AddCostComponent
+        PlaceOwnersAddComponent,
+        AddCostComponent,
+        CommunityReportsComponent
     ],
     imports: [
         CommonModule,

@@ -18,7 +18,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.AmountRequiredException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.CategoryNotInUseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.InactivePlaceException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.forbidden.IllegalSelfActionException;
@@ -83,16 +82,6 @@ public class ForecastManager extends AbstractManager implements ForecastManagerL
         }
         Rate rate = rateFacade.findCurrentRateByCategoryId(categoryId)
             .orElseThrow(RateNotFoundException::new);
-        switch (rate.getAccountingRule()) {
-            case PERSON -> amount = BigDecimal.valueOf(place.getResidentsNumber());
-            case SURFACE -> amount = place.getSquareFootage();
-            case METER -> {
-                if (amount == null) {
-                    throw new AmountRequiredException();
-                }
-            }
-            default -> amount = BigDecimal.ONE;
-        }
         LocalDate now = LocalDate.now();
         Forecast forecast = new Forecast(
             Year.now(),

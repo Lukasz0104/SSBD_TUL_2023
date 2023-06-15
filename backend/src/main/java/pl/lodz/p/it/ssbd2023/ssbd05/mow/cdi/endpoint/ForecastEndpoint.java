@@ -46,7 +46,7 @@ public class ForecastEndpoint {
     private RollbackUtils rollbackUtils;
 
     @POST
-    @Path("/add-overdue")
+    @Path("/add-current")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(MANAGER)
     public Response createOverdueForecast(@Valid @NotNull AddOverdueForecastDto addOverdueForecastDto)

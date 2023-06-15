@@ -15,6 +15,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -25,6 +26,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,6 +59,12 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @Override
+    @PermitAll
+    public Optional<Place> find(Long id) {
+        return super.find(id);
+    }
+
+    @Override
     @RolesAllowed({MANAGER})
     public List<Place> findAll() {
         return super.findAll();
@@ -72,12 +80,6 @@ public class PlaceFacade extends AbstractFacade<Place> {
         } catch (NoResultException nre) {
             return Optional.empty();
         }
-    }
-
-    @Override
-    @PermitAll
-    public Optional<Place> find(Long id) {
-        return super.find(id);
     }
 
     @RolesAllowed({OWNER, MANAGER})
@@ -203,8 +205,26 @@ public class PlaceFacade extends AbstractFacade<Place> {
     }
 
     @RolesAllowed(MANAGER)
+    public List<OwnerData> findByNotInLogins(Long id) {
+        TypedQuery<OwnerData> tq = em.createNamedQuery("Place.findOwnerDataByNotOwnersOfPlaceId", OwnerData.class);
+        tq.setParameter("placeId", id);
+        return tq.getResultList();
+    }
+
+    @RolesAllowed(MANAGER)
     @Override
     public void create(Place entity) throws AppBaseException {
         super.create(entity);
+    }
+
+    @RolesAllowed(MANAGER)
+    public BigDecimal sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth yearMonth) {
+        try {
+            return em.createNamedQuery("sumBalanceForMonthAndYearAcrossAllPlaces", BigDecimal.class)
+                .setParameter(1, LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), 1))
+                .getSingleResult();
+        } catch (NoResultException nre) {
+            return BigDecimal.ZERO;
+        }
     }
 }

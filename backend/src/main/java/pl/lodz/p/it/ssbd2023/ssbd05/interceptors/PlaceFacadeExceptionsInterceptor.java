@@ -24,7 +24,9 @@ public class PlaceFacadeExceptionsInterceptor {
                 if (message.contains("place_number_building_id")) {
                     throw new PlaceNumberAlreadyTaken();
                 }
-
+                if (message.contains("unq_place_owner_0")) {
+                    break;
+                }
                 exceptionCopy = exceptionCopy.getCause();
             } while (exceptionCopy != null);
 

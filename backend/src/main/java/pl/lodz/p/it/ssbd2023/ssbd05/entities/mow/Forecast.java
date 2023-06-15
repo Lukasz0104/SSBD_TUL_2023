@@ -114,6 +114,19 @@ import java.time.Year;
         name = "Forecast.findByCategoryId",
         query = "SELECT f FROM Forecast f WHERE f.rate.category.id = :categoryId"),
     @NamedQuery(
+        name = "Forecast.findByYearAndCategoryName",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE f.year = :year AND f.rate.category.name = :categoryName"""),
+    @NamedQuery(
+        name = "Forecast.findByYearAndCategoryNameAndMonthBefore",
+        query = """
+            SELECT f FROM Forecast f
+            WHERE
+                f.year = :year
+                AND f.rate.category.name = :categoryName
+                AND f.month < :month"""),
+    @NamedQuery(
         name = "Forecast.findByYearAndCategoryId",
         query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.rate.category.id = :categoryId"),
     @NamedQuery(
