@@ -123,7 +123,14 @@ import java.time.LocalDate;
         query = "SELECT r FROM Rate r WHERE r.effectiveDate < :effectiveDate"),
     @NamedQuery(
         name = "Rate.findByEffectiveDateAfter",
-        query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate")
+        query = "SELECT r FROM Rate r WHERE r.effectiveDate >= :effectiveDate"),
+    // other
+    @NamedQuery(
+        name = "Rate.findByEffectiveDateBeforeOrderedByDate",
+        query = """
+            SELECT r FROM Rate r
+            WHERE r.effectiveDate >= :effectiveDate AND r.category.id = :categoryId
+            ORDER BY r.effectiveDate ASC""")
 })
 @EntityListeners({EntityControlListenerMOW.class})
 public class Rate extends AbstractEntity implements Serializable {

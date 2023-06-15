@@ -55,7 +55,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         super.create(entity);
     }
 
-    //CurrentRates
+    // CurrentRates
 
     @PermitAll
     public List<Rate> findCurrentRates() {
@@ -63,7 +63,7 @@ public class RateFacade extends AbstractFacade<Rate> {
         return tq.getResultList();
     }
 
-    //AccountingRules
+    // AccountingRules
 
     @RolesAllowed({OWNER, MANAGER})
     public List<Rate> findByAccountingRule(AccountingRule accountingRule) {
@@ -233,5 +233,14 @@ public class RateFacade extends AbstractFacade<Rate> {
     @RolesAllowed(MANAGER)
     public void remove(Rate entity) throws AppBaseException {
         super.remove(entity);
+    }
+
+    @PermitAll
+    public Rate findFirstInYear(LocalDate maxDate, Long categoryId) {
+        return em.createNamedQuery("Rate.findByEffectiveDateBeforeOrderedByDate", Rate.class)
+            .setParameter("effectiveDate", maxDate)
+            .setParameter("categoryId", categoryId)
+            .setMaxResults(1)
+            .getSingleResult();
     }
 }

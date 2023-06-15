@@ -44,4 +44,6 @@ public interface ReportManagerLocal extends CommonManagerInterface {
     boolean isReportForYear(Year year, Long placeId);
 
     boolean isOwnReportForYear(Year year, Long placeId, String login) throws AppBaseException;
+
+    void createReportForPlace(Long placeId) throws AppBaseException;
 }

@@ -139,7 +139,19 @@ import java.time.LocalDateTime;
                 ON m.id = r.meter.id
             INNER JOIN Place p
                 ON m.place.id = p.id
-            WHERE r.date < :date""")
+            WHERE r.date < :date"""),
+    @NamedQuery(
+        name = "Reading.findReliableReadingsFromLastDayOfYear",
+        query = """
+            SELECT r FROM Reading r
+            WHERE
+                r.reliable = true
+                AND r.meter.place.id = :placeId
+                AND r.meter.category.id = :categoryId
+                AND EXTRACT(MONTH FROM r.date) = 12
+                AND EXTRACT(DAY FROM r.date) = 31
+                AND EXTRACT(YEAR FROM r.date) <= :year
+            ORDER BY r.date DESC""")
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})

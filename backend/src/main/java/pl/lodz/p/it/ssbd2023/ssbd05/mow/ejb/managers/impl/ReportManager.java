@@ -5,6 +5,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
@@ -12,8 +13,12 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppInternalServerErrorException;
@@ -23,8 +28,11 @@ import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterce
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CostFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ForecastFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
@@ -32,6 +40,9 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
@@ -61,6 +72,15 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
 
     @Inject
     private CategoryFacade categoryFacade;
+
+    @Inject
+    private CostFacade costFacade;
+
+    @Inject
+    private RateFacade rateFacade;
+
+    @Inject
+    private ReadingFacade readingFacade;
 
     @Override
     @RolesAllowed({MANAGER, OWNER})
@@ -240,9 +260,63 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
             throw new InaccessibleReportException();
         }
     }
+
+    @PermitAll
+    @Override
+    public void createReportForPlace(Long placeId) throws AppBaseException {
+        Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
+        List<Category> categories = categoryFacade.findAll();
+        Year year = Year.of(LocalDateTime.now().getYear() - 1);
+        for (Category cat : categories) {
+            List<Cost> costs = costFacade.findByYearAndCategoryId(year, cat.getId());
+
+            LocalDate januaryFirst = LocalDate.now().withDayOfYear(1);
+            var rate = rateFacade.findFirstInYear(januaryFirst, cat.getId());
+
+            BigDecimal costForPlace;
+            BigDecimal consumptionForPlace;
+
+            BigDecimal totalConsumption = costs.stream()
+                .map(Cost::getTotalConsumption)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            if (rate.getAccountingRule() == AccountingRule.UNIT) {
+                costForPlace = rate.getValue();
+                consumptionForPlace = BigDecimal.ONE;
+            } else {
+                BigDecimal totalCost = costs.stream()
+                    .map(c -> c.getRealRate().multiply(c.getTotalConsumption()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                BigDecimal multiplier;
+                if (rate.getAccountingRule() == AccountingRule.PERSON) {
+                    consumptionForPlace = BigDecimal.valueOf(place.getResidentsNumber());
+                    multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+                } else if (rate.getAccountingRule() == AccountingRule.SURFACE) {
+                    consumptionForPlace = place.getSquareFootage();
+                    multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+                } else { // METER
+                    List<Reading> readings = readingFacade.findReliableReadingsFromLastDayOfYear(
+                        placeId, cat.getId(), LocalDate.now().getYear());
+
+                    if (readings.size() == 2) {
+                        consumptionForPlace = readings.get(0).getValue().subtract(readings.get(1).getValue())
+                            .divide(totalConsumption, 6, RoundingMode.CEILING);
+                        multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+                    } else if (readings.size() == 1) {
+                        consumptionForPlace = readings.get(0).getValue();
+                        multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+                    } else {
+                        consumptionForPlace = BigDecimal.ZERO;
+                        multiplier = BigDecimal.ZERO;
+                    }
+                }
+
+                costForPlace = totalCost.multiply(multiplier);
+            }
+
+            Report report = new Report(year, costForPlace, consumptionForPlace, place, cat);
+            reportFacade.create(report);
+        }
+    }
 }
-
-
-
-
-
