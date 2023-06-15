@@ -111,11 +111,13 @@
     },
     "square-footage": {
       "required": "Powierzchnia jest wymagana.",
-      "min": "Powierzchnia musi być większa bądź równa "
+      "min": "Powierzchnia musi być większa bądź równa ",
+      "max": "Powierzchnia musi być nie większa niż "
     },
     "residents-number": {
       "required": "Liczba lokatorów jest wymagana.",
-      "min": "Liczba lokatorów musi być większa bądź równa "
+      "min": "Liczba lokatorów musi być większa bądź równa ",
+      "max": "Liczba lokatorów musi być nie większa niż"
     },
     "total-consumption": {
       "required": "Wartość całkowitego zużycia jest wymagana.",

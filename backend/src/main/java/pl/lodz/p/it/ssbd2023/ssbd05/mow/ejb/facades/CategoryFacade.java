@@ -55,7 +55,7 @@ public class CategoryFacade extends AbstractFacade<Category> {
     }
 
     @Override
-    @RolesAllowed(MANAGER)
+    @PermitAll
     public List<Category> findAll() {
         return super.findAll();
     }

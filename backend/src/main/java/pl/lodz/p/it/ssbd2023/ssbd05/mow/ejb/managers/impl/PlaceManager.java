@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
@@ -92,7 +93,7 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     private ReadingFacade readingFacade;
 
     @Override
-    @RolesAllowed(MANAGER)
+    @PermitAll
     public List<Place> getAllPlaces() throws AppBaseException {
         return placeFacade.findAll();
     }

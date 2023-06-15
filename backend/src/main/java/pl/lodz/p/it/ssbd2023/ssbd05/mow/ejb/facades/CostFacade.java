@@ -4,6 +4,7 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -107,7 +108,7 @@ public class CostFacade extends AbstractFacade<Cost> {
         }
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Cost> findByYearAndCategoryId(Year year, Long categoryId) throws AppDatabaseException {
         try {
             TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYearAndCategoryId", Cost.class);
