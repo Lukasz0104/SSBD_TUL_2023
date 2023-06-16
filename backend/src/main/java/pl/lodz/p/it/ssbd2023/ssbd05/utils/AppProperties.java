@@ -128,4 +128,24 @@ public class AppProperties {
     @Inject
     @ConfigProperty(name = "readings.days.between.readings", defaultValue = "30")
     private int daysBetweenReadingsForOwner;
+
+    @Inject
+    @ConfigProperty(name = "eventlog.enable", defaultValue = "false")
+    private boolean eventLogEnable;
+
+    @Inject
+    @ConfigProperty(name = "eventlog.user", defaultValue = "")
+    private String eventLogUser;
+
+    @Inject
+    @ConfigProperty(name = "eventlog.pass", defaultValue = "")
+    private String eventLogPass;
+
+    @Inject
+    @ConfigProperty(name = "eventlog.connection.hostname", defaultValue = "db")
+    private String eventLogConnectionHostname;
+
+    @Inject
+    @ConfigProperty(name = "eventlog.connection.port", defaultValue = "27017")
+    private int eventLogConnectionPort;
 }

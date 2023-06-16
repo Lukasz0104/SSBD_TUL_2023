@@ -46,7 +46,7 @@ public class BuildingFacade extends AbstractFacade<Building> {
     }
 
     @Override
-    @RolesAllowed(MANAGER)
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
     public Optional<Building> find(Long id) {
         return super.find(id);
     }

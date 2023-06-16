@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
+import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.ADMIN;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
@@ -197,7 +198,7 @@ public class PlaceFacade extends AbstractFacade<Place> {
         return tq.getResultList();
     }
 
-    @RolesAllowed(MANAGER)
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
     public List<Place> findByBuildingId(Long id) {
         return em.createNamedQuery("Place.findByBuildingId", Place.class)
             .setParameter("buildingId", id)

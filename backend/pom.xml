@@ -4,7 +4,7 @@
     <groupId>pl.lodz.p.it.ssbd2023</groupId>
     <artifactId>ssbd05</artifactId>
     <packaging>war</packaging>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
     <name>eBok</name>
 
     <!--  DEVELOPERS INFO -->
@@ -196,6 +196,16 @@
             <artifactId>junit-jupiter-params</artifactId>
             <version>5.9.2</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+            <version>4.8.2</version>
         </dependency>
     </dependencies>
 
