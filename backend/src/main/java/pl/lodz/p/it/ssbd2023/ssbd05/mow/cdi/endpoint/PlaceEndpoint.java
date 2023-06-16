@@ -26,6 +26,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.SignatureMismatchException;
+import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.EventLogInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
@@ -41,7 +42,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 @RequestScoped
 @Path("/places")
 @DenyAll
-@Interceptors({LoggerInterceptor.class})
+@Interceptors({EventLogInterceptor.class, LoggerInterceptor.class})
 public class PlaceEndpoint {
 
     @Inject
