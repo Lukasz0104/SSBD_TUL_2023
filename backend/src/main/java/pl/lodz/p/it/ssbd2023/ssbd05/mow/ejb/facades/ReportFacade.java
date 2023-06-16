@@ -40,7 +40,8 @@ public class ReportFacade extends AbstractFacade<Report> {
         super(Report.class);
     }
 
-    @RolesAllowed({OWNER, MANAGER})
+
+    @RolesAllowed({MANAGER, OWNER, ADMIN})
     public List<Report> findByYear(Year year) throws AppDatabaseException {
         try {
             TypedQuery<Report> tq = em.createNamedQuery("Report.findByYear", Report.class);

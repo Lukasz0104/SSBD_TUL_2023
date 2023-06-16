@@ -57,6 +57,7 @@ public class TestContainersSetup {
 
         payaraContainer = new GenericContainer("payara/server-full:6.2023.2-jdk17")
             .withEnv("mail_smtp_host", "smtp.gmail.com.local")
+            .withEnv("eventlog_enable","false")
             .withExposedPorts(8080)
             .dependsOn(postgresContainer)
             .withNetwork(network)
