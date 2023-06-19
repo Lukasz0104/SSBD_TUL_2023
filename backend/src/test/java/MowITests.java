@@ -1801,7 +1801,7 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
