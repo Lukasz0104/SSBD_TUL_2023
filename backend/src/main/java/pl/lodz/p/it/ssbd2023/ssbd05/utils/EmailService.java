@@ -133,7 +133,7 @@ public class EmailService {
             .withLocale(new Locale(language));
 
         String content = I18n.getMessage(I18n.EMAIL_MESSAGE_ADMIN_AUTH_SUCCESS_MESSAGE, language)
-            .replace("$ip", ip)
+            .replace("$ip", ip == null ? "" : ip)
             .replace(
                 "$timestamp", timestamp.format(formatter)
             );

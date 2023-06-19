@@ -21,6 +21,7 @@ export class AddReadingComponent {
             validators: [
                 Validators.required,
                 Validators.min(0.001),
+                Validators.max(999999999),
                 threeDecimalPlacesValidator
             ]
         }),

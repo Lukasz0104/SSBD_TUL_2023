@@ -76,13 +76,13 @@
     },
     "reading": {
       "required": "Wartość odczytu jest wymagana.",
-      "decimal-places": "Wartość odczytu może mieć tylko do 3 miejsc po przecinku",
-      "reading-date": {
-        "required": "Data odczytu jest wymagana"
-      },
       "length": {
         "min": "Wartość odczytu musi być większa od 0",
         "max": "Wartość odczytu musi być mniejsza od 999999999"
+      },
+      "decimal-places": "Wartość odczytu może mieć tylko do 3 miejsc po przecinku",
+      "reading-date": {
+        "required": "Data odczytu jest wymagana"
       }
     },
     "amount": {

@@ -76,13 +76,13 @@
     },
     "reading": {
       "required": "Reading value is required.",
-      "decimal-places": "Reading value can have only up to 3 decimal places",
-      "reading-date": {
-        "required": "Reading date is required"
-      },
       "length": {
         "min": "Reading value must be greater than 0",
         "max": "Reading value must be lower than 999999999"
+      },
+      "decimal-places": "Reading value can have only up to 3 decimal places",
+      "reading-date": {
+        "required": "Reading date is required"
       }
     },
     "amount": {
