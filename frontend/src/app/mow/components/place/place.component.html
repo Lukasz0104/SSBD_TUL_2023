@@ -113,6 +113,7 @@
                         " />
                     <app-place-categories
                         [id]="place.id"
+                        [active]="place.active"
                         *ngIf="tab === 5 && authService.isManager()" />
                     <app-place-owners
                         [placeId]="place.id"

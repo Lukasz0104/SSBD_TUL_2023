@@ -1,6 +1,11 @@
 <div class="card text-center">
     <div class="card-header text-center fs-3">
-        <div class="row">
+        <div *ngIf="!currentYear">
+            <b class="m-5">{{ 'component.report.no-reports' | translate }}</b>
+        </div>
+        <div
+            *ngIf="currentYear"
+            class="row">
             <div class="col text-start">
                 <div class="d-inline">
                     <b>{{ 'component.report.title' | translate }}</b>
@@ -149,27 +154,51 @@
                             <td>
                                 {{ report.totalConsumption.toFixed(3) }}
                                 <span
-                                    *ngIf="report.accountingRule === RULE.METER"
-                                    >m<sup>3</sup>
+                                    *ngIf="
+                                        report.accountingRule === RULE.METER
+                                    ">
+                                    m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.PERSON
+                                    ">
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
                                         report.accountingRule === RULE.SURFACE
-                                    "
-                                    >m<sup>2</sup>
+                                    ">
+                                    m<sup>2</sup>
+                                </span>
+                                <span
+                                    *ngIf="report.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td>
                                 {{ report.forecastAmountSum.toFixed(3) }}
                                 <span
-                                    *ngIf="report.accountingRule === RULE.METER"
-                                    >m<sup>3</sup>
+                                    *ngIf="
+                                        report.accountingRule === RULE.METER
+                                    ">
+                                    m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.PERSON
+                                    ">
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
                                         report.accountingRule === RULE.SURFACE
-                                    "
-                                    >m<sup>2</sup>
+                                    ">
+                                    m<sup>2</sup>
+                                </span>
+                                <span
+                                    *ngIf="report.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td
@@ -185,14 +214,26 @@
                                     ).toFixed(3)
                                 }}
                                 <span
-                                    *ngIf="report.accountingRule === RULE.METER"
-                                    >m<sup>3</sup>
+                                    *ngIf="
+                                        report.accountingRule === RULE.METER
+                                    ">
+                                    m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.PERSON
+                                    ">
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
                                         report.accountingRule === RULE.SURFACE
-                                    "
-                                    >m<sup>2</sup>
+                                    ">
+                                    m<sup>2</sup>
+                                </span>
+                                <span
+                                    *ngIf="report.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td>
@@ -386,14 +427,26 @@
                             <td>
                                 {{ report.amount.toFixed(3) }}
                                 <span
-                                    *ngIf="report.accountingRule === RULE.METER"
-                                    >m<sup>3</sup>
+                                    *ngIf="
+                                        report.accountingRule === RULE.METER
+                                    ">
+                                    m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.PERSON
+                                    ">
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
                                         report.accountingRule === RULE.SURFACE
-                                    "
-                                    >m<sup>2</sup>
+                                    ">
+                                    m<sup>2</sup>
+                                </span>
+                                <span
+                                    *ngIf="report.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td>

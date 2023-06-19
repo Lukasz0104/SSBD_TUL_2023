@@ -76,7 +76,10 @@
     },
     "reading": {
       "required": "Wartość odczytu jest wymagana.",
-      "length": "Wartość odczytu musi być większa od 0",
+      "length": {
+        "min": "Wartość odczytu musi być większa od 0",
+        "max": "Wartość odczytu musi być mniejsza od 999999999"
+      },
       "decimal-places": "Wartość odczytu może mieć tylko do 3 miejsc po przecinku",
       "reading-date": {
         "required": "Data odczytu jest wymagana"
@@ -84,8 +87,11 @@
     },
     "amount": {
       "required": "Wartość zużycia jest wymagana.",
-      "length": "Wartość zużycia musi być większa od 0",
-      "decimal-places": "Wartość zużycia może mieć tylko do 3 miejsc po przecinku"
+      "decimal-places": "Wartość zużycia może mieć tylko do 3 miejsc po przecinku",
+      "length": {
+        "min": "Wartość zużycia musi być większa od 0",
+        "max": "Wartość zużycia musi być mniejsza od 999999999"
+      }
     },
     "active": {
       "required": "Pole jest wymagane"
@@ -299,7 +305,8 @@
         "add-amount": "Podaj zużycie",
         "add-current-forecast-confirm": "Czy napewno chcesz dodać prognozę na aktualny miesiąc?",
         "add-current-forecast-danger": "Ta akcja wpływanie na wartość opłat lokalu.",
-        "add-current-forecast-action": "Dodaj prognozę na aktualny miesiąc"
+        "add-current-forecast-action": "Dodaj prognozę na aktualny miesiąc",
+        "no-categories": "Lokal nie posiada żadnych przypisanych kategorii"
       },
       "show-categories": "Wyświetl kategorie opłat",
       "loading": "Ładowanie ...",
@@ -493,7 +500,8 @@
       "title": "Raport",
       "loading": "Ładowanie raportów",
       "balance": "Saldo",
-      "average-rate": "Średnia stawka"
+      "average-rate": "Średnia stawka",
+      "no-reports": "Ten lokal nie posiada jeszcze raportów"
     },
     "place-rates": {
       "loading": "Ładowanie stawek...",
@@ -530,7 +538,7 @@
     "pln": "zł",
     "person": "os",
     "month": "mies",
-    "unit": "sztuka"
+    "unit": "szt"
   },
   "modal": {
     "access-level": "Wybierz poziom dostępu",
@@ -725,7 +733,7 @@
       "add-fail": "Nie udało się dodać kosztu. Spróbuj ponownie później",
       "remove-success": "Pomyślnie usunięto koszt",
       "remove-fail": "Nie udało się usunąć kosztu. Spróbuj ponownie później",
-      "response":{
+      "response": {
         "message": {
           "cost_already_exists": "Koszt dla wybranych wartości już istnieje",
           "cost_not_found": "Nie znaleziono kosztu"

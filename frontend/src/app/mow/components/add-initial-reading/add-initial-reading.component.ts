@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { NgbActiveModal, NgbDate } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDate, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { threeDecimalPlacesValidator } from '../../../shared/validators/three-decimal-places.validator';
 import { AuthService } from '../../../shared/services/auth.service';
 import { AccountingRule } from '../../model/accounting-rule';
+import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 
 @Component({
     selector: 'app-add-initial-reading',
@@ -19,6 +20,7 @@ export class AddInitialReadingComponent {
             validators: [
                 Validators.required,
                 Validators.min(0.001),
+                Validators.max(999999999.999),
                 threeDecimalPlacesValidator
             ]
         })
@@ -26,7 +28,8 @@ export class AddInitialReadingComponent {
 
     constructor(
         protected activeModal: NgbActiveModal,
-        protected authService: AuthService
+        protected authService: AuthService,
+        private modalService: NgbModal
     ) {
         const today = new Date();
         this.today = new NgbDate(
@@ -42,11 +45,20 @@ export class AddInitialReadingComponent {
     }
 
     onClick() {
-        if (this.addReadingForm.valid) {
-            this.activeModal.close(
-                this.addReadingForm.getRawValue().readingValue
-            );
-        }
+        const modalRef = this.modalService.open(ConfirmActionComponent, {
+            centered: true
+        });
+        const instance = modalRef.componentInstance as ConfirmActionComponent;
+
+        instance.message = 'component.place.categories.confirm';
+        instance.danger = 'component.place.categories.confirm-danger';
+        modalRef.closed.subscribe((res: boolean) => {
+            if (res) {
+                this.activeModal.close(
+                    this.addReadingForm.getRawValue().readingValue
+                );
+            }
+        });
     }
 
     protected get valueControl() {

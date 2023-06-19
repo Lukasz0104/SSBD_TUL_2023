@@ -56,9 +56,11 @@ export class PlaceAddCategoryComponent implements OnInit {
                             { centered: true }
                         );
                         modalRef.componentInstance.value = true;
+                        modalRef.componentInstance.accountingRule =
+                            category.accountingRule;
                         modalRef.closed.subscribe((result) => {
-                            if (result > 0) {
-                                this.confirm(
+                            if (result > 0 && this.placeId) {
+                                this.add(
                                     this.placeId,
                                     category.categoryId,
                                     result
@@ -66,39 +68,42 @@ export class PlaceAddCategoryComponent implements OnInit {
                             }
                         });
                     } else {
-                        this.confirm(this.placeId, category.categoryId, null);
+                        const modalRef = this.modalService.open(
+                            ConfirmActionComponent,
+                            {
+                                centered: true
+                            }
+                        );
+                        const instance =
+                            modalRef.componentInstance as ConfirmActionComponent;
+
+                        instance.message = 'component.place.categories.confirm';
+                        instance.danger =
+                            'component.place.categories.confirm-danger';
+                        modalRef.closed.subscribe((res: boolean) => {
+                            if (res && this.placeId) {
+                                this.add(
+                                    this.placeId,
+                                    category.categoryId,
+                                    null
+                                );
+                            }
+                        });
                     }
                 });
         }
     }
 
-    confirm(
-        placeId: number | undefined,
-        categoryId: number,
-        newReading: number | null
-    ) {
-        const modalRef = this.modalService.open(ConfirmActionComponent, {
-            centered: true
-        });
-        const instance = modalRef.componentInstance as ConfirmActionComponent;
-
-        instance.message = 'component.place.categories.confirm';
-        instance.danger = 'component.place.categories.confirm-danger';
-        modalRef.closed.subscribe((res: boolean) => {
-            if (res) {
-                if (this.placeId) {
-                    this.placeService
-                        .addCategory(this.placeId, categoryId, newReading)
-                        .subscribe((res) => {
-                            if (res) {
-                                this.activeModal.close();
-                            } else {
-                                this.getMissingCategories();
-                            }
-                        });
+    add(placeId: number, categoryId: number, reading: number | null) {
+        this.placeService
+            .addCategory(placeId, categoryId, reading)
+            .subscribe((res) => {
+                if (!res) {
+                    this.activeModal.close();
+                } else {
+                    this.getMissingCategories();
                 }
-            }
-        });
+            });
     }
 
     onReload() {
