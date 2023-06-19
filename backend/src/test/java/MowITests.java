@@ -1521,7 +1521,6 @@ public class MowITests extends TestContainersSetup {
                     response.getBody().as(Page.class);
 
                 Long numberOfReadings = readingPage.getTotalSize();
-                System.out.println(numberOfReadings);
 
                 AddReadingAsOwnerDto dto = new AddReadingAsOwnerDto(5L, BigDecimal.valueOf(500));
 
