@@ -23,8 +23,8 @@ public class RateFacadeExceptionsInterceptor {
                 String exceptionMessage = pe.getMessage();
                 if (exceptionMessage.contains("unq_rate_0")) {
                     throw new RateNotUniqueException();
-                } else if (exceptionMessage.contains("fk_forecast_rate_id") ||
-                    exceptionMessage.contains("fk_place_rate_rate_id")) {
+                } else if (exceptionMessage.contains("fk_forecast_rate_id")
+                    || exceptionMessage.contains("fk_place_rate_rate_id")) {
                     throw new RateAlreadyEffectiveException();
                 }
                 pe = pe.getCause();
