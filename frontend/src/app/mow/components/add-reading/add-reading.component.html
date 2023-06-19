@@ -15,7 +15,7 @@
                             for="readingValueInput"
                             class="form-label mb-0">
                             {{ 'component.meter.value' | translate }}
-                            [m<sup>3</sup>]
+                            [m<sup>3</sup>] *
                         </label>
                         <input
                             type="number"
@@ -40,7 +40,16 @@
                             <p
                                 *ngIf="bnErrors['min']"
                                 class="mb-0">
-                                {{ 'validation.reading.length' | translate }}
+                                {{
+                                    'validation.reading.length.min' | translate
+                                }}
+                            </p>
+                            <p
+                                *ngIf="bnErrors['max']"
+                                class="mb-0">
+                                {{
+                                    'validation.reading.length.max' | translate
+                                }}
                             </p>
                             <p
                                 *ngIf="bnErrors['invalidDecimal']"

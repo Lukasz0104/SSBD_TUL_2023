@@ -1346,6 +1346,7 @@ public class MowITests extends TestContainersSetup {
         private static RequestSpecification onlyOwnerSpec;
         private static RequestSpecification onlyOwnerWithInactiveMeterSpec;
         private static RequestSpecification managerOwnerSpec;
+        private static RequestSpecification ownerWithMeter;
 
         @BeforeAll
         static void generateTestSpec() {
@@ -1360,7 +1361,7 @@ public class MowITests extends TestContainersSetup {
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
 
-            loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            loginDto = new LoginDto("asrebrna", "P@ssw0rd");
             jwt = given().body(loginDto)
                 .contentType(ContentType.JSON)
                 .when()
@@ -1404,13 +1405,16 @@ public class MowITests extends TestContainersSetup {
                 .addHeader("Authorization", "Bearer " + jwt)
                 .build();
 
-            String deleteCategoryFromPlaceUrl = "/places/3/categories/5";
-            given()
-                .spec(managerOwnerSpec)
+            loginDto = new LoginDto("pzielinski", "P@ssw0rd");
+            jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
                 .when()
-                .delete(deleteCategoryFromPlaceUrl)
-                .then()
-                .statusCode(204);
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+            ownerWithMeter = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
         }
 
         static String convertDtoToString(AddReadingAsManagerDto addReadingAsManagerDto) {
@@ -1507,6 +1511,63 @@ public class MowITests extends TestContainersSetup {
 
                 assertEquals(821.23, coldWaterForecast.getValue().doubleValue());
                 assertEquals(117.318, coldWaterForecast.getAmount().doubleValue());
+            }
+
+            @Test
+            void shouldCreateOnlyReadingAsOwnerWhenConcurrent() throws BrokenBarrierException, InterruptedException {
+                io.restassured.response.Response response =
+                    given().spec(ownerWithMeter).when().get("/meters/me/5/readings");
+                Page<RateDTO> readingPage =
+                    response.getBody().as(Page.class);
+
+                Long numberOfReadings = readingPage.getTotalSize();
+                System.out.println(numberOfReadings);
+
+                AddReadingAsOwnerDto dto = new AddReadingAsOwnerDto(5L, BigDecimal.valueOf(500));
+
+                int threadNumber = 1;
+                CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+                List<Thread> threads = new ArrayList<>(threadNumber);
+                AtomicInteger numberFinished = new AtomicInteger();
+                AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+                for (int i = 0; i < threadNumber; i++) {
+                    threads.add(new Thread(() -> {
+                        try {
+                            cyclicBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        int statusCode = given()
+                            .spec(ownerWithMeter)
+                            .contentType(ContentType.JSON)
+                            .body(dto)
+                            .when()
+                            .post(createReadingUrl + "/me")
+                            .statusCode();
+
+                        System.out.println(statusCode);
+
+                        if (statusCode == Response.Status.NO_CONTENT.getStatusCode()) {
+                            numberOfSuccessfulAttempts.getAndIncrement();
+                        }
+                        numberFinished.getAndIncrement();
+                    }));
+                }
+                threads.forEach(Thread::start);
+                cyclicBarrier.await();
+                while (numberFinished.get() != threadNumber) {
+                }
+
+                assertEquals(1, numberOfSuccessfulAttempts.get());
+
+                response =
+                    given().spec(ownerWithMeter).when().get("/meters/me/5/readings");
+                readingPage =
+                    response.getBody().as(Page.class);
+
+                assertEquals(readingPage.getTotalSize(), numberOfReadings + 1);
             }
         }
 
@@ -1741,6 +1802,38 @@ public class MowITests extends TestContainersSetup {
                     .body(dto)
                     .when()
                     .post(createReadingUrl + "/me")
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithTooLargeValueAsManager() {
+                AddReadingAsManagerDto dto =
+                    new AddReadingAsManagerDto(7L, BigDecimal.valueOf(9999999990L), LocalDate.now());
+
+                given()
+                    .spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(convertDtoToString(dto))
+                    .when()
+                    .post(createReadingUrl)
+                    .then().log().all()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
+                    .contentType(ContentType.JSON);
+            }
+
+            @Test
+            void shouldReturnSC400WhenAddingReadingWithTooLargeValueAsOwner() {
+                AddReadingAsOwnerDto dto =
+                    new AddReadingAsOwnerDto(10L, BigDecimal.valueOf(9999999990L));
+
+                given()
+                    .spec(ownerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(dto)
+                    .when()
+                    .post(createReadingUrl + "/me")
                     .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
@@ -1749,7 +1842,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC409WhenAddingReadingToInactiveMeterAsOwner() {
                 AddReadingAsOwnerDto dto =
-                    new AddReadingAsOwnerDto(5L, BigDecimal.valueOf(456));
+                    new AddReadingAsOwnerDto(11L, BigDecimal.valueOf(456));
 
                 given()
                     .spec(onlyOwnerWithInactiveMeterSpec)
@@ -1765,7 +1858,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldReturnSC409WhenAddingReadingToInactiveMeterAsManager() {
                 AddReadingAsManagerDto dto =
-                    new AddReadingAsManagerDto(5L, BigDecimal.valueOf(456), LocalDate.now());
+                    new AddReadingAsManagerDto(11L, BigDecimal.valueOf(456), LocalDate.now());
 
                 given()
                     .spec(managerSpec)
@@ -5649,7 +5742,8 @@ public class MowITests extends TestContainersSetup {
 
         @Test
         void shouldReturn403WhenRequestAsManager() {
-            io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("places/me/-1/categories");
+            io.restassured.response.Response response =
+                given().spec(onlyManagerSpec).when().get("places/me/-1/categories");
             response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
 
@@ -5725,21 +5819,24 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldReturn403WhenRequestAsGuest() {
             io.restassured.response.Response response =
-                given().contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+                given().contentType(ContentType.JSON).when()
+                    .get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
             response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
 
         @Test
         void shouldReturn403WhenRequestAsOwner() {
             io.restassured.response.Response response =
-                given().spec(ownerSpec).contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+                given().spec(ownerSpec).contentType(ContentType.JSON).when()
+                    .get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
             response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
 
         @Test
         void shouldReturn403WhenRequestAsAdmin() {
             io.restassured.response.Response response =
-                given().spec(adminSpec).contentType(ContentType.JSON).when().get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
+                given().spec(adminSpec).contentType(ContentType.JSON).when()
+                    .get("/costs?page=0&pageSize=10&asc=&year=2022&month=&categoryName=");
             response.then().statusCode(Response.Status.FORBIDDEN.getStatusCode());
         }
 

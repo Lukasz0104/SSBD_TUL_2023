@@ -76,7 +76,10 @@
     },
     "reading": {
       "required": "Wartość odczytu jest wymagana.",
-      "length": "Wartość odczytu musi być większa od 0",
+      "length": {
+        "min": "Wartość odczytu musi być większa od 0",
+        "max": "Wartość odczytu musi być mniejsza od 999999999"
+      },
       "decimal-places": "Wartość odczytu może mieć tylko do 3 miejsc po przecinku",
       "reading-date": {
         "required": "Data odczytu jest wymagana"
@@ -725,7 +728,7 @@
       "add-fail": "Nie udało się dodać kosztu. Spróbuj ponownie później",
       "remove-success": "Pomyślnie usunięto koszt",
       "remove-fail": "Nie udało się usunąć kosztu. Spróbuj ponownie później",
-      "response":{
+      "response": {
         "message": {
           "cost_already_exists": "Koszt dla wybranych wartości już istnieje",
           "cost_not_found": "Nie znaleziono kosztu"
