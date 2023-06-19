@@ -13,6 +13,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessType;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Account;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
@@ -93,6 +94,7 @@ public class AuthManager extends AbstractManager implements AuthManagerLocal, Se
         account.getAccessLevels()
             .stream()
             .filter(accessLevel -> accessLevel.getLevel() == AccessType.ADMIN)
+            .filter(AccessLevel::isActive)
             .findFirst()
             .ifPresent((al) -> emailService.notifyAboutAdminLogin(
                 account.getEmail(), account.getEmail(), account.getLanguage().toString(),

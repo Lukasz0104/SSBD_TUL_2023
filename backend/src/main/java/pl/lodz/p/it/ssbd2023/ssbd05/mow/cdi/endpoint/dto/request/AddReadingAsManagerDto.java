@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ public class AddReadingAsManagerDto {
 
     @NotNull
     @Positive
+    @Max(999999999)
     private BigDecimal value;
 
     private LocalDate date;
