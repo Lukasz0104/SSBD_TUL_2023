@@ -17,6 +17,7 @@ import { AddInitialReadingComponent } from '../add-initial-reading/add-initial-r
 export class PlaceCategoriesComponent implements OnInit {
     placeCategories$: Observable<PlaceCategory[]> | undefined;
     @Input() public id: number | undefined;
+    @Input() public active: boolean | undefined;
     editing = false;
     chosen = -1;
     accountingRule = AccountingRule.UNIT;
@@ -88,7 +89,7 @@ export class PlaceCategoriesComponent implements OnInit {
     addCategory() {
         const modalRef: NgbModalRef = this.modalService.open(
             PlaceAddCategoryComponent,
-            { centered: true, size: 'lg' }
+            { centered: true, size: 'lg', backdrop: 'static' }
         );
         modalRef.componentInstance.placeId = this.id;
         modalRef.closed.subscribe(() => {
@@ -104,26 +105,9 @@ export class PlaceCategoriesComponent implements OnInit {
         modalRef.componentInstance.value = false;
         modalRef.componentInstance.accountingRule = this.accountingRule;
         modalRef.closed.subscribe((result) => {
-            if (this.id) {
-                this.confirm(this.id, this.chosen, result);
-            }
-        });
-    }
-
-    confirm(placeId: number, categoryId: number, amount: number | null) {
-        const modalRef = this.modalService.open(ConfirmActionComponent, {
-            centered: true
-        });
-        const instance = modalRef.componentInstance as ConfirmActionComponent;
-
-        instance.message =
-            'component.place.categories.add-current-forecast-confirm';
-        instance.danger =
-            'component.place.categories.add-current-forecast-danger';
-        modalRef.closed.subscribe((res: boolean) => {
-            if (res) {
+            if (result > 0 && this.id) {
                 this.forecastService
-                    .addCurrentForecast(placeId, categoryId, amount)
+                    .addCurrentForecast(this.id, this.chosen, result)
                     .subscribe(() => {
                         this.getPlaceCategories();
                         this.chosen = -1;

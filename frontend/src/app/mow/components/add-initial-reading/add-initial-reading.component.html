@@ -17,7 +17,7 @@
                         <label
                             for="readingValueInput"
                             class="form-label mb-0">
-                            {{ 'component.meter.value' | translate }}
+                            {{ 'component.meter.value' | translate }}*
                             <span *ngIf="accountingRule === RULE.METER">
                                 [m<sup>3</sup>]
                             </span>
@@ -61,14 +61,17 @@
                                 *ngIf="bnErrors['min']"
                                 class="mb-0">
                                 <span *ngIf="value">{{
-                                    'validation.reading.length' | translate
+                                    'validation.reading.length.min' | translate
                                 }}</span>
                                 <span *ngIf="!value">{{
-                                    'validation.amount.length' | translate
+                                    'validation.amount.length.min' | translate
                                 }}</span>
                             </p>
                             <p
-                                *ngIf="bnErrors['invalidDecimal']"
+                                *ngIf="
+                                    bnErrors['invalidDecimal'] &&
+                                    !bnErrors['max']
+                                "
                                 class="mb-0">
                                 <span *ngIf="value">{{
                                     'validation.reading.decimal-places'
@@ -77,6 +80,16 @@
                                 <span *ngIf="!value">{{
                                     'validation.amount.decimal-places'
                                         | translate
+                                }}</span>
+                            </p>
+                            <p
+                                *ngIf="bnErrors['max']"
+                                class="mb-0">
+                                <span *ngIf="value">{{
+                                    'validation.amount.length.max' | translate
+                                }}</span>
+                                <span *ngIf="!value">{{
+                                    'validation.amount.length.max' | translate
                                 }}</span>
                             </p>
                         </div>
