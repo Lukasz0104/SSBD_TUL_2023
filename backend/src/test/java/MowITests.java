@@ -1525,7 +1525,7 @@ public class MowITests extends TestContainersSetup {
 
                 AddReadingAsOwnerDto dto = new AddReadingAsOwnerDto(5L, BigDecimal.valueOf(500));
 
-                int threadNumber = 1;
+                int threadNumber = 10;
                 CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
                 List<Thread> threads = new ArrayList<>(threadNumber);
                 AtomicInteger numberFinished = new AtomicInteger();
