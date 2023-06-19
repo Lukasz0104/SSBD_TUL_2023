@@ -1817,7 +1817,7 @@ public class MowITests extends TestContainersSetup {
                     .body(convertDtoToString(dto))
                     .when()
                     .post(createReadingUrl)
-                    .then().log().all()
+                    .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .contentType(ContentType.JSON);
             }
