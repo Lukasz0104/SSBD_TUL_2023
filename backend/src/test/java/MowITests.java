@@ -1547,7 +1547,6 @@ public class MowITests extends TestContainersSetup {
                             .post(createReadingUrl + "/me")
                             .statusCode();
 
-                        System.out.println(statusCode);
 
                         if (statusCode == Response.Status.NO_CONTENT.getStatusCode()) {
                             numberOfSuccessfulAttempts.getAndIncrement();
