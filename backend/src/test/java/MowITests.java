@@ -3515,6 +3515,62 @@ public class MowITests extends TestContainersSetup {
             }
 
             @Test
+            void shouldReturnSC400WhenAddingCategoryWithInvalidParameters() {
+                AddCategoryDto addCategoryDto = new AddCategoryDto();
+                addCategoryDto.setPlaceId(null);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                addCategoryDto.setPlaceId(6L);
+                addCategoryDto.setCategoryId(null);
+                addCategoryDto.setNewReading(null);
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                addCategoryDto.setPlaceId(6L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(BigDecimal.valueOf(999999999999999L));
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                addCategoryDto.setPlaceId(6L);
+                addCategoryDto.setCategoryId(6L);
+                addCategoryDto.setNewReading(BigDecimal.valueOf(-123.123));
+
+                given()
+                    .spec(managerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addCategoryDto)
+                    .when()
+                    .post(createPlacesUrl + "/add/category")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            }
+
+            @Test
             void shouldReturnSC409WhenAddingCategoryThatIsInUse() {
                 AddCategoryDto addCategoryDto = new AddCategoryDto();
                 addCategoryDto.setPlaceId(1L);
@@ -5026,7 +5082,7 @@ public class MowITests extends TestContainersSetup {
             }
 
             @Test
-            void shouldReturnSC400WhenPassingNullOrNegativeValueAsAmount() {
+            void shouldReturnSC400WhenCreatingForecastAndParametersNotValid() {
                 AddOverdueForecastDto addOverdueForecastDto = new AddOverdueForecastDto();
                 addOverdueForecastDto.setCategoryId(1L);
                 addOverdueForecastDto.setPlaceId(1L);
@@ -5039,10 +5095,43 @@ public class MowITests extends TestContainersSetup {
                     .then()
                     .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
 
-                addOverdueForecastDto = new AddOverdueForecastDto();
                 addOverdueForecastDto.setCategoryId(1L);
                 addOverdueForecastDto.setPlaceId(1L);
                 addOverdueForecastDto.setAmount(BigDecimal.valueOf(-123.234));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(999999999999999999L));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                addOverdueForecastDto.setCategoryId(null);
+                addOverdueForecastDto.setPlaceId(1L);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(123));
+                given().spec(onlyManagerSpec)
+                    .contentType(ContentType.JSON)
+                    .body(addOverdueForecastDto)
+                    .when()
+                    .post(createForecastUrl + "/add-current")
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                addOverdueForecastDto.setCategoryId(1L);
+                addOverdueForecastDto.setPlaceId(null);
+                addOverdueForecastDto.setAmount(BigDecimal.valueOf(123));
                 given().spec(onlyManagerSpec)
                     .contentType(ContentType.JSON)
                     .body(addOverdueForecastDto)

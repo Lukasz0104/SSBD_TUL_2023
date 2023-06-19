@@ -87,8 +87,11 @@
     },
     "amount": {
       "required": "Consumption value is required",
-      "length": "Consumption value must be grater than 0",
-      "decimal-places": "Consumption value can have only up to 3 decimal places"
+      "decimal-places": "Consumption value can have only up to 3 decimal places",
+      "length": {
+        "min": "Consumption value must be greater than 0",
+        "max": "Consumption value must be lower than 999999999"
+      }
     },
     "active": {
       "required": "Field is required"
@@ -302,7 +305,8 @@
         "add-amount": "Provide consumption",
         "add-current-forecast-confirm": "Do you really want to add forecast for current month?",
         "add-current-forecast-danger": "This action will change the costs for this place.",
-        "add-current-forecast-action": "Add forecast for current month"
+        "add-current-forecast-action": "Add forecast for current month",
+        "no-categories": "There are no categories assigned to this place"
       },
       "show-categories": "Show payment categories",
       "loading": "Loading ...",
@@ -496,7 +500,8 @@
       "title": "Report",
       "loading": "Loading reports",
       "balance": "Balance",
-      "average-rate": "Average rate"
+      "average-rate": "Average rate",
+      "no-reports": "There are no reports for this place"
     },
     "place-rates": {
       "loading": "Loading rates...",

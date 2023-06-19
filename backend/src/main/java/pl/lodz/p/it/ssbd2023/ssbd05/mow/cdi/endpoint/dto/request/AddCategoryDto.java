@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -19,5 +20,6 @@ public class AddCategoryDto {
     private Long categoryId;
 
     @Positive
+    @Max(999999999)
     private BigDecimal newReading;
 }
