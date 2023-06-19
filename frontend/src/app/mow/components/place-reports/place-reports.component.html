@@ -163,7 +163,7 @@
                                     *ngIf="
                                         report.accountingRule === RULE.PERSON
                                     ">
-                                    .{{ 'accounting-rule.person' | translate }}
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
@@ -173,20 +173,32 @@
                                 </span>
                                 <span
                                     *ngIf="report.accountingRule === RULE.UNIT">
-                                    .{{ 'accounting-rule.unit' | translate }}
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td>
                                 {{ report.forecastAmountSum.toFixed(3) }}
                                 <span
-                                    *ngIf="report.accountingRule === RULE.METER"
-                                    >m<sup>3</sup>
+                                    *ngIf="
+                                        report.accountingRule === RULE.METER
+                                    ">
+                                    m<sup>3</sup>
+                                </span>
+                                <span
+                                    *ngIf="
+                                        report.accountingRule === RULE.PERSON
+                                    ">
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
                                         report.accountingRule === RULE.SURFACE
-                                    "
-                                    >m<sup>2</sup>
+                                    ">
+                                    m<sup>2</sup>
+                                </span>
+                                <span
+                                    *ngIf="report.accountingRule === RULE.UNIT">
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td
@@ -211,7 +223,7 @@
                                     *ngIf="
                                         report.accountingRule === RULE.PERSON
                                     ">
-                                    .{{ 'accounting-rule.person' | translate }}
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
@@ -221,7 +233,7 @@
                                 </span>
                                 <span
                                     *ngIf="report.accountingRule === RULE.UNIT">
-                                    .{{ 'accounting-rule.unit' | translate }}
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td>
@@ -424,7 +436,7 @@
                                     *ngIf="
                                         report.accountingRule === RULE.PERSON
                                     ">
-                                    .{{ 'accounting-rule.person' | translate }}
+                                    /{{ 'accounting-rule.person' | translate }}
                                 </span>
                                 <span
                                     *ngIf="
@@ -434,7 +446,7 @@
                                 </span>
                                 <span
                                     *ngIf="report.accountingRule === RULE.UNIT">
-                                    .{{ 'accounting-rule.unit' | translate }}
+                                    {{ 'accounting-rule.unit' | translate }}.
                                 </span>
                             </td>
                             <td>
