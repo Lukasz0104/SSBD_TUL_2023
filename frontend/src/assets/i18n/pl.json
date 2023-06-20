@@ -105,8 +105,7 @@
     "squareFootage": {
       "min": "Powierzchnia lokalu musi być dodatnia",
       "required": "Powierzchnia lokalu jest wymagana",
-      "max": "Powierzchnia lokalu musi być mniejsza niż 1000000",
-      "pattern": "Powierzchnia lokalu musi być liczbą"
+      "max": "Powierzchnia lokalu musi być mniejsza niż 1000000"
     },
     "placeNumber": {
       "min": "Numer lokalu musi być dodatni",
@@ -712,7 +711,7 @@
         "message": {
           "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
-          "account_not_found": "Nie znaleziono wybranego konta użytkownika",
+          "account_not_found": "Nie znaleziono wybranego konta użytkownika, lub nie posiada on już odpowiedniego poziomu dostępu",
           "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
         }
       }
@@ -724,7 +723,7 @@
         "message": {
           "optimistic_lock": "Lista przypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
-          "account_not_found": "Nie znaleziono wybranego konta użytkownika",
+          "account_not_found": "Nie znaleziono wybranego konta użytkownika, lub nie posiada on już odpowiedniego poziomu dostępu",
           "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
         }
       }
