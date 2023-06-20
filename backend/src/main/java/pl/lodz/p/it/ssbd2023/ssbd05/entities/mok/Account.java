@@ -195,6 +195,14 @@ import java.util.Set;
             SELECT a FROM Account a
             JOIN OwnerData od ON od.account = a
             WHERE od.verified = true
+            AND od.id = :ownerId
+            """),
+    @NamedQuery(
+        name = "Account.findByOwnerIdAndActiveOwner",
+        query = """
+            SELECT a FROM Account a
+            JOIN OwnerData od ON od.account = a
+            WHERE od.verified = true
             AND od.active = true
             AND od.id = :ownerId
             """)

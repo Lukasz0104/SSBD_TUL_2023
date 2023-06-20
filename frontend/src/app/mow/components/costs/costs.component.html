@@ -1,7 +1,7 @@
 <div class="row">
     <div class="btn-group mb-3 flex-column-reverse justify-content-start">
         <div
-            (click)="getCosts()"
+            (click)="hardReload()"
             class="btn btn-primary align-items-center rounded-2 my-1"
             style="max-width: 50px">
             <i class="bi bi-arrow-clockwise"></i>
@@ -50,10 +50,9 @@
 <ng-container *ngIf="costs$ | async as costs; else loadingCosts">
     <div
         class="d-flex flex-column justify-content-between table-responsive border rounded"
-        style="min-height: 300px">
-        <table
-            class="table text-center table-hover"
-            *ngIf="costs.data?.length">
+        style="min-height: 300px"
+        *ngIf="costs.totalSize !== 0; else emptyCosts">
+        <table class="table text-center table-hover">
             <thead>
                 <tr class="bg-light-subtle">
                     <th scope="col">
@@ -159,6 +158,14 @@
     <div class="d-flex flex-column justify-content-center align-items-center">
         <span class="mt-3 fw-bold fs-4">{{
             'component.costs.loading' | translate
+        }}</span>
+    </div>
+</ng-template>
+
+<ng-template #emptyCosts>
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <span class="mt-3 fw-bold fs-4">{{
+            'component.costs.empty' | translate
         }}</span>
     </div>
 </ng-template>
