@@ -51,6 +51,16 @@ export class CostsComponent implements OnInit {
         );
     }
 
+    hardReload() {
+        this.costsService.getYearsFromCosts().subscribe((years) => {
+            this.years = years;
+        });
+        this.costsService.getCategoryNamesFromCosts().subscribe((names) => {
+            this.categoryNames = names;
+        });
+        this.getCosts();
+    }
+
     openCostDetails(id: number) {
         const modalRef: NgbModalRef = this.modalService.open(CostComponent, {
             centered: true,
@@ -62,7 +72,6 @@ export class CostsComponent implements OnInit {
                 id = res;
             })
             .catch(() => EMPTY);
-        this.getCosts();
     }
 
     addCost() {
@@ -70,7 +79,10 @@ export class CostsComponent implements OnInit {
             centered: true,
             scrollable: true
         });
-        modalRef.result.then().catch(() => EMPTY);
+        modalRef.result
+            .then()
+            .catch(() => EMPTY)
+            .finally(() => this.hardReload());
     }
 
     removeCost(id: number) {
@@ -83,7 +95,7 @@ export class CostsComponent implements OnInit {
         modalRef.closed.subscribe((res: boolean) => {
             if (res) {
                 this.costsService.removeCost(id).subscribe(() => {
-                    this.getCosts();
+                    this.hardReload();
                 });
             }
         });
