@@ -13,7 +13,6 @@ import java.util.List;
 
 @Local
 public interface CostManagerLocal extends CommonManagerInterface {
-    List<Cost> getAllCosts() throws AppBaseException;
 
     void createCost(Year year,
                     Month month,

@@ -2,14 +2,14 @@
     <h2
         class="modal-title"
         id="modal-basic-title">
-        {{ 'component.ratesByCategory.add' | translate }}
+        {{ 'component.ratesByCategory.edit' | translate }}
     </h2>
 </div>
 <div class="modal-body px-4 py-2">
     <div>
         <div class="row">
             <div class="col-md">
-                <form [formGroup]="addRateForm">
+                <form [formGroup]="editRateForm">
                     <div class="mb-2 has-validation">
                         <label
                             for="rateValueInput"
@@ -55,38 +55,6 @@
                             </p>
                         </div>
                     </div>
-                    <div class="mb-2 has-validation row">
-                        <div class="">
-                            {{ 'component.fields.effective-date' | translate }}
-                            *
-                        </div>
-                        <div>
-                            <ngb-datepicker
-                                formControlName="effectiveDate"
-                                [(ngModel)]="initial"
-                                [minDate]="today"></ngb-datepicker>
-                        </div>
-                        <div
-                            *ngIf="effectiveDate.errors as dateErrors"
-                            class="date-validation-message">
-                            <p
-                                *ngIf="dateErrors['required']"
-                                class="mb-0">
-                                {{
-                                    'validation.effective-date.required'
-                                        | translate
-                                }}
-                            </p>
-                            <p
-                                *ngIf="dateErrors['invalidDate']"
-                                class="mb-0">
-                                {{
-                                    'validation.effective-date.invalid-date'
-                                        | translate
-                                }}
-                            </p>
-                        </div>
-                    </div>
                 </form>
             </div>
         </div>
@@ -99,9 +67,9 @@
         {{ 'component.ratesByCategory.cancel' | translate }}
     </div>
     <button
-        [disabled]="!addRateForm.valid"
+        [disabled]="!editRateForm.valid"
         (click)="confirm()"
         class="btn btn-success">
-        {{ 'component.ratesByCategory.create' | translate }}
+        {{ 'component.ratesByCategory.change' | translate }}
     </button>
 </div>

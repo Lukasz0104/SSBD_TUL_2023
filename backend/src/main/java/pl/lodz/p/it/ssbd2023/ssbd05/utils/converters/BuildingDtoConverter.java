@@ -14,12 +14,4 @@ public class BuildingDtoConverter {
             building.getVersion(),
             AccountDtoConverter.createAddressDtoFromAddress(building.getAddress()));
     }
-
-    public static Building mapBuildingFromDto(BuildingDto building) {
-        return new Building(
-            building.id(),
-            building.version(),
-            AccountDtoConverter.createAddressFromDto(building.address())
-        );
-    }
 }

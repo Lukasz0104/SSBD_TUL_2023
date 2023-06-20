@@ -6,11 +6,11 @@ import {
     Validators
 } from '@angular/forms';
 import {
-    Observable,
-    OperatorFunction,
     debounceTime,
     distinctUntilChanged,
+    Observable,
     of,
+    OperatorFunction,
     switchMap
 } from 'rxjs';
 import { AccountService } from '../../../shared/services/account.service';
@@ -18,6 +18,7 @@ import { AppConfigService } from '../../../shared/services/app-config.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { repeatPasswordValidator } from '../../../shared/validators/repeat-password.validator';
 import { strongPasswordValidator } from '../../../shared/validators/strong-password.validator';
+import { validLicenseNumberValidator } from '../../../shared/validators/valid-license-number.validator';
 
 @Component({
     selector: 'app-register',
@@ -98,7 +99,7 @@ export class RegisterComponent {
             })
         }),
         licenseNumber: this.fb.control('', {
-            validators: [Validators.required]
+            validators: [Validators.required, validLicenseNumberValidator]
         })
     });
 

@@ -28,23 +28,8 @@ import java.time.Year;
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
-        name = "Forecast.findAll",
-        query = "SELECT f FROM Forecast f"),
-    @NamedQuery(
-        name = "Forecast.findById",
-        query = "SELECT f FROM Forecast f WHERE f.id = :id"),
-    @NamedQuery(
-        name = "Forecast.findByYear",
-        query = "SELECT f FROM Forecast f WHERE f.year = :year"),
-    @NamedQuery(
-        name = "Forecast.findByMonth",
-        query = "SELECT f FROM Forecast f WHERE f.month = :month"),
-    @NamedQuery(
         name = "Forecast.findByMonthAndYear",
         query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year"),
-    @NamedQuery(
-        name = "Forecast.findByPlaceIdAndCategoryId",
-        query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.rate.category.id = :categoryId"),
     @NamedQuery(
         name = "Forecast.findByPlaceIdAndCategoryIdAndYearAndAfterMonth",
         query = """
@@ -72,12 +57,6 @@ import java.time.Year;
             AND f.month <= :month
             """),
     // place queries
-    @NamedQuery(
-        name = "Forecast.findByPlaceId",
-        query = "SELECT f FROM Forecast f WHERE f.place.id = :place"),
-    @NamedQuery(
-        name = "Forecast.findByPlaceIdAndMonth",
-        query = "SELECT f FROM Forecast f WHERE f.place.id = :place AND f.month = :month"),
     @NamedQuery(
         name = "Forecast.findByPlaceIdAndYear",
         query = """
@@ -111,9 +90,6 @@ import java.time.Year;
             ORDER BY f.rate.category.name ASC"""),
     // category queries
     @NamedQuery(
-        name = "Forecast.findByCategoryId",
-        query = "SELECT f FROM Forecast f WHERE f.rate.category.id = :categoryId"),
-    @NamedQuery(
         name = "Forecast.findByYearAndCategoryName",
         query = """
             SELECT f FROM Forecast f
@@ -127,30 +103,12 @@ import java.time.Year;
                 AND f.rate.category.name = :categoryName
                 AND f.month < :month"""),
     @NamedQuery(
-        name = "Forecast.findByYearAndCategoryId",
-        query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.rate.category.id = :categoryId"),
-    @NamedQuery(
-        name = "Forecast.findByMonthAndCategoryId",
-        query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.rate.category.id = :categoryId"),
-    @NamedQuery(
         name = "Forecast.findByMonthAndYearAndCategoryId",
         query = """
             SELECT f FROM Forecast f
             WHERE f.month = :month AND f.year = :year AND f.rate.category.id = :categoryId"""),
 
     // rate queries
-    @NamedQuery(
-        name = "Forecast.findByRateId",
-        query = "SELECT f FROM Forecast f WHERE f.rate.id = :rate"),
-    @NamedQuery(
-        name = "Forecast.findByYearAndRateId",
-        query = "SELECT f FROM Forecast f WHERE f.year = :year AND f.rate.id = :rate"),
-    @NamedQuery(
-        name = "Forecast.findByMonthAndRateId",
-        query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.rate.id = :rate"),
-    @NamedQuery(
-        name = "Forecast.findByMonthAndYearAndRateId",
-        query = "SELECT f FROM Forecast f WHERE f.month = :month AND f.year = :year AND f.rate.id = :rate"),
     @NamedQuery(
         name = "Forecast.findForecastYearsByPlaceId",
         query = "SELECT DISTINCT f.year FROM Forecast f WHERE f.place.id = :placeId ORDER BY f.year ASC"),
@@ -161,9 +119,6 @@ import java.time.Year;
             WHERE f.year = :year
             AND f.place.building.id = :buildingId
             """),
-    @NamedQuery(
-        name = "Forecast.findDistinctYearsById",
-        query = "SELECT DISTINCT f.year FROM Forecast f WHERE f.place.building.id = :id ORDER BY f.year"),
     @NamedQuery(
         name = "Forecast.findYearsAndMonths",
         query = """

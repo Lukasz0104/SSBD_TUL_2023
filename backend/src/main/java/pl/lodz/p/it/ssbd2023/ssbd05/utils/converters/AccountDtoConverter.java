@@ -115,7 +115,8 @@ public class AccountDtoConverter {
             account.getCreatedTime(),
             (account.getCreatedBy() != null) ? account.getCreatedBy().getLogin() : "anonymous",
             account.getUpdatedTime(),
-            (account.getUpdatedBy() != null) ? account.getUpdatedBy().getLogin() : "anonymous"
+            (account.getUpdatedBy() != null) ? account.getUpdatedBy().getLogin() : "anonymous",
+            createActivityTrackerDto(account.getActivityTracker())
         );
     }
 
@@ -198,12 +199,6 @@ public class AccountDtoConverter {
             }
         }
         return accessLevelDtoSet;
-    }
-
-    public static List<AccountDto> createAccountDtoList(List<Account> accounts) {
-        return accounts.stream()
-            .map(AccountDtoConverter::createAccountDto)
-            .toList();
     }
 
     public static AccessLevel createManagerAccessLevelFromDto(AddManagerAccessLevelDto dto) {

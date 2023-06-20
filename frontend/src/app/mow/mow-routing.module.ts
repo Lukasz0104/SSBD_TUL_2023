@@ -22,9 +22,7 @@ export const routes: Routes = [
         path: 'buildings/reports',
         component: BuildingReportsComponent,
         canActivate: [canActivateAuthenticated],
-        data: {
-            title: 'Reports'
-        }
+        title: 'Reports'
     },
     {
         path: 'buildings/:id',
@@ -39,33 +37,25 @@ export const routes: Routes = [
     {
         path: 'categories',
         component: CategoriesComponent,
-        data: {
-            title: 'Categories'
-        },
+        title: 'Categories',
         canMatch: [canMatchManager]
     },
     {
         path: 'your-places',
         component: OwnPlacesComponent,
-        data: {
-            title: 'Your places'
-        },
+        title: 'Your places',
         canMatch: [canMatchOwner]
     },
     {
         path: 'costs',
         component: CostsComponent,
-        data: {
-            title: 'Costs'
-        },
+        title: 'Costs',
         canMatch: [canMatchManager]
     },
     {
         path: 'community-reports',
         component: CommunityReportsComponent,
-        data: {
-            title: 'Community reports'
-        },
+        title: 'Community reports',
         canMatch: [canMatchManager]
     }
 ];

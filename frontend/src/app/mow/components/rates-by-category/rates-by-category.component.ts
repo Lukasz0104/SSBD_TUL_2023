@@ -10,6 +10,7 @@ import { AddRateComponent } from '../add-rate/add-rate.component';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { RateService } from '../../../shared/services/rate.service';
 import { Page } from '../../../shared/model/page';
+import { EditRateComponent } from '../edit-rate/edit-rate.component';
 
 @Component({
     selector: 'app-rates-by-category',
@@ -126,6 +127,15 @@ export class RatesByCategoryComponent implements OnInit {
                 this.removeRate(id);
             }
         });
+    }
+
+    editRate(id: number) {
+        const modalRef = this.modalService.open(EditRateComponent, {
+            centered: true
+        });
+
+        const instance = modalRef.componentInstance as EditRateComponent;
+        instance.rateId = id;
     }
 
     removeRate(id: number) {

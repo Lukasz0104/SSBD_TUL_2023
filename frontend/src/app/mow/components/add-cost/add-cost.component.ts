@@ -18,11 +18,13 @@ export class AddCostComponent implements OnInit {
         category: this.fb.control(-1, [Validators.required, Validators.min(0)]),
         totalConsumption: this.fb.control(-0.01, [
             Validators.required,
-            Validators.min(0.01)
+            Validators.min(0.01),
+            Validators.max(1000000)
         ]),
         realRate: this.fb.control(-0.01, [
             Validators.required,
-            Validators.min(0.01)
+            Validators.min(0.01),
+            Validators.max(1000000)
         ])
     });
 

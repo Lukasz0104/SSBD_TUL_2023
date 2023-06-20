@@ -30,6 +30,7 @@ import { PlaceOwnersComponent } from './components/place-owners/place-owners.com
 import { CommunityReportsComponent } from './components/community-reports/community-reports.component';
 import { AddCostComponent } from './components/add-cost/add-cost.component';
 import { PlaceOwnersAddComponent } from './components/place-owners-add/place-owners-add.component';
+import { EditRateComponent } from './components/edit-rate/edit-rate.component';
 
 @NgModule({
     declarations: [
@@ -59,7 +60,8 @@ import { PlaceOwnersAddComponent } from './components/place-owners-add/place-own
         CommunityReportsComponent,
         PlaceOwnersAddComponent,
         AddCostComponent,
-        CommunityReportsComponent
+        CommunityReportsComponent,
+        EditRateComponent
     ],
     imports: [
         CommonModule,

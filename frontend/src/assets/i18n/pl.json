@@ -50,7 +50,8 @@
       "pattern": "Miasto musi zaczynać się z wielkiej litery."
     },
     "license-number": {
-      "required": "Numer licencji jest wymagany."
+      "required": "Numer licencji jest wymagany.",
+      "invalid": "Numer licencji powinien składać się z od 6 do 8 cyfr"
     },
     "old-password": {
       "required": "Stare hasło jest wymagane",
@@ -127,11 +128,17 @@
     },
     "total-consumption": {
       "required": "Wartość całkowitego zużycia jest wymagana.",
-      "min": "Całkowite zużycie musi być większe bądź równe "
+      "min": "Całkowite zużycie musi być większe bądź równe ",
+      "max": "Całkowite zużycie musi być nie większe niż"
     },
     "real-rate": {
       "required": "Wartość rzeczywistej stawki jest wymagana.",
-      "min": "Rzeczywista stawka musi być większa bądź równa "
+      "min": "Rzeczywista stawka musi być większa bądź równa ",
+      "max": "Rzeczywista stawka musi być nie większa niż"
+    },
+    "year": {
+      "required": "Rok jest wymagany.",
+      "min": "Rok musi być nieujemny."
     }
   },
   "form": {
@@ -349,7 +356,9 @@
       "loading": "Wczytywanie stawek",
       "add": "Dodaj nową stawkę",
       "cancel": "Anuluj",
-      "create": "Dodaj"
+      "create": "Dodaj",
+      "edit": "Zmień wysokość stawki",
+      "change": "Zmień"
     },
     "welcome": {
       "welcome": "Witaj",
@@ -386,6 +395,8 @@
       "chooseMonth": "Wybierz miesiąc",
       "category": "Kategoria kosztu",
       "cost-data": "Informacje o koszcie",
+      "loading-cost-data": "Ładowanie informacji",
+      "empty": "Podana kategoria nie ma żadnych kosztów dla tego roku",
       "details": "Szczegóły",
       "remove-cost": "Usuń koszt"
     },
@@ -560,6 +571,7 @@
       "remove-rate": "Czy na pewno chcesz usunąć tę stawkę?",
       "remove-rate-danger": "Tej akcji nie można cofnąć!",
       "add-rate": "Czy na pewno chcesz dodać tę stawkę?",
+      "edit-rate": "Czy na pewno chcesz zmienić wysokość tej stawki?",
       "add-reading": "Czy na pewno chcesz dodać ten odczyt?",
       "place-edit": "Czy na pewno chcesz zaktualizować lokal?",
       "add-place": "Potwierdź dodanie nowego lokalu.",
@@ -671,10 +683,14 @@
       "remove-success": "Pomyślnie usunięto stawkę",
       "add-success": "Pomyślnie dodano nową stawkę",
       "remove-fail": "Coś poszło nie tak podczas usuwania stawki!",
+      "edit-success": "Pomyślnie zmieniono wysokość stawki",
+      "edit-fail": "Coś poszło nie tak podczas zmiany wysokości stawki!",
       "response": {
         "message": {
           "rate_already-effective": "Nie można usunąć tej stawki, ponieważ już obowiązuje!",
-          "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!"
+          "rate_not_unique": "Stawka dla tej kategorii z taką samą datą obowiązywania już istnieje!",
+          "rate_not_found": "Nie znaleziono stawki!",
+          "optimistic_lock": "Stawka zmieniła się w międzyczasie. Odśwież listę stawek."
         }
       }
     },
@@ -712,19 +728,19 @@
         "message": {
           "optimistic_lock": "Lista nieprzypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
-          "account_not_found": "Nie znaleziono konta użytkownika",
+          "account_not_found": "Nie znaleziono wybranego konta użytkownika, lub nie posiada on już odpowiedniego poziomu dostępu",
           "illegal_self_action": "Nie możesz dodać siebie jako właściciela lokalu"
         }
       }
     },
     "place-owners-remove": {
       "fail": "Nie udało się odłączenie właściciela",
-      "success": "Udało się odłączyć właściciela: ",
+      "success": "Udało się odłączyć właściciela",
       "response": {
         "message": {
           "optimistic_lock": "Lista przypisanych właścicieli została edytowana przez kogoś innego, odśwież listę i spróbuj ponownie",
           "place_not_found": "Nie znaleziono lokalu",
-          "account_not_found": "Nie znaleziono konta użytkownika",
+          "account_not_found": "Nie znaleziono wybranego konta użytkownika, lub nie posiada on już odpowiedniego poziomu dostępu",
           "illegal_self_action": "Nie możesz usunąć siebie z właścicieli lokalu"
         }
       }

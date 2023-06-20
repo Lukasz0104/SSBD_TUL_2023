@@ -5,7 +5,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
 
@@ -22,10 +21,6 @@ public interface PlaceManagerLocal extends CommonManagerInterface {
     Place getPlaceDetailsAsOwner(Long id, String login) throws AppBaseException;
 
     Place getPlaceDetailsAsManager(Long id) throws AppBaseException;
-
-    List<Rate> getPlaceRates(Long id) throws AppBaseException;
-
-    List<Report> getPlaceReports(Long id) throws AppBaseException;
 
     Set<Meter> getPlaceMetersAsManager(Long id) throws AppBaseException;
 

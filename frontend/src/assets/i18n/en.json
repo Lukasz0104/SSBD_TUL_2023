@@ -50,7 +50,8 @@
       "pattern": "City must start with capital letter."
     },
     "license-number": {
-      "required": "License number is required."
+      "required": "License number is required.",
+      "invalid": "License number should consist of 6 to 8 digits"
     },
     "old-password": {
       "required": "Old password is required",
@@ -127,11 +128,17 @@
     },
     "total-consumption": {
       "required": "Total consumption is required.",
-      "min": "Total consumption must be greater than or equal to "
+      "min": "Total consumption must be greater than or equal to ",
+      "max": "Total consumption must not be greater than "
     },
     "real-rate": {
       "required": "Real rate is required.",
-      "min": "Real rate must be greater than or equal to "
+      "min": "Real rate must be greater than or equal to ",
+      "max": "Real rate must not be greater than "
+    },
+    "year": {
+      "required": "Year is required.",
+      "min": "Year must be non-negative."
     }
   },
   "form": {
@@ -349,7 +356,9 @@
       "add": "Add a new rate",
       "cancel": "Cancel",
       "create": "Add",
-      "remove": "Remove"
+      "remove": "Remove",
+      "edit": "Change rate value",
+      "change": "Change"
     },
     "welcome": {
       "welcome": "Welcome",
@@ -386,6 +395,8 @@
       "chooseCategory": "Choose category",
       "category": "Cost category",
       "cost-data": "Cost data",
+      "loading-cost-data": "Loading data",
+      "empty": "Given category has no costs for that year",
       "details": "Cost details",
       "remove-cost": "Remove cost"
     },
@@ -560,6 +571,7 @@
       "remove-rate": "Are you sure you want to remove this rate?",
       "remove-rate-danger": "This action cannot be undone!",
       "add-rate": "Are you sure, you want to add this rate?",
+      "edit-rate": "Are you sure, you want to change this rate value?",
       "add-reading": "Are you sure, you want to add this reading?",
       "place-edit": "Are you sure, you want update this place?",
       "add-place": "Confirm adding new place.",
@@ -670,11 +682,15 @@
     "rate": {
       "remove-success": "Successfully removed the rate",
       "add-success": "Rate added successfully",
+      "edit-success": "Rate value changed successfully",
       "remove-fail": "Something went wrong while removing the rate!",
+      "edit-fail": "Something went wrong while editing the rate value!",
       "response": {
         "message": {
           "rate_already-effective": "Can't remove this rate, because it's already effective!",
-          "rate_not_unique": "Rate with same effective date within this category already exists!"
+          "rate_not_unique": "Rate with same effective date within this category already exists!",
+          "rate_not_found": "Rate not found",
+          "optimistic_lock": "Rate was modified in the meantime. Please refresh the list."
         }
       }
     },
@@ -712,7 +728,7 @@
         "message": {
           "optimistic_lock": "List of not assigned owners was changed by someone else, please reload the list and try again",
           "place_not_found": "Place not found",
-          "account_not_found": "Account not found",
+          "account_not_found": "Selected account not found or its owner status has been revoked",
           "illegal_self_action": "Can't add as an owner self to this place"
         }
       }
@@ -724,7 +740,7 @@
         "message": {
           "optimistic_lock": "List of assigned owners was changed by someone else, please reload the list and try again",
           "place_not_found": "Place not found",
-          "account_not_found": "Account not found",
+          "account_not_found": "Selected account not found or its owner status has been revoked",
           "illegal_self_action": "You can't remove yourself from owners"
         }
       }

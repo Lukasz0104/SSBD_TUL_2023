@@ -26,33 +26,6 @@ import java.time.LocalDateTime;
 @Table(name = "reading")
 @NamedQueries({
     @NamedQuery(
-        name = "Reading.findAll",
-        query = "SELECT r FROM Reading r"),
-    @NamedQuery(
-        name = "Reading.findById",
-        query = "SELECT r FROM Reading r WHERE r.id = :id"),
-    @NamedQuery(
-        name = "Reading.findByValue",
-        query = "SELECT r FROM Reading r WHERE r.value = :value"),
-    @NamedQuery(
-        name = "Reading.findByDate",
-        query = "SELECT r FROM Reading r WHERE r.date = :date"),
-    @NamedQuery(
-        name = "Reading.findByDateAfter",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.date >= :date"""),
-    @NamedQuery(
-        name = "Reading.findByDateBefore",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.date < :date"""),
-    @NamedQuery(
-        name = "Reading.findByDateBetween",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.date BETWEEN :beginDate AND :endDate"""),
-    @NamedQuery(
         name = "Reading.findByMeterId",
         query = """
             SELECT r FROM Reading r
@@ -65,81 +38,6 @@ import java.time.LocalDateTime;
             SELECT count(r) FROM Reading r
             WHERE r.meter.id = :meterId
             """),
-    @NamedQuery(
-        name = "Reading.findByMeterIdAndDate",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.meter.id = :meterId
-                  AND r.date = :date"""),
-    @NamedQuery(
-        name = "Reading.findByMeterIdAndDateAfter",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.meter.id = :meterId
-                  AND r.date >= :date"""),
-    @NamedQuery(
-        name = "Reading.findByMeterIdAndDateBefore",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.meter.id = :meterId
-                  AND r.date < :date"""),
-    @NamedQuery(
-        name = "Reading.findByMeterIdAndDateBetween",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.meter.id = :meterId
-                  AND r.date BETWEEN :beginDate AND :endDate"""),
-    @NamedQuery(
-        name = "Reading.findReliableByMeterIdAndDateBetween",
-        query = """
-            SELECT r FROM Reading r
-            WHERE r.meter.id = :meterId
-                  AND r.reliable = TRUE
-                  AND r.date BETWEEN :beginDate AND :endDate"""),
-    @NamedQuery(
-        name = "Reading.findByPlaceId",
-        query = """
-            SELECT r FROM Reading r
-            INNER JOIN Meter m
-                ON m.id = r.meter.id
-            INNER JOIN Place p
-                ON m.place.id = p.id"""),
-    @NamedQuery(
-        name = "Reading.findByPlaceIdAndDate",
-        query = """
-            SELECT r FROM Reading r
-            INNER JOIN Meter m
-                ON m.id = r.meter.id
-            INNER JOIN Place p
-                ON m.place.id = p.id
-            WHERE r.date = :date"""),
-    @NamedQuery(
-        name = "Reading.findByPlaceIdAndDateBetween",
-        query = """
-            SELECT r FROM Reading r
-            INNER JOIN Meter m
-                ON m.id = r.meter.id
-            INNER JOIN Place p
-                ON m.place.id = p.id
-            WHERE r.date BETWEEN :beginDate AND :endDate"""),
-    @NamedQuery(
-        name = "Reading.findByPlaceIdAndDateAfter",
-        query = """
-            SELECT r FROM Reading r
-            INNER JOIN Meter m
-                ON m.id = r.meter.id
-            INNER JOIN Place p
-                ON m.place.id = p.id
-            WHERE r.date >= :date"""),
-    @NamedQuery(
-        name = "Reading.findByPlaceIdAndDateBefore",
-        query = """
-            SELECT r FROM Reading r
-            INNER JOIN Meter m
-                ON m.id = r.meter.id
-            INNER JOIN Place p
-                ON m.place.id = p.id
-            WHERE r.date < :date"""),
     @NamedQuery(
         name = "Reading.findReliableReadingsFromLastDayOfYear",
         query = """

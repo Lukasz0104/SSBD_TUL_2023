@@ -9,18 +9,14 @@ const routes: Routes = [
     {
         path: '',
         component: HomeComponent,
-        data: {
-            title: 'Home'
-        },
+        title: 'Home',
         loadChildren: () =>
             import('./auth/auth.module').then((m) => m.AuthModule)
     },
     {
         path: 'dashboard',
         component: DashboardComponent,
-        data: {
-            title: 'Dashboard'
-        },
+        title: 'Dashboard',
         canActivate: [canActivateAuthenticated],
         children: [
             {
