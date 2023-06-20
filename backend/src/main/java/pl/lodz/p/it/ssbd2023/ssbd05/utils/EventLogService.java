@@ -33,14 +33,13 @@ public class EventLogService {
 
     private void initConnection() {
         MongoCredential credential = MongoCredential.createCredential(
-            appProperties.getEventLogUser(), "admin",
-            String.valueOf(appProperties.getEventLogConnectionPort()).toCharArray()
+            appProperties.getEventLogUser(), "admin", appProperties.getEventLogPass().toCharArray()
         );
 
         ConnectionString conn = new ConnectionString(
             "mongodb://"
                 + appProperties.getEventLogConnectionHostname()
-                + "/" + appProperties.getEventLogPass());
+                + "/" + appProperties.getEventLogConnectionPort());
 
         client = MongoClients.create(
             MongoClientSettings.builder()
