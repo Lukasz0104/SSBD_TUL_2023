@@ -38,6 +38,11 @@
                         class="mb-0">
                         {{ 'validation.placeNumber.min' | translate }}
                     </p>
+                    <p
+                        *ngIf="placeNumberControl.errors['max']"
+                        class="mb-0">
+                        {{ 'validation.placeNumber.max' | translate }}
+                    </p>
                 </div>
             </div>
 

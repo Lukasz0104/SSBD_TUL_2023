@@ -110,7 +110,8 @@
     },
     "placeNumber": {
       "min": "Place number must be positive",
-      "required": "Place number is required"
+      "required": "Place number is required",
+      "max": "Place number must be less than 1000000"
     },
     "place-number": {
       "required": "Place number is required.",
