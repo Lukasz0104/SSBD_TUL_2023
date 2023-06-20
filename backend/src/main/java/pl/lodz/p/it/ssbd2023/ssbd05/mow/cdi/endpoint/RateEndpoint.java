@@ -10,8 +10,10 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -25,6 +27,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreateRateDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.RateManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.RateDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
+
+import java.math.BigDecimal;
 
 
 @RequestScoped
@@ -65,5 +69,17 @@ public class RateEndpoint {
     public Response removeFutureRate(@NotNull @PathParam("id") Long id) throws AppBaseException {
         return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
             () -> rateManager.removeFutureRate(id), rateManager).build();
+    }
+
+    @PATCH
+    @Path("/{id}/{value}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(MANAGER)
+    public Response changeFutureRateValue(@NotNull @PathParam("id") Long id,
+                                          @NotNull @PositiveOrZero @PathParam("value")
+                                          BigDecimal value) throws AppBaseException {
+
+        return rollbackUtils.rollBackTXBasicWithReturnNoContentStatus(
+            () -> rateManager.changeFutureRateValue(id, value), rateManager).build();
     }
 }
