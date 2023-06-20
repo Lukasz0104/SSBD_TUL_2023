@@ -144,12 +144,21 @@ export class AccountService {
                     });
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    this.toastService.handleError(
-                        'toast.account.reset-password-fail',
-                        'password-change',
-                        response
-                    );
-
+                    if (
+                        response.error.message.includes(
+                            'response.message.invalid.uuid'
+                        )
+                    ) {
+                        this.toastService.showDanger(
+                            'password-change.response.message.invalid.uuid'
+                        );
+                    } else {
+                        this.toastService.handleError(
+                            'toast.account.reset-password-fail',
+                            'password-change',
+                            response
+                        );
+                    }
                     if (!response.error.message.includes('repeated_password')) {
                         this.router.navigate(['/']);
                         return of(true);
