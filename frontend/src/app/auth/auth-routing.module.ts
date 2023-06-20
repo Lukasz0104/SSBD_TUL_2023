@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { canActivateLoginOrRegister } from '../shared/guards/guest.guard';
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
-import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 import { RegisterComponent } from './components/register/register.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
@@ -12,6 +11,8 @@ import { canActivateGuestWithRedirect } from '../shared/guards/redirecting-guest
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { LoginComponent } from './components/login/login.component';
+import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
+import { canActivateForcedPasswordOverride } from '../shared/guards/forced-password-override.guard';
 
 const routes: Routes = [
     {
@@ -59,9 +60,10 @@ const routes: Routes = [
         canActivate: [canActivateLoginOrRegister]
     },
     {
-        path: 'force-password-override/:token',
+        path: 'forced-password-override/:token',
         component: ForcePasswordChangeOverrideComponent,
-        title: 'Override password change'
+        title: 'Override password change',
+        canActivate: [canActivateForcedPasswordOverride]
     }
 ];
 

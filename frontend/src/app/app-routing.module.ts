@@ -3,6 +3,7 @@ import { Route, RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { canActivateAuthenticated } from './shared/guards/authentication.guard';
+import { ForcePasswordChangeOverrideComponent } from './auth/components/force-password-change-override/force-password-change-override.component';
 
 const routes: Routes = [
     {
@@ -27,6 +28,14 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                     import('./mow/mow.module').then((m) => m.MowModule)
+            },
+            {
+                path: 'forced-password-override-authenticated/:token',
+                component: ForcePasswordChangeOverrideComponent,
+                data: {
+                    title: 'Override password change'
+                },
+                canActivate: [canActivateAuthenticated]
             }
         ]
     }
