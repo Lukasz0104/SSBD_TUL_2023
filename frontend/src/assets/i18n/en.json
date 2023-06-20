@@ -601,7 +601,8 @@
     "costs": "Costs",
     "cost": "Cost",
     "reports": "Reports",
-    "community-reports": "Community reports"
+    "community-reports": "Community reports",
+    "override-forced-password": "Override password"
   },
   "toast": {
     "auth": {

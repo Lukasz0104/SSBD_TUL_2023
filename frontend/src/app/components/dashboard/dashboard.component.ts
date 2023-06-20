@@ -17,6 +17,12 @@ export class DashboardComponent {
                 new Breadcrumb('', 'profile')
             ];
         }
+        if (url.includes('forced-password-override-authenticated')) {
+            return [
+                new Breadcrumb('/', 'dashboard'),
+                new Breadcrumb('', 'override-forced-password')
+            ];
+        }
 
         url.shift();
         const breadcrumbs: Breadcrumb[] = [];

@@ -601,7 +601,8 @@
     "costs": "Koszty",
     "cost": "Koszt",
     "place": "Lokal",
-    "community-reports": "Raporty wspólnoty"
+    "community-reports": "Raporty wspólnoty",
+    "override-forced-password": "Nadpisz hasło"
   },
   "toast": {
     "auth": {
