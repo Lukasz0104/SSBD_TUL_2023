@@ -27,67 +27,14 @@ import java.time.Year;
 @Table(name = "cost", uniqueConstraints = @UniqueConstraint(columnNames = {"year", "month", "category_id"}))
 @NamedQueries({
     @NamedQuery(
-        name = "Cost.findAll",
-        query = "SELECT c FROM Cost c"),
-    @NamedQuery(
-        name = "Cost.findById",
-        query = "SELECT c FROM Cost c WHERE c.id = :id"),
-    @NamedQuery(
-        name = "Cost.findByYear",
-        query = "SELECT c FROM Cost c WHERE c.year = :year"),
-    @NamedQuery(
-        name = "Cost.findByMonth",
-        query = "SELECT c FROM Cost c WHERE c.month = :month"),
-    @NamedQuery(
-        name = "Cost.findByCategoryId",
-        query = "SELECT c FROM Cost c WHERE c.category.id = :categoryId"),
-    @NamedQuery(
         name = "Cost.findByCategoryName",
         query = "SELECT c FROM Cost c WHERE c.category.name = :categoryName"),
-    @NamedQuery(
-        name = "Cost.findByYearAndMonth",
-        query = """
-            SELECT c FROM Cost c
-            WHERE c.year = :year
-                  AND c.month = :month"""),
     @NamedQuery(
         name = "Cost.findByYearAndCategoryId",
         query = """
             SELECT c FROM Cost c
             WHERE c.year = :year
                   AND c.category.id = :categoryId"""),
-    @NamedQuery(
-        name = "Cost.findByYearAndCategoryName",
-        query = """
-            SELECT c FROM Cost c
-            WHERE c.year = :year
-                  AND c.category.name = :categoryName"""),
-    @NamedQuery(
-        name = "Cost.findByMonthAndCategoryId",
-        query = """
-            SELECT c FROM Cost c
-            WHERE c.month = :month
-                  AND c.category.id = :categoryId"""),
-    @NamedQuery(
-        name = "Cost.findByMonthAndCategoryName",
-        query = """
-            SELECT c FROM Cost c
-            WHERE c.month = :month
-                  AND c.category.name = :categoryName"""),
-    @NamedQuery(
-        name = "Cost.findByYearAndMonthAndCategoryId",
-        query = """
-            SELECT c FROM Cost c
-            WHERE c.year = :year
-                  AND c.month = :month
-                  AND c.category.id = :categoryId"""),
-    @NamedQuery(
-        name = "Cost.findByYearAndMonthAndCategoryName",
-        query = """
-            SELECT c FROM Cost c
-            WHERE c.year = :year
-                  AND c.month = :month
-                  AND c.category.name = :categoryName"""),
     @NamedQuery(
         name = "Cost.findByYearAndCategoryNameAsc",
         query = """
