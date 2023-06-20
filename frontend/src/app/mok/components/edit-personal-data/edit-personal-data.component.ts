@@ -15,6 +15,7 @@ import {
 import { AccessLevels } from '../../../shared/model/access-type';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { TranslateService } from '@ngx-translate/core';
+import { validLicenseNumberValidator } from '../../../shared/validators/valid-license-number.validator';
 
 @Component({
     selector: 'app-edit-personal-data',
@@ -57,7 +58,10 @@ export class EditPersonalDataComponent {
             Validators.maxLength(85),
             Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
         ]),
-        licenseNumber: new FormControl('', [Validators.required])
+        licenseNumber: new FormControl('', [
+            Validators.required,
+            validLicenseNumberValidator
+        ])
     });
 
     editOwnerDataForm = new FormGroup({

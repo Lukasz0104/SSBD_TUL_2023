@@ -51,6 +51,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -2113,8 +2114,8 @@ public class MokITests extends TestContainersSetup {
                 );
                 assertEquals(addressDto, editedAddressDto);
                 assertEquals(response.body().jsonPath()
-                                 .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() +
-                             1,
+                        .getObject("accessLevels.find{it.level=='OWNER'}", OwnerDataDto.class).getVersion() +
+                        1,
                     editedOwnerDataDto.getVersion());
             }
 
@@ -2133,7 +2134,7 @@ public class MokITests extends TestContainersSetup {
                     "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
                     "Belwederska4",
                     12);
-                String newLicenseNumber = String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+                String newLicenseNumber = String.valueOf((new Random()).nextInt(899999) + 100000);
                 for (AccessLevelDto level : dto.getAccessLevels()) {
                     if (level instanceof ManagerDataDto managerData) {
                         managerData.setLicenseNumber(newLicenseNumber);
@@ -2200,8 +2201,8 @@ public class MokITests extends TestContainersSetup {
                 assertEquals(newLicenseNumber, editedManagerDataDto.getLicenseNumber());
 
                 assertEquals(response.body().jsonPath()
-                                 .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class)
-                                 .getVersion() + 1,
+                        .getObject("accessLevels.find{it.level=='MANAGER'}", ManagerDataDto.class)
+                        .getVersion() + 1,
                     editedManagerDataDto.getVersion());
             }
 
@@ -2553,23 +2554,23 @@ public class MokITests extends TestContainersSetup {
 
         private final RequestSpecification ownerAndManagerSpec = new RequestSpecBuilder()
             .addHeader("Authorization", "Bearer "
-                                        + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
-                                            .contentType(ContentType.JSON)
-                                            .when()
-                                            .post("/login")
-                                            .jsonPath()
-                                            .get("jwt"))
+                + RestAssured.given().body(new LoginDto("pduda", "P@ssw0rd"))
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt"))
             .build();
 
         private RequestSpecification makeSpec(String login) {
             return new RequestSpecBuilder()
                 .addHeader("Authorization", "Bearer "
-                                            + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
-                                                .contentType(ContentType.JSON)
-                                                .when()
-                                                .post("/login")
-                                                .jsonPath()
-                                                .get("jwt"))
+                    + RestAssured.given().body(new LoginDto(login, "P@ssw0rd"))
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .post("/login")
+                    .jsonPath()
+                    .get("jwt"))
                 .build();
         }
 
@@ -4044,7 +4045,7 @@ public class MokITests extends TestContainersSetup {
             }
 
             private static String generateRandomString() {
-                return UUID.randomUUID().toString().replace("-", "");
+                return String.valueOf((new Random()).nextInt(899999) + 100000);
             }
         }
 

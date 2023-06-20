@@ -7,6 +7,7 @@ import { AccessLevelService } from '../../services/access-level.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { filter, switchMap } from 'rxjs';
+import { validLicenseNumberValidator } from '../../../shared/validators/valid-license-number.validator';
 
 @Component({
     selector: 'app-grant-access-level',
@@ -93,7 +94,7 @@ export class GrantAccessLevelComponent {
             })
         }),
         licenseNumber: this.fb.control('', {
-            validators: [Validators.required]
+            validators: [Validators.required, validLicenseNumberValidator]
         })
     });
 
