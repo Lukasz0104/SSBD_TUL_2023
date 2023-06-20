@@ -127,11 +127,17 @@
     },
     "total-consumption": {
       "required": "Total consumption is required.",
-      "min": "Total consumption must be greater than or equal to "
+      "min": "Total consumption must be greater than or equal to ",
+      "max": "Total consumption must not be greater than "
     },
     "real-rate": {
       "required": "Real rate is required.",
-      "min": "Real rate must be greater than or equal to "
+      "min": "Real rate must be greater than or equal to ",
+      "max": "Real rate must not be greater than "
+    },
+    "year": {
+      "required": "Year is required.",
+      "min": "Year must be non-negative."
     }
   },
   "form": {
@@ -386,6 +392,8 @@
       "chooseCategory": "Choose category",
       "category": "Cost category",
       "cost-data": "Cost data",
+      "loading-cost-data": "Loading data",
+      "empty": "Given category has no costs for that year",
       "details": "Cost details",
       "remove-cost": "Remove cost"
     },

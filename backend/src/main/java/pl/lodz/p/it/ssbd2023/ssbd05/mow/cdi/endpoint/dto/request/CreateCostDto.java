@@ -1,5 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 public class CreateCostDto {
 
     @NotNull
+    @PositiveOrZero
     private int year;
 
     @NotNull
@@ -27,9 +29,11 @@ public class CreateCostDto {
 
     @NotNull
     @PositiveOrZero
+    @Max(999999999)
     private BigDecimal totalConsumption;
 
     @NotNull
     @Positive
+    @Max(999999999)
     private BigDecimal realRate;
 }
