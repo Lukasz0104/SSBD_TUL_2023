@@ -129,6 +129,100 @@
             </div>
         </div>
         <div
+            ngbAccordionItem="auth"
+            [collapsed]="false">
+            <h2 ngbAccordionHeader>
+                <button
+                    ngbAccordionButton
+                    class="fs-5">
+                    {{ 'component.account.auth-data' | translate }}
+                </button>
+            </h2>
+            <div ngbAccordionCollapse>
+                <div
+                    ngbAccordionBody
+                    class="d-flex justify-content-start align-items-center fs-6"
+                    *ngIf="ownAccount.activityTracker as activityTracker">
+                    <ng-template>
+                        <div
+                            class="row px-3 px-md-5 justify-content-center w-100">
+                            <div
+                                *ngIf="
+                                    ownAccount.activityTracker
+                                        .lastSuccessfulLogin
+                                "
+                                class="col-md">
+                                <p>
+                                    <strong>{{
+                                        'component.account.last-success-login-date'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{
+                                        activityTracker.lastSuccessfulLogin
+                                            | date : 'dd/MM/yy HH:mm:ss'
+                                    }}
+                                </p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.last-success-login-ip'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{ activityTracker.lastSuccessfulLoginIp }}
+                                </p>
+                            </div>
+                            <div
+                                *ngIf="
+                                    ownAccount.activityTracker
+                                        .lastUnsuccessfulLogin
+                                "
+                                class="col-md">
+                                <p>
+                                    <strong>{{
+                                        'component.account.last-unsuccessful-login-date'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{
+                                        activityTracker.lastUnsuccessfulLogin
+                                            | date : 'dd/MM/yy HH:mm:ss'
+                                    }}
+                                </p>
+                                <p>
+                                    <strong>{{
+                                        'component.account.last-unsuccessful-login-ip'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{
+                                        activityTracker.lastUnsuccessfulLoginIp
+                                    }}
+                                </p>
+                            </div>
+                            <div class="col-md">
+                                <p>
+                                    <strong>{{
+                                        'component.account.unsuccessful-login-chain'
+                                            | translate
+                                    }}</strong>
+                                </p>
+                                <p>
+                                    {{
+                                        activityTracker.unsuccessfulLoginChainCounter
+                                    }}
+                                </p>
+                            </div>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+        <div
             ngbAccordionItem="accessLevel"
             [collapsed]="false">
             <h2 ngbAccordionHeader>

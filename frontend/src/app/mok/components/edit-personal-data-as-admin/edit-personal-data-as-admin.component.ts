@@ -15,6 +15,7 @@ import {
 } from 'rxjs';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { AppConfigService } from '../../../shared/services/app-config.service';
+import { validLicenseNumberValidator } from '../../../shared/validators/valid-license-number.validator';
 
 @Component({
     selector: 'app-edit-personal-data-as-admin',
@@ -62,7 +63,10 @@ export class EditPersonalDataAsAdminComponent {
             Validators.maxLength(85),
             Validators.pattern('[A-ZĄĆĘŁÓŚŹŻ]+.*')
         ]),
-        licenseNumber: new FormControl('', [Validators.required])
+        licenseNumber: new FormControl('', [
+            Validators.required,
+            validLicenseNumberValidator
+        ])
     });
 
     editOwnerDataForm = new FormGroup({

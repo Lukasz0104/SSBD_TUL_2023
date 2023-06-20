@@ -17,32 +17,24 @@ const routes: Routes = [
     {
         path: '',
         component: LandingPageComponent,
-        data: {
-            title: 'eBok'
-        },
+        title: 'eBok',
         canActivate: [canActivateGuestWithRedirect]
     },
     {
         path: 'login',
         component: LoginComponent,
-        data: {
-            title: 'Sign in'
-        },
+        title: 'Sign in',
         canActivate: [canActivateLoginOrRegister]
     },
     {
         path: 'confirm-email/:id',
         component: ConfirmEmailComponent,
-        data: {
-            title: 'Change email'
-        },
+        title: 'Change email',
         canActivate: [canActivateAuthenticated]
     },
     {
         path: 'register',
-        data: {
-            title: 'Register'
-        },
+        title: 'Register',
         component: RegisterComponent,
         canActivate: [canActivateLoginOrRegister]
     },
@@ -57,25 +49,19 @@ const routes: Routes = [
     {
         path: 'reset-password',
         component: ResetPasswordComponent,
-        data: {
-            title: 'Reset password'
-        },
+        title: 'Reset password',
         canActivate: [canActivateLoginOrRegister]
     },
     {
         path: 'reset-password-confirm/:token',
         component: ResetPasswordConfirmComponent,
-        data: {
-            title: 'Confirm password reset'
-        },
+        title: 'Confirm password reset',
         canActivate: [canActivateLoginOrRegister]
     },
     {
         path: 'force-password-override/:token',
         component: ForcePasswordChangeOverrideComponent,
-        data: {
-            title: 'Override password change'
-        }
+        title: 'Override password change'
     }
 ];
 

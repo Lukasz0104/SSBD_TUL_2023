@@ -56,22 +56,14 @@ public class OwnAccountDto extends AccountSignableDto {
     @JsonIgnore
     private String updatedBy;
 
-
-    public OwnAccountDto(Long id, Long version, Set<AccessLevelDto> accessLevels, String email, String login,
-                         String firstName, String lastName, String language, boolean twoFactorAuth) {
-        super(login, version, accessLevels);
-        this.email = email;
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.language = language;
-        this.twoFactorAuth = twoFactorAuth;
-    }
+    @NotNull
+    private ActivityTrackerDto activityTracker;
 
     public OwnAccountDto(Long id, Long version,
                          Set<AccessLevelDto> accessLevels, String email, String login,
                          String firstName, String lastName, String language, boolean twoFactorAuth,
-                         LocalDateTime createdTime, String createdBy, LocalDateTime updatedTime, String updatedBy) {
+                         LocalDateTime createdTime, String createdBy, LocalDateTime updatedTime, String updatedBy,
+                         ActivityTrackerDto activityTracker) {
         super(login, version, accessLevels);
         this.id = id;
         this.email = email;
@@ -83,5 +75,6 @@ public class OwnAccountDto extends AccountSignableDto {
         this.createdBy = createdBy;
         this.updatedTime = updatedTime;
         this.updatedBy = updatedBy;
+        this.activityTracker = activityTracker;
     }
 }

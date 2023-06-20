@@ -50,7 +50,8 @@
       "pattern": "Miasto musi zaczynać się z wielkiej litery."
     },
     "license-number": {
-      "required": "Numer licencji jest wymagany."
+      "required": "Numer licencji jest wymagany.",
+      "invalid": "Numer licencji powinien składać się z od 6 do 8 cyfr"
     },
     "old-password": {
       "required": "Stare hasło jest wymagane",
