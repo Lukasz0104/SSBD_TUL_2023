@@ -7,6 +7,7 @@ import { AccessLevelService } from '../../services/access-level.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { filter, switchMap } from 'rxjs';
+import { postalCodeValidator } from '../../../shared/validators/postal-code.validator';
 
 @Component({
     selector: 'app-grant-access-level',
@@ -75,7 +76,8 @@ export class GrantAccessLevelComponent {
                 validators: [
                     Validators.required,
                     Validators.minLength(6),
-                    Validators.maxLength(6)
+                    Validators.maxLength(6),
+                    postalCodeValidator
                 ]
             }),
             city: this.fb.control('', {

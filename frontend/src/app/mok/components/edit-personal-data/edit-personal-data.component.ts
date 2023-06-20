@@ -15,6 +15,7 @@ import {
 import { AccessLevels } from '../../../shared/model/access-type';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { TranslateService } from '@ngx-translate/core';
+import { postalCodeValidator } from '../../../shared/validators/postal-code.validator';
 
 @Component({
     selector: 'app-edit-personal-data',
@@ -49,7 +50,8 @@ export class EditPersonalDataComponent {
         postalCode: new FormControl('', [
             Validators.required,
             Validators.minLength(6),
-            Validators.maxLength(6)
+            Validators.maxLength(6),
+            postalCodeValidator
         ]),
         city: new FormControl('', [
             Validators.required,
@@ -72,7 +74,8 @@ export class EditPersonalDataComponent {
         postalCode: new FormControl('', [
             Validators.required,
             Validators.minLength(6),
-            Validators.maxLength(6)
+            Validators.maxLength(6),
+            postalCodeValidator
         ]),
         city: new FormControl('', [
             Validators.required,

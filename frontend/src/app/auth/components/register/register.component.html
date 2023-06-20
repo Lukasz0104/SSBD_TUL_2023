@@ -434,9 +434,22 @@
                                             }}
                                         </p>
                                         <ng-template #pcNotEmpty>
-                                            <p class="mb-0">
+                                            <p
+                                                *ngIf="
+                                                    pcErrors['maxlength'] ||
+                                                    pcErrors['minlength']
+                                                "
+                                                class="mb-0">
                                                 {{
                                                     'validation.postal-code.length'
+                                                        | translate
+                                                }}
+                                            </p>
+                                            <p
+                                                *ngIf="pcErrors['postalCode']"
+                                                class="mb-0">
+                                                {{
+                                                    pcErrors['postalCode']
                                                         | translate
                                                 }}
                                             </p>

@@ -282,6 +282,15 @@
                                                     | translate
                                             }}
                                         </p>
+                                        <p
+                                            *ngIf="
+                                                ownerPostalCodeControl.errors[
+                                                    'postalCode'
+                                                ] as pc
+                                            "
+                                            class="mb-0">
+                                            {{ pc | translate }}
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="mb-2 has-validation">
@@ -528,6 +537,15 @@
                                                 'validation.postal-code.length'
                                                     | translate
                                             }}
+                                        </p>
+                                        <p
+                                            *ngIf="
+                                                managerPostalCodeControl.errors[
+                                                    'postalCode'
+                                                ] as pc
+                                            "
+                                            class="mb-0">
+                                            {{ pc | translate }}
                                         </p>
                                     </div>
                                 </div>

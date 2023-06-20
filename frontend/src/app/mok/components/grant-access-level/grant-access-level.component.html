@@ -23,7 +23,7 @@
                 <label
                     for="zipcodeInput"
                     class="form-label">
-                    {{ 'component.fields.postal-code' | translate }}
+                    {{ 'component.fields.postal-code' | translate }} *
                 </label>
                 <input
                     id="zipcodeInput"
@@ -47,8 +47,17 @@
                         {{ 'validation.postal-code.required' | translate }}
                     </p>
                     <ng-template #pcNotEmpty>
-                        <p class="mb-0">
+                        <p
+                            *ngIf="
+                                pcErrors['maxlength'] || pcErrors['minlength']
+                            "
+                            class="mb-0">
                             {{ 'validation.postal-code.length' | translate }}
+                        </p>
+                        <p
+                            *ngIf="pcErrors['postalCode']"
+                            class="mb-0">
+                            {{ pcErrors['postalCode'] | translate }}
                         </p>
                     </ng-template>
                 </div>
@@ -57,7 +66,7 @@
                 <label
                     for="cityInput"
                     class="form-label">
-                    {{ 'component.fields.city' | translate }}
+                    {{ 'component.fields.city' | translate }} *
                 </label>
                 <input
                     id="cityInput"
@@ -96,7 +105,7 @@
                 <label
                     for="streetInput"
                     class="form-label">
-                    {{ 'component.fields.street' | translate }}
+                    {{ 'component.fields.street' | translate }} *
                 </label>
                 <input
                     id="streetInput"
@@ -128,7 +137,7 @@
                 <label
                     for="buildingNumberInput"
                     class="form-label">
-                    {{ 'component.fields.building-number' | translate }}
+                    {{ 'component.fields.building-number' | translate }} *
                 </label>
                 <input
                     id="buildingNumberInput"
@@ -166,7 +175,7 @@
             <label
                 for="licenseNumberInput"
                 class="form-label">
-                {{ 'component.account.license-number' | translate }}
+                {{ 'component.account.license-number' | translate }} *
             </label>
             <input
                 id="licenseNumberInput"

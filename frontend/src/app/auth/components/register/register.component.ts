@@ -18,6 +18,7 @@ import { AppConfigService } from '../../../shared/services/app-config.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { repeatPasswordValidator } from '../../../shared/validators/repeat-password.validator';
 import { strongPasswordValidator } from '../../../shared/validators/strong-password.validator';
+import { postalCodeValidator } from '../../../shared/validators/postal-code.validator';
 
 @Component({
     selector: 'app-register',
@@ -79,7 +80,8 @@ export class RegisterComponent {
                 validators: [
                     Validators.required,
                     Validators.minLength(6),
-                    Validators.maxLength(6)
+                    Validators.maxLength(6),
+                    postalCodeValidator
                 ]
             }),
             city: this.fb.control('', {
