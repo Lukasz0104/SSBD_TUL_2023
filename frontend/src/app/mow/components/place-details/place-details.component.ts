@@ -6,6 +6,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../../shared/services/auth.service';
 import { PlaceEditComponent } from '../place-edit/place-edit.component';
+import { PlacesComponent } from '../places/places.component';
 
 @Component({
     selector: 'app-place-details',
@@ -13,18 +14,16 @@ import { PlaceEditComponent } from '../place-edit/place-edit.component';
 })
 export class PlaceDetailsComponent implements OnInit {
     place$ = new BehaviorSubject<Place | null>(null);
-
     @Input() id: number | undefined;
-
     @Input() place: Place | undefined;
-
     loading = true;
 
     constructor(
         private placeService: PlaceService,
         private toastService: ToastService,
         private modalService: NgbModal,
-        protected authService: AuthService
+        protected authService: AuthService,
+        private places: PlacesComponent
     ) {}
 
     ngOnInit(): void {
@@ -49,6 +48,7 @@ export class PlaceDetailsComponent implements OnInit {
         modalRef.result
             .then((): void => {
                 this.getPlace(id);
+                this.places.refresh();
             })
             .catch(() => EMPTY);
     }

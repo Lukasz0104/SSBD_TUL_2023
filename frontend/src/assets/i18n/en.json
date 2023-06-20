@@ -105,7 +105,8 @@
     "squareFootage": {
       "min": "Square footage must be positive",
       "required": "Square footage is required",
-      "max": "Square footage must be less than 1000000"
+      "max": "Square footage must be less than 1000000",
+      "pattern": "Square footage must be an number"
     },
     "placeNumber": {
       "min": "Place number must be positive",
