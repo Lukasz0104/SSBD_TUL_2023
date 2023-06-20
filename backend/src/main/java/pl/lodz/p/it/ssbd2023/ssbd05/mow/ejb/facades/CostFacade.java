@@ -1,7 +1,6 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades;
 
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
-import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
@@ -13,7 +12,6 @@ import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Cost;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
@@ -52,27 +50,12 @@ public class CostFacade extends AbstractFacade<Cost> {
         super(Cost.class);
     }
 
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Cost> findByCategoryId(Long categoryId) throws AppDatabaseException {
-        try {
-            TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByCategoryId", Cost.class);
-            tq.setParameter("categoryId", categoryId);
-            return tq.getResultList();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Cost.findByCategoryId, Database Exception", e);
-        }
-    }
-
     @PermitAll
     public List<Cost> findByYearAndCategoryId(Year year, Long categoryId) throws AppDatabaseException {
-        try {
-            TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYearAndCategoryId", Cost.class);
-            tq.setParameter("year", year);
-            tq.setParameter("categoryId", categoryId);
-            return tq.getResultList();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Cost.findByYearAndCategoryId, Database Exception", e);
-        }
+        TypedQuery<Cost> tq = em.createNamedQuery("Cost.findByYearAndCategoryId", Cost.class);
+        tq.setParameter("year", year);
+        tq.setParameter("categoryId", categoryId);
+        return tq.getResultList();
     }
 
     @RolesAllowed({MANAGER})

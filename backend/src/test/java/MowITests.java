@@ -3035,12 +3035,12 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldFailToGetPlaceMetersAsGuestWithStatusCode403Test() {
                 when()
-                    .get(ownerURL + "/1/meters")
+                    .get(ownerURL + "1/meters")
                     .then()
                     .statusCode(403);
 
                 when()
-                    .get(managerURL + "/1/meters")
+                    .get(managerURL + "1/meters")
                     .then()
                     .statusCode(403);
             }
@@ -3048,7 +3048,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldFailToGetPlaceMetersAsOwnerWithStatusCode403Test() {
                 given().spec(ownerSpec).when()
-                    .get(managerURL + "/1/meters")
+                    .get(managerURL + "1/meters")
                     .then()
                     .statusCode(403);
             }
@@ -3056,7 +3056,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldFailToGetPlaceMetersAsManagerWithStatusCode403Test() {
                 given().spec(onlyManagerSpec).when()
-                    .get(ownerURL + "/1/meters")
+                    .get(ownerURL + "1/meters")
                     .then()
                     .statusCode(403);
             }
@@ -3064,7 +3064,7 @@ public class MowITests extends TestContainersSetup {
             @Test
             void shouldFailToGetPlaceMetersAsOwnerNotOwningPlaceWithStatusCode404Test() {
                 given().spec(ownerSpec).when()
-                    .get(ownerURL + "/7/meters")
+                    .get(ownerURL + "7/meters")
                     .then()
                     .statusCode(404);
             }
