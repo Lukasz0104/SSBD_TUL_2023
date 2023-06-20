@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.AccountingRule;
+import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.MeterNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto.request.LoginDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.AddCategoryDto;
@@ -58,6 +59,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
@@ -6026,6 +6028,167 @@ public class MowITests extends TestContainersSetup {
             io.restassured.response.Response response =
                 given().spec(onlyManagerSpec).when().get("costs/-12345");
             response.then().statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
+    }
+
+    @Nested
+    class MOW36 {
+        private static final String changeRateValueUrl = "/rates/%d/%s";
+
+        private static final String ratesFromCategoryUrl = "/categories/%d/rates";
+        private static RequestSpecification testSpec;
+
+        static boolean isPresentAfterUpdate(Long id, BigDecimal value) {
+            return given().spec(testSpec).when().get(ratesFromCategoryUrl.formatted(1)).getBody().as(Page.class)
+                .getData().stream().anyMatch((r) -> {
+                    System.out.println(r);
+                    HashMap map = (HashMap) r;
+                    Rate rate = new Rate(
+                        BigDecimal.valueOf((Double) map.get("value")),
+                        AccountingRule.valueOf((String) map.get("accountingRule")),
+                        LocalDate.parse(String.valueOf(map.get("effectiveDate")))
+                    );
+                    return rate.getValue().equals(value);
+                });
+        }
+
+        @BeforeAll
+        static void generateTestSpec() {
+            LoginDto loginDto = new LoginDto("kgraczyk", "P@ssw0rd");
+
+            String jwt = given().body(loginDto)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/login")
+                .jsonPath()
+                .get("jwt");
+
+            testSpec = new RequestSpecBuilder()
+                .addHeader("Authorization", "Bearer " + jwt)
+                .build();
+        }
+
+        @Test
+        void shouldPassEditingRateValue() {
+            given().spec(testSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .patch(changeRateValueUrl.formatted(11, 256.0))
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+            assertTrue(isPresentAfterUpdate(11L, BigDecimal.valueOf(256.0)));
+        }
+
+        @Test
+        void shouldReturnSC404WhenEditingFutureRateThatDoesNotExist() {
+            given().spec(testSpec)
+                .contentType(ContentType.JSON)
+                .when()
+                .patch(changeRateValueUrl.formatted(-2137, 256))
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        }
+
+        @Nested
+        class AuthTest {
+            @Test
+            void shouldReturnSC403WhenEditingFutureRateValueAsAdmin() {
+                given().spec(adminSpec)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .patch(changeRateValueUrl.formatted(11, 256))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenEditingFutureRateValueAsOwner() {
+                given().spec(ownerSpec)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .patch(changeRateValueUrl.formatted(11, 256))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+
+            @Test
+            void shouldReturnSC403WhenEditingFutureRateValueAsGuest() {
+                given()
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .patch(changeRateValueUrl.formatted(11, 256))
+                    .then()
+                    .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+            }
+        }
+
+        @Test
+        void shouldEditFutureRateValueAtLeastOnceWhenConcurrent() throws BrokenBarrierException, InterruptedException {
+
+            int threadNumber = 50;
+            CyclicBarrier cyclicBarrier = new CyclicBarrier(threadNumber + 1);
+            List<Thread> threads = new ArrayList<>(threadNumber);
+            AtomicInteger numberFinished = new AtomicInteger();
+            AtomicInteger numberOfSuccessfulAttempts = new AtomicInteger();
+
+            for (int i = 0; i < threadNumber; i++) {
+                threads.add(new Thread(() -> {
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    int statusCode = given().spec(testSpec)
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .patch(changeRateValueUrl.formatted(11, 512.0))
+                        .getStatusCode();
+
+                    if (statusCode == Response.Status.NO_CONTENT.getStatusCode()) {
+                        numberOfSuccessfulAttempts.getAndIncrement();
+                    }
+                    numberFinished.getAndIncrement();
+                }));
+            }
+            threads.forEach(Thread::start);
+            cyclicBarrier.await();
+            while (numberFinished.get() != threadNumber) {
+            }
+
+            assertTrue(numberOfSuccessfulAttempts.get() > 0);
+            assertTrue(isPresentAfterUpdate(11L, BigDecimal.valueOf(512.0)));
+        }
+
+        @Nested
+        class Constraints {
+
+            @ParameterizedTest
+            @ValueSource(doubles = {
+                -1.0
+            })
+            void shouldReturnSC400WhenEditingFutureRateValueWithInvalidValue(Double value) {
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .patch(changeRateValueUrl.formatted(11, value))
+                    .then()
+                    .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+
+                assertFalse(isPresentAfterUpdate(11L, BigDecimal.valueOf(value)));
+            }
+
+            @Test
+            void shouldReturnSC409WhenEditingRateThatIsAlreadyEffective() {
+                given().spec(testSpec)
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .patch(changeRateValueUrl.formatted(1, 12.0))
+                    .then()
+                    .statusCode(Response.Status.CONFLICT.getStatusCode());
+
+                assertFalse(isPresentAfterUpdate(1L, BigDecimal.valueOf(12)));
+            }
         }
     }
 }

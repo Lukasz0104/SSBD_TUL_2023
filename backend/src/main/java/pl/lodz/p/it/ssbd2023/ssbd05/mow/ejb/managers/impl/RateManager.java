@@ -16,6 +16,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.CategoryNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.RateAlreadyEffectiveException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.RateNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.CategoryFacade;
@@ -23,6 +24,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.RateFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.RateManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +38,7 @@ import java.util.Optional;
 })
 @DenyAll
 public class RateManager extends AbstractManager implements RateManagerLocal, SessionSynchronization {
+
 
     @Inject
     private RateFacade rateFacade;
@@ -68,5 +72,19 @@ public class RateManager extends AbstractManager implements RateManagerLocal, Se
             }
             rateFacade.remove(rate);
         }
+    }
+
+    @Override
+    @RolesAllowed(MANAGER)
+    public void changeFutureRateValue(Long id, BigDecimal value) throws AppBaseException {
+        Optional<Rate> optionalRate = rateFacade.find(id);
+        Rate rate = optionalRate.orElseThrow(RateNotFoundException::new);
+
+        LocalDate now = LocalDate.now();
+        if (rate.getEffectiveDate().isBefore(now)) {
+            throw new RateAlreadyEffectiveException();
+        }
+        rate.setValue(value.setScale(2, RoundingMode.DOWN));
+        rateFacade.edit(rate);
     }
 }

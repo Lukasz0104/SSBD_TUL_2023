@@ -55,6 +55,12 @@ public class RateFacade extends AbstractFacade<Rate> {
         super.create(entity);
     }
 
+    @Override
+    @RolesAllowed(MANAGER)
+    public void edit(Rate entity) throws AppBaseException {
+        super.edit(entity);
+    }
+
     // CurrentRates
 
     @PermitAll
