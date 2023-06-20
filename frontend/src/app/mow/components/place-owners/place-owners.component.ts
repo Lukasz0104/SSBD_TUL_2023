@@ -54,6 +54,6 @@ export class PlaceOwnersComponent implements OnInit {
             .then((): void => {
                 this.getOwners();
             })
-            .catch(() => EMPTY);
+            .catch(() => this.getOwners());
     }
 }

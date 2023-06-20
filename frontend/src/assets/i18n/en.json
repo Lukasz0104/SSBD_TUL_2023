@@ -711,7 +711,7 @@
         "message": {
           "optimistic_lock": "List of not assigned owners was changed by someone else, please reload the list and try again",
           "place_not_found": "Place not found",
-          "account_not_found": "Account not found",
+          "account_not_found": "Selected account not found or its owner status has been revoked",
           "illegal_self_action": "Can't add as an owner self to this place"
         }
       }
@@ -723,7 +723,7 @@
         "message": {
           "optimistic_lock": "List of assigned owners was changed by someone else, please reload the list and try again",
           "place_not_found": "Place not found",
-          "account_not_found": "Account not found",
+          "account_not_found": "Selected account not found or its owner status has been revoked",
           "illegal_self_action": "You can't remove yourself from owners"
         }
       }
