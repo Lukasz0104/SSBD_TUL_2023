@@ -1,13 +1,13 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.mok.cdi.endpoint.dto;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.dto.AddressDto;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidLicenseNumber;
 
 import java.time.LocalDateTime;
 
@@ -21,8 +21,7 @@ public class ManagerDataDto extends AccessLevelDto {
     @Valid
     private AddressDto address;
 
-    @NotNull
-    @NotBlank
+    @ValidLicenseNumber
     private String licenseNumber;
 
     public ManagerDataDto(Long id, Long version, boolean verified, boolean active,

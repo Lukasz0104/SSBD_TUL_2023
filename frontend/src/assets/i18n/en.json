@@ -51,7 +51,8 @@
       "pattern": "City must start with capital letter."
     },
     "license-number": {
-      "required": "License number is required."
+      "required": "License number is required.",
+      "invalid": "License number should consist of 6 to 8 digits"
     },
     "old-password": {
       "required": "Old password is required",

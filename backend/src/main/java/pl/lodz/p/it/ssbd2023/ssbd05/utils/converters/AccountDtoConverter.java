@@ -115,7 +115,8 @@ public class AccountDtoConverter {
             account.getCreatedTime(),
             (account.getCreatedBy() != null) ? account.getCreatedBy().getLogin() : "anonymous",
             account.getUpdatedTime(),
-            (account.getUpdatedBy() != null) ? account.getUpdatedBy().getLogin() : "anonymous"
+            (account.getUpdatedBy() != null) ? account.getUpdatedBy().getLogin() : "anonymous",
+            createActivityTrackerDto(account.getActivityTracker())
         );
     }
 

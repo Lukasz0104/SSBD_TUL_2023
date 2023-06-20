@@ -14,6 +14,7 @@ export interface OwnAccount {
     createdBy?: string;
     updatedTime?: Date;
     updatedBy?: string;
+    activityTracker: ActivityTracker;
 }
 
 export interface EditPersonalData {
@@ -26,7 +27,6 @@ export interface EditPersonalData {
 
 export interface Account extends OwnAccount {
     active: boolean;
-    activityTracker: ActivityTracker;
     verified: boolean;
 }
 

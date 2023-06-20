@@ -663,6 +663,19 @@
                                                     | translate
                                             }}
                                         </p>
+                                        <p
+                                            *ngIf="
+                                                managerLicenseNumberControl
+                                                    .errors[
+                                                    'invalidLicenseNumber'
+                                                ]
+                                            "
+                                            class="mb-0">
+                                            {{
+                                                'validation.license-number.invalid'
+                                                    | translate
+                                            }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>

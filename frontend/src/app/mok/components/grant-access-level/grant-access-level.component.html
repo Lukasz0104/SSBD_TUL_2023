@@ -198,6 +198,11 @@
                     class="mb-0">
                     {{ 'validation.license-number.required' | translate }}
                 </p>
+                <p
+                    *ngIf="licenseNumberControl.errors['invalidLicenseNumber']"
+                    class="mb-0">
+                    {{ 'validation.license-number.invalid' | translate }}
+                </p>
             </div>
         </div>
         <!-- hidden button to allow submiting with enter -->
