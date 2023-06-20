@@ -47,9 +47,6 @@ import java.util.Set;
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
-        name = "Place.findAll",
-        query = "SELECT p FROM Place p"),
-    @NamedQuery(
         name = "Place.findByIdAndOwnerLogin",
         query = """
             SELECT p FROM Place AS p
@@ -57,44 +54,14 @@ import java.util.Set;
                 AND :login IN (SELECT o.account.login FROM p.owners o)
             """),
     @NamedQuery(
-        name = "Place.findByPlaceNumber",
-        query = "SELECT p FROM Place p WHERE p.placeNumber = :placeNumber"),
-    @NamedQuery(
         name = "Place.findAllActive",
         query = "SELECT p FROM Place p WHERE p.active = true"),
     @NamedQuery(
         name = "Place.findAllInactive",
         query = "SELECT p FROM Place p WHERE p.active = false"),
     @NamedQuery(
-        name = "Place.findByResidentsNumber",
-        query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber"),
-    @NamedQuery(
         name = "Place.findByOwnerLogin",
         query = "SELECT p FROM Place p WHERE :login IN (SELECT ow.account.login FROM p.owners ow)"),
-    @NamedQuery(
-        name = "Place.findByResidentsNumberAndActive",
-        query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber AND p.active = true"),
-    @NamedQuery(
-        name = "Place.findByResidentsNumberAndInactive",
-        query = "SELECT p FROM Place p WHERE p.residentsNumber = :residentsNumber AND p.active = false"),
-    @NamedQuery(
-        name = "Place.findBySquareFootage",
-        query = "SELECT p FROM Place p WHERE p.squareFootage = :squareFootage"),
-    @NamedQuery(
-        name = "Place.findBySquareFootageAndActive",
-        query = "SELECT p FROM Place p WHERE p.squareFootage = :squareFootage AND p.active = true"),
-    @NamedQuery(
-        name = "Place.findBySquareFootageAndInactive",
-        query = "SELECT p FROM Place p WHERE p.squareFootage = :squareFootage AND p.active = false"),
-    @NamedQuery(
-        name = "Place.findByAddress",
-        query = "SELECT p FROM Place p WHERE p.building.address = :address"),
-    @NamedQuery(
-        name = "Place.findByAddressAndActive",
-        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = true"),
-    @NamedQuery(
-        name = "Place.findByAddressAndInactive",
-        query = "SELECT p FROM Place p WHERE p.building.address = :address AND p.active = false"),
     @NamedQuery(
         name = "Place.findActiveByOwnerLogin",
         query = """

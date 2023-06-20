@@ -11,10 +11,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PersistenceException;
-import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Category;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppDatabaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
@@ -41,17 +38,6 @@ public class CategoryFacade extends AbstractFacade<Category> {
     @Override
     protected EntityManager getEntityManager() {
         return em;
-    }
-
-    @PermitAll
-    public Category findByName(String name) throws AppDatabaseException {
-        try {
-            TypedQuery<Category> tq = em.createNamedQuery("Category.findByName", Category.class);
-            tq.setParameter("name", name);
-            return tq.getSingleResult();
-        } catch (PersistenceException e) {
-            throw new AppDatabaseException("Category.findByName", e);
-        }
     }
 
     @Override

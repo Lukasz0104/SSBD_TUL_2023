@@ -38,8 +38,8 @@ public class EventLogService {
 
         ConnectionString conn = new ConnectionString(
             "mongodb://"
-            + appProperties.getEventLogConnectionHostname()
-            + "/" + appProperties.getEventLogPass());
+                + appProperties.getEventLogConnectionHostname()
+                + "/" + appProperties.getEventLogConnectionPort());
 
         client = MongoClients.create(
             MongoClientSettings.builder()

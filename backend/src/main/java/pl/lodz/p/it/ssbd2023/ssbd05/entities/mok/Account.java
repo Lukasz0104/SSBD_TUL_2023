@@ -37,29 +37,11 @@ import java.util.Set;
 @NoArgsConstructor
 @NamedQueries({
     @NamedQuery(
-        name = "Account.findAllAccounts",
-        query = "SELECT a FROM Account a"),
-    @NamedQuery(
         name = "Account.findByLogin",
         query = "SELECT a FROM Account a WHERE a.login = :login"),
     @NamedQuery(
-        name = "Account.findById",
-        query = "SELECT a FROM Account a WHERE a.id = :id"),
-    @NamedQuery(
-        name = "Account.findByFirstName",
-        query = "SELECT a FROM Account a WHERE a.firstName = :firstname"),
-    @NamedQuery(
-        name = "Account.findByLastName",
-        query = "SELECT a FROM Account a WHERE a.lastName = :lastname"),
-    @NamedQuery(
         name = "Account.findByEmail",
         query = "SELECT a FROM Account a WHERE a.email = :email"),
-    @NamedQuery(
-        name = "Account.findByLanguage",
-        query = "SELECT a FROM Account a WHERE a.language = :language"),
-    @NamedQuery(
-        name = "Account.findAllAccountsByVerified",
-        query = "SELECT a FROM Account a WHERE a.verified = :verified"),
     @NamedQuery(
         name = "Account.findAllAccountsByActiveAsc",
         query = """

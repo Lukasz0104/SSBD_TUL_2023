@@ -29,50 +29,17 @@ import java.util.UUID;
 @Table(name = "token")
 @NamedQueries({
     @NamedQuery(
-        name = "Token.findAll",
-        query = "SELECT t FROM Token t"),
-    @NamedQuery(
-        name = "Token.findById",
-        query = "SELECT t FROM Token t WHERE t.id = :id"),
-    @NamedQuery(
         name = "Token.findByToken",
         query = "SELECT t FROM Token t WHERE t.token = :token"),
     @NamedQuery(
-        name = "Token.findTokenByAccountId",
-        query = "SELECT t FROM Token t WHERE t.account.id = :accountId"),
-    @NamedQuery(
-        name = "Token.findByTokenType",
-        query = "SELECT t FROM Token t WHERE t.tokenType = :tokenType"),
-    @NamedQuery(
-        name = "Token.findByExpiresAt",
-        query = "SELECT t FROM Token t WHERE t.expiresAt = :expiresAt"),
-    @NamedQuery(
-        name = "Token.findByExpiresAtAfter",
-        query = "SELECT t FROM Token t WHERE t.expiresAt >= :expiresAt"),
-    @NamedQuery(
-        name = "Token.findByExpiresAtBefore",
-        query = "SELECT t FROM Token t WHERE t.expiresAt < :expiresAt"),
-    @NamedQuery(
         name = "Token.findByTokenAndTokenType",
         query = "SELECT t FROM Token t WHERE t.token = :token AND t.tokenType = :tokenType"),
-    @NamedQuery(
-        name = "Token.findByAccountIdAndTokenType",
-        query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.tokenType = :tokenType"),
     @NamedQuery(
         name = "Token.findByTokenTypeAndExpiresAtAfter",
         query = "SELECT t FROM Token t WHERE t.tokenType = :tokenType AND t.expiresAt >= :expiresAt"),
     @NamedQuery(
         name = "Token.findByTokenTypeAndExpiresAtBefore",
         query = "SELECT t FROM Token t WHERE t.tokenType = :tokenType AND t.expiresAt < :expiresAt"),
-    @NamedQuery(
-        name = "Token.findByAccountIdAndExpiresAtAfter",
-        query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.expiresAt >= :expiresAt"),
-    @NamedQuery(
-        name = "Token.findByAccountIdAndExpiresAtBefore",
-        query = "SELECT t FROM Token t WHERE t.account.id = :accountId AND t.expiresAt < :expiresAt"),
-    @NamedQuery(
-        name = "Token.findByAccountLoginAndTokenType",
-        query = "SELECT t FROM Token t WHERE t.account.login = :login AND t.tokenType = :tokenType"),
     @NamedQuery(
         name = "Token.findByNotTokenTypeAndExpiresAtBefore",
         query = "SELECT t FROM Token t WHERE t.tokenType <> :tokenType AND t.expiresAt < :expiresAt"),

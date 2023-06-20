@@ -5,7 +5,6 @@ import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.MANAGER;
 import static pl.lodz.p.it.ssbd2023.ssbd05.shared.Roles.OWNER;
 
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -13,8 +12,6 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
@@ -55,20 +52,6 @@ public class BuildingFacade extends AbstractFacade<Building> {
     @RolesAllowed(MANAGER)
     public void edit(Building building) throws AppBaseException {
         super.edit(building);
-    }
-
-    @PermitAll
-    public Building findByAddress(Address address) {
-        TypedQuery<Building> tq = em.createNamedQuery("Building.findByAddress", Building.class);
-        tq.setParameter("address", address);
-        return tq.getSingleResult();
-    }
-
-    @PermitAll
-    public List<Building> findByBuildingNumber(Integer buildingNumber) {
-        TypedQuery<Building> tq = em.createNamedQuery("Building.findByBuildingNumber", Building.class);
-        tq.setParameter("buildingNumber", buildingNumber);
-        return tq.getResultList();
     }
 
     @Override

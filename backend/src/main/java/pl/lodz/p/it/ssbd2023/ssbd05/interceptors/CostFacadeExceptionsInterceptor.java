@@ -25,7 +25,7 @@ public class CostFacadeExceptionsInterceptor {
                 }
                 pe = pe.getCause();
             } while (pe != null);
-            throw new AppDatabaseException(pe);
+            throw new AppDatabaseException(pe1);
         }
 
     }

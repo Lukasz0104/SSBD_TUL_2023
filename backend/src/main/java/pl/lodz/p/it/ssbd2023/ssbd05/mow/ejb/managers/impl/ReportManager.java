@@ -28,6 +28,8 @@ import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.BuildingNotFoundExceptio
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.notfound.PlaceNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportPlaceForecastMonth;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportPlaceForecastYear;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CommunityReportDto;
@@ -41,8 +43,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReadingFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.ReportFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractManager;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.ReportDtoConverter;
 
 import java.math.BigDecimal;

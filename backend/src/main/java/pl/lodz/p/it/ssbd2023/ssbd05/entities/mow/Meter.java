@@ -31,55 +31,17 @@ import java.util.Set;
 @Table(name = "meter", uniqueConstraints = @UniqueConstraint(columnNames = {"place_id", "category_id"}))
 @NamedQueries({
     @NamedQuery(
-        name = "Meter.findAll",
-        query = "SELECT m FROM Meter m"),
-    @NamedQuery(
         name = "Meter.findByIdAndOwnerLogin",
         query = """
             SELECT m FROM Meter m WHERE m.id = :id
             AND :login IN (SELECT o.account.login FROM m.place.owners o)
             """),
     @NamedQuery(
-        name = "Meter.findByCategoryId",
-        query = "SELECT m FROM Meter m WHERE m.category.id = :categoryId"),
-    @NamedQuery(
-        name = "Meter.findByCategoryName",
-        query = "SELECT m FROM Meter m WHERE m.category.name = :categoryName"),
-    @NamedQuery(
-        name = "Meter.findByPlaceId",
-        query = "SELECT m FROM Meter m WHERE m.place.id = :placeId"),
-    @NamedQuery(
-        name = "Meter.findByPlaceNumberAndBuildingId",
-        query = """
-            SELECT m FROM Meter m
-            WHERE m.place.placeNumber = :placeNumber
-                  AND m.place.building.id = :buildingId"""),
-    @NamedQuery(
         name = "Meter.findByCategoryIdAndPlaceId",
         query = """
             SELECT m FROM Meter m
             WHERE m.category.id = :categoryId
-                  AND m.place.id = :placeId"""),
-    @NamedQuery(
-        name = "Meter.findByCategoryIdAndPlaceNumberAndBuildingId",
-        query = """
-            SELECT m FROM Meter m
-            WHERE m.category.id = :categoryId
-                  AND m.place.placeNumber = :placeNumber
-                  AND m.place.building.id = :buildingId"""),
-    @NamedQuery(
-        name = "Meter.findByCategoryNameAndPlaceId",
-        query = """
-            SELECT m FROM Meter m
-            WHERE m.category.name = :categoryName
-                  AND m.place.id = :placeId"""),
-    @NamedQuery(
-        name = "Meter.findByCategoryNameAndPlaceNumberAndBuildingId",
-        query = """
-            SELECT m FROM Meter m
-            WHERE m.category.name = :categoryName
-                  AND m.place.placeNumber = :placeNumber
-                  AND m.place.building.id = :buildingId"""),
+                  AND m.place.id = :placeId""")
 })
 @NoArgsConstructor
 @EntityListeners({EntityControlListenerMOW.class})

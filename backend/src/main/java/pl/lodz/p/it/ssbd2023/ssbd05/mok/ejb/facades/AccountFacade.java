@@ -95,14 +95,6 @@ public class AccountFacade extends AbstractFacade<Account> {
         }
     }
 
-    @RolesAllowed({MANAGER, ADMIN})
-    public List<Account> findByVerified(boolean verified) {
-        TypedQuery<Account> tq;
-        tq = em.createNamedQuery("Account.findAllAccountsByVerified", Account.class);
-        tq.setParameter("verified", verified);
-        return tq.getResultList();
-    }
-
     @RolesAllowed({ADMIN, MANAGER})
     public Page<Account> findByActive(boolean active, int page, int pageSize, boolean asc, String phrase,
                                       String login) {
