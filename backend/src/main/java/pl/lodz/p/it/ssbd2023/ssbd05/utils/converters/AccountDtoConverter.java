@@ -200,12 +200,6 @@ public class AccountDtoConverter {
         return accessLevelDtoSet;
     }
 
-    public static List<AccountDto> createAccountDtoList(List<Account> accounts) {
-        return accounts.stream()
-            .map(AccountDtoConverter::createAccountDto)
-            .toList();
-    }
-
     public static AccessLevel createManagerAccessLevelFromDto(AddManagerAccessLevelDto dto) {
         return new ManagerData(createAddressFromDto(dto.address()), dto.licenseNumber());
     }

@@ -1,4 +1,4 @@
-package pl.lodz.p.it.ssbd2023.ssbd05.shared;
+package pl.lodz.p.it.ssbd2023.ssbd05.mow;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -33,10 +33,10 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.CreatePlaceDTO;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.request.EditPlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.utils.FunctionThrows;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.JwsProvider;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.MeterDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.functionalinterfaces.FunctionThrows;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 @RequestScoped
@@ -105,22 +105,6 @@ public class PlaceEndpoint {
         );
         String ifMatch = jwsProvider.signPayload(dto.getSignableFields());
         return Response.ok(dto).header("ETag", ifMatch).build();
-    }
-
-    @GET
-    @Path("/{id}/rates")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER, MANAGER})
-    public Response getPlaceRates(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @GET
-    @Path("/{id}/reports")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({OWNER, MANAGER})
-    public Response getPlaceReports(@PathParam("id") Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
     }
 
     @GET

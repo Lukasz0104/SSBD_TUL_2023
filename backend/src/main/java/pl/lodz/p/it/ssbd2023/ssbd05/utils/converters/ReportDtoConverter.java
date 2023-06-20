@@ -1,6 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils.converters;
 
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportPlaceForecastMonth;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportPlaceForecastYear;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportYearEntry;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingYearsAndMonthsReports;
@@ -8,8 +10,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryR
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceCategoryReportYearDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportMonthDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.PlaceReportYearDto;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

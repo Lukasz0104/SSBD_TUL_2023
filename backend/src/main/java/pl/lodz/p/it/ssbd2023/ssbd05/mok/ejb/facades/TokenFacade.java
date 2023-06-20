@@ -67,35 +67,6 @@ public class TokenFacade extends AbstractFacade<Token> {
     }
 
     @PermitAll
-    public List<Token> findTokenByAccountId(Long accountId) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findTokenByAccountId", Token.class);
-        tq.setParameter("accountId", accountId);
-        return tq.getResultList();
-    }
-
-    @PermitAll
-    public List<Token> findByTokenType(TokenType tokenType) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenType", Token.class);
-        tq.setParameter("tokenType", tokenType);
-        return tq.getResultList();
-    }
-
-    @PermitAll
-    public List<Token> findByExpiresAt(LocalDateTime expiresAt) {
-        return this.findByExpiresAtIf(expiresAt, null);
-    }
-
-    @PermitAll
-    public List<Token> findByExpiresAtAfter(LocalDateTime expiresAt) {
-        return this.findByExpiresAtIf(expiresAt, false);
-    }
-
-    @PermitAll
-    public List<Token> findByExpiresAtBefore(LocalDateTime expiresAt) {
-        return this.findByExpiresAtIf(expiresAt, true);
-    }
-
-    @PermitAll
     public Optional<Token> findByTokenAndTokenType(String token, TokenType tokenType) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByTokenAndTokenType", Token.class);
         tq.setParameter("token", token);
@@ -114,14 +85,6 @@ public class TokenFacade extends AbstractFacade<Token> {
         tq.setParameter("tokenType", tokenType);
         tq.executeUpdate();
         em.flush();
-    }
-
-    @PermitAll
-    public List<Token> findByAccountIdAndTokenType(Long accountId, TokenType tokenType) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountIdAndTokenType", Token.class);
-        tq.setParameter("accountId", accountId);
-        tq.setParameter("tokenType", tokenType);
-        return tq.getResultList();
     }
 
     @PermitAll
@@ -144,45 +107,6 @@ public class TokenFacade extends AbstractFacade<Token> {
     public List<Token> findByNotTokenTypeAndExpiresAtBefore(TokenType tokenType, LocalDateTime expiresAt) {
         TypedQuery<Token> tq = em.createNamedQuery("Token.findByNotTokenTypeAndExpiresAtBefore", Token.class);
         tq.setParameter("tokenType", tokenType);
-        tq.setParameter("expiresAt", expiresAt);
-        return tq.getResultList();
-    }
-
-    @PermitAll
-    public List<Token> findByAccountIdAndExpiresAtAfter(Long accountId, LocalDateTime expiresAt) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountIdAndExpiresAtAfter", Token.class);
-        tq.setParameter("accountId", accountId);
-        tq.setParameter("expiresAt", expiresAt);
-        return tq.getResultList();
-    }
-
-    @PermitAll
-    public List<Token> findByAccountIdAndExpiresAtBefore(Long accountId, LocalDateTime expiresAt) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountIdAndExpiresAtBefore", Token.class);
-        tq.setParameter("accountId", accountId);
-        tq.setParameter("expiresAt", expiresAt);
-        return tq.getResultList();
-    }
-
-    @PermitAll
-    public List<Token> findByAccountLoginAndTokenType(String login, TokenType tokenType) {
-        TypedQuery<Token> tq = em.createNamedQuery("Token.findByAccountLoginAndTokenType", Token.class);
-        tq.setParameter("login", login);
-        tq.setParameter("tokenType", tokenType);
-        return tq.getResultList();
-    }
-
-
-    @PermitAll
-    private List<Token> findByExpiresAtIf(LocalDateTime expiresAt, Boolean isBefore) {
-        TypedQuery<Token> tq;
-        if (isBefore == null) {
-            tq = em.createNamedQuery("Token.findByExpiresAt", Token.class);
-        } else if (!isBefore) {
-            tq = em.createNamedQuery("Token.findByExpiresAtAfter", Token.class);
-        } else {
-            tq = em.createNamedQuery("Token.findByExpiresAtBefore", Token.class);
-        }
         tq.setParameter("expiresAt", expiresAt);
         return tq.getResultList();
     }

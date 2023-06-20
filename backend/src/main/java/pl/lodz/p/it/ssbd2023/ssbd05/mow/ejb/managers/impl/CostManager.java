@@ -56,11 +56,6 @@ public class CostManager extends AbstractManager implements CostManagerLocal, Se
     private ForecastFacade forecastFacade;
 
     @Override
-    public List<Cost> getAllCosts() throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     @RolesAllowed({MANAGER})
     public void createCost(Year year,
                            Month month,

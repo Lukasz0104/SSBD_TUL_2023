@@ -22,7 +22,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Meter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Rate;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Reading;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.CategoryNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.conflict.AppOptimisticLockException;
@@ -114,18 +113,6 @@ public class PlaceManager extends AbstractManager implements PlaceManagerLocal, 
     @RolesAllowed({MANAGER})
     public Place getPlaceDetailsAsManager(Long id) throws AppBaseException {
         return placeFacade.find(id).orElseThrow(PlaceNotFoundException::new);
-    }
-
-    @Override
-    @RolesAllowed(OWNER)
-    public List<Rate> getPlaceRates(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    @RolesAllowed({OWNER, MANAGER})
-    public List<Report> getPlaceReports(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
     }
 
     @Override

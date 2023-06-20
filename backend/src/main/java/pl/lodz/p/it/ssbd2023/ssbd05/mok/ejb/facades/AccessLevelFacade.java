@@ -11,15 +11,12 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.AccessLevel;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.AccountFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericFacadeExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
-
-import java.util.List;
 
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -53,19 +50,5 @@ public class AccessLevelFacade extends AbstractFacade<AccessLevel> {
     @RolesAllowed({ADMIN, MANAGER})
     public void edit(AccessLevel entity) throws AppBaseException {
         super.edit(entity);
-    }
-
-    @RolesAllowed({ADMIN, MANAGER})
-    public List<AccessLevel> findByAccountId(Long accountId) {
-        TypedQuery<AccessLevel> tq = em.createNamedQuery("AccessLevel.findByAccountId", AccessLevel.class);
-        tq.setParameter("accountId", accountId);
-        return tq.getResultList();
-    }
-
-    @RolesAllowed({ADMIN, MANAGER})
-    public List<AccessLevel> findActiveByAccountId(Long accountId) {
-        TypedQuery<AccessLevel> tq = em.createNamedQuery("AccessLevel.findActiveByAccountId", AccessLevel.class);
-        tq.setParameter("accountId", accountId);
-        return tq.getResultList();
     }
 }

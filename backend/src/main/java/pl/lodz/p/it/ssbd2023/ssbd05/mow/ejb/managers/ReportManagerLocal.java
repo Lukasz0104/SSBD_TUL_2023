@@ -2,11 +2,11 @@ package pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers;
 
 import jakarta.ejb.Local;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportPlaceForecastMonth;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ReportPlaceForecastYear;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.BuildingReportYearlyDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.cdi.endpoint.dto.response.CommunityReportDto;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.CommonManagerInterface;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastMonth;
-import pl.lodz.p.it.ssbd2023.ssbd05.shared.ReportPlaceForecastYear;
 
 import java.time.Month;
 import java.time.Year;

@@ -18,7 +18,6 @@ import jakarta.ws.rs.core.Response;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.BuildingManagerLocal;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.BuildingDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.converters.PlaceDtoConverter;
 import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
@@ -31,9 +30,6 @@ public class BuildingEndpoint {
 
     @Inject
     private BuildingManagerLocal buildingManager;
-
-    @Inject
-    private ReportManagerLocal reportManager;
 
     @Inject
     private RollbackUtils rollbackUtils;

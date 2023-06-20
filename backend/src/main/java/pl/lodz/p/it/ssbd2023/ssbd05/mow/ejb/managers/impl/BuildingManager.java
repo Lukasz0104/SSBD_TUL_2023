@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Building;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
-import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Report;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.GenericManagerExceptionsInterceptor;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
@@ -47,26 +46,8 @@ public class BuildingManager extends AbstractManager implements BuildingManagerL
     }
 
     @Override
-    @RolesAllowed({ADMIN, MANAGER, OWNER})
-    public List<Report> getBuildingReports(Long id) throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     @RolesAllowed(MANAGER)
     public List<Place> getBuildingPlaces(Long id) throws AppBaseException {
         return placeFacade.findByBuildingId(id);
-    }
-
-    @Override
-    @RolesAllowed({MANAGER, OWNER})
-    public Report getBuildingReportByYear(Long id, Long year) throws AppBaseException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    @RolesAllowed(MANAGER)
-    public void createBuilding() throws AppBaseException {
-        throw new UnsupportedOperationException();
     }
 }
