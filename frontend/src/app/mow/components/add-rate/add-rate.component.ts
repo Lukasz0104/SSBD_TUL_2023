@@ -87,7 +87,7 @@ export class AddRateComponent {
                 })
                 .subscribe((result) => {
                     if (result) {
-                        this.activeModal.close();
+                        this.activeModal.close(true);
                     }
                 });
         }

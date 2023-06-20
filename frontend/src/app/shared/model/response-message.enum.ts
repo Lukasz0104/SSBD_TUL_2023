@@ -35,5 +35,6 @@ export enum ResponseMessage {
     ACCESS_LEVEL_ALREADY_GRANTED = 'response.message.access-level-already-granted',
     RATE_ALREADY_EFFECTIVE = 'response.message.rate-already-effective',
     CATEGORY_NOT_FOUND = 'response.message.category_not_found',
-    RATE_NOT_UNIQUE = 'response.message.rate_not_unique'
+    RATE_NOT_UNIQUE = 'response.message.rate_not_unique',
+    RATE_NOT_FOUND = 'response.message.rate_not_found'
 }
