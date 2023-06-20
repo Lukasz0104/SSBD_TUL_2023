@@ -23,7 +23,6 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
-import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -150,8 +149,8 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
     }
 
     @Override
-    @RolesAllowed({ADMIN, MANAGER, OWNER})
-    public void confirmEmail(String email, String confirmToken, String login)
+    @PermitAll
+    public void confirmEmail(String email, String confirmToken)
         throws AppBaseException {
 
         Token token = tokenFacade.findByTokenAndTokenType(confirmToken, TokenType.CONFIRM_EMAIL_TOKEN)
@@ -160,10 +159,6 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         token.validateSelf();
 
         Account account = token.getAccount();
-
-        if (!Objects.equals(account.getLogin(), login)) {
-            throw new InvalidTokenException();
-        }
 
         tokenFacade.remove(token);
 

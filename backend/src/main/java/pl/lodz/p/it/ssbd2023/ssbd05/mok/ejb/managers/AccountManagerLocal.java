@@ -27,7 +27,7 @@ public interface AccountManagerLocal extends CommonManagerInterface {
 
     void changeEmail(String login) throws AppBaseException;
 
-    void confirmEmail(String email, String confirmToken, String login) throws AppBaseException;
+    void confirmEmail(String email, String confirmToken) throws AppBaseException;
 
     void changeActiveStatusAsManager(String managerLogin, Long userId, boolean status) throws AppBaseException;
 

@@ -218,13 +218,12 @@ public class AccountEndpoint {
     }
 
     @PUT
+    @PermitAll
     @Path("/me/confirm-email/{token}")
-    @RolesAllowed({ADMIN, MANAGER, OWNER})
     public Response confirmEmail(@NotNull @Valid ChangeEmailDto dto,
                                  @ValidUUID @PathParam("token") String token) throws AppBaseException {
-        String login = securityContext.getUserPrincipal().getName();
         return rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
-            () -> accountManager.confirmEmail(dto.getEmail(), token, login),
+            () -> accountManager.confirmEmail(dto.getEmail(), token),
             accountManager
         ).build();
     }

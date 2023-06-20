@@ -7,7 +7,6 @@ import { RegisterComponent } from './components/register/register.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
-import { canActivateAuthenticated } from '../shared/guards/authentication.guard';
 import { canActivateGuestWithRedirect } from '../shared/guards/redirecting-guest.guard';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
@@ -35,8 +34,7 @@ const routes: Routes = [
         component: ConfirmEmailComponent,
         data: {
             title: 'Change email'
-        },
-        canActivate: [canActivateAuthenticated]
+        }
     },
     {
         path: 'register',
