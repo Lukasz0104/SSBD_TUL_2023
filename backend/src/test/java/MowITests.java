@@ -6041,7 +6041,6 @@ public class MowITests extends TestContainersSetup {
         static boolean isPresentAfterUpdate(Long id, BigDecimal value) {
             return given().spec(testSpec).when().get(ratesFromCategoryUrl.formatted(1)).getBody().as(Page.class)
                 .getData().stream().anyMatch((r) -> {
-                    System.out.println(r);
                     HashMap map = (HashMap) r;
                     Rate rate = new Rate(
                         BigDecimal.valueOf((Double) map.get("value")),
