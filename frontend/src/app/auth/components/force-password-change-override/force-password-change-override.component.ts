@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AccountService } from '../../../shared/services/account.service';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
     selector: 'app-force-password-change-override',
@@ -31,7 +32,8 @@ export class ForcePasswordChangeOverrideComponent {
 
     constructor(
         private accountService: AccountService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        protected authService: AuthService
     ) {
         this.route.paramMap.subscribe((params) => {
             const param = params.get('token');

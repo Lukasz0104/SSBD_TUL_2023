@@ -613,7 +613,8 @@
     "costs": "Koszty",
     "cost": "Koszt",
     "place": "Lokal",
-    "community-reports": "Raporty wspólnoty"
+    "community-reports": "Raporty wspólnoty",
+    "override-forced-password": "Nadpisz hasło"
   },
   "toast": {
     "auth": {
@@ -765,7 +766,8 @@
         "inactive_account": "Konto zostało zablokowane",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie",
-        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
+        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło",
+        "invalid.uuid": "Podano niepoprawny żeton"
       }
     }
   },
