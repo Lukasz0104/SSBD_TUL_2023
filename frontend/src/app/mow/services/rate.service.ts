@@ -41,6 +41,27 @@ export class RateService {
             );
     }
 
+    editRate(id: number, value: number) {
+        return this.http
+            .patch<number>(`${this.ratesUrl}/${id}/${value}`, {
+                observe: 'response'
+            })
+            .pipe(
+                tap(() => {
+                    this.toastService.showSuccess('toast.rate.edit-success');
+                }),
+                map(() => true),
+                catchError((err: HttpErrorResponse) => {
+                    this.handleError('toast.rate.fail', 'toast.rate', err);
+                    switch (err.error.message) {
+                        case ResponseMessage.RATE_NOT_FOUND:
+                            return of(true);
+                    }
+                    return of(false);
+                })
+            );
+    }
+
     handleError(
         genericMessageKey: string,
         method: string,

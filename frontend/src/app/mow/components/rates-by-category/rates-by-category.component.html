@@ -48,6 +48,11 @@
                     <th
                         class="text-nowrap text-center"
                         scope="col">
+                        {{ 'component.ratesByCategory.edit' | translate }}
+                    </th>
+                    <th
+                        class="text-nowrap text-center"
+                        scope="col">
                         {{ 'component.ratesByCategory.remove' | translate }}
                     </th>
                 </tr>
@@ -98,6 +103,14 @@
                     <td>{{ rate.effectiveDate }}</td>
                     <td>{{ getCreated(rate) }}</td>
                     <td>{{ getUpdated(rate) }}</td>
+                    <td>
+                        <button
+                            *ngIf="isFuture(rate.effectiveDate)"
+                            class="btn btn-warning"
+                            (click)="editRate(rate.id)">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
                     <td>
                         <button
                             *ngIf="isFuture(rate.effectiveDate)"
