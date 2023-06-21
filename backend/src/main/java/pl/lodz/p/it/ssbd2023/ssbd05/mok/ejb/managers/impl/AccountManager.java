@@ -562,7 +562,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
 
         Token passwordChangeToken = tokenFactory.createOverridePasswordChangeToken(account);
         tokenFacade.create(passwordChangeToken);
-        String link = appProperties.getFrontendUrl() + "/force-password-override/" + passwordChangeToken.getToken();
+        String link = appProperties.getFrontendUrl() + "/forced-password-override/" + passwordChangeToken.getToken();
         emailService.forcePasswordChangeEmail(account.getEmail(), account.getFullName(),
             account.getLanguage().toString(), link);
     }

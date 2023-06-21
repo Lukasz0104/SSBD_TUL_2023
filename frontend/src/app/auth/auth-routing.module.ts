@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { canActivateLoginOrRegister } from '../shared/guards/guest.guard';
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
-import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 import { RegisterComponent } from './components/register/register.component';
 import { ResetPasswordConfirmComponent } from './components/reset-password-confirm/reset-password-confirm.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
@@ -10,29 +9,25 @@ import { UnlockAccountComponent } from './components/unlock-account/unlock-accou
 import { canActivateGuestWithRedirect } from '../shared/guards/redirecting-guest.guard';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { LoginComponent } from './components/login/login.component';
+import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
+import { canActivateForcedPasswordOverride } from '../shared/guards/forced-password-override.guard';
 
 const routes: Routes = [
     {
         path: '',
         component: LandingPageComponent,
-        data: {
-            title: 'eBok'
-        },
+        title: 'eBok',
         canActivate: [canActivateGuestWithRedirect]
     },
     {
         path: 'login',
         component: LoginComponent,
-        data: {
-            title: 'Sign in'
-        },
+        title: 'Sign in',
         canActivate: [canActivateLoginOrRegister]
     },
     {
         path: 'register',
-        data: {
-            title: 'Register'
-        },
+        title: 'Register',
         component: RegisterComponent,
         canActivate: [canActivateLoginOrRegister]
     },
@@ -47,25 +42,20 @@ const routes: Routes = [
     {
         path: 'reset-password',
         component: ResetPasswordComponent,
-        data: {
-            title: 'Reset password'
-        },
+        title: 'Reset password',
         canActivate: [canActivateLoginOrRegister]
     },
     {
         path: 'reset-password-confirm/:token',
         component: ResetPasswordConfirmComponent,
-        data: {
-            title: 'Confirm password reset'
-        },
+        title: 'Confirm password reset',
         canActivate: [canActivateLoginOrRegister]
     },
     {
-        path: 'force-password-override/:token',
+        path: 'forced-password-override/:token',
         component: ForcePasswordChangeOverrideComponent,
-        data: {
-            title: 'Override password change'
-        }
+        title: 'Override password change',
+        canActivate: [canActivateForcedPasswordOverride]
     }
 ];
 

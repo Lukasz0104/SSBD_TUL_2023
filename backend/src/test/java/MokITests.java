@@ -51,6 +51,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.utils.I18n;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -2134,7 +2135,7 @@ public class MokITests extends TestContainersSetup {
                     "Łęczyca" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
                     "Belwederska4",
                     12);
-                String newLicenseNumber = String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE));
+                String newLicenseNumber = String.valueOf((new Random()).nextInt(899999) + 100000);
                 for (AccessLevelDto level : dto.getAccessLevels()) {
                     if (level instanceof ManagerDataDto managerData) {
                         managerData.setLicenseNumber(newLicenseNumber);
@@ -4045,7 +4046,7 @@ public class MokITests extends TestContainersSetup {
             }
 
             private static String generateRandomString() {
-                return UUID.randomUUID().toString().replace("-", "");
+                return String.valueOf((new Random()).nextInt(899999) + 100000);
             }
         }
 

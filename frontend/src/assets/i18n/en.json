@@ -50,7 +50,8 @@
       "pattern": "City must start with capital letter."
     },
     "license-number": {
-      "required": "License number is required."
+      "required": "License number is required.",
+      "invalid": "License number should consist of 6 to 8 digits"
     },
     "old-password": {
       "required": "Old password is required",
@@ -109,7 +110,8 @@
     },
     "placeNumber": {
       "min": "Place number must be positive",
-      "required": "Place number is required"
+      "required": "Place number is required",
+      "max": "Place number must be less than 1000000"
     },
     "place-number": {
       "required": "Place number is required.",
@@ -613,7 +615,8 @@
     "cost": "Cost",
     "reports": "Reports",
     "community-reports": "Community reports",
-    "confirm-email": "Confirm email"
+    "confirm-email": "Confirm email",
+    "override-forced-password": "Override password"
   },
   "toast": {
     "auth": {
@@ -765,7 +768,8 @@
         "inactive_account": "Account has been blocked",
         "rollback.limit.exceeded": "Request timed out",
         "optimistic_lock": "Cannot change password, account data has changed since form submission, try again",
-        "repeated_password": "New password cannot be the same as old password"
+        "repeated_password": "New password cannot be the same as old password",
+        "invalid.uuid": "Provided token is not valid"
       }
     }
   },

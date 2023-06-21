@@ -659,6 +659,18 @@
                                                 | translate
                                         }}
                                     </p>
+                                    <p
+                                        *ngIf="
+                                            licenseNumberControl.errors[
+                                                'invalidLicenseNumber'
+                                            ]
+                                        "
+                                        class="mb-0">
+                                        {{
+                                            'validation.license-number.invalid'
+                                                | translate
+                                        }}
+                                    </p>
                                 </div>
                             </div>
                             <app-recaptcha

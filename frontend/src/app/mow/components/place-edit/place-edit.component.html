@@ -14,7 +14,7 @@
                 <label
                     class="form-label"
                     for="placeNumber">
-                    {{ 'component.place-edit.placeNumber' | translate }}
+                    {{ 'component.place-edit.placeNumber' | translate }}*
                 </label>
                 <input
                     class="form-control"
@@ -38,6 +38,11 @@
                         class="mb-0">
                         {{ 'validation.placeNumber.min' | translate }}
                     </p>
+                    <p
+                        *ngIf="placeNumberControl.errors['max']"
+                        class="mb-0">
+                        {{ 'validation.placeNumber.max' | translate }}
+                    </p>
                 </div>
             </div>
 
@@ -45,7 +50,7 @@
                 <label
                     class="form-label"
                     for="squareFootage">
-                    {{ 'component.place-edit.squareFootage' | translate }}
+                    {{ 'component.place-edit.squareFootage' | translate }}*
                 </label>
                 <input
                     class="form-control"
@@ -81,7 +86,7 @@
                 <label
                     class="form-label"
                     for="placeNumber">
-                    {{ 'component.place-edit.residentsNumber' | translate }}
+                    {{ 'component.place-edit.residentsNumber' | translate }}*
                 </label>
                 <input
                     class="form-control"

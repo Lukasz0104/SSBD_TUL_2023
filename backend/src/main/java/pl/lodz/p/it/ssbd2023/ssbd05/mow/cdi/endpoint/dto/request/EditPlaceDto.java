@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class EditPlaceDto extends PlaceSignableDto {
 
-    @NotNull @Positive
+    @NotNull @Positive @Max(1000000)
     private Integer placeNumber;
 
     @NotNull @Positive @Max(1000000)

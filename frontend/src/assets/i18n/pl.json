@@ -50,7 +50,8 @@
       "pattern": "Miasto musi zaczynać się z wielkiej litery."
     },
     "license-number": {
-      "required": "Numer licencji jest wymagany."
+      "required": "Numer licencji jest wymagany.",
+      "invalid": "Numer licencji powinien składać się z od 6 do 8 cyfr"
     },
     "old-password": {
       "required": "Stare hasło jest wymagane",
@@ -109,7 +110,8 @@
     },
     "placeNumber": {
       "min": "Numer lokalu musi być dodatni",
-      "required": "Numer lokalu jest wymagany"
+      "required": "Numer lokalu jest wymagany",
+      "max": "Numer lokalu nie może być większy niż 1000000"
     },
     "place-number": {
       "required": "Numer lokalu jest wymagany.",
@@ -613,6 +615,7 @@
     "cost": "Koszt",
     "place": "Lokal",
     "community-reports": "Raporty wspólnoty",
+    "override-forced-password": "Nadpisz hasło",
     "confirm-email": "Potwierdź email"
   },
   "toast": {
@@ -765,7 +768,8 @@
         "inactive_account": "Konto zostało zablokowane",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie",
-        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
+        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło",
+        "invalid.uuid": "Podano niepoprawny żeton"
       }
     }
   },

@@ -11,25 +11,19 @@ const routes: Routes = [
     {
         path: 'profile',
         component: ProfileComponent,
-        data: {
-            title: 'My profile'
-        },
+        title: 'My profile',
         canActivate: [canActivateAuthenticated]
     },
     {
         path: 'account',
         component: AccountComponent,
-        data: {
-            title: 'Account'
-        },
+        title: 'Account',
         canMatch: [canMatchAdmin]
     },
     {
         path: '',
         component: AccountsComponent,
-        data: {
-            title: 'Accounts'
-        },
+        title: 'Accounts',
         canMatch: [canMatchManagerAdmin]
     }
 ];

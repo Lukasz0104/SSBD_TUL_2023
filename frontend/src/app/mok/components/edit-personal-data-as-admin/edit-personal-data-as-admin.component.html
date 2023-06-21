@@ -22,7 +22,7 @@
                             <label
                                 class="form-label"
                                 for="firstName">
-                                {{ 'component.fields.first-name' | translate }}
+                                {{ 'component.fields.first-name' | translate }}*
                             </label>
                             <input
                                 class="form-control"
@@ -66,7 +66,7 @@
                             <label
                                 class="form-label"
                                 for="lastName">
-                                {{ 'component.fields.last-name' | translate }}
+                                {{ 'component.fields.last-name' | translate }}*
                             </label>
                             <input
                                 class="form-control"
@@ -110,7 +110,7 @@
                             <label
                                 class="form-label"
                                 for="language">
-                                {{ 'component.account.language' | translate }}
+                                {{ 'component.account.language' | translate }}*
                             </label>
                             <select
                                 class="form-select"
@@ -129,7 +129,7 @@
                             <label
                                 class="form-label"
                                 for="email">
-                                {{ 'component.account.email' | translate }}
+                                {{ 'component.account.email' | translate }}*
                             </label>
                             <input
                                 class="form-control"
@@ -189,7 +189,7 @@
                                         {{
                                             'component.fields.street'
                                                 | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -236,7 +236,7 @@
                                         {{
                                             'component.fields.building-number'
                                                 | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -284,7 +284,7 @@
                                         {{
                                             'component.fields.postal-code'
                                                 | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -334,7 +334,7 @@
                                         for="city">
                                         {{
                                             'component.fields.city' | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -428,7 +428,7 @@
                                         {{
                                             'component.fields.street'
                                                 | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -477,7 +477,7 @@
                                         {{
                                             'component.fields.building-number'
                                                 | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -526,7 +526,7 @@
                                         {{
                                             'component.fields.postal-code'
                                                 | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -577,7 +577,7 @@
                                         for="city">
                                         {{
                                             'component.fields.city' | translate
-                                        }}
+                                        }}*
                                     </label>
                                     <input
                                         class="form-control"
@@ -653,7 +653,7 @@
                                             {{
                                                 'component.account.license-number'
                                                     | translate
-                                            }}
+                                            }}*
                                         </strong>
                                     </label>
                                     <input
@@ -680,6 +680,19 @@
                                             class="mb-0">
                                             {{
                                                 'validation.license-number.required'
+                                                    | translate
+                                            }}
+                                        </p>
+                                        <p
+                                            *ngIf="
+                                                managerLicenseNumberControl
+                                                    .errors[
+                                                    'invalidLicenseNumber'
+                                                ]
+                                            "
+                                            class="mb-0">
+                                            {{
+                                                'validation.license-number.invalid'
                                                     | translate
                                             }}
                                         </p>
