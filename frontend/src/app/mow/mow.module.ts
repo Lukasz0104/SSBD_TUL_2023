@@ -31,6 +31,7 @@ import { CommunityReportsComponent } from './components/community-reports/commun
 import { AddCostComponent } from './components/add-cost/add-cost.component';
 import { PlaceOwnersAddComponent } from './components/place-owners-add/place-owners-add.component';
 import { EditRateComponent } from './components/edit-rate/edit-rate.component';
+import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 
 @NgModule({
     declarations: [
@@ -61,7 +62,8 @@ import { EditRateComponent } from './components/edit-rate/edit-rate.component';
         PlaceOwnersAddComponent,
         AddCostComponent,
         CommunityReportsComponent,
-        EditRateComponent
+        EditRateComponent,
+        ConfirmEmailComponent
     ],
     imports: [
         CommonModule,

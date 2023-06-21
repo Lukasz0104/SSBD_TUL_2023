@@ -1,12 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { Place } from '../../model/place';
 import { PlaceService } from '../../services/place.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../../shared/services/auth.service';
 import { PlaceEditComponent } from '../place-edit/place-edit.component';
-import { PlacesComponent } from '../places/places.component';
 
 @Component({
     selector: 'app-place-details',
@@ -16,14 +15,14 @@ export class PlaceDetailsComponent implements OnInit {
     place$ = new BehaviorSubject<Place | null>(null);
     @Input() id: number | undefined;
     @Input() place: Place | undefined;
+    @Output() placeEdited = new EventEmitter();
     loading = true;
 
     constructor(
         private placeService: PlaceService,
         private toastService: ToastService,
         private modalService: NgbModal,
-        protected authService: AuthService,
-        private places: PlacesComponent
+        protected authService: AuthService
     ) {}
 
     ngOnInit(): void {
@@ -48,9 +47,9 @@ export class PlaceDetailsComponent implements OnInit {
         modalRef.result
             .then((): void => {
                 this.getPlace(id);
-                this.places.refresh();
+                this.placeEdited.emit();
             })
-            .catch(() => EMPTY);
+            .catch(() => this.placeEdited.emit());
     }
 
     getPlace(id: number) {

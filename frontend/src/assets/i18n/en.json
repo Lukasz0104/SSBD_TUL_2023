@@ -111,7 +111,8 @@
     },
     "placeNumber": {
       "min": "Place number must be positive",
-      "required": "Place number is required"
+      "required": "Place number is required",
+      "max": "Place number must be less than 1000000"
     },
     "place-number": {
       "required": "Place number is required.",
@@ -614,7 +615,9 @@
     "costs": "Costs",
     "cost": "Cost",
     "reports": "Reports",
-    "community-reports": "Community reports"
+    "community-reports": "Community reports",
+    "confirm-email": "Confirm email",
+    "override-forced-password": "Override password"
   },
   "toast": {
     "auth": {
@@ -766,7 +769,8 @@
         "inactive_account": "Account has been blocked",
         "rollback.limit.exceeded": "Request timed out",
         "optimistic_lock": "Cannot change password, account data has changed since form submission, try again",
-        "repeated_password": "New password cannot be the same as old password"
+        "repeated_password": "New password cannot be the same as old password",
+        "invalid.uuid": "Provided token is not valid"
       }
     }
   },
@@ -863,8 +867,12 @@
         "rollback.limit.exceeded": "Request timed out",
         "optimistic_lock": "Could not set new email, please try again",
         "email-address-already-taken": "This email address is already in use",
-        "token_not_found": "Link has been used",
-        "invalid_token_type": "Link was not valid"
+        "token_not_found": "Incorrect link, may have already been used",
+        "invalid_token_type": "Incorrect user, email have not been changed",
+        "invalid": {
+          "uuid": "Incorrect UUID"
+        },
+        "expired_token": "Link has expired"
       }
     }
   },

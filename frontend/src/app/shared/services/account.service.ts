@@ -144,12 +144,21 @@ export class AccountService {
                     });
                 }),
                 catchError((response: HttpErrorResponse) => {
-                    this.toastService.handleError(
-                        'toast.account.reset-password-fail',
-                        'password-change',
-                        response
-                    );
-
+                    if (
+                        response.error.message.includes(
+                            'response.message.invalid.uuid'
+                        )
+                    ) {
+                        this.toastService.showDanger(
+                            'password-change.response.message.invalid.uuid'
+                        );
+                    } else {
+                        this.toastService.handleError(
+                            'toast.account.reset-password-fail',
+                            'password-change',
+                            response
+                        );
+                    }
                     if (!response.error.message.includes('repeated_password')) {
                         this.router.navigate(['/']);
                         return of(true);
@@ -370,11 +379,17 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.handleError(
-                        'toast.account.change-email-confirm-fail',
-                        'change-email-confirm',
-                        err
-                    );
+                    if (err.error.message.includes('invalid.uuid')) {
+                        this.toastService.showDanger(
+                            'change-email-confirm.response.message.invalid.uuid'
+                        );
+                    } else {
+                        this.toastService.handleError(
+                            'toast.account.change-email-confirm-fail',
+                            'change-email-confirm',
+                            err
+                        );
+                    }
                     return of(false);
                 })
             );

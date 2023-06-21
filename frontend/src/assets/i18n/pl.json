@@ -111,7 +111,8 @@
     },
     "placeNumber": {
       "min": "Numer lokalu musi być dodatni",
-      "required": "Numer lokalu jest wymagany"
+      "required": "Numer lokalu jest wymagany",
+      "max": "Numer lokalu nie może być większy niż 1000000"
     },
     "place-number": {
       "required": "Numer lokalu jest wymagany.",
@@ -614,7 +615,9 @@
     "costs": "Koszty",
     "cost": "Koszt",
     "place": "Lokal",
-    "community-reports": "Raporty wspólnoty"
+    "community-reports": "Raporty wspólnoty",
+    "override-forced-password": "Nadpisz hasło",
+    "confirm-email": "Potwierdź email"
   },
   "toast": {
     "auth": {
@@ -766,7 +769,8 @@
         "inactive_account": "Konto zostało zablokowane",
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Nie można zmienić hasła, dane konta zostały zmienione od momentu wysłania formularza, spróbuj ponownie",
-        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło"
+        "repeated_password": "Nowe hasło nie może być takie samo jak stare hasło",
+        "invalid.uuid": "Podano niepoprawny żeton"
       }
     }
   },
@@ -863,8 +867,12 @@
         "rollback.limit.exceeded": "Wygasł limit czasu żądania",
         "optimistic_lock": "Zmiana adresu email nie powiodła się, spróbuj ponownie",
         "email-address-already-taken": "Ten adres email jest już w użyciu",
-        "token_not_found": "Link został już użyty",
-        "invalid_token_type": "Niepoprawny link"
+        "token_not_found": "Niepoprawny link, mógł zostać już użyty",
+        "invalid_token_type": "Niepoprawny użytkownik, adres email nie został zmieniony",
+        "invalid": {
+          "uuid": "Niepoprawny UUID"
+        },
+        "expired_token": "Link utracił ważność"
       }
     }
   },
