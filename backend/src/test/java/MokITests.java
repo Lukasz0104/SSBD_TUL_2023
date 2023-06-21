@@ -1129,6 +1129,7 @@ public class MokITests extends TestContainersSetup {
         }
 
         // ------------------------------------------------------------
+
         @Test
         void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
             ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
@@ -5275,7 +5276,7 @@ public class MokITests extends TestContainersSetup {
                 AccountDto acc = resp.as(AccountDto.class);
                 OwnerDataDto accessLevelDto = (OwnerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
-                acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5308,7 +5309,7 @@ public class MokITests extends TestContainersSetup {
                 ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setAddress(new AddressDto("99-000", "Wrocław", "Warszawska", 99));
                 accessLevelDto.setLicenseNumber("98765432");
-                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5448,7 +5449,7 @@ public class MokITests extends TestContainersSetup {
                 AccountDto acc = resp.as(AccountDto.class);
                 ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setAddress(new AddressDto(postalCode, "Wrocław", "Warszawska", 99));
-                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5475,7 +5476,7 @@ public class MokITests extends TestContainersSetup {
                 AccountDto acc = resp.as(AccountDto.class);
                 ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setAddress(new AddressDto("90-987", str, "Warszawska", 99));
-                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5502,7 +5503,7 @@ public class MokITests extends TestContainersSetup {
                 AccountDto acc = resp.as(AccountDto.class);
                 ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", str, 99));
-                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5528,7 +5529,7 @@ public class MokITests extends TestContainersSetup {
                 AccountDto acc = resp.as(AccountDto.class);
                 ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setAddress(new AddressDto("90-987", "Wrocław", "Zielona", l));
-                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5607,7 +5608,7 @@ public class MokITests extends TestContainersSetup {
                 AccountDto acc = resp.as(AccountDto.class);
                 ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setId(accessLevelDto.getId() + 1);
-                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5633,7 +5634,7 @@ public class MokITests extends TestContainersSetup {
                 AccountDto acc = resp.as(AccountDto.class);
                 ManagerDataDto accessLevelDto = (ManagerDataDto) acc.getAccessLevels().stream().findFirst().get();
                 accessLevelDto.setVersion(accessLevelDto.getVersion() + 1);
-                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new ManagerDataDto[]{accessLevelDto}))));
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 
                 given().spec(adminSpec).when()
@@ -5729,7 +5730,7 @@ public class MokITests extends TestContainersSetup {
                 accessLevelDto.setAddress(
                     new AddressDto("99-000", "Wrocław", "S_" + ThreadLocalRandom.current().nextLong(Long.MAX_VALUE),
                         99));
-                acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[] {accessLevelDto}))));
+                acc.setAccessLevels(new HashSet<>(List.of((new OwnerDataDto[]{accessLevelDto}))));
 
                 EditAnotherPersonalDataDto dto = makeEditPersonalDataDto(acc);
 

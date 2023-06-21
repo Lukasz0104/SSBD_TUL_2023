@@ -12,7 +12,6 @@ import {
 import { AppConfigService } from '../shared/services/app-config.service';
 import { SharedModule } from '../shared/shared.module';
 import { AuthRoutingModule } from './auth-routing.module';
-import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { ConfirmRegistrationComponent } from './components/confirm-registration/confirm-registration.component';
 import { ForcePasswordChangeOverrideComponent } from './components/force-password-change-override/force-password-change-override.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
@@ -30,7 +29,6 @@ import { CurrentRatesComponent } from './components/current-rates/current-rates.
         ResetPasswordComponent,
         ResetPasswordConfirmComponent,
         RecaptchaComponent,
-        ConfirmEmailComponent,
         ConfirmRegistrationComponent,
         ForcePasswordChangeOverrideComponent,
         LandingPageComponent,

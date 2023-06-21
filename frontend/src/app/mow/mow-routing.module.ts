@@ -11,6 +11,7 @@ import { CostsComponent } from './components/costs/costs.component';
 import { BuildingReportsComponent } from './components/building-reports/building-reports.component';
 import { PlacesComponent } from './components/places/places.component';
 import { CommunityReportsComponent } from './components/community-reports/community-reports.component';
+import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 
 export const routes: Routes = [
     {
@@ -57,6 +58,14 @@ export const routes: Routes = [
         component: CommunityReportsComponent,
         title: 'Community reports',
         canMatch: [canMatchManager]
+    },
+    {
+        path: 'confirm-email/:id',
+        component: ConfirmEmailComponent,
+        data: {
+            title: 'Confirm email'
+        },
+        canMatch: [canActivateAuthenticated]
     }
 ];
 

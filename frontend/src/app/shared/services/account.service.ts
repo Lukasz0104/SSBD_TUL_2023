@@ -379,11 +379,17 @@ export class AccountService {
                     return true;
                 }),
                 catchError((err: HttpErrorResponse) => {
-                    this.toastService.handleError(
-                        'toast.account.change-email-confirm-fail',
-                        'change-email-confirm',
-                        err
-                    );
+                    if (err.error.message.includes('invalid.uuid')) {
+                        this.toastService.showDanger(
+                            'change-email-confirm.response.message.invalid.uuid'
+                        );
+                    } else {
+                        this.toastService.handleError(
+                            'toast.account.change-email-confirm-fail',
+                            'change-email-confirm',
+                            err
+                        );
+                    }
                     return of(false);
                 })
             );

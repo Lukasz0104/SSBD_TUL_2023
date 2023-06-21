@@ -143,7 +143,7 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = tokenFactory.createConfirmEmailToken(account);
         tokenFacade.create(token);
 
-        String link = appProperties.getFrontendUrl() + "/confirm-email/" + token.getToken();
+        String link = appProperties.getFrontendUrl() + "/dashboard/confirm-email/" + token.getToken();
         emailService.changeEmailAddress(
             account.getEmail(), account.getFullName(), link,
             account.getLanguage().toString());
