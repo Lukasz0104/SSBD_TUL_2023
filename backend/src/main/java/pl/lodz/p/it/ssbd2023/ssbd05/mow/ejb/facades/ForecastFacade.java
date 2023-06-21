@@ -67,7 +67,7 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
 
     // PlaceId
 
-    @RolesAllowed({OWNER, MANAGER})
+    @PermitAll
     public List<Forecast> findByPlaceIdAndYear(Long placeId, Year year) {
         TypedQuery<Forecast> tq = em.createNamedQuery("Forecast.findByPlaceIdAndYear", Forecast.class);
         tq.setParameter("place", placeId);
@@ -237,6 +237,15 @@ public class ForecastFacade extends AbstractFacade<Forecast> {
             .setParameter("year", year)
             .setParameter("categoryName", categoryName)
             .setParameter("month", month)
+            .getResultList();
+    }
+
+    @PermitAll
+    public List<Forecast> findByPlaceIdAndCategoryIdAndYear(Long placeId, Long categoryId, Year year) {
+        return em.createNamedQuery("Forecast.findByPlaceIdAndCategoryIdAndYear", Forecast.class)
+            .setParameter("placeId", placeId)
+            .setParameter("categoryId", categoryId)
+            .setParameter("year", year)
             .getResultList();
     }
 }

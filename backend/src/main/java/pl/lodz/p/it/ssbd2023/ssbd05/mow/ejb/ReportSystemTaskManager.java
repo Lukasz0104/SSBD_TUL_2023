@@ -11,8 +11,9 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -33,13 +34,18 @@ public class ReportSystemTaskManager {
     @Inject
     private PlaceFacade placeFacade;
 
+    @Inject
+    private RollbackUtils rollbackUtils;
+
     @Schedule(dayOfMonth = "1", month = "1")
     private void createReports() {
         List<Place> places = placeFacade.findByActive(true);
 
         for (var place : places) {
             try {
-                reportManager.createReportForPlace(place.getId());
+                rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+                    () -> reportManager.createReportForPlace(place.getId()),
+                    reportManager);
             } catch (AppBaseException e) {
                 LOGGER.log(Level.SEVERE,
                     "Exception while generating report for place with id=%d".formatted(place.getId()), e);
