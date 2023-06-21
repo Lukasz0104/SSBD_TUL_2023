@@ -23,6 +23,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.OwnerData;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.Token;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mok.TokenType;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
+import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.InvalidTokenException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.LanguageNotFoundException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.RepeatedPasswordException;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.badrequest.TokenNotFoundException;
@@ -142,15 +143,15 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         Token token = tokenFactory.createConfirmEmailToken(account);
         tokenFacade.create(token);
 
-        String link = appProperties.getFrontendUrl() + "/confirm-email/" + token.getToken();
+        String link = appProperties.getFrontendUrl() + "/dashboard/confirm-email/" + token.getToken();
         emailService.changeEmailAddress(
             account.getEmail(), account.getFullName(), link,
             account.getLanguage().toString());
     }
 
     @Override
-    @PermitAll
-    public void confirmEmail(String email, String confirmToken)
+    @RolesAllowed({ADMIN, MANAGER, OWNER})
+    public void confirmEmail(String email, String confirmToken, String login)
         throws AppBaseException {
 
         Token token = tokenFacade.findByTokenAndTokenType(confirmToken, TokenType.CONFIRM_EMAIL_TOKEN)
@@ -159,6 +160,10 @@ public class AccountManager extends AbstractManager implements AccountManagerLoc
         token.validateSelf();
 
         Account account = token.getAccount();
+
+        if (!Objects.equals(account.getLogin(), login)) {
+            throw new InvalidTokenException();
+        }
 
         tokenFacade.remove(token);
 

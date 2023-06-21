@@ -18,6 +18,12 @@ export class DashboardComponent {
             ];
         }
 
+        if (url.includes('confirm-email')) {
+            return [
+                new Breadcrumb('/', 'dashboard'),
+                new Breadcrumb('', 'confirm-email')
+            ];
+        }
         url.shift();
         const breadcrumbs: Breadcrumb[] = [];
 

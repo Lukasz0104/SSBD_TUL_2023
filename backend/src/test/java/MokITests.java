@@ -1130,6 +1130,19 @@ public class MokITests extends TestContainersSetup {
         // ------------------------------------------------------------
 
         @Test
+        void shouldReturnSC403AfterConfirmEmailWhenNotLoggedIn() {
+            ChangeEmailDto changeEmailDto = new ChangeEmailDto("test@gmail.local");
+            UUID randomUUID = UUID.randomUUID();
+            given()
+                .contentType(ContentType.JSON)
+                .body(changeEmailDto)
+                .when()
+                .put("/accounts/me/confirm-email/%s".formatted(randomUUID))
+                .then()
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+        }
+
+        @Test
         void shouldReturnSC404AfterConfirmEmailWhenNoToken() {
             ChangeEmailDto changeEmailDto = new ChangeEmailDto("email@email.com");
             given()

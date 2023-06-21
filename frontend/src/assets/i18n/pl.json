@@ -612,7 +612,8 @@
     "costs": "Koszty",
     "cost": "Koszt",
     "place": "Lokal",
-    "community-reports": "Raporty wspólnoty"
+    "community-reports": "Raporty wspólnoty",
+    "confirm-email": "Potwierdź email"
   },
   "toast": {
     "auth": {
@@ -861,6 +862,7 @@
         "optimistic_lock": "Zmiana adresu email nie powiodła się, spróbuj ponownie",
         "email-address-already-taken": "Ten adres email jest już w użyciu",
         "token_not_found": "Niepoprawny link, mógł zostać już użyty",
+        "invalid_token_type": "Niepoprawny użytkownik, adres email nie został zmieniony",
         "invalid": {
           "uuid": "Niepoprawny UUID"
         },

@@ -612,7 +612,8 @@
     "costs": "Costs",
     "cost": "Cost",
     "reports": "Reports",
-    "community-reports": "Community reports"
+    "community-reports": "Community reports",
+    "confirm-email": "Confirm email"
   },
   "toast": {
     "auth": {
@@ -861,6 +862,7 @@
         "optimistic_lock": "Could not set new email, please try again",
         "email-address-already-taken": "This email address is already in use",
         "token_not_found": "Incorrect link, may have already been used",
+        "invalid_token_type": "Incorrect user, email have not been changed",
         "invalid": {
           "uuid": "Incorrect UUID"
         },

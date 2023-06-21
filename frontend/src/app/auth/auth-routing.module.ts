@@ -8,7 +8,6 @@ import { ResetPasswordConfirmComponent } from './components/reset-password-confi
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { UnlockAccountComponent } from './components/unlock-account/unlock-account.component';
 import { canActivateGuestWithRedirect } from '../shared/guards/redirecting-guest.guard';
-import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { LoginComponent } from './components/login/login.component';
 
@@ -28,13 +27,6 @@ const routes: Routes = [
             title: 'Sign in'
         },
         canActivate: [canActivateLoginOrRegister]
-    },
-    {
-        path: 'confirm-email/:id',
-        component: ConfirmEmailComponent,
-        data: {
-            title: 'Change email'
-        }
     },
     {
         path: 'register',
