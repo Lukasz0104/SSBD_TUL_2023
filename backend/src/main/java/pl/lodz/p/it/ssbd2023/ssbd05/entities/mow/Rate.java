@@ -34,8 +34,8 @@ import java.time.LocalDate;
         name = "Rate.findCurrentRates",
         query = """
             SELECT r FROM Rate r
-            WHERE r.effectiveDate = 
-                (SELECT max(r1.effectiveDate) 
+            WHERE r.effectiveDate =
+                (SELECT max(r1.effectiveDate)
                  FROM Rate r1 WHERE r1.effectiveDate <= CURRENT_DATE AND r1.category = r.category)
             """),
     @NamedQuery(

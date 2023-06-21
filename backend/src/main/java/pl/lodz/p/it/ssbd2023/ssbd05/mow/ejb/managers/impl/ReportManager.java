@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -444,56 +445,120 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
         List<Category> categories = categoryFacade.findAll();
         Year year = Year.of(LocalDateTime.now().getYear() - 1);
+
+        if (place.getCurrentRates().isEmpty()) {
+            return;
+        }
+
+        /*
+        Dla kazdej kategorii:
+            Obliczyć totalConsumption przypadające na lokal
+                dla kategorii licznikowej obliczyć zużycie z odczytów zarządcy z 31 grudnia
+                dla pozostałych:
+                    SURFACE: zsumować amount z forecast
+                    PERSON: zsumować amount z forecast
+                    UNIT: zsumować amount dla lokalu
+            Obliczyć totalCost
+                dla kategorii
+        */
+
         for (Category cat : categories) {
-            List<Cost> costs = costFacade.findByYearAndCategoryId(year, cat.getId());
+            // System.out.println("HERE; categoryId=" + cat.getId());
+            List<Rate> categoryRatesInYear = rateFacade.findByYearAndCategoryId(year, cat.getId());
 
-            LocalDate januaryFirst = LocalDate.now().withDayOfYear(1);
-            var rate = rateFacade.findFirstInYear(januaryFirst, cat.getId());
-
-            BigDecimal costForPlace;
-            BigDecimal consumptionForPlace;
-
-            BigDecimal totalConsumption = costs.stream()
-                .map(Cost::getTotalConsumption)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-            if (rate.getAccountingRule() == AccountingRule.UNIT) {
-                costForPlace = rate.getValue();
-                consumptionForPlace = BigDecimal.ONE;
+            Rate lastRate;
+            if (!categoryRatesInYear.isEmpty()) {
+                lastRate = categoryRatesInYear.get(0);
             } else {
-                BigDecimal totalCost = costs.stream()
-                    .map(c -> c.getRealRate().multiply(c.getTotalConsumption()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                BigDecimal multiplier;
-                if (rate.getAccountingRule() == AccountingRule.PERSON) {
-                    consumptionForPlace = BigDecimal.valueOf(place.getResidentsNumber());
-                    multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                } else if (rate.getAccountingRule() == AccountingRule.SURFACE) {
-                    consumptionForPlace = place.getSquareFootage();
-                    multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                } else { // METER
-                    List<Reading> readings = readingFacade.findReliableReadingsFromLastDayOfYear(
-                        placeId, cat.getId(), LocalDate.now().getYear());
-
-                    if (readings.size() == 2) {
-                        consumptionForPlace = readings.get(0).getValue().subtract(readings.get(1).getValue())
-                            .divide(totalConsumption, 6, RoundingMode.CEILING);
-                        multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                    } else if (readings.size() == 1) {
-                        consumptionForPlace = readings.get(0).getValue();
-                        multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                    } else {
-                        consumptionForPlace = BigDecimal.ZERO;
-                        multiplier = BigDecimal.ZERO;
-                    }
+                Optional<Rate> rateOptional = rateFacade.findCurrentRateByCategoryId(cat.getId());
+                if (rateOptional.isEmpty()) {
+                    continue;
                 }
-
-                costForPlace = totalCost.multiply(multiplier);
+                if (!place.getCurrentRates().contains(rateOptional.get())) {
+                    continue;
+                }
+                lastRate = rateOptional.get();
             }
 
-            Report report = new Report(year, costForPlace, consumptionForPlace, place, cat);
-            reportFacade.create(report);
+            AccountingRule accountingRule = lastRate.getAccountingRule();
+
+            BigDecimal costForPlace = BigDecimal.ZERO;
+            BigDecimal consumptionForPlace = BigDecimal.ZERO;
+
+            if (AccountingRule.METER.equals(accountingRule)) {
+                // System.out.println("METER+id=" + place.getId());
+                List<Reading> readings = readingFacade.findReliableReadingsFromLastDayOfYear(
+                    placeId, cat.getId(), LocalDate.now().getYear());
+
+                consumptionForPlace = switch (readings.size()) {
+                    case 2 -> readings.get(0).getValue().subtract(readings.get(1).getValue());
+                    case 1 -> readings.get(0).getValue();
+                    default -> BigDecimal.ZERO;
+                };
+
+                var costs = costFacade.findByYearAndCategoryId(year, cat.getId());
+                costForPlace = costs.stream()
+                    .map(c -> c.getRealRate().multiply(c.getTotalConsumption()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .multiply(consumptionForPlace)
+                    .divide(
+                        costs.stream()
+                            .map(Cost::getTotalConsumption)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add),
+                        6, RoundingMode.CEILING);
+
+                Report report = new Report(year, costForPlace, consumptionForPlace, place, cat);
+                // System.out.println(report);
+                reportFacade.create(report);
+            }
+
+            // List<Cost> costs = costFacade.findByYearAndCategoryId(year, cat.getId());
+            //
+            // LocalDate januaryFirst = LocalDate.now().withDayOfYear(1);
+            // var rate = rateFacade.findFirstInYear(januaryFirst, cat.getId());
+            //
+            // BigDecimal totalConsumption = costs.stream()
+            //     .map(Cost::getTotalConsumption)
+            //     .reduce(BigDecimal.ZERO, BigDecimal::add);
+            //
+            // if (rate.getAccountingRule() == AccountingRule.UNIT) {
+            //     costForPlace = rate.getValue();
+            //     consumptionForPlace = BigDecimal.ONE;
+            // } else {
+            //     BigDecimal totalCost = costs.stream()
+            //         .map(c -> c.getRealRate().multiply(c.getTotalConsumption()))
+            //         .reduce(BigDecimal.ZERO, BigDecimal::add);
+            //
+            //     BigDecimal multiplier;
+            //     if (rate.getAccountingRule() == AccountingRule.PERSON) {
+            //         consumptionForPlace = BigDecimal.valueOf(place.getResidentsNumber());
+            //         multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+            //     } else if (rate.getAccountingRule() == AccountingRule.SURFACE) {
+            //         consumptionForPlace = place.getSquareFootage();
+            //         multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+            //     } else { // METER
+            //         List<Reading> readings = readingFacade.findReliableReadingsFromLastDayOfYear(
+            //             placeId, cat.getId(), LocalDate.now().getYear());
+            //
+            //         if (readings.size() == 2) {
+            //             consumptionForPlace = readings.get(0).getValue().subtract(readings.get(1).getValue())
+            //                 .divide(totalConsumption, 6, RoundingMode.CEILING);
+            //             multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+            //         } else if (readings.size() == 1) {
+            //             consumptionForPlace = readings.get(0).getValue();
+            //             multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
+            //         } else {
+            //             consumptionForPlace = BigDecimal.ZERO;
+            //             multiplier = BigDecimal.ZERO;
+            //         }
+            //     }
+            //
+            //     costForPlace = totalCost.multiply(multiplier);
+            // }
+
+            // Report report = new Report(year, costForPlace, consumptionForPlace, place, cat);
+            // System.out.println(report);
+            // reportFacade.create(report);
         }
     }
 }

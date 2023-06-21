@@ -31,17 +31,11 @@ public class ReportSystemTaskManager {
     private ReportManagerLocal reportManager;
 
     @Inject
-    private PlaceManagerLocal placeManager;
+    private PlaceFacade placeFacade;
 
     @Schedule(dayOfMonth = "1", month = "1")
     private void createReports() {
-        List<Place> places;
-        try {
-            places = placeManager.getAllPlaces();
-        } catch (AppBaseException e) {
-            LOGGER.log(Level.SEVERE, "Exception while retrieving all places", e);
-            return;
-        }
+        List<Place> places = placeFacade.findByActive(true);
 
         for (var place : places) {
             try {
