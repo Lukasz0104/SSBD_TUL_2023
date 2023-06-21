@@ -19,7 +19,9 @@
     <ng-container *ngIf="places.length; else noPlacesFound">
         <div class="d-lg-flex">
             <div class="col col-lg-12">
-                <app-place [places]="places" />
+                <app-place
+                    [places]="places"
+                    (placeEdited)="refresh()" />
             </div>
         </div>
     </ng-container>

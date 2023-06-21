@@ -32,7 +32,8 @@ export class PlaceEditComponent {
             ]),
             placeNumber: this.fb.control(1, [
                 Validators.required,
-                Validators.min(1)
+                Validators.min(1),
+                Validators.max(1000000)
             ]),
             residentsNumber: this.fb.control(1, [
                 Validators.required,

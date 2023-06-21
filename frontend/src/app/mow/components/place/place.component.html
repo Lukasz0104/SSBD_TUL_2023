@@ -99,6 +99,7 @@
                 <div class="m-3">
                     <app-place-details
                         [id]="place.id"
+                        (placeEdited)="emitPlaceEdited()"
                         *ngIf="tab === 1"></app-place-details>
                     <app-meters
                         [placeId]="place.id"

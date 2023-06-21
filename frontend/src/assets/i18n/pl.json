@@ -110,7 +110,8 @@
     },
     "placeNumber": {
       "min": "Numer lokalu musi być dodatni",
-      "required": "Numer lokalu jest wymagany"
+      "required": "Numer lokalu jest wymagany",
+      "max": "Numer lokalu nie może być większy niż 1000000"
     },
     "place-number": {
       "required": "Numer lokalu jest wymagany.",

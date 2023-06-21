@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Place } from '../../model/place';
 import { AuthService } from '../../../shared/services/auth.service';
 
@@ -8,6 +8,7 @@ import { AuthService } from '../../../shared/services/auth.service';
 })
 export class PlaceComponent {
     @Input() places: Place[] | undefined;
+    @Output() placeEdited = new EventEmitter();
     chosenId: number | undefined;
     toggled = false;
     tab = 1;
@@ -23,5 +24,9 @@ export class PlaceComponent {
     hidePlaceDetails() {
         this.chosenId = undefined;
         this.toggled = false;
+    }
+
+    emitPlaceEdited() {
+        this.placeEdited.emit();
     }
 }
