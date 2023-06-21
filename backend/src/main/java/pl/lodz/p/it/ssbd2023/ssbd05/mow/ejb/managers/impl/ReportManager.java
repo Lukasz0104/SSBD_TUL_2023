@@ -97,7 +97,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @RolesAllowed({MANAGER, OWNER})
     public CommunityReportDto getReportDetails(Integer year, Integer month) throws AppBaseException {
         var yearMonth = YearMonth.of(year, month);
-        var balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(yearMonth);
+        var balance = sumBalanceForMonthAndYearAcrossAllPlaces(yearMonth);
         var dto = new CommunityReportDto(balance);
 
         var categories = categoryFacade.findAll();
@@ -140,13 +140,24 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         BigDecimal balance;
         if (!reports.isEmpty()) {
             reportEntries = getCommunityReportForYearWithReports(yearObject, reports);
-            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, 12));
+            balance = sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, 12));
         } else {
             reportEntries = calculateCommunityReportForOngoingYear(yearObject);
             int month = reportEntries.isEmpty() ? 1 : reportEntries.size();
-            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, month));
+            balance = sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, month));
         }
         return new CommunityReportDto(balance, reportEntries);
+    }
+
+    private BigDecimal sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth yearMonth) {
+        return placeFacade.findAll()
+            .stream()
+            .map(Place::getBalance)
+            .flatMap(b -> b.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().equals(yearMonth)))
+            .map(Map.Entry::getValue)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private List<ReportYearEntry> getCommunityReportForYearWithReports(Year year, List<Report> reports) {

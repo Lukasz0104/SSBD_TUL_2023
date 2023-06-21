@@ -13,7 +13,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
-import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -108,13 +107,6 @@ import java.util.Set;
                 AND od.verified = true
             """)
 })
-@NamedNativeQuery(
-    name = "sumBalanceForMonthAndYearAcrossAllPlaces",
-    query = """
-        SELECT COALESCE(SUM(mb.balance), 0)
-        FROM monthly_balance mb
-        WHERE mb.year_month = ?
-        """)
 @EntityListeners({EntityControlListenerMOW.class})
 public class Place extends AbstractEntity implements Serializable {
 

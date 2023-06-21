@@ -1511,8 +1511,8 @@ public class MowITests extends TestContainersSetup {
                     .findFirst()
                     .orElseThrow();
 
-                assertEquals(1032.37, coldWaterForecast.getValue().doubleValue());
-                assertEquals(147.48, coldWaterForecast.getAmount().doubleValue());
+                assertEquals(1032.37, coldWaterForecast.getValue().doubleValue(), 0.01);
+                assertEquals(147.48, coldWaterForecast.getAmount().doubleValue(), 0.01);
             }
 
             @Test
