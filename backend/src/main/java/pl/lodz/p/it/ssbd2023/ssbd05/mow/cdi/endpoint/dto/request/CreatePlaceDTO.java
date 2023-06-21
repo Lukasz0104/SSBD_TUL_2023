@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 public record CreatePlaceDTO(
     @NotNull
     @Positive
+    @Max(1000000)
     Integer placeNumber,
 
     @NotNull

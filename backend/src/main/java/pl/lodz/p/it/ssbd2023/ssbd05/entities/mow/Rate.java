@@ -47,10 +47,12 @@ import java.time.LocalDate;
                  FROM Rate r1 WHERE r1.effectiveDate <= CURRENT_DATE AND r1.category = r.category)
             AND r.category.id = :categoryId
             """),
-
-    // accounting_rule queries
-
-    // category queries
+    @NamedQuery(
+        name = "Rate.findByYearAndCategoryId",
+        query = """
+            SELECT r FROM Rate r
+            WHERE r.category.id = :categoryId AND EXTRACT(YEAR FROM r.effectiveDate) = :year
+            ORDER BY r.effectiveDate DESC"""),
     @NamedQuery(
         name = "Rate.findByCategoryId",
         query = "SELECT r FROM Rate r WHERE r.category.id = :categoryId ORDER BY r.effectiveDate DESC"),

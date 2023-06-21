@@ -38,6 +38,11 @@
                     {{ 'validation.place-number.min' | translate }}
                     {{ pnMinError['min'] }}.
                 </p>
+                <p
+                    *ngIf="pnErrors['max'] as pnMinError"
+                    class="mb-0">
+                    {{ 'validation.placeNumber.max' | translate }}
+                </p>
             </div>
         </div>
         <div class="mb-2 has-validation">

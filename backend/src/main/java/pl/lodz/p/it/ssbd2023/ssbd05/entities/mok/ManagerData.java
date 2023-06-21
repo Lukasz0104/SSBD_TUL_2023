@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.Address;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.ValidLicenseNumber;
 
 import java.io.Serializable;
 
@@ -33,6 +34,7 @@ public class ManagerData extends AccessLevel implements Serializable {
     @Setter
     private Address address;
 
+    @ValidLicenseNumber
     @NotNull
     @Basic(optional = false)
     @Getter

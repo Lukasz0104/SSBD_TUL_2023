@@ -1,6 +1,8 @@
 package pl.lodz.p.it.ssbd2023.ssbd05.utils;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Forecast;
@@ -23,7 +25,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@ApplicationScoped
+@Stateless
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors(LoggerInterceptor.class)
 public class ForecastUtils {
 

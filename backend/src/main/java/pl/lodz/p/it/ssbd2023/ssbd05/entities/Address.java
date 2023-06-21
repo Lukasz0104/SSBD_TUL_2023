@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.PostalCode;
 
 import java.io.Serializable;
 
@@ -22,6 +23,7 @@ import java.io.Serializable;
 @Access(AccessType.FIELD)
 public class Address implements Serializable {
 
+    @PostalCode
     @NotNull
     @Basic(optional = false)
     @Size(min = 6, max = 6)
