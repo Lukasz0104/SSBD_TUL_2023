@@ -11,8 +11,9 @@ import jakarta.interceptor.Interceptors;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.mow.Place;
 import pl.lodz.p.it.ssbd2023.ssbd05.exceptions.AppBaseException;
 import pl.lodz.p.it.ssbd2023.ssbd05.interceptors.LoggerInterceptor;
-import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.PlaceManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.facades.PlaceFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.ejb.managers.ReportManagerLocal;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.rollback.RollbackUtils;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -31,21 +32,30 @@ public class ReportSystemTaskManager {
     private ReportManagerLocal reportManager;
 
     @Inject
-    private PlaceManagerLocal placeManager;
+    private PlaceFacade placeFacade;
 
-    @Schedule(dayOfMonth = "1", month = "1")
+    @Inject
+    private RollbackUtils rollbackUtils;
+
+    @Schedule(dayOfMonth = "1", month = "1", minute = "15")
     private void createReports() {
         List<Place> places;
         try {
-            places = placeManager.getAllPlaces();
-        } catch (AppBaseException e) {
-            LOGGER.log(Level.SEVERE, "Exception while retrieving all places", e);
+            places = placeFacade.findByActive(true);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Exception while retrieving active places before generating reports: ", e);
+            return;
+        }
+
+        if (places == null || places.isEmpty()) {
             return;
         }
 
         for (var place : places) {
             try {
-                reportManager.createReportForPlace(place.getId());
+                rollbackUtils.rollBackTXWithOptimisticLockReturnNoContentStatus(
+                    () -> reportManager.createReportForPlace(place.getId()),
+                    reportManager);
             } catch (AppBaseException e) {
                 LOGGER.log(Level.SEVERE,
                     "Exception while generating report for place with id=%d".formatted(place.getId()), e);

@@ -41,7 +41,8 @@
     },
     "postal-code": {
       "required": "Kod pocztowy jest wymagany.",
-      "length": "Kod pocztowy musi składać się z 6 znaków."
+      "length": "Kod pocztowy musi składać się z 6 znaków.",
+      "pattern": "Nieprawidłowy kod pocztowy."
     },
     "city": {
       "required": "Miasto jest wymagane.",
@@ -513,7 +514,8 @@
       "loading": "Ładowanie raportów",
       "balance": "Saldo",
       "average-rate": "Średnia stawka",
-      "no-reports": "Ten lokal nie posiada jeszcze raportów"
+      "no-reports": "Ten lokal nie posiada jeszcze raportów",
+      "difference": "Różnica"
     },
     "place-rates": {
       "loading": "Ładowanie stawek...",
@@ -823,7 +825,8 @@
         "optimistic_lock": "Rejestracja zakończyła się niepowodzeniem, spróbuj ponownie",
         "license-number-already-taken": "Ten numer licencji jest już zajęty",
         "email-address-already-taken": "Ten adres email jest już zajęty",
-        "login-already-taken": "Ten login jest już zajęty"
+        "login-already-taken": "Ten login jest już zajęty",
+        "invalid_postal_code": "Nieprawidłowy kod pocztowy."
       }
     }
   },

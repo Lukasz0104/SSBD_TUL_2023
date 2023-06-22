@@ -50,7 +50,7 @@ public class ReportEndpoint {
     @GET
     @Path("community/{year}/{month}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({MANAGER, OWNER})
+    @RolesAllowed(MANAGER)
     public Response getReportDetails(
         @PathParam("year") @NotNull Integer year,
         @PathParam("month") @Min(1) @Max(12) @NotNull Integer month) throws AppBaseException {

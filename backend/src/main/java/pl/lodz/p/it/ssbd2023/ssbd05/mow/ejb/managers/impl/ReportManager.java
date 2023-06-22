@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -96,7 +97,7 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
     @RolesAllowed({MANAGER, OWNER})
     public CommunityReportDto getReportDetails(Integer year, Integer month) throws AppBaseException {
         var yearMonth = YearMonth.of(year, month);
-        var balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(yearMonth);
+        var balance = sumBalanceForMonthAndYearAcrossAllPlaces(yearMonth);
         var dto = new CommunityReportDto(balance);
 
         var categories = categoryFacade.findAll();
@@ -139,13 +140,24 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         BigDecimal balance;
         if (!reports.isEmpty()) {
             reportEntries = getCommunityReportForYearWithReports(yearObject, reports);
-            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, 12));
+            balance = sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, 12));
         } else {
             reportEntries = calculateCommunityReportForOngoingYear(yearObject);
             int month = reportEntries.isEmpty() ? 1 : reportEntries.size();
-            balance = placeFacade.sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, month));
+            balance = sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth.of(year, month));
         }
         return new CommunityReportDto(balance, reportEntries);
+    }
+
+    private BigDecimal sumBalanceForMonthAndYearAcrossAllPlaces(YearMonth yearMonth) {
+        return placeFacade.findAll()
+            .stream()
+            .map(Place::getBalance)
+            .flatMap(b -> b.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().equals(yearMonth)))
+            .map(Map.Entry::getValue)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private List<ReportYearEntry> getCommunityReportForYearWithReports(Year year, List<Report> reports) {
@@ -444,54 +456,59 @@ public class ReportManager extends AbstractManager implements ReportManagerLocal
         Place place = placeFacade.find(placeId).orElseThrow(PlaceNotFoundException::new);
         List<Category> categories = categoryFacade.findAll();
         Year year = Year.of(LocalDateTime.now().getYear() - 1);
-        for (Category cat : categories) {
-            List<Cost> costs = costFacade.findByYearAndCategoryId(year, cat.getId());
 
-            LocalDate januaryFirst = LocalDate.now().withDayOfYear(1);
-            var rate = rateFacade.findFirstInYear(januaryFirst, cat.getId());
+        if (place.getCurrentRates().isEmpty()) {
+            return;
+        }
+
+        for (Category cat : categories) {
+            List<Rate> categoryRatesInYear = rateFacade.findByYearAndCategoryId(year, cat.getId());
+
+            Rate lastRate;
+            if (!categoryRatesInYear.isEmpty()) {
+                lastRate = categoryRatesInYear.get(0);
+            } else {
+                Optional<Rate> rateOptional = rateFacade.findCurrentRateByCategoryId(cat.getId());
+                if (rateOptional.isEmpty() || !place.getCurrentRates().contains(rateOptional.get())) {
+                    continue;
+                }
+                lastRate = rateOptional.get();
+            }
+
+            AccountingRule accountingRule = lastRate.getAccountingRule();
 
             BigDecimal costForPlace;
             BigDecimal consumptionForPlace;
 
-            BigDecimal totalConsumption = costs.stream()
-                .map(Cost::getTotalConsumption)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            if (AccountingRule.METER.equals(accountingRule)) {
+                List<Reading> readings = readingFacade.findReliableReadingsFromLastDayOfYear(
+                    placeId, cat.getId(), LocalDate.now().getYear());
 
-            if (rate.getAccountingRule() == AccountingRule.UNIT) {
-                costForPlace = rate.getValue();
-                consumptionForPlace = BigDecimal.ONE;
-            } else {
-                BigDecimal totalCost = costs.stream()
+                consumptionForPlace = switch (readings.size()) {
+                    case 2 -> readings.get(0).getValue().subtract(readings.get(1).getValue());
+                    case 1 -> readings.get(0).getValue();
+                    default -> BigDecimal.ZERO;
+                };
+
+                List<Cost> costs = costFacade.findByYearAndCategoryId(year, cat.getId());
+                costForPlace = costs.stream()
                     .map(c -> c.getRealRate().multiply(c.getTotalConsumption()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .multiply(consumptionForPlace)
+                    .divide(
+                        costs.stream()
+                            .map(Cost::getTotalConsumption)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add),
+                        6, RoundingMode.CEILING);
+            } else {
+                List<Forecast> forecasts = forecastFacade.findByPlaceIdAndCategoryIdAndYear(placeId, cat.getId(), year);
+                consumptionForPlace = forecasts.stream()
+                    .map(Forecast::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                BigDecimal multiplier;
-                if (rate.getAccountingRule() == AccountingRule.PERSON) {
-                    consumptionForPlace = BigDecimal.valueOf(place.getResidentsNumber());
-                    multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                } else if (rate.getAccountingRule() == AccountingRule.SURFACE) {
-                    consumptionForPlace = place.getSquareFootage();
-                    multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                } else { // METER
-                    List<Reading> readings = readingFacade.findReliableReadingsFromLastDayOfYear(
-                        placeId, cat.getId(), LocalDate.now().getYear());
-
-                    if (readings.size() == 2) {
-                        consumptionForPlace = readings.get(0).getValue().subtract(readings.get(1).getValue())
-                            .divide(totalConsumption, 6, RoundingMode.CEILING);
-                        multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                    } else if (readings.size() == 1) {
-                        consumptionForPlace = readings.get(0).getValue();
-                        multiplier = consumptionForPlace.divide(totalConsumption, 6, RoundingMode.CEILING);
-                    } else {
-                        consumptionForPlace = BigDecimal.ZERO;
-                        multiplier = BigDecimal.ZERO;
-                    }
-                }
-
-                costForPlace = totalCost.multiply(multiplier);
+                costForPlace = forecasts.stream()
+                    .map(Forecast::getRealValue)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
             }
-
             Report report = new Report(year, costForPlace, consumptionForPlace, place, cat);
             reportFacade.create(report);
         }

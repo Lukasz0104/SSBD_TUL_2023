@@ -41,7 +41,8 @@
     },
     "postal-code": {
       "required": "Postal code is required.",
-      "length": "Postal code must be 6 characters long."
+      "length": "Postal code must be 6 characters long.",
+      "pattern": "Invalid postal code."
     },
     "city": {
       "required": "City is required.",
@@ -513,7 +514,8 @@
       "loading": "Loading reports",
       "balance": "Balance",
       "average-rate": "Average rate",
-      "no-reports": "There are no reports for this place"
+      "no-reports": "There are no reports for this place",
+      "difference": "Difference"
     },
     "place-rates": {
       "loading": "Loading rates...",
@@ -823,7 +825,8 @@
         "optimistic_lock": "Register unsuccessful, please try again",
         "license-number-already-taken": "License number already taken",
         "email-address-already-taken": "Email address already taken",
-        "login-already-taken": "Login already taken"
+        "login-already-taken": "Login already taken",
+        "invalid_postal_code": "Invalid postal code."
       }
     }
   },

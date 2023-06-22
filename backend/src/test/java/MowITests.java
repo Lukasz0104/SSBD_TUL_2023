@@ -1511,8 +1511,8 @@ public class MowITests extends TestContainersSetup {
                     .findFirst()
                     .orElseThrow();
 
-                assertEquals(821.23, coldWaterForecast.getValue().doubleValue());
-                assertEquals(117.318, coldWaterForecast.getAmount().doubleValue());
+                assertEquals(1032.37, coldWaterForecast.getValue().doubleValue(), 0.01);
+                assertEquals(147.48, coldWaterForecast.getAmount().doubleValue(), 0.01);
             }
 
             @Test
@@ -2582,7 +2582,7 @@ public class MowITests extends TestContainersSetup {
             @Nested
             class CreatePlaceConstraintViolationTest {
                 @ParameterizedTest
-                @ValueSource(ints = {-100, -1, 0})
+                @ValueSource(ints = {-100, -1, 0, 1000001})
                 @NullSource
                 void shouldFailToCreatePlaceDueToInvalidPlaceNumberWithStatusCode400Test(Integer placeNumber) {
                     dto = new CreatePlaceDTO(placeNumber, BigDecimal.valueOf(53.45), 2, 1L);
@@ -2596,7 +2596,8 @@ public class MowITests extends TestContainersSetup {
                         .statusCode(400)
                         .body("message", in(List.of(
                             "placeNumber: must be greater than 0;",
-                            "placeNumber: must not be null;"
+                            "placeNumber: must not be null;",
+                            "placeNumber: must be less than or equal to 1000000;"
                         )));
                 }
 
@@ -3142,7 +3143,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3175,7 +3176,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                        "/place/2/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3187,7 +3188,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/2/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3220,7 +3221,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3271,7 +3272,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                        "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3283,7 +3284,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3334,7 +3335,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3380,7 +3381,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
+                        "/place/7/report/month?year=" + currentYear + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3392,7 +3393,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(managerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/7/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3837,7 +3838,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3864,7 +3865,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(onlyManagerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3897,7 +3898,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(onlyManagerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                        "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -3935,7 +3936,7 @@ public class MowITests extends TestContainersSetup {
                         .spec(onlyManagerSpec)
                         .when().get(
                             createReportUrl +
-                                "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
+                            "/place/5/report/month?year=" + currentYear + "&month=" + monthToCheck);
                     placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                     response.then().statusCode(Response.Status.OK.getStatusCode());
                     assertTrue(placeReportMonthDto.getDetails().stream()
@@ -4895,7 +4896,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -4918,7 +4919,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -4986,7 +4987,7 @@ public class MowITests extends TestContainersSetup {
                     .spec(managerSpec)
                     .when().get(
                         createReportUrl +
-                            "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
+                        "/place/9/report/month?year=" + now.getYear() + "&month=" + now.getMonthValue());
                 PlaceReportMonthDto placeReportMonthDto = response.as(PlaceReportMonthDto.class);
                 response.then().statusCode(Response.Status.OK.getStatusCode());
 
@@ -5932,7 +5933,7 @@ public class MowITests extends TestContainersSetup {
         @Test
         void shouldPassWhenRequestAsManager() {
             io.restassured.response.Response response = given().spec(onlyManagerSpec).when().get("costs?page=0" +
-                "&pageSize=10&asc=&year=2022&month=&categoryName=");
+                                                                                                 "&pageSize=10&asc=&year=2022&month=&categoryName=");
             response.then().statusCode(Response.Status.OK.getStatusCode());
 
             Page<CostDto> costDtoPage = response.getBody().as(Page.class);

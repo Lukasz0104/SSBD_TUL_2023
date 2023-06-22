@@ -12,7 +12,7 @@
             <label
                 for="placeNumberInput"
                 class="form-label">
-                {{ 'component.fields.place-number' | translate }}
+                {{ 'component.fields.place-number' | translate }} *
             </label>
             <input
                 formControlName="placeNumber"
@@ -38,13 +38,18 @@
                     {{ 'validation.place-number.min' | translate }}
                     {{ pnMinError['min'] }}.
                 </p>
+                <p
+                    *ngIf="pnErrors['max'] as pnMinError"
+                    class="mb-0">
+                    {{ 'validation.placeNumber.max' | translate }}
+                </p>
             </div>
         </div>
         <div class="mb-2 has-validation">
             <label
                 for="squareFootageInput"
                 class="form-label">
-                {{ 'component.fields.square-footage' | translate }}
+                {{ 'component.fields.square-footage' | translate }} *
             </label>
             <input
                 formControlName="squareFootage"
@@ -83,7 +88,7 @@
             <label
                 for="residentsNumberInput"
                 class="form-label">
-                {{ 'component.fields.residents-number' | translate }}
+                {{ 'component.fields.residents-number' | translate }} *
             </label>
             <input
                 formControlName="residentsNumber"

@@ -22,6 +22,7 @@ import pl.lodz.p.it.ssbd2023.ssbd05.shared.AbstractFacade;
 import pl.lodz.p.it.ssbd2023.ssbd05.shared.Page;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,5 +118,13 @@ public class RateFacade extends AbstractFacade<Rate> {
             .setParameter("categoryId", categoryId)
             .setMaxResults(1)
             .getSingleResult();
+    }
+
+    @PermitAll
+    public List<Rate> findByYearAndCategoryId(Year year, Long categoryId) {
+        return em.createNamedQuery("Rate.findByYearAndCategoryId", Rate.class)
+            .setParameter("categoryId", categoryId)
+            .setParameter("year", year.getValue())
+            .getResultList();
     }
 }

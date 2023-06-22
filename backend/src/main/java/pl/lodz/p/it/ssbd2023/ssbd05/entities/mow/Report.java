@@ -15,6 +15,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import pl.lodz.p.it.ssbd2023.ssbd05.entities.AbstractEntity;
 import pl.lodz.p.it.ssbd2023.ssbd05.mow.EntityControlListenerMOW;
 
@@ -22,6 +23,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Year;
 
+@ToString
 @Entity
 @Table(name = "report", uniqueConstraints = @UniqueConstraint(columnNames = {"year", "place_id", "category_id"}))
 @NoArgsConstructor

@@ -17,7 +17,8 @@ export class AddPlaceComponent {
     protected addPlaceForm = this.fb.group({
         placeNumber: this.fb.control(1, [
             Validators.required,
-            Validators.min(1)
+            Validators.min(1),
+            Validators.max(1000000)
         ]),
         squareFootage: this.fb.control(0.0, [
             Validators.required,

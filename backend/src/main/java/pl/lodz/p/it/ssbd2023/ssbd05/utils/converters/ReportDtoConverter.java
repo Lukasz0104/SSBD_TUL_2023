@@ -69,16 +69,16 @@ public class ReportDtoConverter {
                 .map(f -> f.getRate().getValue())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
             return new PlaceCategoryReportYearDto(
-                report.getTotalCost().setScale(2, RoundingMode.CEILING),
+                report.getTotalCost(),
                 report.getTotalConsumption(),
                 report.getCategory().getName(),
                 report.getCategory().getRates().iterator().next().getAccountingRule(),
                 forecastAmountSum,
-                forecastValueSum.setScale(2, RoundingMode.CEILING),
-                forecastValueSum.subtract(report.getTotalCost()).setScale(2, RoundingMode.CEILING),
+                forecastValueSum,
+                forecastValueSum.subtract(report.getTotalCost()),
                 forecastAmountSum.subtract(report.getTotalConsumption()),
                 rateSum.divide(BigDecimal.valueOf(12), 6, RoundingMode.CEILING)
-                    .setScale(2, RoundingMode.CEILING));
+            );
         })).toList();
     }
 
@@ -115,9 +115,9 @@ public class ReportDtoConverter {
         return new PlaceCategoryReportMonthDto(
             forecast.getRate().getCategory().getName(),
             forecast.getRate().getAccountingRule(),
-            forecast.getValue().setScale(2, RoundingMode.CEILING),
-            getValue(forecast.getRealValue()).setScale(2, RoundingMode.CEILING),
-            forecast.getValue().subtract(getValue(forecast.getRealValue())).setScale(2, RoundingMode.CEILING),
+            forecast.getValue(),
+            getValue(forecast.getRealValue()),
+            forecast.getValue().subtract(getValue(forecast.getRealValue())),
             forecast.getAmount(),
             forecast.getRate().getValue()
         );
@@ -136,9 +136,9 @@ public class ReportDtoConverter {
         return new PlaceCategoryReportMonthDto(
             categoryName,
             forecastsPerCategory.iterator().next().getRate().getAccountingRule(),
-            value.setScale(2, RoundingMode.CEILING),
-            realValue.setScale(2, RoundingMode.CEILING),
-            value.subtract(realValue).setScale(2, RoundingMode.CEILING),
+            value,
+            realValue,
+            value.subtract(realValue),
             forecastsPerCategory.stream().map(Forecast::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add),
             rateSum.divide(BigDecimal.valueOf(forecastsPerCategory.size()), 6, RoundingMode.CEILING)

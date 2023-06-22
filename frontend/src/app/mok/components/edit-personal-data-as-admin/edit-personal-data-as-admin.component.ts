@@ -15,6 +15,7 @@ import {
 } from 'rxjs';
 import { ConfirmActionComponent } from '../../../shared/components/confirm-action/confirm-action.component';
 import { AppConfigService } from '../../../shared/services/app-config.service';
+import { postalCodeValidator } from '../../../shared/validators/postal-code.validator';
 import { validLicenseNumberValidator } from '../../../shared/validators/valid-license-number.validator';
 
 @Component({
@@ -55,7 +56,8 @@ export class EditPersonalDataAsAdminComponent {
         postalCode: new FormControl('', [
             Validators.required,
             Validators.minLength(6),
-            Validators.maxLength(6)
+            Validators.maxLength(6),
+            postalCodeValidator
         ]),
         city: new FormControl('', [
             Validators.required,
@@ -81,7 +83,8 @@ export class EditPersonalDataAsAdminComponent {
         postalCode: new FormControl('', [
             Validators.required,
             Validators.minLength(6),
-            Validators.maxLength(6)
+            Validators.maxLength(6),
+            postalCodeValidator
         ]),
         city: new FormControl('', [
             Validators.required,

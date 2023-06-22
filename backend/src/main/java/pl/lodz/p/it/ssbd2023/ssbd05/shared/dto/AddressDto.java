@@ -5,11 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import pl.lodz.p.it.ssbd2023.ssbd05.utils.annotations.PostalCode;
 
 public record AddressDto(
-    @NotNull
-    @NotBlank
-    @Size(min = 6, max = 6)
+    @PostalCode
     String postalCode,
 
     @NotNull
