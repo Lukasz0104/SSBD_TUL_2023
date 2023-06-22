@@ -37,9 +37,19 @@ public class ReportSystemTaskManager {
     @Inject
     private RollbackUtils rollbackUtils;
 
-    @Schedule(dayOfMonth = "1", month = "1")
+    @Schedule(dayOfMonth = "1", month = "1", minute = "15")
     private void createReports() {
-        List<Place> places = placeFacade.findByActive(true);
+        List<Place> places;
+        try {
+            places = placeFacade.findByActive(true);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Exception while retrieving active places before generating reports: ", e);
+            return;
+        }
+
+        if (places == null || places.isEmpty()) {
+            return;
+        }
 
         for (var place : places) {
             try {

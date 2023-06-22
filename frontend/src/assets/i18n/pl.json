@@ -514,7 +514,8 @@
       "loading": "Ładowanie raportów",
       "balance": "Saldo",
       "average-rate": "Średnia stawka",
-      "no-reports": "Ten lokal nie posiada jeszcze raportów"
+      "no-reports": "Ten lokal nie posiada jeszcze raportów",
+      "difference": "Różnica"
     },
     "place-rates": {
       "loading": "Ładowanie stawek...",
